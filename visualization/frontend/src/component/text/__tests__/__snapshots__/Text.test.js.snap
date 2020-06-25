@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Text /> should match a snapshot for <Text /> 1`] = `
+<div>
+  <div>
+    hello, Welcome to bharatsim
+  </div>
+</div>
+`;

@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`] = `
+<div>
+  <div
+    class="react-grid-layout"
+    style="height: 330px; background: gray;"
+  >
+    <div
+      class="react-grid-item react-draggable cssTransforms react-resizable"
+      style="width: -12px; height: 310px; position: absolute; transform: translate(10px,10px);"
+    >
+      Hello text
+      <span
+        class="react-resizable-handle react-resizable-handle-se"
+      />
+    </div>
+  </div>
+</div>
+`;
