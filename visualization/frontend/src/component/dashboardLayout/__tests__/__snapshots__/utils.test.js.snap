@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Dashboard layout utils Create element should provide element with data-grid 1`] = `
+<div>
+  <div
+    data-grid="[object Object]"
+    data-testid="id-1"
+  >
+    Hello, Welcome
+  </div>
+</div>
+`;

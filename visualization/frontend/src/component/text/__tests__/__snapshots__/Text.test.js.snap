@@ -2,8 +2,10 @@
 
 exports[`<Text /> should match a snapshot for <Text /> 1`] = `
 <div>
-  <div>
+  <h6
+    class="MuiTypography-root MuiTypography-h6"
+  >
     hello, Welcome to bharatsim
-  </div>
+  </h6>
 </div>
 `;

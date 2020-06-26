@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`] = `
+<div>
+  <div
+    class="MuiBox-root MuiBox-root-1"
+  >
+    <div
+      class="MuiBox-root MuiBox-root-2"
+    >
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiButton-label"
+        >
+          Add Widget
+        </span>
+        <span
+          class="MuiTouchRipple-root"
+        />
+      </button>
+    </div>
+    <div
+      class="react-grid-layout"
+      style="height: 330px; background: gray;"
+    >
+      <div
+        class="react-grid-item react-draggable cssTransforms react-resizable"
+        data-grid="[object Object]"
+        data-testid="0"
+        style="width: -12px; height: 310px; position: absolute; transform: translate(10px,10px);"
+      >
+        Hello text
+        <span
+          class="react-resizable-handle react-resizable-handle-se"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;
