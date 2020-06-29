@@ -8,8 +8,10 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.19.2",
+    "chart.js": "^2.9.3",
     "http-proxy-middleware": "^1.0.4",
     "react": "^16.13.1",
+    "react-chartjs-2": "^2.9.0",
     "react-dom": "^16.13.1",
     "react-grid-layout": "^0.18.3",
     "react-resizable": "^1.10.1",
@@ -18,7 +20,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --watchAll=false --coverage",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -38,6 +40,8 @@
   },
   "devDependencies": {
     "@testing-library/react-hooks": "^3.3.0",
+    "canvas": "^2.6.1",
+    "jest-canvas-mock": "^2.2.0",
     "react-test-renderer": "^16.9.0"
   }
 }

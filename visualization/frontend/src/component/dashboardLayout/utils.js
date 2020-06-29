@@ -1,10 +1,10 @@
 import Text from "../text/Text";
 import React from "react";
-
+import LineChart from "../lineChart/LineChart.js"
 export function createElement(element) {
   return (
     <div key={element.i} data-grid={element} data-testid={element.i}>
-      <Text />
+      <LineChart />
     </div>
   );
 }

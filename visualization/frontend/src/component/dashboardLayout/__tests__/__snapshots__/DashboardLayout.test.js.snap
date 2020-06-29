@@ -33,7 +33,12 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
         data-testid="0"
         style="width: -12px; height: 310px; position: absolute; transform: translate(10px,10px);"
       >
-        Hello text
+        <canvas
+          class="chartjs-render-monitor"
+          height="0"
+          style="display: block;"
+          width="0"
+        />
         <span
           class="react-resizable-handle react-resizable-handle-se"
         />
