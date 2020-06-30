@@ -5,9 +5,9 @@ import useFetch from "../../hook/useFetch";
 
 const options={ maintainAspectRatio: false, responsive: true }
 
-export default React.forwardRef(function BasicLineChart(_,ref) {
-
-  const csvData = useFetch(url.DATA)
+function BasicLineChart(props,ref) {
+  const {config = {}} = props;
+  const csvData = useFetch({url:url.DATA, query: {columns: [config.xColumn, config.yColumn]}})
 
   const data = {
     labels: csvData && csvData.columns.hour,
@@ -39,4 +39,7 @@ export default React.forwardRef(function BasicLineChart(_,ref) {
   return (
       <Line ref={ref} data={data} options={options} />
   );
-})
+}
+
+export default React.forwardRef(BasicLineChart)
+

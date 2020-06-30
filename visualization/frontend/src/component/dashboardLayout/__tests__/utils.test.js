@@ -2,7 +2,7 @@ import React from "react";
 import {render} from '@testing-library/react'
 import {createElement, getInitialLayout} from "../utils";
 
-jest.mock("../../text/Text", () => () => {
+jest.mock("../../lineChart/LineChart.js", () => () => {
   return <>Hello, Welcome</>
 })
 

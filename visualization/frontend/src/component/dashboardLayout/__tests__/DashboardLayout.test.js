@@ -16,8 +16,10 @@ describe('<DashboardLayout />', function () {
     const addWidgetButton = getByText(/Add Widget/i);
 
     fireEvent.click(addWidgetButton);
-
+    const confirmOk = getByText(/ok/i);
+    fireEvent.click(confirmOk);
     const newWidget= getByTestId("n0");
     expect(newWidget).toBeInTheDocument();
   });
+
 });
