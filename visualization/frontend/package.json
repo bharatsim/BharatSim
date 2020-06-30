@@ -10,6 +10,7 @@
     "axios": "0.19.2",
     "chart.js": "2.9.3",
     "http-proxy-middleware": "1.0.4",
+    "prop-types": "^15.7.2",
     "react": "16.13.1",
     "react-chartjs-2": "2.9.0",
     "react-dom": "16.13.1",
@@ -82,6 +83,7 @@
     "@typescript-eslint/eslint-plugin": "2.x",
     "@typescript-eslint/parser": "2.x",
     "babel-eslint": "10.x",
+    "canvas": "2.6.1",
     "eslint": "6.x",
     "eslint-config-airbnb": "18.2.0",
     "eslint-config-prettier": "6.11.0",
@@ -92,11 +94,10 @@
     "eslint-plugin-react": "7.x",
     "eslint-plugin-react-hooks": "2.x",
     "husky": "4.2.5",
+    "jest-canvas-mock": "2.2.0",
     "lint-staged": "10.2.11",
     "prettier": "2.0.5",
     "pretty-quick": "2.0.1",
-    "react-test-renderer": "16.9.0",
-    "canvas": "2.6.1",
-    "jest-canvas-mock": "2.2.0"
+    "react-test-renderer": "16.9.0"
   }
 }

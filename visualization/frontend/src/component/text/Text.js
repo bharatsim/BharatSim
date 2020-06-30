@@ -1,13 +1,17 @@
-import React from "react";
-import {Typography} from "@material-ui/core";
+import React from 'react';
+import { Typography } from '@material-ui/core';
 
-import {url} from "../../utils/url";
+import { url } from '../../utils/url';
 
-import useFetch from "../../hook/useFetch";
+import useFetch from '../../hook/useFetch';
 
 const Text = () => {
-  const text = useFetch({url: url.HELLO})
-  return <><Typography variant="h6">{text}</Typography></>
-}
+  const text = useFetch({ url: url.HELLO });
+  return (
+    <>
+      <Typography variant="h6">{text}</Typography>
+    </>
+  );
+};
 
 export default Text;

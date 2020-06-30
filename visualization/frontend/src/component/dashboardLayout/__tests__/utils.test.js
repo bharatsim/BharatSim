@@ -1,36 +1,36 @@
-import React from "react";
-import {render} from '@testing-library/react'
-import {createElement, getInitialLayout, getNewWidgetLayout} from "../utils";
+import React from 'react';
+import { render } from '@testing-library/react';
+import { createElement, getInitialLayout, getNewWidgetLayout } from '../utils';
 
-jest.mock("../../lineChart/LineChart.js", () => () => {
-  return <>Hello, Welcome</>
-})
+jest.mock('../../lineChart/LineChart.js', () => () => <>Hello, Welcome</>);
 
-describe('Dashboard layout utils', function () {
-  describe("Create element", () => {
+describe('Dashboard layout utils', () => {
+  describe('Create element', () => {
     it('should provide element with data-grid', () => {
-      const element = createElement({i: 'id-1'});
-      const {container} = render(<>{element}</>);
+      const element = createElement({ i: 'id-1' });
+      const { container } = render(<>{element}</>);
 
       expect(container).toMatchSnapshot();
-    })
-  })
+    });
+  });
 
-  describe("getInitialLayout", () => {
-    it('should provide layout for initial widget',  () => {
+  describe('getInitialLayout', () => {
+    it('should provide layout for initial widget', () => {
       const layout = getInitialLayout();
 
-      expect(layout).toEqual([{
-        i: 'widget-0',
-        x: 0,
-        y: 0,
-        w: 2,
-        h: 2,
-      }]);
-    })
-  })
+      expect(layout).toEqual([
+        {
+          i: 'widget-0',
+          x: 0,
+          y: 0,
+          w: 2,
+          h: 2,
+        },
+      ]);
+    });
+  });
 
-  describe("getNewWidgetLayout", () => {
+  describe('getNewWidgetLayout', () => {
     it('should provide layout for newly added widget', () => {
       const numberOfWidgetAdded = 2;
       const cols = 12;
@@ -45,6 +45,6 @@ describe('Dashboard layout utils', function () {
         w: 2,
         h: 2,
       });
-    })
-  })
+    });
+  });
 });

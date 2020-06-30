@@ -19,8 +19,8 @@ const chartConfig = {
       pointHoverBorderWidth: 2,
       pointRadius: 1,
       pointHitRadius: 10,
-    }
-  ]
-}
+    },
+  ],
+};
 
 export default chartConfig;

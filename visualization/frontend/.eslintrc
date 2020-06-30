@@ -19,9 +19,9 @@
         "*.test.js"
       ],
       "rules": {
-        "no-unused-expressions": "off",
         "react/prop-types": "off",
-        "arrow-body-style": "warn"
+        "arrow-body-style": "warn",
+        "react/jsx-props-no-spreading": "off",
       }
     }
   ],
@@ -49,6 +49,9 @@
       "warn"
     ],
     "import/prefer-default-export": [
+      "off"
+    ],
+    "no-use-before-define": [
       "off"
     ]
   }

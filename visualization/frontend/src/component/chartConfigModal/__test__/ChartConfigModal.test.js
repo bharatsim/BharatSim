@@ -1,30 +1,29 @@
-import React from "react";
-import {fireEvent, render} from "@testing-library/react";
+import React from 'react';
+import { fireEvent, render, within } from '@testing-library/react';
 
-import ChartConfigModal from "../ChartConfigModal";
-import useFetch from "../../../hook/useFetch";
-import {within} from "@testing-library/dom";
+import ChartConfigModal from '../ChartConfigModal';
+import useFetch from '../../../hook/useFetch';
 
-jest.mock('../../../hook/useFetch')
-describe('<ChartConfigModal />',  () => {
+jest.mock('../../../hook/useFetch');
+describe('<ChartConfigModal />', () => {
   const props = {
     onCancel: jest.fn(),
     onOk: jest.fn(),
     open: true,
-  }
+  };
 
   beforeEach(() => {
-    useFetch.mockReturnValue({headers: ["x-header", "y-header"]})
-  })
-
-  it('should match a snapshot for <ChartConfigModal />',  () => {
-    render(<ChartConfigModal {...props}/>);
-
-    expect(document.querySelector(".MuiPaper-root")).toMatchSnapshot();
+    useFetch.mockReturnValue({ headers: ['x-header', 'y-header'] });
   });
 
-  it('should provide selected chart config to onOK callback',  () => {
-    render(<ChartConfigModal {...props}/>);
+  it('should match a snapshot for <ChartConfigModal />', () => {
+    render(<ChartConfigModal {...props} />);
+
+    expect(document.querySelector('.MuiPaper-root')).toMatchSnapshot();
+  });
+
+  it('should provide selected chart config to onOK callback', () => {
+    render(<ChartConfigModal {...props} />);
     const configModal = within(document.querySelector('.MuiPaper-root'));
 
     const xAxisDropDown = configModal.getByTestId('dropdown-x');
@@ -40,11 +39,11 @@ describe('<ChartConfigModal />',  () => {
     const okButton = configModal.getByText(/Ok/i);
     fireEvent.click(okButton);
 
-    expect(props.onOk).toHaveBeenCalledWith({"xColumn": "x-header", "yColumn": "y-header"})
+    expect(props.onOk).toHaveBeenCalledWith({ xColumn: 'x-header', yColumn: 'y-header' });
   });
 
-  it('should close select config modal on cancel click',  () => {
-    render(<ChartConfigModal {...props}/>);
+  it('should close select config modal on cancel click', () => {
+    render(<ChartConfigModal {...props} />);
     const configModal = within(document.querySelector('.MuiPaper-root'));
 
     const cancelButton = configModal.getByText(/Cancel/i);
@@ -52,5 +51,4 @@ describe('<ChartConfigModal />',  () => {
 
     expect(props.onCancel).toHaveBeenCalled();
   });
-
 });

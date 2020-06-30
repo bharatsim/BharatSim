@@ -1,33 +1,39 @@
-import React from "react";
-import {fireEvent, render, within} from "@testing-library/react";
+import React from 'react';
+import { fireEvent, render, within } from '@testing-library/react';
 
-import DashboardLayout from "../DashboardLayout";
-import useFetch from "../../../hook/useFetch";
+import DashboardLayout from '../DashboardLayout';
+import useFetch from '../../../hook/useFetch';
 
-jest.mock('../../lineChart/LineChart', () => (props) => <div>Line Chart<span>{mockPropsCapture(props)}</span></div>)
+jest.mock('../../lineChart/LineChart', () => (props) => (
+  <div>
+    Line Chart
+    {/* eslint-disable-next-line no-undef */}
+    <span>{mockPropsCapture(props)}</span>
+  </div>
+));
 jest.mock('../../../hook/useFetch');
 
 describe('<DashboardLayout />', () => {
   beforeEach(() => {
-    useFetch.mockReturnValue({headers: ["x-header", "y-header"]})
-  })
+    useFetch.mockReturnValue({ headers: ['x-header', 'y-header'] });
+  });
 
-  it('should match a snapshot for <DashboardLayout />',  () => {
-    const {container} = render(<DashboardLayout/>);
+  it('should match a snapshot for <DashboardLayout />', () => {
+    const { container } = render(<DashboardLayout />);
 
     expect(container).toMatchSnapshot();
   });
 
-  it('should provide dashboard with default widget',  () => {
-    const {getByTestId} = render(<DashboardLayout/>);
+  it('should provide dashboard with default widget', () => {
+    const { getByTestId } = render(<DashboardLayout />);
 
-    const widget = getByTestId("widget-0");
+    const widget = getByTestId('widget-0');
 
     expect(widget).toBeInTheDocument();
   });
 
   it('should add new widget', () => {
-    const {getByText,getByTestId} = render(<DashboardLayout />);
+    const { getByText, getByTestId } = render(<DashboardLayout />);
 
     const addWidgetButton = getByText(/Add widget/i);
     fireEvent.click(addWidgetButton);
@@ -47,9 +53,9 @@ describe('<DashboardLayout />', () => {
     const okButton = configModal.getByText(/Ok/i);
     fireEvent.click(okButton);
 
-    const widget = getByTestId("widget-1");
+    const widget = getByTestId('widget-1');
 
     expect(widget).toBeInTheDocument();
     expect(widget).toMatchSnapshot();
-  })
+  });
 });

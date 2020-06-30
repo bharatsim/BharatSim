@@ -1,5 +1,5 @@
 import React from 'react';
-import DashboardLayout from "./component/dashboardLayout/DashboardLayout";
+import DashboardLayout from './component/dashboardLayout/DashboardLayout';
 
 function App() {
   return (
@@ -7,7 +7,6 @@ function App() {
       Welcome to BharatSim Visualization
       <DashboardLayout />
     </>
-
   );
 }
 

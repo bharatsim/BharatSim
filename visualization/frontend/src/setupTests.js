@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom/extend-expect';
 import 'jest-canvas-mock';
 
-global.mockPropsCapture = props => {
+global.mockPropsCapture = (props) => {
   return Object.entries(props).map(([key, value]) => {
     let actualValue;
     switch (typeof value) {

@@ -1,7 +1,5 @@
-function updateState(prevState,updatedValue){
-  return Object.assign({},prevState,updatedValue)
+function updateState(prevState, updatedValue) {
+  return { ...prevState, ...updatedValue };
 }
 
-export {
-  updateState,
-}
+export { updateState };

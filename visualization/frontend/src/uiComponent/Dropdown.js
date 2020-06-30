@@ -1,9 +1,7 @@
-import React, {useState} from 'react';
-import {makeStyles} from '@material-ui/core/styles';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+
+import { makeStyles, InputLabel, MenuItem, FormControl, Select } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -16,12 +14,17 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const renderMenuItems = (id, options) => {
-  return options && options.map(option =>
-    <MenuItem value={option} key={option} id={`${id}-${option}`}>{option}</MenuItem>
-)};
+  return (
+    options &&
+    options.map((option) => (
+      <MenuItem value={option} key={option} id={`${id}-${option}`}>
+        {option}
+      </MenuItem>
+    ))
+  );
+};
 
-
-export default function Dropdown({label, options, id, onChange}) {
+export default function Dropdown({ label, options, id, onChange }) {
   const classes = useStyles();
   const [value, setValue] = useState('');
 
@@ -33,16 +36,16 @@ export default function Dropdown({label, options, id, onChange}) {
   return (
     <FormControl variant="outlined" className={classes.formControl}>
       <InputLabel id="dropdown-label">{label}</InputLabel>
-      <Select
-        labelId="dropdown-label"
-        id={id}
-        value={value}
-        onChange={handleChange}
-        label={label}
-        data-testid={id}
-      >
+      <Select labelId="dropdown-label" id={id} value={value} onChange={handleChange} label={label} data-testid={id}>
         {renderMenuItems(id, options)}
       </Select>
     </FormControl>
   );
 }
+
+Dropdown.propTypes = {
+  label: PropTypes.string.isRequired,
+  options: PropTypes.arrayOf(PropTypes.string).isRequired,
+  id: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+};

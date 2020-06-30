@@ -1,15 +1,16 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Line } from 'react-chartjs-2';
 
-import {url} from "../../utils/url";
-import useFetch from "../../hook/useFetch";
-import chartConfig from "./lineChartConfig";
+import { url } from '../../utils/url';
+import useFetch from '../../hook/useFetch';
+import chartConfig from './lineChartConfig';
 
-const options={ maintainAspectRatio: false, responsive: true }
+const options = { maintainAspectRatio: false, responsive: true };
 
-function BasicLineChart(props,ref) {
-  const {config = {}} = props;
-  const csvData = useFetch({url:url.DATA, query: {columns: [config.xColumn, config.yColumn]}})
+function BasicLineChart(props, ref) {
+  const { config = {} } = props;
+  const csvData = useFetch({ url: url.DATA, query: { columns: [config.xColumn, config.yColumn] } });
 
   const data = {
     labels: csvData && csvData.columns.hour,
@@ -21,10 +22,11 @@ function BasicLineChart(props,ref) {
     ],
   };
 
-  return (
-      <Line ref={ref} data={data} options={options} />
-  );
+  return <Line ref={ref} data={data} options={options} />;
 }
 
-export default React.forwardRef(BasicLineChart)
+BasicLineChart.propTypes = {
+  config: PropTypes.shape().isRequired,
+};
 
+export default React.forwardRef(BasicLineChart);
