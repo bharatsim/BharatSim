@@ -15,6 +15,12 @@ function getData() {
     return {columns: {hour, exposed}}
 }
 
+function getHeaders() {
+    const csvData = parseCSV();
+    return {headers: Object.keys(csvData.data[0])}
+}
+
 module.exports = {
-    getData
+    getData,
+    getHeaders
 }

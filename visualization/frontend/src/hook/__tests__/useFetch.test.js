@@ -14,10 +14,11 @@ describe('Use fetch hook', () => {
   })
 
   it('should return fetch data for given url and method', async function () {
-    const {result, waitForNextUpdate} = renderHook(() => useFetch('/test/api', httpMethods.GET));
+    const {result, waitForNextUpdate} = renderHook(() => useFetch({url:'/test/api', method:httpMethods.GET}));
 
     await waitForNextUpdate();
 
     expect(result.current).toEqual('Hello Welcome')
+    expect(fetch).toHaveBeenCalledWith({ "method": "get",  "url": "/test/api"})
   });
 })

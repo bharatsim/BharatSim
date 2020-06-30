@@ -13,4 +13,8 @@ describe("csvService", ()=>{
         const data = csvService.getData();
         expect(data).toEqual({columns: {exposed: [2, 3], "hour": [1, 2]}})
     })
+    it("should get headers from csv", ()=>{
+        const data = csvService.getHeaders();
+        expect(data).toEqual({headers: ["hour", "susceptible", "exposed", "infected", "hospitalized", "recovered", "deceased"]});
+    })
 })

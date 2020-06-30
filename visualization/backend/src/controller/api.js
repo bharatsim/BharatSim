@@ -7,4 +7,7 @@ router.get('/data', function (req, res) {
     res.json(csvService.getData())
 })
 
+router.get('/headers', function (req, res) {
+    res.json(csvService.getHeaders())
+})
 module.exports=router;

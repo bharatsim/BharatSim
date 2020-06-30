@@ -1,5 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`<DashboardLayout /> should add new widget 1`] = `
+<div
+  class="react-grid-item react-draggable cssTransforms react-resizable"
+  data-grid="[object Object]"
+  data-testid="widget-1"
+  style="transform: translate(8px,10px); width: -12px; height: 310px; position: absolute;"
+>
+  <div>
+    Line Chart
+    <span>
+      config = [object Object]
+    </span>
+  </div>
+  <span
+    class="react-resizable-handle react-resizable-handle-se"
+  />
+</div>
+`;
+
 exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`] = `
 <div>
   <div
@@ -30,15 +49,15 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
       <div
         class="react-grid-item react-draggable cssTransforms react-resizable"
         data-grid="[object Object]"
-        data-testid="0"
+        data-testid="widget-0"
         style="width: -12px; height: 310px; position: absolute; transform: translate(10px,10px);"
       >
-        <canvas
-          class="chartjs-render-monitor"
-          height="0"
-          style="display: block;"
-          width="0"
-        />
+        <div>
+          Line Chart
+          <span>
+            config = undefined
+          </span>
+        </div>
         <span
           class="react-resizable-handle react-resizable-handle-se"
         />

@@ -1,8 +1,8 @@
 import React from "react";
 import {render} from '@testing-library/react'
-import {createElement, getInitialLayout} from "../utils";
+import {createElement, getInitialLayout, getNewWidgetLayout} from "../utils";
 
-jest.mock("../../text/Text", () => () => {
+jest.mock("../../lineChart/LineChart.js", () => () => {
   return <>Hello, Welcome</>
 })
 
@@ -17,16 +17,34 @@ describe('Dashboard layout utils', function () {
   })
 
   describe("getInitialLayout", () => {
-    it('should provide element with data-grid', () => {
+    it('should provide layout for initial widget',  () => {
       const layout = getInitialLayout();
 
       expect(layout).toEqual([{
-        i: '0',
+        i: 'widget-0',
         x: 0,
         y: 0,
         w: 2,
         h: 2,
       }]);
+    })
+  })
+
+  describe("getNewWidgetLayout", () => {
+    it('should provide layout for newly added widget', () => {
+      const numberOfWidgetAdded = 2;
+      const cols = 12;
+      const count = 1;
+
+      const layout = getNewWidgetLayout(numberOfWidgetAdded, cols, count);
+
+      expect(layout).toEqual({
+        i: 'widget-1',
+        x: 4,
+        y: Infinity,
+        w: 2,
+        h: 2,
+      });
     })
   })
 });
