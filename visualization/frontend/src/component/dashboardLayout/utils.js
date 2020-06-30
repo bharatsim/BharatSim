@@ -1,5 +1,6 @@
 import React from "react";
 import LineChart from "../lineChart/LineChart.js"
+
 export function createElement(element) {
   return (
     <div key={element.i} data-grid={element} data-testid={element.i}>
@@ -9,13 +10,31 @@ export function createElement(element) {
 }
 
 export function getInitialLayout() {
-  return [0].map(function (i, key, list) {
-    return {
-      i: i.toString(),
-      x: i * 2,
-      y: 0,
-      w: 2,
-      h: 2,
-    };
-  });
+    return [createLayout({
+      id: `widget-0`,
+      xPosition: 0,
+      yPosition: 0,
+      width: 2,
+      height: 2,
+    })];
+}
+
+export function getNewWidgetLayout(numberOfWidgetAdded, cols, count) {
+  return createLayout({
+    id: `widget-${count}`,
+    xPosition: (numberOfWidgetAdded * 2) % (cols),
+    yPosition: Infinity, // puts it at the bottom
+    width: 2,
+    height: 2,
+  })
+}
+
+function createLayout({id, xPosition, yPosition, width, height}){
+  return {
+    i: id,
+    x: xPosition,
+    y: yPosition,
+    w: width,
+    h: height,
+  }
 }

@@ -1,47 +1,56 @@
 import React from "react";
-import {fireEvent, render, within, wait} from "@testing-library/react";
+import {fireEvent, render} from "@testing-library/react";
 
 import ChartConfigModal from "../ChartConfigModal";
 import useFetch from "../../../hook/useFetch";
-import labels from '../../../constants/labels'
+import {within} from "@testing-library/dom";
 
 jest.mock('../../../hook/useFetch')
-describe('<ChartConfigModal />', function () {
-  const mockOnCancel = jest.fn()
-  const mockOnOK = jest.fn()
+describe('<ChartConfigModal />',  () => {
+  const props = {
+    onCancel: jest.fn(),
+    onOk: jest.fn(),
+    open: true,
+  }
 
-  beforeEach(()=>{
+  beforeEach(() => {
     useFetch.mockReturnValue({headers: ["x-header", "y-header"]})
   })
 
-  it('should match a snapshot for <ChartConfigModal />', function () {
-    const {container} = render(<ChartConfigModal />);
+  it('should match a snapshot for <ChartConfigModal />',  () => {
+    render(<ChartConfigModal {...props}/>);
 
-    expect(container).toMatchSnapshot();
+    expect(document.querySelector(".MuiPaper-root")).toMatchSnapshot();
   });
 
-  it('should add', async () => {
-    const {container, getByText,debug, getByTestId, getByRole, waitForNextUpdate} = render(<ChartConfigModal open={true} onOk={mockOnOK} onCancel={mockOnCancel} />);
+  it('should provide selected chart config to onOK callback',  () => {
+    render(<ChartConfigModal {...props}/>);
+    const configModal = within(document.querySelector('.MuiPaper-root'));
 
-    const selectX = getByTestId('select-x')
-    const selectY = getByTestId('select-y')
+    const xAxisDropDown = configModal.getByTestId('dropdown-x');
+    fireEvent.mouseDown(within(xAxisDropDown).getByRole('button'));
+    const optionListX = within(document.querySelector('ul'));
+    fireEvent.click(optionListX.getByText('x-header'));
 
-    fireEvent.click(selectX);
+    const yAxisDropDown = configModal.getByTestId('dropdown-y');
+    fireEvent.mouseDown(within(yAxisDropDown).getByRole('button'));
+    const optionListY = within(document.querySelectorAll('ul')[1]);
+    fireEvent.click(optionListY.getByText('y-header'));
 
-    await wait(()=>{
-      const listbox = within(getByRole('listbox'));
-      console.log(listbox)
-    })
-    // const menuXColumn = ;
-    // console.log(menuXColumn)
-    //
-    // fireEvent.click(menuXColumn);
-    // fireEvent.click(selectY);
-    // const menuYColumn = getByText(/y-header/i);
-    // fireEvent.click(menuYColumn);
-    // fireEvent.click(getByText(/ok/i));
-    //
-    // expect(mockOnOK).toHaveBeenCalledWith({config: {xColumn: 'x-column', yColumn:''}});
-  },10000);
+    const okButton = configModal.getByText(/Ok/i);
+    fireEvent.click(okButton);
+
+    expect(props.onOk).toHaveBeenCalledWith({"xColumn": "x-header", "yColumn": "y-header"})
+  });
+
+  it('should close select config modal on cancel click',  () => {
+    render(<ChartConfigModal {...props}/>);
+    const configModal = within(document.querySelector('.MuiPaper-root'));
+
+    const cancelButton = configModal.getByText(/Cancel/i);
+    fireEvent.click(cancelButton);
+
+    expect(props.onCancel).toHaveBeenCalled();
+  });
 
 });

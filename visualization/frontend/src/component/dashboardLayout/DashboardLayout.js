@@ -6,42 +6,33 @@ import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import './index.css'
 
-import {createElement, getInitialLayout} from './utils'
+import {createElement, getInitialLayout, getNewWidgetLayout} from './utils'
 import labels from '../../constants/labels'
 import ChartConfigModal from '../chartConfigModal/ChartConfigModal'
+import useModal from "../../hook/useModal";
 
 const GridLayout = WidthProvider(ReactGridLayout);
 const cols = 12
 
 const DashboardLayout = () => {
-  const [items, setItems] = useState(getInitialLayout());
-  const [count, setCount] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [widgets, setWidgets] = useState(getInitialLayout());
+  const [count, setCount] = useState(1);
   const [layout, setLayout] = useState();
 
+  const {isOpen, closeModal, openModal} = useModal();
+
   const addItem = (config) => {
-    setItems((prevItems) => {
-      return prevItems.concat({
-        i: 'n' + count,
-        x: (prevItems.length * 2) % (cols),
-        y: Infinity, // puts it at the bottom
-        w: 2,
-        h: 2,
+    setWidgets((prevWidgets) => {
+      return prevWidgets.concat({
+        ...getNewWidgetLayout(prevWidgets.length, cols, count),
         config
       });
     });
     setCount((prevCount) => prevCount + 1);
   };
 
-  const openModal = () =>{
-    setIsModalOpen(true);
-  }
-  const closeModal = () =>{
-    setIsModalOpen(false);
-  }
-
-  const handleModalOk = (config) =>{
+  const handleModalOk = (config) => {
     addItem(config)
     closeModal();
   }
@@ -56,11 +47,11 @@ const DashboardLayout = () => {
         <Button onClick={openModal} variant="contained" color="primary">{labels.dashboardLayout.ADD_WIDGET}</Button>
       </Box>
       <GridLayout layout={layout} style={{background: 'gray'}} onLayoutChange={onLayoutChange}>
-        {items.map((item) => {
+        {widgets.map((item) => {
           return createElement(item);
         })}
       </GridLayout>
-      <ChartConfigModal onCancel={closeModal} onOk={handleModalOk} open={isModalOpen}/>
+      <ChartConfigModal onCancel={closeModal} onOk={handleModalOk} open={isOpen}/>
     </Box>
   )
 }

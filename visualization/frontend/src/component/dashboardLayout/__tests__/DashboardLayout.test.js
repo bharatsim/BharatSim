@@ -1,25 +1,55 @@
 import React from "react";
-import {fireEvent, render} from "@testing-library/react";
+import {fireEvent, render, within} from "@testing-library/react";
 
 import DashboardLayout from "../DashboardLayout";
-jest.mock("../../text/Text",()=>()=><>Hello text</>);
+import useFetch from "../../../hook/useFetch";
 
-describe('<DashboardLayout />', function () {
-  it('should match a snapshot for <DashboardLayout />', function () {
-    const {container} = render(<DashboardLayout />);
+jest.mock('../../lineChart/LineChart', () => (props) => <div>Line Chart<span>{mockPropsCapture(props)}</span></div>)
+jest.mock('../../../hook/useFetch');
+
+describe('<DashboardLayout />', () => {
+  beforeEach(() => {
+    useFetch.mockReturnValue({headers: ["x-header", "y-header"]})
+  })
+
+  it('should match a snapshot for <DashboardLayout />',  () => {
+    const {container} = render(<DashboardLayout/>);
 
     expect(container).toMatchSnapshot();
   });
 
-  it('should add new widget on click of add widget button', function () {
-    const {container, getByText, getByTestId} = render(<DashboardLayout />);
-    const addWidgetButton = getByText(/Add Widget/i);
+  it('should provide dashboard with default widget',  () => {
+    const {getByTestId} = render(<DashboardLayout/>);
 
-    fireEvent.click(addWidgetButton);
-    const confirmOk = getByText(/ok/i);
-    fireEvent.click(confirmOk);
-    const newWidget= getByTestId("n0");
-    expect(newWidget).toBeInTheDocument();
+    const widget = getByTestId("widget-0");
+
+    expect(widget).toBeInTheDocument();
   });
 
+  it('should add new widget', () => {
+    const {getByText,getByTestId} = render(<DashboardLayout />);
+
+    const addWidgetButton = getByText(/Add widget/i);
+    fireEvent.click(addWidgetButton);
+
+    const configModal = within(document.querySelector('.MuiPaper-root'));
+
+    const xAxisDropDown = configModal.getByTestId('dropdown-x');
+    fireEvent.mouseDown(within(xAxisDropDown).getByRole('button'));
+    const optionListX = within(document.querySelector('ul'));
+    fireEvent.click(optionListX.getByText(/x-header/i));
+
+    const yAxisDropDown = configModal.getByTestId('dropdown-y');
+    fireEvent.mouseDown(within(yAxisDropDown).getByRole('button'));
+    const optionListY = within(document.querySelectorAll('ul')[1]);
+    fireEvent.click(optionListY.getByText(/y-header/i));
+
+    const okButton = configModal.getByText(/Ok/i);
+    fireEvent.click(okButton);
+
+    const widget = getByTestId("widget-1");
+
+    expect(widget).toBeInTheDocument();
+    expect(widget).toMatchSnapshot();
+  })
 });
