@@ -16,11 +16,20 @@ describe("api", ()=>{
         await request(app).get('/data')
             .expect(200)
             .expect({columns: {exposed: [2, 3], hour: [1, 2]}})
+        expect(csvService.getData).toHaveBeenCalled()
+    })
+
+    it("should get data for requested columns", async ()=>{
+        await request(app).get('/data').query({ columns: ['expose','hour'] })
+            .expect(200)
+            .expect({columns: {exposed: [2, 3], hour: [1, 2]}})
+        expect(csvService.getData).toHaveBeenCalledWith(['expose','hour'])
     })
 
     it("should get headers", async ()=>{
         await request(app).get('/headers')
             .expect(200)
             .expect({headers: ["hour", "susceptible"]})
+        expect(csvService.getHeaders).toHaveBeenCalled()
     })
 })

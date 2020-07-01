@@ -12,11 +12,11 @@ const BasicLineChart = forwardRef(({ config }, ref) => {
   const csvData = useFetch({ url: url.DATA, query: { columns: [config.xColumn, config.yColumn] } });
 
   const data = {
-    labels: csvData && csvData.columns.hour,
+    labels: csvData && csvData.columns[config.xColumn],
     datasets: [
       {
         ...chartConfig.datasets[0],
-        data: csvData && csvData.columns.exposed,
+        data: csvData && csvData.columns[config.yColumn],
       },
     ],
   };

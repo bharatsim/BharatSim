@@ -4,7 +4,8 @@ const csvService = require ('../services/csvService.js')
 router.get('/', (req, res) => res.send('Hello World! Welcome'))
 
 router.get('/data', function (req, res) {
-    res.json(csvService.getData())
+    const {columns} = req.query;
+    res.json(csvService.getData(columns))
 })
 
 router.get('/headers', function (req, res) {

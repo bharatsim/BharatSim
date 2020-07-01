@@ -8,11 +8,14 @@ function parseCSV() {
     return csvData;
 }
 
-function getData() {
+function getData(selectedColumns) {
     const csvData = parseCSV();
-    const hour = csvData.data.map((row) => row.hour);
-    const exposed = csvData.data.map((row) => row.exposed + row.hour);
-    return {columns: {hour, exposed}}
+    const columnsToReturn = selectedColumns  || getHeaders().headers;
+    return columnsToReturn.reduce((acc, column)=>{
+        acc.columns[column]  = csvData.data.map((row)=> row[column])
+        return acc;
+    },{columns: {}})
+
 }
 
 function getHeaders() {
