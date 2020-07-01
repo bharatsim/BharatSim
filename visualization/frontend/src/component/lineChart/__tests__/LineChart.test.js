@@ -12,7 +12,7 @@ describe('LineChart', () => {
   });
 
   it('should have fetched text in <LineChart /> component', () => {
-    const { container } = render(<LineChart />);
+    const { container } = render(<LineChart config={{ xColumn: 'hours', yColumn: 'exposed' }} />);
     expect(container).toMatchSnapshot();
   });
 });

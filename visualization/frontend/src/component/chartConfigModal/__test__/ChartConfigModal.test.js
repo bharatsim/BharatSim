@@ -51,4 +51,18 @@ describe('<ChartConfigModal />', () => {
 
     expect(props.onCancel).toHaveBeenCalled();
   });
+
+  it('should provide empty element if csv header are not present', () => {
+    useFetch.mockReturnValue({});
+    render(<ChartConfigModal {...props} />);
+
+    expect(document.querySelector('.MuiPaper-root')).toBeNull();
+  });
+
+  it('should provide empty element if csv header is null', () => {
+    useFetch.mockReturnValue(null);
+    render(<ChartConfigModal {...props} />);
+
+    expect(document.querySelector('.MuiPaper-root')).toBeNull();
+  });
 });

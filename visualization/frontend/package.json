@@ -63,7 +63,8 @@
     },
     "coverageReporters": [
       "text",
-      "json"
+      "json",
+      "lcov"
     ]
   },
   "browserslist": {

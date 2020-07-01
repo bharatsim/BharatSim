@@ -24,14 +24,6 @@ describe('<DashboardLayout />', () => {
     expect(container).toMatchSnapshot();
   });
 
-  it('should provide dashboard with default widget', () => {
-    const { getByTestId } = render(<DashboardLayout />);
-
-    const widget = getByTestId('widget-0');
-
-    expect(widget).toBeInTheDocument();
-  });
-
   it('should add new widget', () => {
     const { getByText, getByTestId } = render(<DashboardLayout />);
 
@@ -53,7 +45,7 @@ describe('<DashboardLayout />', () => {
     const okButton = configModal.getByText(/Ok/i);
     fireEvent.click(okButton);
 
-    const widget = getByTestId('widget-1');
+    const widget = getByTestId('widget-0');
 
     expect(widget).toBeInTheDocument();
     expect(widget).toMatchSnapshot();

@@ -6,7 +6,7 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import './index.css';
 
-import { createElement, getInitialLayout, getNewWidgetLayout } from './utils';
+import { createElement, getNewWidgetLayout } from './utils';
 import labels from '../../constants/labels';
 import ChartConfigModal from '../chartConfigModal/ChartConfigModal';
 import useModal from '../../hook/useModal';
@@ -15,8 +15,8 @@ const GridLayout = WidthProvider(ReactGridLayout);
 const cols = 12;
 
 const DashboardLayout = () => {
-  const [widgets, setWidgets] = useState(getInitialLayout());
-  const [count, setCount] = useState(1);
+  const [widgets, setWidgets] = useState([]);
+  const [count, setCount] = useState(0);
   const [layout, setLayout] = useState();
 
   const { isOpen, closeModal, openModal } = useModal();
@@ -47,7 +47,7 @@ const DashboardLayout = () => {
           {labels.dashboardLayout.ADD_WIDGET}
         </Button>
       </Box>
-      <GridLayout layout={layout} style={{ background: 'gray' }} onLayoutChange={onLayoutChange}>
+      <GridLayout layout={layout} style={{ background: 'gray', minHeight: '600px' }} onLayoutChange={onLayoutChange}>
         {widgets.map((item) => {
           return createElement(item);
         })}

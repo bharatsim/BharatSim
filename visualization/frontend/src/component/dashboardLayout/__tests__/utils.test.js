@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { createElement, getInitialLayout, getNewWidgetLayout } from '../utils';
+import { createElement, getNewWidgetLayout } from '../utils';
 
 jest.mock('../../lineChart/LineChart.js', () => () => <>Hello, Welcome</>);
 
@@ -11,22 +11,6 @@ describe('Dashboard layout utils', () => {
       const { container } = render(<>{element}</>);
 
       expect(container).toMatchSnapshot();
-    });
-  });
-
-  describe('getInitialLayout', () => {
-    it('should provide layout for initial widget', () => {
-      const layout = getInitialLayout();
-
-      expect(layout).toEqual([
-        {
-          i: 'widget-0',
-          x: 0,
-          y: 0,
-          w: 2,
-          h: 2,
-        },
-      ]);
     });
   });
 

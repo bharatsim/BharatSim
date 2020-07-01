@@ -10,7 +10,12 @@ import { updateState } from '../../utils/helper';
 
 function ChartConfigModal({ open, onCancel, onOk }) {
   const [config, setConfig] = React.useState({});
-  const csvHeaders = useFetch({ url: url.HEADERS }) || {};
+
+  const csvHeaders = useFetch({ url: url.HEADERS });
+
+  if (!(csvHeaders && csvHeaders.headers)) {
+    return null;
+  }
 
   const handleXChange = (value) => {
     setConfig((prevState) => updateState(prevState, { xColumn: value }));
