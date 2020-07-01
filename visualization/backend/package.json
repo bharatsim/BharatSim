@@ -5,7 +5,25 @@
   "main": "index.js",
   "scripts": {
     "test": "jest  --coverage",
-    "start": "nodemon app.js"
+    "start": "nodemon app.js",
+    "lint": "eslint src test",
+    "format": "prettier src test",
+    "fix": "eslint src test --fix && prettier src test --write "
+  },
+  "lint-staged": {
+    "*.{js,jsx,css,html,md,json,test.jsx,test.js}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && yarn test --no-cache"
+    }
   },
   "author": "",
   "license": "ISC",
@@ -14,8 +32,20 @@
     "papaparse": "^5.2.0"
   },
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.3.1",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.20.3",
+    "husky": "^4.2.5",
     "jest": "^26.1.0",
+    "lint-staged": "^10.2.11",
     "nodemon": "^2.0.4",
+    "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1",
     "supertest": "^4.0.2"
   }
 }
