@@ -1,10 +1,11 @@
 const csvParser = require('papaparse');
 const fs = require('fs');
 
+const dataSourceMetadataRepository = require('../repository/dataSourceMetadataRepository');
+
 function parseCSV() {
   const csvString = fs.readFileSync('./data/simulation.csv', 'utf-8');
-  const csvData = csvParser.parse(csvString, { header: true, skipEmptyLines: true, dynamicTyping: true });
-  return csvData;
+  return csvParser.parse(csvString, { header: true, skipEmptyLines: true, dynamicTyping: true });
 }
 
 function getData(selectedColumns) {
@@ -24,8 +25,10 @@ function getHeaders() {
   return { headers: Object.keys(csvData.data[0]) };
 }
 
-function getDataSources() {
-  return { dataSources: ['model_1', 'model_2'] };
+async function getDataSources() {
+  const dataSources = await dataSourceMetadataRepository.getDataSourceNames();
+  const dataSourceNames = dataSources.map((dataSource) => dataSource.name);
+  return { dataSources: dataSourceNames };
 }
 
 module.exports = {

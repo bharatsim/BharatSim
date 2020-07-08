@@ -1,17 +1,17 @@
 const express = require('express');
 const request = require('supertest');
 
-const csvService = require('../../src/services/csvService');
+const dataSourceMetadataService = require('../../src/services/dataSourceMetadataService');
 const apiRoute = require('../../src/controller/api');
 
-jest.mock('../../src/services/csvService');
+jest.mock('../../src/services/dataSourceMetadataService');
 describe('api', () => {
   const app = express();
   app.use(apiRoute);
   beforeEach(() => {
-    csvService.getData.mockReturnValue({ columns: { exposed: [2, 3], hour: [1, 2] } });
-    csvService.getHeaders.mockReturnValue({ headers: ['hour', 'susceptible'] });
-    csvService.getDataSources.mockReturnValue({ dataSources: ['model_1', 'model_2'] });
+    dataSourceMetadataService.getData.mockReturnValue({ columns: { exposed: [2, 3], hour: [1, 2] } });
+    dataSourceMetadataService.getHeaders.mockReturnValue({ headers: ['hour', 'susceptible'] });
+    dataSourceMetadataService.getDataSources.mockReturnValue({ dataSources: ['model_1', 'model_2'] });
   });
 
   it('should get data', async () => {
@@ -19,7 +19,7 @@ describe('api', () => {
       .get('/data')
       .expect(200)
       .expect({ columns: { exposed: [2, 3], hour: [1, 2] } });
-    expect(csvService.getData).toHaveBeenCalled();
+    expect(dataSourceMetadataService.getData).toHaveBeenCalled();
   });
 
   it('should get data for requested columns', async () => {
@@ -28,7 +28,7 @@ describe('api', () => {
       .query({ columns: ['expose', 'hour'] })
       .expect(200)
       .expect({ columns: { exposed: [2, 3], hour: [1, 2] } });
-    expect(csvService.getData).toHaveBeenCalledWith(['expose', 'hour']);
+    expect(dataSourceMetadataService.getData).toHaveBeenCalledWith(['expose', 'hour']);
   });
 
   it('should get headers', async () => {
@@ -36,7 +36,7 @@ describe('api', () => {
       .post('/headers')
       .expect(200)
       .expect({ headers: ['hour', 'susceptible'] });
-    expect(csvService.getHeaders).toHaveBeenCalled();
+    expect(dataSourceMetadataService.getHeaders).toHaveBeenCalled();
   });
 
   it('should get data source', async () => {
@@ -44,6 +44,6 @@ describe('api', () => {
       .get('/dataSources')
       .expect(200)
       .expect({ dataSources: ['model_1', 'model_2'] });
-    expect(csvService.getHeaders).toHaveBeenCalled();
+    expect(dataSourceMetadataService.getHeaders).toHaveBeenCalled();
   });
 });
