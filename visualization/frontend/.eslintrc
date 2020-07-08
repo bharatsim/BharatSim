@@ -33,6 +33,9 @@
         "code": 120
       }
     ],
+    "react/jsx-props-no-spreading": [
+      "off"
+    ],
     "prefer-promise-reject-errors": [
       "off"
     ],
@@ -53,6 +56,9 @@
     ],
     "no-use-before-define": [
       "off"
+    ],
+    "react/button-has-type": [
+      "warn"
     ]
   }
 }

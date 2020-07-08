@@ -46,6 +46,20 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
       class="react-grid-layout"
       style="height: 10px; background: gray; min-height: 600px;"
     />
+    <span>
+      Modal Open
+      false
+    </span>
+    <button
+      type="button"
+    >
+      Ok
+    </button>
+    <button
+      type="button"
+    >
+      Cancel
+    </button>
   </div>
 </div>
 `;

@@ -1,8 +1,23 @@
 import React from 'react';
-import { fireEvent, render, within } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 
 import DashboardLayout from '../DashboardLayout';
 import useFetch from '../../../hook/useFetch';
+
+jest.mock('../../chartConfigModal/ChartConfigModal', () => ({ open, onCancel, onOk }) => (
+  <>
+    <span>
+      Modal Open
+      {`${open.toString()}`}
+    </span>
+    <button type="button" onClick={onOk}>
+      Ok
+    </button>
+    <button type="button" onClick={onCancel}>
+      Cancel
+    </button>
+  </>
+  ));
 
 jest.mock('../../lineChart/LineChart', () => (props) => (
   <div>
@@ -24,25 +39,34 @@ describe('<DashboardLayout />', () => {
     expect(container).toMatchSnapshot();
   });
 
+  it('should open modal on click of cancel button ', () => {
+    const { getByText } = render(<DashboardLayout />);
+
+    const addWidgetButton = getByText(/Add widget/i);
+    fireEvent.click(addWidgetButton);
+
+    expect(getByText(/Modal Open/i)).toHaveTextContent(/true/i);
+  });
+
+  it('should closed modal on click of cancel button ', () => {
+    const { getByText } = render(<DashboardLayout />);
+
+    const addWidgetButton = getByText(/Add widget/i);
+    fireEvent.click(addWidgetButton);
+
+    const cancelButton = getByText(/Cancel/i);
+    fireEvent.click(cancelButton);
+
+    expect(getByText(/Modal Open/i)).toHaveTextContent(/false/i);
+  });
+
   it('should add new widget', () => {
     const { getByText, getByTestId } = render(<DashboardLayout />);
 
     const addWidgetButton = getByText(/Add widget/i);
     fireEvent.click(addWidgetButton);
 
-    const configModal = within(document.querySelector('.MuiPaper-root'));
-
-    const xAxisDropDown = configModal.getByTestId('dropdown-x');
-    fireEvent.mouseDown(within(xAxisDropDown).getByRole('button'));
-    const optionListX = within(document.querySelector('ul'));
-    fireEvent.click(optionListX.getByText(/x-header/i));
-
-    const yAxisDropDown = configModal.getByTestId('dropdown-y');
-    fireEvent.mouseDown(within(yAxisDropDown).getByRole('button'));
-    const optionListY = within(document.querySelectorAll('ul')[1]);
-    fireEvent.click(optionListY.getByText(/y-header/i));
-
-    const okButton = configModal.getByText(/Ok/i);
+    const okButton = getByText(/Ok/i);
     fireEvent.click(okButton);
 
     const widget = getByTestId('widget-0');

@@ -3,6 +3,7 @@
 exports[`URL should provide a url 1`] = `
 Object {
   "DATA": "/api/data",
+  "DATA_SOURCES": "/api/dataSources",
   "HEADERS": "/api/headers",
   "HELLO": "/api",
 }

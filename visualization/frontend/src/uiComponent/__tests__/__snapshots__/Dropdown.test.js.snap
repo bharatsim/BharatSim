@@ -10,6 +10,7 @@ exports[`<Dropdown /> Should create a dropdown with provided options 1`] = `
   <li
     aria-disabled="false"
     class="MuiButtonBase-root MuiListItem-root MuiMenuItem-root MuiMenuItem-gutters MuiListItem-gutters MuiListItem-button Mui-focusVisible Mui-focusVisible"
+    data-testid="numbers-one"
     data-value="one"
     id="numbers-one"
     role="option"
@@ -23,6 +24,7 @@ exports[`<Dropdown /> Should create a dropdown with provided options 1`] = `
   <li
     aria-disabled="false"
     class="MuiButtonBase-root MuiListItem-root MuiMenuItem-root MuiMenuItem-gutters MuiListItem-gutters MuiListItem-button"
+    data-testid="numbers-two"
     data-value="two"
     id="numbers-two"
     role="option"
@@ -36,6 +38,7 @@ exports[`<Dropdown /> Should create a dropdown with provided options 1`] = `
   <li
     aria-disabled="false"
     class="MuiButtonBase-root MuiListItem-root MuiMenuItem-root MuiMenuItem-gutters MuiListItem-gutters MuiListItem-button"
+    data-testid="numbers-three"
     data-value="three"
     id="numbers-three"
     role="option"

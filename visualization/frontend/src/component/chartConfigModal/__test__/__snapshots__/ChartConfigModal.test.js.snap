@@ -27,17 +27,17 @@ exports[`<ChartConfigModal /> should match a snapshot for <ChartConfigModal /> 1
         data-shrink="false"
         id="dropdown-label"
       >
-        select x axis
+        select dataSource axis
       </label>
       <div
         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-formControl"
-        data-testid="dropdown-x"
+        data-testid="dropdown-dataSources"
       >
         <div
           aria-haspopup="listbox"
-          aria-labelledby="dropdown-label dropdown-x"
+          aria-labelledby="dropdown-label dropdown-dataSources"
           class="MuiSelect-root MuiSelect-select MuiSelect-selectMenu MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input"
-          id="dropdown-x"
+          id="dropdown-dataSources"
           role="button"
           tabindex="0"
         >
@@ -54,6 +54,62 @@ exports[`<ChartConfigModal /> should match a snapshot for <ChartConfigModal /> 1
         <svg
           aria-hidden="true"
           class="MuiSvgIcon-root MuiSelect-icon MuiSelect-iconOutlined"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M7 10l5 5 5-5z"
+          />
+        </svg>
+        <fieldset
+          aria-hidden="true"
+          class="PrivateNotchedOutline-root-3 MuiOutlinedInput-notchedOutline"
+        >
+          <legend
+            class="PrivateNotchedOutline-legendLabelled-5"
+          >
+            <span>
+              select dataSource axis
+            </span>
+          </legend>
+        </fieldset>
+      </div>
+    </div>
+    <div
+      class="MuiFormControl-root makeStyles-formControl-1"
+    >
+      <label
+        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined"
+        data-shrink="false"
+        id="dropdown-label"
+      >
+        select x axis
+      </label>
+      <div
+        class="MuiInputBase-root MuiOutlinedInput-root Mui-disabled Mui-disabled MuiInputBase-formControl"
+        data-testid="dropdown-x"
+      >
+        <div
+          aria-disabled="true"
+          aria-haspopup="listbox"
+          aria-labelledby="dropdown-label dropdown-x"
+          class="MuiSelect-root MuiSelect-select MuiSelect-selectMenu MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input Mui-disabled Mui-disabled Mui-disabled"
+          id="dropdown-x"
+          role="button"
+        >
+          <span>
+            ​
+          </span>
+        </div>
+        <input
+          aria-hidden="true"
+          class="MuiSelect-nativeInput"
+          tabindex="-1"
+          value=""
+        />
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSelect-icon MuiSelect-iconOutlined Mui-disabled"
           focusable="false"
           viewBox="0 0 24 24"
         >
@@ -86,16 +142,16 @@ exports[`<ChartConfigModal /> should match a snapshot for <ChartConfigModal /> 1
         select y axis
       </label>
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-formControl"
+        class="MuiInputBase-root MuiOutlinedInput-root Mui-disabled Mui-disabled MuiInputBase-formControl"
         data-testid="dropdown-y"
       >
         <div
+          aria-disabled="true"
           aria-haspopup="listbox"
           aria-labelledby="dropdown-label dropdown-y"
-          class="MuiSelect-root MuiSelect-select MuiSelect-selectMenu MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input"
+          class="MuiSelect-root MuiSelect-select MuiSelect-selectMenu MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input Mui-disabled Mui-disabled Mui-disabled"
           id="dropdown-y"
           role="button"
-          tabindex="0"
         >
           <span>
             ​
@@ -109,7 +165,7 @@ exports[`<ChartConfigModal /> should match a snapshot for <ChartConfigModal /> 1
         />
         <svg
           aria-hidden="true"
-          class="MuiSvgIcon-root MuiSelect-icon MuiSelect-iconOutlined"
+          class="MuiSvgIcon-root MuiSelect-icon MuiSelect-iconOutlined Mui-disabled"
           focusable="false"
           viewBox="0 0 24 24"
         >

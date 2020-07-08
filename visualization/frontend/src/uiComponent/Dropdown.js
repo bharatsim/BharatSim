@@ -17,14 +17,19 @@ const renderMenuItems = (id, options) => {
   return (
     options &&
     options.map((option) => (
-      <MenuItem value={option} key={option} id={`${id}-${option}`}>
+      <MenuItem
+        value={option}
+        key={option}
+        id={`${id}-${option.split(' ').join('-')}`}
+        data-testid={`${id}-${option.split(' ').join('-')}`}
+      >
         {option}
       </MenuItem>
     ))
   );
 };
 
-export default function Dropdown({ label, options, id, onChange }) {
+export default function Dropdown({ label, options, id, onChange, ...rest }) {
   const classes = useStyles();
   const [value, setValue] = useState('');
 
@@ -36,7 +41,18 @@ export default function Dropdown({ label, options, id, onChange }) {
   return (
     <FormControl variant="outlined" className={classes.formControl}>
       <InputLabel id="dropdown-label">{label}</InputLabel>
-      <Select labelId="dropdown-label" id={id} value={value} onChange={handleChange} label={label} data-testid={id}>
+      <Select
+        labelId="dropdown-label"
+        id={id}
+        value={value}
+        onChange={handleChange}
+        label={label}
+        data-testid={id}
+        MenuProps={{
+          id: `menu-${id}`,
+        }}
+        {...rest}
+      >
         {renderMenuItems(id, options)}
       </Select>
     </FormControl>
