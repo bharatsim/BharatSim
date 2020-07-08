@@ -24,7 +24,12 @@ function getHeaders() {
   return { headers: Object.keys(csvData.data[0]) };
 }
 
+function getDataSources() {
+  return { dataSources: ['model_1', 'model_2'] };
+}
+
 module.exports = {
   getData,
   getHeaders,
+  getDataSources,
 };

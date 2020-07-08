@@ -34,4 +34,11 @@ describe('csvService', () => {
       headers: ['hour', 'susceptible', 'exposed', 'infected', 'hospitalized', 'recovered', 'deceased'],
     });
   });
+
+  it('should get data sources name', () => {
+    const data = csvService.getDataSources()
+    expect(data).toEqual({
+      dataSources: ['model_1','model_2'],
+    });
+  });
 });

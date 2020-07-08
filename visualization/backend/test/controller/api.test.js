@@ -11,6 +11,7 @@ describe('api', () => {
   beforeEach(() => {
     csvService.getData.mockReturnValue({ columns: { exposed: [2, 3], hour: [1, 2] } });
     csvService.getHeaders.mockReturnValue({ headers: ['hour', 'susceptible'] });
+    csvService.getDataSources.mockReturnValue({ dataSources: ['model_1', 'model_2'] });
   });
 
   it('should get data', async () => {
@@ -32,9 +33,17 @@ describe('api', () => {
 
   it('should get headers', async () => {
     await request(app)
-      .get('/headers')
+      .post('/headers')
       .expect(200)
       .expect({ headers: ['hour', 'susceptible'] });
+    expect(csvService.getHeaders).toHaveBeenCalled();
+  });
+
+  it('should get data source', async () => {
+    await request(app)
+      .get('/dataSources')
+      .expect(200)
+      .expect({ dataSources: ['model_1', 'model_2'] });
     expect(csvService.getHeaders).toHaveBeenCalled();
   });
 });
