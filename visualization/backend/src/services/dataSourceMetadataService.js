@@ -10,7 +10,7 @@ function parseCSV() {
 
 function getData(selectedColumns) {
   const csvData = parseCSV();
-  const columnsToReturn = selectedColumns || getHeaders().headers;
+  const columnsToReturn = selectedColumns || Object.keys(csvData.data[0]);
   return columnsToReturn.reduce(
     (acc, column) => {
       acc.columns[column] = csvData.data.map((row) => row[column]);
@@ -20,9 +20,10 @@ function getData(selectedColumns) {
   );
 }
 
-function getHeaders() {
-  const csvData = parseCSV();
-  return { headers: Object.keys(csvData.data[0]) };
+async function getHeaders(dataSourceName) {
+  const dataSource = await dataSourceMetadataRepository.getDataSourceSchema(dataSourceName);
+  const headers = Object.keys(dataSource.dataSourceSchema);
+  return { headers };
 }
 
 async function getDataSources() {

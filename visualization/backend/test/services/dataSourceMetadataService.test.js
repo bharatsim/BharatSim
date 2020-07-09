@@ -31,18 +31,31 @@ describe('csvService', () => {
     const data = dataSourceMetadataService.getData(['susceptible', 'hour']);
     expect(data).toEqual({ columns: { susceptible: [9999, 9999], hour: [1, 2] } });
   });
-  it('should get headers from csv', () => {
-    const data = dataSourceMetadataService.getHeaders();
+
+  it('should get data sources name', async () => {
+    const mockResolvedValue = [{ name: 'model_1' }, { name: 'model_2' }];
+    dataSourceMetadataRepository.getDataSourceNames.mockResolvedValue(mockResolvedValue);
+
+    const data = await dataSourceMetadataService.getDataSources();
+
     expect(data).toEqual({
-      headers: ['hour', 'susceptible', 'exposed', 'infected', 'hospitalized', 'recovered', 'deceased'],
+      dataSources: ['model_1', 'model_2'],
     });
   });
 
-  it('should get data sources name', async () => {
-    dataSourceMetadataRepository.getDataSourceNames.mockResolvedValue([{ name: 'model_1' }, { name: 'model_2' }]);
-    const data = await dataSourceMetadataService.getDataSources();
+  it('should get headers from datasource', async () => {
+    dataSourceMetadataRepository.getDataSourceSchema.mockResolvedValue({
+      dataSourceSchema: {
+        hour: 'number',
+        susceptible: 'number',
+      },
+    });
+    const dataSourceName = 'model_1';
+
+    const data = await dataSourceMetadataService.getHeaders(dataSourceName);
+
     expect(data).toEqual({
-      dataSources: ['model_1', 'model_2'],
+      headers: ['hour', 'susceptible'],
     });
   });
 });

@@ -1,5 +1,6 @@
 const DataSourceMetaData = require('../../src/model/dataSourceMetadata');
 const DataSourceMetaDataRepository = require('../../src/repository/dataSourceMetadataRepository');
+const DataSourceNotFoundExceeption = require('../../src/exceptions/DataSourceNotFoundException');
 const dbHandler = require('./db-handler');
 
 const dataSourceMetadata = [
@@ -13,8 +14,8 @@ const dataSourceMetadata = [
   {
     name: 'model_2',
     dataSourceSchema: {
-      hour: 'number',
-      susceptible: 'number',
+      hour_: 'number',
+      susceptible_: 'number',
     },
   },
 ];
@@ -38,5 +39,30 @@ describe('get Datasource name ', () => {
     const names = parseMongoDBResult(await DataSourceMetaDataRepository.getDataSourceNames());
 
     expect(names).toEqual([{ name: 'model_1' }, { name: 'model_2' }]);
+  });
+
+  it('should return datasource schema for given datasource name', async () => {
+    await DataSourceMetaData.insertMany(dataSourceMetadata);
+    const dataSourceName = 'model_1';
+    const names = parseMongoDBResult(await DataSourceMetaDataRepository.getDataSourceSchema(dataSourceName));
+
+    expect(names).toEqual({
+      dataSourceSchema: {
+        hour: 'number',
+        susceptible: 'number',
+      },
+    });
+  });
+
+  it('should throw exception if datasource is not available', async () => {
+    await DataSourceMetaData.insertMany(dataSourceMetadata);
+    const dataSourceName = 'model_3';
+
+    await expect(DataSourceMetaDataRepository.getDataSourceSchema(dataSourceName)).rejects.toBeInstanceOf(
+      DataSourceNotFoundExceeption,
+    );
+    await expect(DataSourceMetaDataRepository.getDataSourceSchema(dataSourceName)).rejects.toEqual(
+      new DataSourceNotFoundExceeption(dataSourceName),
+    );
   });
 });

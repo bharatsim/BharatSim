@@ -8,10 +8,7 @@ const dataSourceMetadata = new Schema({
     useCreateIndex: true,
     required: true,
   },
-  dataSourceSchema: {
-    type: Map,
-    of: String,
-  },
+  dataSourceSchema: Object,
 });
 
 const DataSourceMetadata = mongoose.model('dataSourceMetadata', dataSourceMetadata);

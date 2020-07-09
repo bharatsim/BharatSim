@@ -6,11 +6,18 @@ router.get('/data', function (req, res) {
   res.json(dataSourceMetadataService.getData(columns));
 });
 
-router.post('/headers', function (req, res) {
-  res.json(dataSourceMetadataService.getHeaders());
+router.get('/datasources/:name/headers', function (req, res) {
+  const { name: dataSourceName } = req.params;
+  dataSourceMetadataService
+    .getHeaders(dataSourceName)
+    .then((headers) => res.json(headers))
+    .catch((err) => {
+      res.status(404);
+      res.send({ errorMessage: err.message });
+    });
 });
 
-router.get('/dataSources', async function (req, res) {
+router.get('/datasources', async function (req, res) {
   const data = await dataSourceMetadataService.getDataSources();
   res.json(data);
 });
