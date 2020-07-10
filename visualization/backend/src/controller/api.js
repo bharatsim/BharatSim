@@ -1,9 +1,11 @@
 const router = require('express').Router();
-const dataSourceMetadataService = require('../services/dataSourceMetadataService.js');
+const dataSourceMetadataService = require('../services/datasourceMetadataService.js');
+const dataSourceService = require('../services/datasourceService.js');
 
-router.get('/data', function (req, res) {
+router.get('/datasources/:name/data', function (req, res) {
   const { columns } = req.query;
-  res.json(dataSourceMetadataService.getData(columns));
+  const { name: dataSourceName } = req.params;
+  res.json(dataSourceService.getData(dataSourceName, columns));
 });
 
 router.get('/datasources/:name/headers', function (req, res) {

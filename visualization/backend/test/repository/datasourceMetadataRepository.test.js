@@ -1,6 +1,6 @@
-const DataSourceMetaData = require('../../src/model/dataSourceMetadata');
-const DataSourceMetaDataRepository = require('../../src/repository/dataSourceMetadataRepository');
-const DataSourceNotFoundExceeption = require('../../src/exceptions/DataSourceNotFoundException');
+const DataSourceMetaData = require('../../src/model/datasourceMetadata');
+const DataSourceMetaDataRepository = require('../../src/repository/datasourceMetadataRepository');
+const DataSourceNotFoundExceeption = require('../../src/exceptions/DatasourceNotFoundException');
 const dbHandler = require('./db-handler');
 
 const dataSourceMetadata = [

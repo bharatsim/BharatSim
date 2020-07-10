@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
-const dataSourceMetadata = new Schema({
+const datasourceMetadata = new Schema({
   name: {
     type: String,
     unique: true,
@@ -11,6 +11,6 @@ const dataSourceMetadata = new Schema({
   dataSourceSchema: Object,
 });
 
-const DataSourceMetadata = mongoose.model('dataSourceMetadata', dataSourceMetadata);
+const DataSourceMetadata = mongoose.model('dataSourceMetadata', datasourceMetadata);
 
 module.exports = DataSourceMetadata;

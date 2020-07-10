@@ -1,14 +1,14 @@
-const DataSourceMetadataRepository = require('../model/dataSourceMetadata');
-const DataSourceNotFoundException = require('../exceptions/DataSourceNotFoundException');
+const DataSourceMetadata = require('../model/datasourceMetadata');
+const DataSourceNotFoundException = require('../exceptions/DatasourceNotFoundException');
 
 async function getDataSourceNames() {
-  return DataSourceMetadataRepository.find({}, { _id: 0 })
+  return DataSourceMetadata.find({}, { _id: 0 })
     .select('name')
     .then((data) => data);
 }
 
 async function getDataSourceSchema(dataSourceName) {
-  return DataSourceMetadataRepository.findOne({ name: dataSourceName }, { _id: 0 })
+  return DataSourceMetadata.findOne({ name: dataSourceName }, { _id: 0 })
     .select('dataSourceSchema')
     .then((data) => {
       if (!data) {

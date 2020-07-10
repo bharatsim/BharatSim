@@ -1,11 +1,13 @@
 const express = require('express');
 const request = require('supertest');
 
-const dataSourceMetadataService = require('../../src/services/dataSourceMetadataService');
+const dataSourceMetadataService = require('../../src/services/datasourceMetadataService');
+const datasourceService = require('../../src/services/datasourceService');
 const apiRoute = require('../../src/controller/api');
-const DataSourceNotFoundException = require('../../src/exceptions/DataSourceNotFoundException');
+const DataSourceNotFoundException = require('../../src/exceptions/DatasourceNotFoundException');
 
 jest.mock('../../src/services/dataSourceMetadataService');
+jest.mock('../../src/services/dataSourceService');
 
 describe('api', () => {
   const app = express();
@@ -14,7 +16,7 @@ describe('api', () => {
   app.use(apiRoute);
 
   beforeEach(() => {
-    dataSourceMetadataService.getData.mockReturnValue({ columns: { exposed: [2, 3], hour: [1, 2] } });
+    datasourceService.getData.mockReturnValue({ data: { exposed: [2, 3], hour: [1, 2] } });
     dataSourceMetadataService.getHeaders.mockResolvedValue({ headers: ['hour', 'susceptible'] });
     dataSourceMetadataService.getDataSources.mockResolvedValue({ dataSources: ['model_1', 'model_2'] });
   });
@@ -39,22 +41,22 @@ describe('api', () => {
     });
   });
 
-  describe('/data', () => {
-    it('should get data', async () => {
+  describe('/datasources/:name/data', () => {
+    it('should get data for specified datasource name', async () => {
       await request(app)
-        .get('/data')
+        .get('/datasources/datasourceName/data')
         .expect(200)
-        .expect({ columns: { exposed: [2, 3], hour: [1, 2] } });
-      expect(dataSourceMetadataService.getData).toHaveBeenCalled();
+        .expect({ data: { exposed: [2, 3], hour: [1, 2] } });
+      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceName', undefined);
     });
 
     it('should get data for requested columns', async () => {
       await request(app)
-        .get('/data')
+        .get('/datasources/datasourceName/data')
         .query({ columns: ['expose', 'hour'] })
         .expect(200)
-        .expect({ columns: { exposed: [2, 3], hour: [1, 2] } });
-      expect(dataSourceMetadataService.getData).toHaveBeenCalledWith(['expose', 'hour']);
+        .expect({ data: { exposed: [2, 3], hour: [1, 2] } });
+      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceName', ['expose', 'hour']);
     });
   });
 
