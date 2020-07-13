@@ -1,15 +1,28 @@
 const mongoose = require('mongoose');
 const { createModel } = require('../../src/model/modelCreator');
 
-
 jest.mock('mongoose');
 
 describe('Model Creator', () => {
   it('should create data model for given skeleton', async () => {
-    mongoose.model.mockReturnValue('Model');
+    mongoose.model.mockImplementationOnce(() => {
+      throw new Error('Model not found');
+    });
+    mongoose.model.mockReturnValueOnce('Model');
+
     const model = createModel('modelName', { column: 'string' });
+
     expect(mongoose.model).toHaveBeenCalledWith('modelName', expect.any(mongoose.Schema));
     expect(mongoose.Schema).toHaveBeenCalledWith({ column: 'string' });
+    expect(model).toEqual('Model');
+  });
+
+  it('should provide already present data model', async () => {
+    mongoose.model.mockReturnValueOnce('Model');
+
+    const model = createModel('modelName', { column: 'string' });
+
+    expect(mongoose.model).toHaveBeenCalledWith('modelName');
     expect(model).toEqual('Model');
   });
 });

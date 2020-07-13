@@ -11,6 +11,5 @@ const datasourceMetadata = new Schema({
   dataSourceSchema: Object,
 });
 
-const DataSourceMetadata = mongoose.model('dataSourceMetadata', datasourceMetadata);
-
-module.exports = DataSourceMetadata;
+const DatasourceMetadata = mongoose.model('datasourceMetadata', datasourceMetadata);
+module.exports = DatasourceMetadata;

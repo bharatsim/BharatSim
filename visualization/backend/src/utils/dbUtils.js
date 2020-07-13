@@ -15,8 +15,13 @@ function getProjectedColumns(columns) {
   return getIncludedColumnMap(columns);
 }
 
+function parseDBObject(records) {
+  return JSON.parse(JSON.stringify(records));
+}
+
 function changeRecordDimensionToArray(records) {
-  const columns = Object.keys(records[0]);
+  const parsedRecords = parseDBObject(records);
+  const columns = Object.keys(parsedRecords[0]);
   return columns.reduce((acc, column) => {
     acc[column] = records.map((row) => row[column]);
     return acc;

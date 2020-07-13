@@ -5,6 +5,7 @@ const dataSourceMetadataService = require('../../src/services/datasourceMetadata
 const datasourceService = require('../../src/services/datasourceService');
 const apiRoute = require('../../src/controller/api');
 const DataSourceNotFoundException = require('../../src/exceptions/DatasourceNotFoundException');
+const ColumnsNotFoundException = require('../../src/exceptions/ColumnsNotFoundException');
 
 jest.mock('../../src/services/dataSourceMetadataService');
 jest.mock('../../src/services/dataSourceService');
@@ -16,7 +17,7 @@ describe('api', () => {
   app.use(apiRoute);
 
   beforeEach(() => {
-    datasourceService.getData.mockReturnValue({ data: { exposed: [2, 3], hour: [1, 2] } });
+    datasourceService.getData.mockResolvedValue({ data: { exposed: [2, 3], hour: [1, 2] } });
     dataSourceMetadataService.getHeaders.mockResolvedValue({ headers: ['hour', 'susceptible'] });
     dataSourceMetadataService.getDataSources.mockResolvedValue({ dataSources: ['model_1', 'model_2'] });
   });
@@ -39,6 +40,17 @@ describe('api', () => {
         .expect({ errorMessage: 'datasource with name model_1 not found' });
       expect(dataSourceMetadataService.getHeaders).toHaveBeenCalledWith('model_1');
     });
+
+    it('should send error for any technical error', async () => {
+      dataSourceMetadataService.getHeaders.mockRejectedValueOnce(new Error('error'));
+
+      await request(app)
+        .get('/datasources/datasourceName/headers')
+        .expect(500)
+        .expect({ errorMessage: 'Technical error error' });
+
+      expect(dataSourceMetadataService.getHeaders).toHaveBeenCalledWith('datasourceName');
+    });
   });
 
   describe('/datasources/:name/data', () => {
@@ -58,6 +70,44 @@ describe('api', () => {
         .expect({ data: { exposed: [2, 3], hour: [1, 2] } });
       expect(datasourceService.getData).toHaveBeenCalledWith('datasourceName', ['expose', 'hour']);
     });
+
+    it('should throw error if data source not found', async () => {
+      const dataSourceNotFoundException = new DataSourceNotFoundException('datasourceName');
+      datasourceService.getData.mockRejectedValueOnce(dataSourceNotFoundException);
+
+      await request(app)
+        .get('/datasources/datasourceName/data')
+        .query({ columns: ['expose', 'hour'] })
+        .expect(404)
+        .expect({ errorMessage: 'datasource with name datasourceName not found' });
+
+      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceName', ['expose', 'hour']);
+    });
+
+    it('should send error message for columns not found exception', async () => {
+      const columnsNotFoundException = new ColumnsNotFoundException();
+      datasourceService.getData.mockRejectedValueOnce(columnsNotFoundException);
+
+      await request(app)
+        .get('/datasources/datasourceName/data')
+        .query({ columns: ['exposeed', 'hour'] })
+        .expect(200)
+        .expect({ errorMessage: 'One or more columns not found' });
+
+      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceName', ['exposeed', 'hour']);
+    });
+
+    it('should throw error if any technical error occur', async () => {
+      datasourceService.getData.mockRejectedValueOnce(new Error('error'));
+
+      await request(app)
+        .get('/datasources/datasourceName/data')
+        .query({ columns: ['expose', 'hour'] })
+        .expect(500)
+        .expect({ errorMessage: 'Technical error error' });
+
+      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceName', ['expose', 'hour']);
+    });
   });
 
   describe('/datasources', () => {
@@ -66,6 +116,18 @@ describe('api', () => {
         .get('/datasources')
         .expect(200)
         .expect({ dataSources: ['model_1', 'model_2'] });
+      expect(dataSourceMetadataService.getDataSources).toHaveBeenCalled();
+    });
+
+    it('should send error message for columns not found exception', async () => {
+      dataSourceMetadataService.getDataSources.mockRejectedValueOnce(new Error('error'));
+
+      await request(app)
+        .get('/datasources')
+        .query({ columns: ['exposeed', 'hour'] })
+        .expect(500)
+        .expect({ errorMessage: 'Technical error error' });
+
       expect(dataSourceMetadataService.getDataSources).toHaveBeenCalled();
     });
   });

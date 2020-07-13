@@ -1,11 +1,24 @@
 const router = require('express').Router();
 const dataSourceMetadataService = require('../services/datasourceMetadataService.js');
 const dataSourceService = require('../services/datasourceService.js');
+const DataSourceNotFoundException = require('../exceptions/DatasourceNotFoundException');
+const ColumnsNotFoundException = require('../exceptions/ColumnsNotFoundException');
 
-router.get('/datasources/:name/data', function (req, res) {
+router.get('/datasources/:name/data', async function (req, res) {
   const { columns } = req.query;
   const { name: dataSourceName } = req.params;
-  res.json(dataSourceService.getData(dataSourceName, columns));
+  dataSourceService
+    .getData(dataSourceName, columns)
+    .then((data) => res.json(data))
+    .catch((err) => {
+      if (err instanceof DataSourceNotFoundException) {
+        res.status(404).send({ errorMessage: err.message });
+      } else if (err instanceof ColumnsNotFoundException) {
+        res.status(200).send({ errorMessage: err.message });
+      } else {
+        res.status(500).send({ errorMessage: `Technical error ${err.message}` });
+      }
+    });
 });
 
 router.get('/datasources/:name/headers', function (req, res) {
@@ -14,14 +27,19 @@ router.get('/datasources/:name/headers', function (req, res) {
     .getHeaders(dataSourceName)
     .then((headers) => res.json(headers))
     .catch((err) => {
-      res.status(404);
-      res.send({ errorMessage: err.message });
+      if (err instanceof DataSourceNotFoundException) {
+        res.status(404).send({ errorMessage: err.message });
+      } else {
+        res.status(500).send({ errorMessage: `Technical error ${err.message}` });
+      }
     });
 });
 
 router.get('/datasources', async function (req, res) {
-  const data = await dataSourceMetadataService.getDataSources();
-  res.json(data);
+  dataSourceMetadataService
+    .getDataSources()
+    .then((data) => res.json(data))
+    .catch((err) => res.status(500).send({ errorMessage: `Technical error ${err.message}` }));
 });
 
 module.exports = router;
