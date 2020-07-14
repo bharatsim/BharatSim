@@ -1,8 +1,7 @@
-const BASE_URL = '/api';
+const DATASOURCE_URL = '/api/dataSources';
 
 export const url = {
-  HELLO: `${BASE_URL}`,
-  DATA: `${BASE_URL}/data`,
-  HEADERS: `${BASE_URL}/headers`,
-  DATA_SOURCES: `${BASE_URL}/dataSources`,
+  getDataUrl: (dataSource) => `${DATASOURCE_URL}/${dataSource}/data`,
+  getHeaderUrl: (dataSource) => `${DATASOURCE_URL}/${dataSource}/headers`,
+  DATA_SOURCES: `${DATASOURCE_URL}`,
 };

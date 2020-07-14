@@ -8,7 +8,6 @@ import fetch from '../../utils/fetch';
 import { url } from '../../utils/url';
 import Dropdown from '../../uiComponent/Dropdown';
 import { updateState } from '../../utils/helper';
-import { httpMethods } from '../../constants/httpMethods';
 
 function ChartConfigModal({ open, onCancel, onOk }) {
   const [config, setConfig] = React.useState({});
@@ -21,7 +20,8 @@ function ChartConfigModal({ open, onCancel, onOk }) {
     return null;
   }
   const handleDataSourceChange = async (value) => {
-    const csvHeaders = await fetch({ url: url.HEADERS, method: httpMethods.POST, data: { dataSource: value } });
+    const csvHeaders = await fetch({ url: url.getHeaderUrl(value) });
+    setConfig((prevState) => updateState(prevState, { dataSource: value }));
     setHeaders(csvHeaders.headers);
   };
 

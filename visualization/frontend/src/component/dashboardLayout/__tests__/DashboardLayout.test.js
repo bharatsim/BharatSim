@@ -17,7 +17,7 @@ jest.mock('../../chartConfigModal/ChartConfigModal', () => ({ open, onCancel, on
       Cancel
     </button>
   </>
-  ));
+));
 
 jest.mock('../../lineChart/LineChart', () => (props) => (
   <div>

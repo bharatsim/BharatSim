@@ -9,14 +9,17 @@ import chartConfig from './lineChartConfig';
 const options = { maintainAspectRatio: false, responsive: true };
 
 const BasicLineChart = forwardRef(({ config }, ref) => {
-  const csvData = useFetch({ url: url.DATA, query: { columns: [config.xColumn, config.yColumn] } });
+  const csvData = useFetch({
+    url: url.getDataUrl(config.dataSource),
+    query: { columns: [config.xColumn, config.yColumn] },
+  });
 
   const data = {
-    labels: csvData && csvData.columns[config.xColumn],
+    labels: csvData && csvData.data[config.xColumn],
     datasets: [
       {
         ...chartConfig.datasets[0],
-        data: csvData && csvData.columns[config.yColumn],
+        data: csvData && csvData.data[config.yColumn],
       },
     ],
   };
@@ -28,6 +31,7 @@ BasicLineChart.displayName = 'LineChart';
 
 BasicLineChart.propTypes = {
   config: PropTypes.shape({
+    dataSource: PropTypes.string.isRequired,
     xColumn: PropTypes.string.isRequired,
     yColumn: PropTypes.string.isRequired,
   }).isRequired,

@@ -7,7 +7,7 @@ import fetch from '../../../utils/fetch';
 
 jest.mock('../../../utils/url', () => ({
   url: {
-    HEADERS: '/headers',
+    getHeaderUrl: jest.fn().mockReturnValue('/headers'),
     DATA_SOURCES: '/dataSources',
   },
 }));
@@ -70,7 +70,7 @@ describe('<ChartConfigModal />', () => {
 
     fireEvent.click(okButton);
 
-    expect(props.onOk).toHaveBeenCalledWith({ xColumn: 'x-header', yColumn: 'y-header' });
+    expect(props.onOk).toHaveBeenCalledWith({ dataSource: 'modelone', xColumn: 'x-header', yColumn: 'y-header' });
   });
 
   it('should be disable x-axis and y-axis dropdown if data source is not selected', async () => {
