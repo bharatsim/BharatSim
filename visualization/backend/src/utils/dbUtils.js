@@ -28,4 +28,4 @@ function changeRecordDimensionToArray(records) {
   }, {});
 }
 
-module.exports = { getProjectedColumns, changeRecordDimensionToArray };
+module.exports = { getProjectedColumns, changeRecordDimensionToArray, parseDBObject };

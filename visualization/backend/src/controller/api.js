@@ -14,7 +14,7 @@ router.get('/datasources/:name/data', async function (req, res) {
       if (err instanceof DataSourceNotFoundException) {
         res.status(404).send({ errorMessage: err.message });
       } else if (err instanceof ColumnsNotFoundException) {
-        res.status(200).send({ errorMessage: err.message });
+        res.status(200).end();
       } else {
         res.status(500).send({ errorMessage: `Technical error ${err.message}` });
       }

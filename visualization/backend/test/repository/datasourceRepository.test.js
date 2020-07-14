@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const DataSourceRepository = require('../../src/repository/datasourceRepository');
-const dbHandler = require('./db-handler');
+const dbHandler = require('../db-handler');
 
 const { Schema } = mongoose;
 

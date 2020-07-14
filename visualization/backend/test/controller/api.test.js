@@ -92,7 +92,7 @@ describe('api', () => {
         .get('/datasources/datasourceName/data')
         .query({ columns: ['exposeed', 'hour'] })
         .expect(200)
-        .expect({ errorMessage: 'One or more columns not found' });
+        .expect({});
 
       expect(datasourceService.getData).toHaveBeenCalledWith('datasourceName', ['exposeed', 'hour']);
     });
