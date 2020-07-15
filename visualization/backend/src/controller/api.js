@@ -3,6 +3,7 @@ const dataSourceMetadataService = require('../services/datasourceMetadataService
 const dataSourceService = require('../services/datasourceService.js');
 const DataSourceNotFoundException = require('../exceptions/DatasourceNotFoundException');
 const ColumnsNotFoundException = require('../exceptions/ColumnsNotFoundException');
+const technicalErrorException = require('../exceptions/TechnicalErrorException');
 
 router.get('/datasources/:name/data', async function (req, res) {
   const { columns } = req.query;
@@ -16,7 +17,7 @@ router.get('/datasources/:name/data', async function (req, res) {
       } else if (err instanceof ColumnsNotFoundException) {
         res.status(200).end();
       } else {
-        res.status(500).send({ errorMessage: `Technical error ${err.message}` });
+        technicalErrorException(err, res);
       }
     });
 });
@@ -30,7 +31,7 @@ router.get('/datasources/:name/headers', function (req, res) {
       if (err instanceof DataSourceNotFoundException) {
         res.status(404).send({ errorMessage: err.message });
       } else {
-        res.status(500).send({ errorMessage: `Technical error ${err.message}` });
+        technicalErrorException(err, res);
       }
     });
 });
@@ -39,7 +40,7 @@ router.get('/datasources', async function (req, res) {
   dataSourceMetadataService
     .getDataSources()
     .then((data) => res.json(data))
-    .catch((err) => res.status(500).send({ errorMessage: `Technical error ${err.message}` }));
+    .catch((err) => technicalErrorException(err, res));
 });
 
 module.exports = router;
