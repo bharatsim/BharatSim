@@ -52,7 +52,7 @@ const DashboardLayout = () => {
           return createElement(item);
         })}
       </GridLayout>
-      <ChartConfigModal onCancel={closeModal} onOk={handleModalOk} open={isOpen} />
+      {isOpen && <ChartConfigModal onCancel={closeModal} onOk={handleModalOk} open={isOpen} />}
     </Box>
   );
 };

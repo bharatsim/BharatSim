@@ -48,8 +48,8 @@ describe('<DashboardLayout />', () => {
     expect(getByText(/Modal Open/i)).toHaveTextContent(/true/i);
   });
 
-  it('should closed modal on click of cancel button ', () => {
-    const { getByText } = render(<DashboardLayout />);
+  it('should closed modal on click of cancel button ', async () => {
+    const { getByText, queryByText } = render(<DashboardLayout />);
 
     const addWidgetButton = getByText(/Add widget/i);
     fireEvent.click(addWidgetButton);
@@ -57,7 +57,7 @@ describe('<DashboardLayout />', () => {
     const cancelButton = getByText(/Cancel/i);
     fireEvent.click(cancelButton);
 
-    expect(getByText(/Modal Open/i)).toHaveTextContent(/false/i);
+    expect(await queryByText(/Modal Open/i)).toBeNull();
   });
 
   it('should add new widget', () => {

@@ -27,7 +27,7 @@ exports[`<ChartConfigModal /> should match a snapshot for <ChartConfigModal /> 1
         data-shrink="false"
         id="dropdown-label"
       >
-        select dataSource axis
+        select data source
       </label>
       <div
         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-formControl"
@@ -69,7 +69,7 @@ exports[`<ChartConfigModal /> should match a snapshot for <ChartConfigModal /> 1
             class="PrivateNotchedOutline-legendLabelled-5"
           >
             <span>
-              select dataSource axis
+              select data source
             </span>
           </legend>
         </fieldset>
