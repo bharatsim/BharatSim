@@ -4,8 +4,6 @@ const { Schema } = mongoose;
 const datasourceMetadata = new Schema({
   name: {
     type: String,
-    unique: true,
-    useCreateIndex: true,
     required: true,
   },
   dataSourceSchema: Object,

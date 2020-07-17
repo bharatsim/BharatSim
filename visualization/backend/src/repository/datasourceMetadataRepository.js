@@ -18,7 +18,13 @@ async function getDataSourceSchema(dataSourceName) {
     });
 }
 
+async function insert({ name, dataSourceSchema }) {
+  const dataSourceMetadata = new DataSourceMetadata({ name, dataSourceSchema });
+  return dataSourceMetadata.save();
+}
+
 module.exports = {
   getDataSourceNames,
   getDataSourceSchema,
+  insert,
 };

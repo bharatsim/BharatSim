@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { createModel } = require('../../src/model/modelCreator');
+const { createModel } = require('../../src/utils/modelCreator');
 
 jest.mock('mongoose');
 

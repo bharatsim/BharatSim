@@ -1,11 +1,15 @@
 const express = require('express');
+const multer = require('multer');
+
 const apiRoutes = require('./src/controller/api.js');
 require('./setupDB');
 
-const app = express();
+const FILE_UPLOAD_PATH = './uploads/';
 
+const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(multer({ dest: FILE_UPLOAD_PATH }).single('datafile'));
 
 const port = 3005;
 

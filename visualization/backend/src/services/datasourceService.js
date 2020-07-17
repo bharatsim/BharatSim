@@ -1,6 +1,6 @@
 const dataSourceRepository = require('../repository/datasourceRepository');
 const dataSourceMetadataRepository = require('../repository/datasourceMetadataRepository');
-const modelCreator = require('../model/modelCreator');
+const modelCreator = require('../utils/modelCreator');
 const dbUtils = require('../utils/dbUtils');
 const ColumnsNotFoundException = require('../exceptions/ColumnsNotFoundException');
 

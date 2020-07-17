@@ -65,4 +65,24 @@ describe('get Datasource name ', () => {
       new DataSourceNotFoundExceeption(dataSourceName),
     );
   });
+
+  it('should insert a data for dataSource Metadata', async () => {
+    await DataSourceMetaDataRepository.insert({
+      name: 'model_1',
+      dataSourceSchema: {
+        hour: 'number',
+        susceptible: 'number',
+      },
+    });
+
+    const result = parseMongoDBResult(await DataSourceMetaData.findOne({ name: 'model_1' }, { _id: 0, __v: 0 }));
+
+    expect(result).toEqual({
+      name: 'model_1',
+      dataSourceSchema: {
+        hour: 'number',
+        susceptible: 'number',
+      },
+    });
+  });
 });

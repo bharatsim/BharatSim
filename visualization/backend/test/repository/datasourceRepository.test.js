@@ -8,7 +8,7 @@ const model = new Schema({
   hour: 'number',
   susceptible: 'number',
 });
-const DatasourceData = [
+const datasourceData = [
   {
     hour: 1,
     susceptible: 99,
@@ -22,6 +22,7 @@ const DatasourceData = [
     susceptible: 97,
   },
 ];
+
 const DataSourceModel = mongoose.model('dataSourceModel', model);
 
 const parseMongoDBResult = (result) => JSON.parse(JSON.stringify(result));
@@ -37,9 +38,10 @@ describe('get Datasource name ', () => {
     await dbHandler.closeDatabase();
   });
   it('should return all data for given datasource model', async () => {
-    await DataSourceModel.insertMany(DatasourceData);
+    await DataSourceModel.insertMany(datasourceData);
 
     const data = parseMongoDBResult(await DataSourceRepository.getData(DataSourceModel, { __v: 0 }));
+
     expect(data).toEqual([
       { hour: 1, susceptible: 99 },
       { hour: 2, susceptible: 98 },
@@ -48,7 +50,7 @@ describe('get Datasource name ', () => {
   });
 
   it('should return all data for given datasource model and selected fields', async () => {
-    await DataSourceModel.insertMany(DatasourceData);
+    await DataSourceModel.insertMany(datasourceData);
 
     const data = parseMongoDBResult(await DataSourceRepository.getData(DataSourceModel, { hour: 1 }));
 
@@ -57,6 +59,12 @@ describe('get Datasource name ', () => {
 
   it('should return empty array if document not present', async () => {
     const data = parseMongoDBResult(await DataSourceRepository.getData(DataSourceModel));
+
     expect(data).toEqual([]);
+  });
+
+  it('should insert data for given model', async () => {
+    const data = parseMongoDBResult(await DataSourceRepository.insert(DataSourceModel, datasourceData));
+    expect(data.length).toEqual(datasourceData.length);
   });
 });

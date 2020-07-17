@@ -1,25 +1,39 @@
 const express = require('express');
 const request = require('supertest');
+const multer = require('multer');
+const fs = require('fs');
 
 const dataSourceMetadataService = require('../../src/services/datasourceMetadataService');
 const datasourceService = require('../../src/services/datasourceService');
+const uploadDatasourceService = require('../../src/services/uploadDatasourceService');
 const apiRoute = require('../../src/controller/api');
 const DataSourceNotFoundException = require('../../src/exceptions/DatasourceNotFoundException');
 const ColumnsNotFoundException = require('../../src/exceptions/ColumnsNotFoundException');
 
+const TEST_FILE_UPLOAD_PATH = './test/testUpload/';
+
 jest.mock('../../src/services/dataSourceMetadataService');
 jest.mock('../../src/services/dataSourceService');
+jest.mock('../../src/services/uploadDatasourceService');
 
 describe('api', () => {
   const app = express();
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(multer({ dest: TEST_FILE_UPLOAD_PATH }).single('datafile'));
   app.use(apiRoute);
 
   beforeEach(() => {
     datasourceService.getData.mockResolvedValue({ data: { exposed: [2, 3], hour: [1, 2] } });
     dataSourceMetadataService.getHeaders.mockResolvedValue({ headers: ['hour', 'susceptible'] });
     dataSourceMetadataService.getDataSources.mockResolvedValue({ dataSources: ['model_1', 'model_2'] });
+    uploadDatasourceService.uploadCsv.mockImplementation();
+  });
+
+  afterAll(() => {
+    if (fs.existsSync(TEST_FILE_UPLOAD_PATH)) {
+      fs.rmdirSync(TEST_FILE_UPLOAD_PATH, { recursive: true });
+    }
   });
 
   describe('/datasources/:name/headers', () => {
@@ -129,6 +143,16 @@ describe('api', () => {
         .expect({ errorMessage: 'Technical error error' });
 
       expect(dataSourceMetadataService.getDataSources).toHaveBeenCalled();
+    });
+  });
+
+  describe('/datasources/upload', function () {
+    it('should upload file successfully', async () => {
+      await request(app)
+        .post('/datasources/upload')
+        .field('name', 'datafile')
+        .attach('datafile', 'test/data/simulation.csv')
+        .expect(200);
     });
   });
 });

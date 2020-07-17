@@ -1,12 +1,12 @@
 const dataSourceService = require('../../src/services/datasourceService');
 const dataSourceRepository = require('../../src/repository/datasourceRepository');
 const dataSourceMetadataRepository = require('../../src/repository/datasourceMetadataRepository');
-const modelCreator = require('../../src/model/modelCreator');
+const modelCreator = require('../../src/utils/modelCreator');
 const ColumnsNotFoundException = require('../../src/exceptions/ColumnsNotFoundException');
 
 jest.mock('../../src/repository/dataSourceRepository');
 jest.mock('../../src/repository/dataSourceMetadataRepository');
-jest.mock('../../src/model/modelCreator');
+jest.mock('../../src/utils/modelCreator');
 
 describe('dataSourceService', () => {
   it('should fetch data from database for give datasource name', async () => {
@@ -46,7 +46,7 @@ describe('dataSourceService', () => {
     });
   });
 
-  it('should throw an exception if return columns from database not contain one or more column provided by user', async () => {
+  it('should throw an exception for column mismatch', async () => {
     dataSourceMetadataRepository.getDataSourceSchema.mockResolvedValue({ dataSourceSchema: 'DataSourceSchema' });
     modelCreator.createModel.mockReturnValue('DataSourceModel');
     dataSourceRepository.getData.mockResolvedValue([

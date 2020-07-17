@@ -23,4 +23,13 @@ describe('dbUtils', () => {
       __v: 0,
     });
   });
+
+  it('should create schema from row of data', async () => {
+    const schema = dbUtils.createSchema({ hour: 123, susceptible: 123 });
+
+    expect(schema).toEqual({
+      hour: 'number',
+      susceptible: 'number',
+    });
+  });
 });

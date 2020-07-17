@@ -28,4 +28,11 @@ function changeRecordDimensionToArray(records) {
   }, {});
 }
 
-module.exports = { getProjectedColumns, changeRecordDimensionToArray, parseDBObject };
+function createSchema(row) {
+  return Object.keys(row).reduce((acc, element) => {
+    acc[element] = typeof row[element];
+    return acc;
+  }, {});
+}
+
+module.exports = { getProjectedColumns, changeRecordDimensionToArray, createSchema };
