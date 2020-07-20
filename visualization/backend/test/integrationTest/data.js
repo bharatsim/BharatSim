@@ -17,10 +17,16 @@ const dataSourceMetadata = [
   },
 ];
 
-const model1Model = mongoose.model('model_1', {
-  hour: 'number',
-  susceptible: 'number',
-});
+const model1Model = (modelName) => {
+  try {
+    return mongoose.model(modelName);
+  } catch (e) {
+    return mongoose.model(modelName, {
+      hour: 'number',
+      susceptible: 'number',
+    });
+  }
+};
 
 const model1 = [
   { hour: 0, susceptible: 1 },

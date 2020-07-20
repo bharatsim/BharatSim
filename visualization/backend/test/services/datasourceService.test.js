@@ -10,7 +10,7 @@ jest.mock('../../src/utils/modelCreator');
 
 describe('dataSourceService', () => {
   it('should fetch data from database for give datasource name', async () => {
-    dataSourceMetadataRepository.getDataSourceSchema.mockResolvedValue('DataSourceSchema');
+    dataSourceMetadataRepository.getDataSourceSchemaById.mockResolvedValue('DataSourceSchema');
     modelCreator.createModel.mockReturnValue('DataSourceModel');
     dataSourceRepository.getData.mockResolvedValue([
       { hour: 1, susceptible: 99 },
@@ -18,9 +18,9 @@ describe('dataSourceService', () => {
       { hour: 3, susceptible: 97 },
     ]);
 
-    const dataSourceName = 'model';
+    const dataSourceID = 'model';
 
-    const data = await dataSourceService.getData(dataSourceName);
+    const data = await dataSourceService.getData(dataSourceID);
 
     expect(data).toEqual({
       data: {
@@ -31,14 +31,14 @@ describe('dataSourceService', () => {
   });
 
   it('should fetch data from database for give datasource name and selected columns only', async () => {
-    dataSourceMetadataRepository.getDataSourceSchema.mockResolvedValue({ dataSourceSchema: 'DataSourceSchema' });
+    dataSourceMetadataRepository.getDataSourceSchemaById.mockResolvedValue({ dataSourceSchema: 'DataSourceSchema' });
     dataSourceRepository.getData.mockResolvedValue([{ hour: 1 }, { hour: 2 }, { hour: 3 }]);
     modelCreator.createModel.mockReturnValue('DataSourceModel');
-    const dataSourceName = 'model';
+    const dataSourceID = 'model';
 
-    const data = await dataSourceService.getData(dataSourceName, ['hour']);
+    const data = await dataSourceService.getData(dataSourceID, ['hour']);
 
-    expect(dataSourceMetadataRepository.getDataSourceSchema).toHaveBeenCalledWith('model');
+    expect(dataSourceMetadataRepository.getDataSourceSchemaById).toHaveBeenCalledWith('model');
     expect(dataSourceRepository.getData).toHaveBeenCalledWith('DataSourceModel', { hour: 1 });
     expect(modelCreator.createModel).toHaveBeenCalledWith('model', 'DataSourceSchema');
     expect(data).toEqual({
@@ -47,17 +47,17 @@ describe('dataSourceService', () => {
   });
 
   it('should throw an exception for column mismatch', async () => {
-    dataSourceMetadataRepository.getDataSourceSchema.mockResolvedValue({ dataSourceSchema: 'DataSourceSchema' });
+    dataSourceMetadataRepository.getDataSourceSchemaById.mockResolvedValue({ dataSourceSchema: 'DataSourceSchema' });
     modelCreator.createModel.mockReturnValue('DataSourceModel');
     dataSourceRepository.getData.mockResolvedValue([
       { hour: 1, susceptible: 99, exposed: 90 },
       { hour: 2, susceptible: 98, exposed: 90 },
       { hour: 3, susceptible: 97, exposed: 90 },
     ]);
-    const dataSourceName = 'model';
+    const dataSourceId = 'model';
 
     const result = async () => {
-      await dataSourceService.getData(dataSourceName, ['hours', 'exposed']);
+      await dataSourceService.getData(dataSourceId, ['hours', 'exposed']);
     };
 
     await expect(result).rejects.toThrow(ColumnsNotFoundException);
@@ -65,15 +65,15 @@ describe('dataSourceService', () => {
 
   describe('mocked function testing', function () {
     beforeEach(() => {
-      dataSourceMetadataRepository.getDataSourceSchema.mockResolvedValue({ dataSourceSchema: 'DataSourceSchema' });
+      dataSourceMetadataRepository.getDataSourceSchemaById.mockResolvedValue({ dataSourceSchema: 'DataSourceSchema' });
       dataSourceRepository.getData.mockResolvedValue([{ hour: 1 }, { hour: 2 }, { hour: 3 }]);
       modelCreator.createModel.mockReturnValue('DataSourceModel');
-      const dataSourceName = 'model';
-      dataSourceService.getData(dataSourceName, ['hour']);
+      const dataSourceId = 'model';
+      dataSourceService.getData(dataSourceId, ['hour']);
     });
 
     it('should getDataSourceSchema to have been called with dataSource name', function () {
-      expect(dataSourceMetadataRepository.getDataSourceSchema).toHaveBeenCalledWith('model');
+      expect(dataSourceMetadataRepository.getDataSourceSchemaById).toHaveBeenCalledWith('model');
     });
 
     it('should dataSourceRepository.getData to have been called with created model', function () {

@@ -7,11 +7,11 @@ const DataSourceNotFoundException = require('../exceptions/DatasourceNotFoundExc
 const ColumnsNotFoundException = require('../exceptions/ColumnsNotFoundException');
 const technicalErrorException = require('../exceptions/TechnicalErrorException');
 
-router.get('/datasources/:name/data', async function (req, res) {
+router.get('/datasources/:id/data', async function (req, res) {
   const { columns } = req.query;
-  const { name: dataSourceName } = req.params;
+  const { id: dataSourceId } = req.params;
   dataSourceService
-    .getData(dataSourceName, columns)
+    .getData(dataSourceId, columns)
     .then((data) => res.json(data))
     .catch((err) => {
       if (err instanceof DataSourceNotFoundException) {
@@ -24,10 +24,10 @@ router.get('/datasources/:name/data', async function (req, res) {
     });
 });
 
-router.get('/datasources/:name/headers', function (req, res) {
-  const { name: dataSourceName } = req.params;
+router.get('/datasources/:id/headers', function (req, res) {
+  const { id: dataSourceId } = req.params;
   dataSourceMetadataService
-    .getHeaders(dataSourceName)
+    .getHeaders(dataSourceId)
     .then((headers) => res.json(headers))
     .catch((err) => {
       if (err instanceof DataSourceNotFoundException) {

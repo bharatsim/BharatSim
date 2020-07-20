@@ -6,5 +6,6 @@ public/*
 coverage
 *.DS_Store*
 .env
-./uploads
-./test/testUpload
+
+uploads
+test/testUpload

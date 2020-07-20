@@ -1,15 +1,14 @@
 const dataSourceMetadataRepository = require('../repository/datasourceMetadataRepository');
 
-async function getHeaders(dataSourceName) {
-  const dataSource = await dataSourceMetadataRepository.getDataSourceSchema(dataSourceName);
+async function getHeaders(dataSourceId) {
+  const dataSource = await dataSourceMetadataRepository.getDataSourceSchemaById(dataSourceId);
   const headers = Object.keys(dataSource.dataSourceSchema);
   return { headers };
 }
 
 async function getDataSources() {
   const dataSources = await dataSourceMetadataRepository.getDataSourceNames();
-  const dataSourceNames = dataSources.map((dataSource) => dataSource.name);
-  return { dataSources: dataSourceNames };
+  return { dataSources };
 }
 
 module.exports = {

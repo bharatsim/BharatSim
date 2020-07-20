@@ -8,13 +8,13 @@ function isNotProvidedDataHaveEqualColumns(data, columns) {
   return columns.length !== Object.keys(data).length;
 }
 
-async function getDataSourceModel(dataSourceName) {
-  const dataSourceSchema = await dataSourceMetadataRepository.getDataSourceSchema(dataSourceName);
-  return modelCreator.createModel(dataSourceName, dataSourceSchema.dataSourceSchema);
+async function getDataSourceModel(dataSourceId) {
+  const dataSourceSchema = await dataSourceMetadataRepository.getDataSourceSchemaById(dataSourceId);
+  return modelCreator.createModel(dataSourceId, dataSourceSchema.dataSourceSchema);
 }
 
-async function getData(dataSourceName, columns) {
-  const dataSourceModel = await getDataSourceModel(dataSourceName);
+async function getData(dataSourceId, columns) {
+  const dataSourceModel = await getDataSourceModel(dataSourceId);
   const columnsMap = dbUtils.getProjectedColumns(columns);
   const dataRecords = await dataSourceRepository.getData(dataSourceModel, columnsMap);
   const data = dbUtils.changeRecordDimensionToArray(dataRecords);

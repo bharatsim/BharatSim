@@ -26,7 +26,9 @@ describe('api', () => {
   beforeEach(() => {
     datasourceService.getData.mockResolvedValue({ data: { exposed: [2, 3], hour: [1, 2] } });
     dataSourceMetadataService.getHeaders.mockResolvedValue({ headers: ['hour', 'susceptible'] });
-    dataSourceMetadataService.getDataSources.mockResolvedValue({ dataSources: ['model_1', 'model_2'] });
+    dataSourceMetadataService.getDataSources.mockResolvedValue({
+      dataSources: [{ name: 'model_1' }, { name: 'model_2' }],
+    });
     uploadDatasourceService.uploadCsv.mockImplementation();
   });
 
@@ -36,7 +38,7 @@ describe('api', () => {
     }
   });
 
-  describe('/datasources/:name/headers', () => {
+  describe('/datasources/:id/headers', () => {
     it('should get headers', async () => {
       await request(app)
         .get('/datasources/model_1/headers')
@@ -51,7 +53,7 @@ describe('api', () => {
       await request(app)
         .get('/datasources/model_1/headers')
         .expect(404)
-        .expect({ errorMessage: 'datasource with name model_1 not found' });
+        .expect({ errorMessage: 'datasource with id model_1 not found' });
       expect(dataSourceMetadataService.getHeaders).toHaveBeenCalledWith('model_1');
     });
 
@@ -93,7 +95,7 @@ describe('api', () => {
         .get('/datasources/datasourceName/data')
         .query({ columns: ['expose', 'hour'] })
         .expect(404)
-        .expect({ errorMessage: 'datasource with name datasourceName not found' });
+        .expect({ errorMessage: 'datasource with id datasourceName not found' });
 
       expect(datasourceService.getData).toHaveBeenCalledWith('datasourceName', ['expose', 'hour']);
     });
@@ -129,7 +131,7 @@ describe('api', () => {
       await request(app)
         .get('/datasources')
         .expect(200)
-        .expect({ dataSources: ['model_1', 'model_2'] });
+        .expect({ dataSources: [{ name: 'model_1' }, { name: 'model_2' }] });
       expect(dataSourceMetadataService.getDataSources).toHaveBeenCalled();
     });
 

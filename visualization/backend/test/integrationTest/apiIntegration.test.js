@@ -11,11 +11,15 @@ describe('Integration test', () => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(apiRoute);
+  let insertedMetadata;
+  let dataSourceId;
 
   beforeAll(async () => {
     await dbHandler.connect();
-    await DataSourceMetaData.insertMany(dataSourceMetadata);
-    await model1Model.insertMany(model1);
+    insertedMetadata = await DataSourceMetaData.insertMany(dataSourceMetadata);
+    const { _id } = insertedMetadata[0];
+    dataSourceId = _id;
+    await model1Model(dataSourceId.toString()).insertMany(model1);
   });
   afterAll(async () => {
     await dbHandler.clearDatabase();
@@ -24,33 +28,31 @@ describe('Integration test', () => {
 
   describe('/datasources', () => {
     it('should get data source names', async () => {
-      await request(app)
-        .get('/datasources')
-        .expect(200)
-        .expect({ dataSources: ['model_1', 'model_2'] });
+      const expectedDataSource = insertedMetadata.map((metadata) => ({ _id: metadata.id, name: metadata.name }));
+      await request(app).get('/datasources').expect(200).expect({ dataSources: expectedDataSource });
     });
   });
 
-  describe('/datasources/:name/headers', () => {
+  describe('/datasources/:id/headers', () => {
     it('should get headers', async () => {
       await request(app)
-        .get('/datasources/model_1/headers')
+        .get(`/datasources/${dataSourceId}/headers`)
         .expect(200)
         .expect({ headers: ['hour', 'susceptible'] });
     });
 
     it('should throw error if datasource not found', async () => {
       await request(app)
-        .get('/datasources/model_3/headers')
+        .get(`/datasources/123456789012/headers`)
         .expect(404)
-        .expect({ errorMessage: 'datasource with name model_3 not found' });
+        .expect({ errorMessage: 'datasource with id 123456789012 not found' });
     });
   });
 
   describe('/datasources/:name/data', () => {
     it('should get data for requested columns', async () => {
       await request(app)
-        .get('/datasources/model_1/data')
+        .get(`/datasources/${dataSourceId}/data`)
         .query({ columns: ['susceptible', 'hour'] })
         .expect(200)
         .expect({ data: { susceptible: [1, 2, 3, 4, 5], hour: [0, 1, 2, 3, 4] } });
@@ -58,15 +60,15 @@ describe('Integration test', () => {
 
     it('should throw error if data source not found', async () => {
       await request(app)
-        .get('/datasources/datasourceName/data')
+        .get('/datasources/123456789012/data')
         .query({ columns: ['expose', 'hour'] })
         .expect(404)
-        .expect({ errorMessage: 'datasource with name datasourceName not found' });
+        .expect({ errorMessage: 'datasource with id 123456789012 not found' });
     });
 
     it('should send error message for columns not found exception', async () => {
       await request(app)
-        .get('/datasources/model_1/data')
+        .get(`/datasources/${dataSourceId}/data`)
         .query({ columns: ['exposeed', 'hour'] })
         .expect(200)
         .expect({});

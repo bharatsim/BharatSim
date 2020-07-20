@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const DataSourceMetaData = require('../../src/model/datasourceMetadata');
 const DataSourceMetaDataRepository = require('../../src/repository/datasourceMetadataRepository');
 const DataSourceNotFoundExceeption = require('../../src/exceptions/DatasourceNotFoundException');
@@ -33,37 +35,42 @@ describe('get Datasource name ', () => {
     await dbHandler.closeDatabase();
   });
 
-  it('should return names of all present data sources', async () => {
-    await DataSourceMetaData.insertMany(dataSourceMetadata);
+  describe('getDataSourceNames', function () {
+    it('should return names of all present data sources', async () => {
+      const insertedMetadata = await DataSourceMetaData.insertMany(dataSourceMetadata);
+      const expectedResult = insertedMetadata.map((metadata) => ({ _id: metadata.id, name: metadata.name }));
 
-    const names = parseMongoDBResult(await DataSourceMetaDataRepository.getDataSourceNames());
+      const names = parseMongoDBResult(await DataSourceMetaDataRepository.getDataSourceNames());
 
-    expect(names).toEqual([{ name: 'model_1' }, { name: 'model_2' }]);
-  });
-
-  it('should return datasource schema for given datasource name', async () => {
-    await DataSourceMetaData.insertMany(dataSourceMetadata);
-    const dataSourceName = 'model_1';
-    const names = parseMongoDBResult(await DataSourceMetaDataRepository.getDataSourceSchema(dataSourceName));
-
-    expect(names).toEqual({
-      dataSourceSchema: {
-        hour: 'number',
-        susceptible: 'number',
-      },
+      expect(names).toEqual(expectedResult);
     });
   });
 
-  it('should throw exception if datasource is not available', async () => {
-    await DataSourceMetaData.insertMany(dataSourceMetadata);
-    const dataSourceName = 'model_3';
+  describe('getDataSourceSchemaById', function () {
+    it('should return datasource schema for given datasource name', async () => {
+      const insertedMetadata = await DataSourceMetaData.insertMany(dataSourceMetadata);
+      const { _id: dataSourceId } = insertedMetadata[0];
+      const schema = parseMongoDBResult(await DataSourceMetaDataRepository.getDataSourceSchemaById(dataSourceId));
 
-    await expect(DataSourceMetaDataRepository.getDataSourceSchema(dataSourceName)).rejects.toBeInstanceOf(
-      DataSourceNotFoundExceeption,
-    );
-    await expect(DataSourceMetaDataRepository.getDataSourceSchema(dataSourceName)).rejects.toEqual(
-      new DataSourceNotFoundExceeption(dataSourceName),
-    );
+      expect(schema).toEqual({
+        dataSourceSchema: {
+          hour: 'number',
+          susceptible: 'number',
+        },
+      });
+    });
+
+    it('should throw exception if datasource is not available', async () => {
+      await DataSourceMetaData.insertMany(dataSourceMetadata);
+      const dataSourceId = new mongoose.Types.ObjectId('123112123112');
+
+      await expect(DataSourceMetaDataRepository.getDataSourceSchemaById(dataSourceId)).rejects.toBeInstanceOf(
+        DataSourceNotFoundExceeption,
+      );
+      await expect(DataSourceMetaDataRepository.getDataSourceSchemaById(dataSourceId)).rejects.toEqual(
+        new DataSourceNotFoundExceeption(dataSourceId),
+      );
+    });
   });
 
   it('should insert a data for dataSource Metadata', async () => {
