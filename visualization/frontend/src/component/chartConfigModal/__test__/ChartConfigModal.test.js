@@ -8,7 +8,7 @@ import fetch from '../../../utils/fetch';
 jest.mock('../../../utils/url', () => ({
   url: {
     getHeaderUrl: jest.fn().mockReturnValue('/headers'),
-    DATA_SOURCES: '/dataSources',
+    DATA_SOURCES: '/datasources',
   },
 }));
 
@@ -18,8 +18,13 @@ jest.mock('../../../utils/fetch', () => ({
     if (url === '/headers') {
       return Promise.resolve({ headers: ['x-header', 'y-header'] });
     }
-    if (url === '/dataSources') {
-      return Promise.resolve({ dataSources: ['modelone', 'modeltwo'] });
+    if (url === '/datasources') {
+      return Promise.resolve({
+        dataSources: [
+          { _id: 'id1', name: 'modelone' },
+          { _id: 'id2', name: 'modeltwo' },
+        ],
+      });
     }
     return Promise.reject();
   }),
@@ -70,7 +75,7 @@ describe('<ChartConfigModal />', () => {
 
     fireEvent.click(okButton);
 
-    expect(props.onOk).toHaveBeenCalledWith({ dataSource: 'modelone', xColumn: 'x-header', yColumn: 'y-header' });
+    expect(props.onOk).toHaveBeenCalledWith({ dataSource: 'id1', xColumn: 'x-header', yColumn: 'y-header' });
   });
 
   it('should be disable x-axis and y-axis dropdown if data source is not selected', async () => {

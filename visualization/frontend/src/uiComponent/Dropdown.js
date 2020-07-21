@@ -16,16 +16,19 @@ const useStyles = makeStyles((theme) => ({
 const renderMenuItems = (id, options) => {
   return (
     options &&
-    options.map((option) => (
-      <MenuItem
-        value={option}
-        key={option}
-        id={`${id}-${option.split(' ').join('-')}`}
-        data-testid={`${id}-${option.split(' ').join('-')}`}
-      >
-        {option}
-      </MenuItem>
-    ))
+    options.map(({ value, displayName }) => {
+      const displayNameKey = displayName.split(' ').join('-');
+      return (
+        <MenuItem
+          value={value}
+          key={displayNameKey}
+          id={`${id}-${displayNameKey}`}
+          data-testid={`${id}-${displayNameKey}`}
+        >
+          {displayName}
+        </MenuItem>
+      );
+    })
   );
 };
 
@@ -61,7 +64,12 @@ export default function Dropdown({ label, options, id, onChange, ...rest }) {
 
 Dropdown.propTypes = {
   label: PropTypes.string.isRequired,
-  options: PropTypes.arrayOf(PropTypes.string).isRequired,
+  options: PropTypes.arrayOf(
+    PropTypes.shape({
+      value: PropTypes.string.isRequired,
+      displayName: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
   id: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
 };

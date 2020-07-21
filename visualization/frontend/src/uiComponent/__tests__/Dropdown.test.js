@@ -5,7 +5,11 @@ import Dropdown from '../Dropdown';
 
 describe('<Dropdown />', () => {
   const props = {
-    options: ['one', 'two', 'three'],
+    options: [
+      { value: 'one', displayName: 'one' },
+      { value: 'two', displayName: 'two' },
+      { value: 'three', displayName: 'three' },
+    ],
     id: 'numbers',
     label: 'select number',
     onChange: jest.fn(),

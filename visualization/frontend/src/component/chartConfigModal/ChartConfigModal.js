@@ -7,7 +7,7 @@ import useFetch from '../../hook/useFetch';
 import fetch from '../../utils/fetch';
 import { url } from '../../utils/url';
 import Dropdown from '../../uiComponent/Dropdown';
-import { updateState } from '../../utils/helper';
+import { convertObjectArrayToOptions, convertStringArrayToOptions, updateState } from '../../utils/helper';
 
 function ChartConfigModal({ open, onCancel, onOk }) {
   const [config, setConfig] = React.useState({});
@@ -48,20 +48,20 @@ function ChartConfigModal({ open, onCancel, onOk }) {
         <>
           <DialogContent>
             <Dropdown
-              options={dataSources.dataSources}
+              options={convertObjectArrayToOptions(dataSources.dataSources, '_id', 'name')}
               onChange={handleDataSourceChange}
               id="dropdown-dataSources"
               label="select data source"
             />
             <Dropdown
-              options={headers}
+              options={convertStringArrayToOptions(headers)}
               onChange={handleXChange}
               id="dropdown-x"
               label="select x axis"
               disabled={headers.length === 0}
             />
             <Dropdown
-              options={headers}
+              options={convertStringArrayToOptions(headers)}
               onChange={handleYChange}
               id="dropdown-y"
               label="select y axis"
