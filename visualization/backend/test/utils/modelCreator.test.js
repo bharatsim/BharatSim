@@ -13,7 +13,7 @@ describe('Model Creator', () => {
     const model = createModel('modelName', { column: 'string' });
 
     expect(mongoose.model).toHaveBeenCalledWith('modelName', expect.any(mongoose.Schema));
-    expect(mongoose.Schema).toHaveBeenCalledWith({ column: 'string' });
+    expect(mongoose.Schema).toHaveBeenCalledWith({ column: 'string' }, { collection: 'modelName' });
     expect(model).toEqual('Model');
   });
 

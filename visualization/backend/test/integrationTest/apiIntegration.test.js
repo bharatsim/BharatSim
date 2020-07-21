@@ -1,15 +1,22 @@
 const express = require('express');
 const request = require('supertest');
+const multer = require('multer');
+const fs = require('fs');
+const mongoose = require('mongoose');
 
 const dbHandler = require('../db-handler');
 const DataSourceMetaData = require('../../src/model/datasourceMetadata');
 const { dataSourceMetadata, model1, model1Model } = require('./data');
 const apiRoute = require('../../src/controller/api');
+const { parseDBObject } = require('../../src/utils/dbUtils');
+
+const TEST_FILE_UPLOAD_PATH = './test/testUpload/';
 
 describe('Integration test', () => {
   const app = express();
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(multer({ dest: TEST_FILE_UPLOAD_PATH }).single('datafile'));
   app.use(apiRoute);
   let insertedMetadata;
   let dataSourceId;
@@ -24,6 +31,9 @@ describe('Integration test', () => {
   afterAll(async () => {
     await dbHandler.clearDatabase();
     await dbHandler.closeDatabase();
+    if (fs.existsSync(TEST_FILE_UPLOAD_PATH)) {
+      fs.rmdirSync(TEST_FILE_UPLOAD_PATH, { recursive: true });
+    }
   });
 
   describe('/datasources', () => {
@@ -49,10 +59,10 @@ describe('Integration test', () => {
     });
   });
 
-  describe('/datasources/:name/data', () => {
+  describe('/datasources/:id/', () => {
     it('should get data for requested columns', async () => {
       await request(app)
-        .get(`/datasources/${dataSourceId}/data`)
+        .get(`/datasources/${dataSourceId}`)
         .query({ columns: ['susceptible', 'hour'] })
         .expect(200)
         .expect({ data: { susceptible: [1, 2, 3, 4, 5], hour: [0, 1, 2, 3, 4] } });
@@ -60,7 +70,7 @@ describe('Integration test', () => {
 
     it('should throw error if data source not found', async () => {
       await request(app)
-        .get('/datasources/123456789012/data')
+        .get('/datasources/123456789012')
         .query({ columns: ['expose', 'hour'] })
         .expect(404)
         .expect({ errorMessage: 'datasource with id 123456789012 not found' });
@@ -68,10 +78,35 @@ describe('Integration test', () => {
 
     it('should send error message for columns not found exception', async () => {
       await request(app)
-        .get(`/datasources/${dataSourceId}/data`)
+        .get(`/datasources/${dataSourceId}`)
         .query({ columns: ['exposeed', 'hour'] })
         .expect(200)
         .expect({});
+    });
+  });
+
+  describe('Post /datasources', function () {
+    it('should uploaded file in database with 200 as http response', async function () {
+      const response = await request(app)
+        .post('/datasources')
+        .field('name', 'datafile')
+        .attach('datafile', 'test/data/simulation.csv')
+        .expect(200);
+
+      const uploadedFileCollectionId = response.body.collectionId;
+      const { _id } = parseDBObject(await DataSourceMetaData.findOne({ _id: uploadedFileCollectionId }));
+      expect(_id).toEqual(uploadedFileCollectionId);
+      const collections = Object.keys(mongoose.connections[0].collections);
+      expect(collections.includes(uploadedFileCollectionId).toString()).toBe('true');
+    });
+
+    it('should provide a error when invalid file is uploaded', async function () {
+      await request(app)
+        .post('/datasources')
+        .field('name', 'datafile')
+        .attach('datafile', 'test/data/test.png')
+        .expect(400)
+        .expect({ errorMessage: 'File type does not match' });
     });
   });
 });

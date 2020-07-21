@@ -9,12 +9,23 @@ const uploadDatasourceService = require('../../src/services/uploadDatasourceServ
 const apiRoute = require('../../src/controller/api');
 const DataSourceNotFoundException = require('../../src/exceptions/DatasourceNotFoundException');
 const ColumnsNotFoundException = require('../../src/exceptions/ColumnsNotFoundException');
+const InvalidInputException = require('../../src/exceptions/InvalidInputException');
 
 const TEST_FILE_UPLOAD_PATH = './test/testUpload/';
-
+jest.mock('multer');
 jest.mock('../../src/services/dataSourceMetadataService');
 jest.mock('../../src/services/dataSourceService');
 jest.mock('../../src/services/uploadDatasourceService');
+
+multer.mockImplementation(() => ({
+  single() {
+    return (req, res, next) => {
+      req.body = { title: req.query.title };
+      req.file = [{ originalname: 'sample.name', mimetype: 'sample.type', path: 'sample.url' }];
+      return next();
+    };
+  },
+}));
 
 describe('api', () => {
   const app = express();
@@ -29,7 +40,7 @@ describe('api', () => {
     dataSourceMetadataService.getDataSources.mockResolvedValue({
       dataSources: [{ name: 'model_1' }, { name: 'model_2' }],
     });
-    uploadDatasourceService.uploadCsv.mockImplementation();
+    uploadDatasourceService.uploadCsv.mockResolvedValue({ collectionId: 'id' });
   });
 
   afterAll(() => {
@@ -38,7 +49,7 @@ describe('api', () => {
     }
   });
 
-  describe('/datasources/:id/headers', () => {
+  describe('Get /datasources/:id/headers', () => {
     it('should get headers', async () => {
       await request(app)
         .get('/datasources/model_1/headers')
@@ -69,22 +80,22 @@ describe('api', () => {
     });
   });
 
-  describe('/datasources/:name/data', () => {
+  describe('Get /datasources/:id', () => {
     it('should get data for specified datasource name', async () => {
       await request(app)
-        .get('/datasources/datasourceName/data')
+        .get('/datasources/datasourceId')
         .expect(200)
         .expect({ data: { exposed: [2, 3], hour: [1, 2] } });
-      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceName', undefined);
+      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceId', undefined);
     });
 
     it('should get data for requested columns', async () => {
       await request(app)
-        .get('/datasources/datasourceName/data')
+        .get('/datasources/datasourceId')
         .query({ columns: ['expose', 'hour'] })
         .expect(200)
         .expect({ data: { exposed: [2, 3], hour: [1, 2] } });
-      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceName', ['expose', 'hour']);
+      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceId', ['expose', 'hour']);
     });
 
     it('should throw error if data source not found', async () => {
@@ -92,12 +103,12 @@ describe('api', () => {
       datasourceService.getData.mockRejectedValueOnce(dataSourceNotFoundException);
 
       await request(app)
-        .get('/datasources/datasourceName/data')
+        .get('/datasources/datasourceId')
         .query({ columns: ['expose', 'hour'] })
         .expect(404)
         .expect({ errorMessage: 'datasource with id datasourceName not found' });
 
-      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceName', ['expose', 'hour']);
+      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceId', ['expose', 'hour']);
     });
 
     it('should send error message for columns not found exception', async () => {
@@ -105,28 +116,28 @@ describe('api', () => {
       datasourceService.getData.mockRejectedValueOnce(columnsNotFoundException);
 
       await request(app)
-        .get('/datasources/datasourceName/data')
+        .get('/datasources/datasourceId')
         .query({ columns: ['exposeed', 'hour'] })
         .expect(200)
         .expect({});
 
-      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceName', ['exposeed', 'hour']);
+      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceId', ['exposeed', 'hour']);
     });
 
     it('should throw error if any technical error occur', async () => {
       datasourceService.getData.mockRejectedValueOnce(new Error('error'));
 
       await request(app)
-        .get('/datasources/datasourceName/data')
+        .get('/datasources/datasourceId')
         .query({ columns: ['expose', 'hour'] })
         .expect(500)
         .expect({ errorMessage: 'Technical error error' });
 
-      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceName', ['expose', 'hour']);
+      expect(datasourceService.getData).toHaveBeenCalledWith('datasourceId', ['expose', 'hour']);
     });
   });
 
-  describe('/datasources', () => {
+  describe('Get /datasources', () => {
     it('should get data source names', async () => {
       await request(app)
         .get('/datasources')
@@ -148,13 +159,39 @@ describe('api', () => {
     });
   });
 
-  describe('/datasources/upload', function () {
+  describe('Post /datasources', function () {
     it('should upload file successfully', async () => {
       await request(app)
-        .post('/datasources/upload')
+        .post('/datasources')
         .field('name', 'datafile')
         .attach('datafile', 'test/data/simulation.csv')
-        .expect(200);
+        .expect(200)
+        .expect({ collectionId: 'id' });
+    });
+
+    it('should throw an invalid input exception for file type not match', async () => {
+      const invalidInputError = new InvalidInputException('error message');
+      uploadDatasourceService.uploadCsv.mockRejectedValueOnce(invalidInputError);
+      await request(app)
+        .post('/datasources')
+        .field('name', 'datafile')
+        .attach('datafile', 'test/data/test.png')
+        .expect(400)
+        .expect({ errorMessage: 'error message' });
+
+      expect(uploadDatasourceService.uploadCsv).toHaveBeenCalledWith([
+        { mimetype: 'sample.type', originalname: 'sample.name', path: 'sample.url' },
+      ]);
+    });
+
+    it('should throw an technical exception for file type not match', async () => {
+      uploadDatasourceService.uploadCsv.mockRejectedValueOnce(new Error());
+      await request(app)
+        .post('/datasources')
+        .field('name', 'datafile')
+        .attach('datafile', 'test/data/test.png')
+        .expect(500)
+        .expect({ errorMessage: 'Technical error ' });
     });
   });
 });

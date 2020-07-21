@@ -9,20 +9,32 @@ jest.mock('../../src/repository/datasourceMetadataRepository');
 jest.mock('../../src/repository/datasourceRepository');
 jest.mock('../../src/utils/modelCreator');
 jest.mock('../../src/utils/csvParser', () => ({
-    parseCSV: jest.fn().mockReturnValue({
-      data: [
-        { hour: 0, susceptible: 1 },
-        { hour: 1, susceptible: 2 },
-        { hour: 2, susceptible: 3 },
-      ],
-    }),
-  }));
+  parseCSV: jest.fn().mockReturnValue({
+    data: [
+      { hour: 0, susceptible: 1 },
+      { hour: 1, susceptible: 2 },
+      { hour: 2, susceptible: 3 },
+    ],
+  }),
+}));
 
 describe('Upload data source service', function () {
   it('should insert schema and datasource name in dataSource metadata for uploaded csv', async function () {
+    dataSourceMetadataRepository.insert.mockResolvedValue({ _id: 'collection' });
+
+    const collectionId = await uploadDatasourceService.uploadCsv({
+      path: '/uploads/1223',
+      originalname: 'test.csv',
+      mimetype: 'text/csv',
+    });
+
+    expect(collectionId).toEqual({ collectionId: 'collection' });
+  });
+
+  it('should insert schema and datasource name in dataSource metadata for uploaded csv', async function () {
     dataSourceMetadataRepository.insert.mockResolvedValue({ _id: new mongoose.Types.ObjectId(123123) });
 
-    await uploadDatasourceService.uploadCsv({ path: '/uploads/1223', originalname: 'test.csv' });
+    await uploadDatasourceService.uploadCsv({ path: '/uploads/1223', originalname: 'test.csv', mimetype: 'text/csv' });
 
     expect(dataSourceMetadataRepository.insert).toHaveBeenCalledWith({
       dataSourceSchema: { hour: 'number', susceptible: 'number' },
@@ -34,7 +46,7 @@ describe('Upload data source service', function () {
     dataSourceMetadataRepository.insert.mockResolvedValue({ _id: 'collectionId' });
     createModel.createModel.mockImplementation((id) => id);
 
-    await uploadDatasourceService.uploadCsv({ path: '/uploads/1223', originalname: 'test.csv' });
+    await uploadDatasourceService.uploadCsv({ path: '/uploads/1223', originalname: 'test.csv', mimetype: 'text/csv' });
 
     expect(dataSourceRepository.insert).toHaveBeenCalledWith('collectionId', [
       { hour: 0, susceptible: 1 },

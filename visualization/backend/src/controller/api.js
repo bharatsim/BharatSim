@@ -6,8 +6,9 @@ const uploadDatasourceService = require('../services/uploadDatasourceService.js'
 const DataSourceNotFoundException = require('../exceptions/DatasourceNotFoundException');
 const ColumnsNotFoundException = require('../exceptions/ColumnsNotFoundException');
 const technicalErrorException = require('../exceptions/TechnicalErrorException');
+const InvalidInputException = require('../exceptions/InvalidInputException');
 
-router.get('/datasources/:id/data', async function (req, res) {
+router.get('/datasources/:id', async function (req, res) {
   const { columns } = req.query;
   const { id: dataSourceId } = req.params;
   dataSourceService
@@ -45,8 +46,16 @@ router.get('/datasources', async function (req, res) {
     .catch((err) => technicalErrorException(err, res));
 });
 
-router.post('/datasources/upload', async function (req, res) {
-  await uploadDatasourceService.uploadCsv(req.file);
-  res.end();
+router.post('/datasources', async function (req, res) {
+  uploadDatasourceService
+    .uploadCsv(req.file)
+    .then((data) => res.json(data))
+    .catch((err) => {
+      if (err instanceof InvalidInputException) {
+        res.status(400).send({ errorMessage: err.message });
+      } else {
+        technicalErrorException(err, res);
+      }
+    });
 });
 module.exports = router;

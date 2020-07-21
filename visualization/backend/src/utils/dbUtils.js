@@ -35,4 +35,4 @@ function createSchema(row) {
   }, {});
 }
 
-module.exports = { getProjectedColumns, changeRecordDimensionToArray, createSchema };
+module.exports = { getProjectedColumns, changeRecordDimensionToArray, createSchema, parseDBObject };

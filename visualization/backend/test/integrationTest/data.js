@@ -36,17 +36,8 @@ const model1 = [
   { hour: 4, susceptible: 5 },
 ];
 
-const model2 = [
-  { hour_: 0, susceptible_: 1 },
-  { hour_: 1, susceptible_: 2 },
-  { hour_: 2, susceptible_: 3 },
-  { hour_: 3, susceptible_: 4 },
-  { hour_: 4, susceptible_: 5 },
-];
-
 module.exports = {
   dataSourceMetadata,
   model1,
-  model2,
   model1Model,
 };
