@@ -10,6 +10,7 @@ import { createElement, getNewWidgetLayout } from './utils';
 import labels from '../../constants/labels';
 import ChartConfigModal from '../chartConfigModal/ChartConfigModal';
 import useModal from '../../hook/useModal';
+import FileUpload from '../fileUpload/FileUpload';
 
 const GridLayout = WidthProvider(ReactGridLayout);
 const cols = 12;
@@ -42,6 +43,9 @@ const DashboardLayout = () => {
 
   return (
     <Box pl={10} pt={10} pr={10}>
+      <Box pb={2}>
+        <FileUpload />
+      </Box>
       <Box pb={2}>
         <Button onClick={openModal} variant="contained" color="primary">
           {labels.dashboardLayout.ADD_WIDGET}

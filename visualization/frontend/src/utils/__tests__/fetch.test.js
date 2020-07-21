@@ -1,5 +1,7 @@
+/* eslint-disable import/first */
 import axios from 'axios';
-import fetch from '../fetch';
+
+import { fetch, uploadFile } from '../fetch';
 
 jest.mock('axios', () => ({
   __esModule: true,
@@ -17,5 +19,16 @@ describe('Fetch util', () => {
     fetch({ url: 'test/api', data: 'data', method: 'post', headers: 'header' });
 
     expect(axios).toHaveBeenCalledWith({ data: 'data', headers: 'header', method: 'post', url: 'test/api' });
+  });
+
+  it('should upload file for given url and file', () => {
+    uploadFile({ url: 'test/api', file: { name: 'test.csv' } });
+
+    expect(axios).toHaveBeenCalledWith({
+      data: expect.any(FormData),
+      headers: { 'content-type': 'multipart/form-data' },
+      method: 'post',
+      url: 'test/api',
+    });
   });
 });

@@ -27,6 +27,14 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
     <div
       class="MuiBox-root MuiBox-root-2"
     >
+      <div>
+        File Upload
+        <span />
+      </div>
+    </div>
+    <div
+      class="MuiBox-root MuiBox-root-3"
+    >
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
         tabindex="0"

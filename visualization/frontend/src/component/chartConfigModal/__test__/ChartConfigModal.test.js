@@ -3,7 +3,7 @@ import React from 'react';
 import { fireEvent, render, waitFor, within } from '@testing-library/react';
 
 import ChartConfigModal from '../ChartConfigModal';
-import fetch from '../../../utils/fetch';
+import { fetch } from '../../../utils/fetch';
 
 jest.mock('../../../utils/url', () => ({
   url: {
@@ -13,8 +13,7 @@ jest.mock('../../../utils/url', () => ({
 }));
 
 jest.mock('../../../utils/fetch', () => ({
-  __esModule: true,
-  default: jest.fn(({ url }) => {
+  fetch: jest.fn(({ url }) => {
     if (url === '/headers') {
       return Promise.resolve({ headers: ['x-header', 'y-header'] });
     }

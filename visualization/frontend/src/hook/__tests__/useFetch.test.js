@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react-hooks';
 
 import useFetch from '../useFetch';
-import { httpMethods } from '../../constants/httpMethods';
-import fetch from '../../utils/fetch';
+import { httpMethods } from '../../constants/fetch';
+import { fetch } from '../../utils/fetch';
 
 jest.mock('../../utils/fetch');
 

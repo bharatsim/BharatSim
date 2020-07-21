@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography, Box } from '@material-ui/core';
 
 import useFetch from '../../hook/useFetch';
-import fetch from '../../utils/fetch';
+import { fetch } from '../../utils/fetch';
 import { url } from '../../utils/url';
 import Dropdown from '../../uiComponent/Dropdown';
 import { convertObjectArrayToOptions, convertStringArrayToOptions, updateState } from '../../utils/helper';

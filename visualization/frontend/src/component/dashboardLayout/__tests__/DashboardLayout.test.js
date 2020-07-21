@@ -19,6 +19,14 @@ jest.mock('../../chartConfigModal/ChartConfigModal', () => ({ open, onCancel, on
   </>
 ));
 
+jest.mock('../../fileUpload/FileUpload', () => (props) => (
+  <div>
+    File Upload
+    {/* eslint-disable-next-line no-undef */}
+    <span>{mockPropsCapture(props)}</span>
+  </div>
+));
+
 jest.mock('../../lineChart/LineChart', () => (props) => (
   <div>
     Line Chart
@@ -26,6 +34,7 @@ jest.mock('../../lineChart/LineChart', () => (props) => (
     <span>{mockPropsCapture(props)}</span>
   </div>
 ));
+
 jest.mock('../../../hook/useFetch');
 
 describe('<DashboardLayout />', () => {
