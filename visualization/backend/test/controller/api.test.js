@@ -21,7 +21,7 @@ multer.mockImplementation(() => ({
   single() {
     return (req, res, next) => {
       req.body = { title: req.query.title };
-      req.file = [{ originalname: 'sample.name', mimetype: 'sample.type', path: 'sample.url' }];
+      req.file = { originalname: 'sample.name', mimetype: 'sample.type', path: 'sample.path' };
       return next();
     };
   },
@@ -169,6 +169,29 @@ describe('api', () => {
         .expect({ collectionId: 'id' });
     });
 
+    it('should delete file after successful upload', async () => {
+      await request(app)
+        .post('/datasources')
+        .field('name', 'datafile')
+        .attach('datafile', 'test/data/simulation.csv')
+        .expect(200)
+        .expect({ collectionId: 'id' });
+
+      expect(uploadDatasourceService.deleteUploadedFile).toHaveBeenCalledWith('sample.path');
+    });
+
+    it('should delete file after unsuccessful upload', async () => {
+      uploadDatasourceService.uploadCsv.mockRejectedValueOnce(new Error());
+      await request(app)
+        .post('/datasources')
+        .field('name', 'datafile')
+        .attach('datafile', 'test/data/test.png')
+        .expect(500)
+        .expect({ errorMessage: 'Technical error ' });
+
+      expect(uploadDatasourceService.deleteUploadedFile).toHaveBeenCalledWith('sample.path');
+    });
+
     it('should throw an invalid input exception for file type not match', async () => {
       const invalidInputError = new InvalidInputException('error message');
       uploadDatasourceService.uploadCsv.mockRejectedValueOnce(invalidInputError);
@@ -179,9 +202,11 @@ describe('api', () => {
         .expect(400)
         .expect({ errorMessage: 'error message' });
 
-      expect(uploadDatasourceService.uploadCsv).toHaveBeenCalledWith([
-        { mimetype: 'sample.type', originalname: 'sample.name', path: 'sample.url' },
-      ]);
+      expect(uploadDatasourceService.uploadCsv).toHaveBeenCalledWith({
+        mimetype: 'sample.type',
+        originalname: 'sample.name',
+        path: 'sample.path',
+      });
     });
 
     it('should throw an technical exception for file type not match', async () => {

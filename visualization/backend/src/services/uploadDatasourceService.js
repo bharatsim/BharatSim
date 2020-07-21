@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const dataSourceMetadataRepository = require('../repository/datasourceMetadataRepository');
 const dataSourceRepository = require('../repository/datasourceRepository');
 const { parseCSV } = require('../utils/csvParser');
@@ -15,6 +17,12 @@ async function insertCSVData(collectionId, schema, data) {
   await dataSourceRepository.insert(DatasourceModel, data);
 }
 
+function deleteUploadedFile(filePath) {
+  if (fs.existsSync(filePath)) {
+    fs.rmdirSync(filePath, { recursive: true });
+  }
+}
+
 async function uploadCsv({ path, originalname: fileName, mimetype: fileType }) {
   if (fileType !== fileTypes.CSV) {
     throw new InvalidInputException('File type does not match');
@@ -25,4 +33,4 @@ async function uploadCsv({ path, originalname: fileName, mimetype: fileType }) {
   await insertCSVData(collectionId.toString(), schema, data);
   return { collectionId };
 }
-module.exports = { uploadCsv };
+module.exports = { uploadCsv, deleteUploadedFile };

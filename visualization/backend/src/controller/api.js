@@ -56,6 +56,9 @@ router.post('/datasources', async function (req, res) {
       } else {
         technicalErrorException(err, res);
       }
+    })
+    .finally(() => {
+      uploadDatasourceService.deleteUploadedFile(req.file.path);
     });
 });
 module.exports = router;
