@@ -6,13 +6,27 @@ import { url } from '../../utils/url';
 
 const VALID_FILE_TYPES = ['text/csv'];
 
+const status = {
+  error: { msg: 'file not upload', color: 'error', uploadButtonDisable: true },
+  success: { msg: 'file uploded', color: 'primary', uploadButtonDisable: false },
+  validationError: { msg: 'Only csv files are allowed, Please upload csv', color: 'error', uploadButtonDisable: true },
+  loading: { msg: 'uploading', color: 'secondary', uploadButtonDisable: true },
+};
+
 const FileUpload = () => {
   const [file, setFile] = useState();
-  const [error, setError] = useState('');
+  const [fileUploadStatus, setFileUploadStatus] = useState(null);
   const ref = useRef();
 
   async function upload() {
-    await uploadFile({ url: url.DATA_SOURCES, file });
+    setFileUploadStatus(status.loading);
+    uploadFile({ url: url.DATA_SOURCES, file })
+      .then(() => {
+        setFileUploadStatus(status.success);
+      })
+      .catch(() => {
+        setFileUploadStatus(status.error);
+      });
     setFile(null);
     ref.current.value = '';
   }
@@ -20,10 +34,10 @@ const FileUpload = () => {
   function onFileInputChange(event) {
     const uploadedFile = event.target.files[0];
     if (uploadedFile && !VALID_FILE_TYPES.includes(uploadedFile.type)) {
-      setError('Only csv files are allowed, Please upload csv');
+      setFileUploadStatus(status.validationError);
       return;
     }
-    setError('');
+    setFileUploadStatus(null);
     setFile(uploadedFile);
   }
 
@@ -31,13 +45,13 @@ const FileUpload = () => {
     <>
       <Box pb={2}>
         <input type="file" ref={ref} data-testid="input-upload-file" accept=".csv" onChange={onFileInputChange} />
-        <Box>{error && <Typography color="error">{error}</Typography>}</Box>
+        <Box>{fileUploadStatus && <Typography color={fileUploadStatus.color}>{fileUploadStatus.msg}</Typography>}</Box>
       </Box>
       <Button
         type="button"
         onClick={upload}
         data-testid="button-upload"
-        disabled={!!error || !file}
+        disabled={(fileUploadStatus && fileUploadStatus.uploadButtonDisable) || !file}
         variant="contained"
         color="primary"
       >
