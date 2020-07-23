@@ -6,18 +6,18 @@ const dataSourceRepository = require('../../src/repository/datasourceRepository'
 const uploadDatasourceService = require('../../src/services/uploadDatasourceService');
 const createModel = require('../../src/utils/modelCreator');
 
+const InvalidInputException = require('../../src/exceptions/InvalidInputException');
+
 jest.mock('fs');
 jest.mock('../../src/repository/datasourceMetadataRepository');
 jest.mock('../../src/repository/datasourceRepository');
 jest.mock('../../src/utils/modelCreator');
 jest.mock('../../src/utils/csvParser', () => ({
-  parseCSV: jest.fn().mockReturnValue({
-    data: [
-      { hour: 0, susceptible: 1 },
-      { hour: 1, susceptible: 2 },
-      { hour: 2, susceptible: 3 },
-    ],
-  }),
+  validateAndParseCSV: jest.fn().mockReturnValue([
+    { hour: 0, susceptible: 1 },
+    { hour: 1, susceptible: 2 },
+    { hour: 2, susceptible: 3 },
+  ]),
 }));
 
 describe('upload datasource  service', function () {
@@ -29,6 +29,7 @@ describe('upload datasource  service', function () {
         path: '/uploads/1223',
         originalname: 'test.csv',
         mimetype: 'text/csv',
+        size: 12132,
       });
 
       expect(collectionId).toEqual({ collectionId: 'collection' });
@@ -41,6 +42,7 @@ describe('upload datasource  service', function () {
         path: '/uploads/1223',
         originalname: 'test.csv',
         mimetype: 'text/csv',
+        size: 12132,
       });
 
       expect(dataSourceMetadataRepository.insert).toHaveBeenCalledWith({
@@ -57,6 +59,7 @@ describe('upload datasource  service', function () {
         path: '/uploads/1223',
         originalname: 'test.csv',
         mimetype: 'text/csv',
+        size: 12132,
       });
 
       expect(dataSourceRepository.insert).toHaveBeenCalledWith('collectionId', [
@@ -64,6 +67,63 @@ describe('upload datasource  service', function () {
         { hour: 1, susceptible: 2 },
         { hour: 2, susceptible: 3 },
       ]);
+    });
+
+    it('should throw invalid input exception if we get exception while uploading', async function () {
+      dataSourceMetadataRepository.insert.mockResolvedValue({ _id: 'collectionId' });
+      dataSourceRepository.insert.mockImplementationOnce(() => {
+        throw new Error();
+      });
+      createModel.createModel.mockImplementation((id) => id);
+
+      const result = async () => {
+        await uploadDatasourceService.uploadCsv({
+          path: '/uploads/1223',
+          originalname: 'test.csv',
+          mimetype: 'text/csv',
+          size: 12132,
+        });
+      };
+
+      expect(result).rejects.toThrow(new InvalidInputException('Error while uploading csv file data'));
+    });
+
+    it('should delete metadata added in database if csv data insertion failed', async function () {
+      dataSourceMetadataRepository.insert.mockResolvedValue({ _id: 'collectionId' });
+      dataSourceRepository.insert.mockImplementationOnce(() => {
+        throw new Error();
+      });
+      createModel.createModel.mockImplementation((id) => id);
+
+      try {
+        await uploadDatasourceService.uploadCsv({
+          path: '/uploads/1223',
+          originalname: 'test.csv',
+          mimetype: 'text/csv',
+          size: 12132,
+        });
+      } catch {
+        expect(dataSourceMetadataRepository.deleteDatasource).toHaveBeenCalledWith('collectionId');
+      }
+    });
+
+    it('should throw exception is file is too large', async function () {
+      dataSourceMetadataRepository.insert.mockResolvedValue({ _id: 'collectionId' });
+      dataSourceRepository.insert.mockImplementationOnce(() => {
+        throw new Error();
+      });
+      createModel.createModel.mockImplementation((id) => id);
+
+      const result = async () => {
+        await uploadDatasourceService.uploadCsv({
+          path: '/uploads/1223',
+          originalname: 'test.csv',
+          mimetype: 'text/csv',
+          size: 10485761,
+        });
+      };
+
+      expect(result).rejects.toThrow(new InvalidInputException('File is too large'));
     });
   });
 

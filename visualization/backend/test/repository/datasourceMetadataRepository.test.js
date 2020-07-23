@@ -92,4 +92,17 @@ describe('get Datasource name ', () => {
       },
     });
   });
+
+  it('should delete a datasource metadata for given id', async () => {
+    const { _id: collectionId } = await DataSourceMetaDataRepository.insert({
+      name: dataSourceMetadata[0].name,
+      dataSourceSchema: dataSourceMetadata[0].dataSourceSchema,
+    });
+
+    await DataSourceMetaDataRepository.deleteDatasource(collectionId);
+
+    const result = parseMongoDBResult(await DataSourceMetaData.findOne({ name: 'model_1' }, { _id: 0, __v: 0 }));
+
+    expect(result).toEqual(null);
+  });
 });
