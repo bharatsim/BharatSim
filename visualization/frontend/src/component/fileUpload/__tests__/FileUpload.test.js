@@ -21,7 +21,7 @@ describe('<FileUpload />', () => {
 
     fireEvent.change(fileInput, {
       target: {
-        files: [{ name: 'test.csv', type: 'text/csv' }],
+        files: [{ name: 'test.csv', type: 'text/csv', size: 2123 }],
       },
     });
 
@@ -52,7 +52,21 @@ describe('<FileUpload />', () => {
       },
     });
 
-    const errorText = getByText('Only csv files are allowed, Please upload csv');
+    const errorText = getByText('Only csv files are allowed of maxmimum size 10MB, Please upload valid csv a file');
+    expect(errorText).toBeInTheDocument();
+  });
+
+  it('should show error message if file uploaded is larger than 10 mb', async () => {
+    const { getByTestId, getByText } = render(<FileUpload />);
+    const fileInput = getByTestId(/input-upload-file/);
+
+    fireEvent.change(fileInput, {
+      target: {
+        files: [{ name: 'test.csv', type: 'text/csv', size: 10485762 }],
+      },
+    });
+
+    const errorText = getByText('Only csv files are allowed of maxmimum size 10MB, Please upload valid csv a file');
     expect(errorText).toBeInTheDocument();
   });
 
@@ -66,7 +80,7 @@ describe('<FileUpload />', () => {
       },
     });
 
-    const errorText = queryByText('Only csv files are allowed, Please upload csv');
+    const errorText = queryByText('Only csv files are allowed of maxmimum size 10MB, Please upload valid csv a file');
     expect(errorText).toBe(null);
   });
 
@@ -122,7 +136,7 @@ describe('<FileUpload />', () => {
 
     fireEvent.click(uploadButton);
 
-    const uploading = queryByText('uploading');
+    const uploading = queryByText('uploading test.csv');
     expect(uploading).toBeInTheDocument();
   });
 
@@ -140,9 +154,9 @@ describe('<FileUpload />', () => {
 
     fireEvent.click(uploadButton);
 
-    await waitFor(() => findByText('file uploded'));
+    await waitFor(() => findByText('test.csv successfully uploaded'));
 
-    const uploaded = queryByText('file uploded');
+    const uploaded = queryByText('test.csv successfully uploaded');
     expect(uploaded).toBeInTheDocument();
   });
 
@@ -160,9 +174,9 @@ describe('<FileUpload />', () => {
 
     fireEvent.click(uploadButton);
 
-    await waitFor(() => findByText('file not upload'));
+    await waitFor(() => findByText('Error occurred while unloading test.csv'));
 
-    const uploadFiled = queryByText('file not upload');
+    const uploadFiled = queryByText('Error occurred while unloading test.csv');
     expect(uploadFiled).toBeInTheDocument();
   });
 });
