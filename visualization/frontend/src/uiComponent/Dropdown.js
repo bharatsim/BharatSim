@@ -17,14 +17,8 @@ const renderMenuItems = (id, options) => {
   return (
     options &&
     options.map(({ value, displayName }) => {
-      const displayNameKey = displayName.split(' ').join('-');
       return (
-        <MenuItem
-          value={value}
-          key={displayNameKey}
-          id={`${id}-${displayNameKey}`}
-          data-testid={`${id}-${displayNameKey}`}
-        >
+        <MenuItem value={value} key={value} id={`${id}-${value}`} data-testid={`${id}-${value}`}>
           {displayName}
         </MenuItem>
       );
@@ -51,9 +45,7 @@ export default function Dropdown({ label, options, id, onChange, ...rest }) {
         onChange={handleChange}
         label={label}
         data-testid={id}
-        MenuProps={{
-          id: `menu-${id}`,
-        }}
+        MenuProps={{ id: `menu-${id}` }}
         {...rest}
       >
         {renderMenuItems(id, options)}

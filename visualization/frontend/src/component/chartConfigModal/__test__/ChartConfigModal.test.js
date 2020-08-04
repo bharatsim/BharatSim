@@ -62,7 +62,7 @@ describe('<ChartConfigModal />', () => {
 
     const configModal = within(document.querySelector('.MuiPaper-root'));
 
-    selectDropDownOption(configModal, 'dropdown-dataSources', 'modelone');
+    selectDropDownOption(configModal, 'dropdown-dataSources', 'id1');
 
     await waitFor(() => expect(fetch).toBeCalledTimes(2));
 
@@ -101,7 +101,7 @@ describe('<ChartConfigModal />', () => {
     const xDropdown = within(configModal.getByTestId('dropdown-x'));
     const yDropdown = within(configModal.getByTestId('dropdown-y'));
 
-    selectDropDownOption(configModal, 'dropdown-dataSources', 'modelone');
+    selectDropDownOption(configModal, 'dropdown-dataSources', 'id1');
 
     await waitFor(() => {
       expect(xDropdown.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
