@@ -1,6 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<DashboardLayout /> should add new widget 1`] = `
+exports[`<DashboardLayout /> should add new widget with bar chart 1`] = `
+<div
+  class="react-grid-item react-draggable cssTransforms react-resizable"
+  data-grid="[object Object]"
+  data-testid="widget-0"
+  style="transform: translate(10px,10px); width: -12px; height: 310px; position: absolute;"
+>
+  <div>
+    Bar Chart
+    <span>
+      config = [object Object]
+    </span>
+  </div>
+  <span
+    class="react-resizable-handle react-resizable-handle-se"
+  />
+</div>
+`;
+
+exports[`<DashboardLayout /> should add new widget with line chart 1`] = `
 <div
   class="react-grid-item react-draggable cssTransforms react-resizable"
   data-grid="[object Object]"
@@ -43,7 +62,21 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
         <span
           class="MuiButton-label"
         >
-          Add Widget
+          Bar Chart
+        </span>
+        <span
+          class="MuiTouchRipple-root"
+        />
+      </button>
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiButton-label"
+        >
+          Line Chart
         </span>
         <span
           class="MuiTouchRipple-root"

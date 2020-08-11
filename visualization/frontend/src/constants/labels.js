@@ -1,6 +1,7 @@
 const labels = {
   dashboardLayout: {
-    ADD_WIDGET: 'Add Widget',
+    LINE_CHART: 'Line Chart',
+    Bar_CHART: 'Bar Chart',
   },
   chartConfigModal: {
     SELECT_X_COLUMN: ' Select X Column',

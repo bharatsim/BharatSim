@@ -2,7 +2,8 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { createElement, getNewWidgetLayout } from '../utils';
 
-jest.mock('../../lineChart/LineChart.js', () => () => <>Hello, Welcome</>);
+jest.mock('../../lineChart/LineChart.js', () => () => <>Line Chart</>);
+jest.mock('../../barChart/BarChart.js', () => () => <>Bar Chart</>);
 
 describe('Dashboard layout utils', () => {
   describe('Create element', () => {

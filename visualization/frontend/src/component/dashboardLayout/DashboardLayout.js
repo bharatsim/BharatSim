@@ -19,6 +19,7 @@ const DashboardLayout = () => {
   const [widgets, setWidgets] = useState([]);
   const [count, setCount] = useState(0);
   const [layout, setLayout] = useState();
+  const [chartType, setChartType] = useState();
 
   const { isOpen, closeModal, openModal } = useModal();
 
@@ -27,6 +28,7 @@ const DashboardLayout = () => {
       return prevWidgets.concat({
         ...getNewWidgetLayout(prevWidgets.length, cols, count),
         config,
+        chartType,
       });
     });
     setCount((prevCount) => prevCount + 1);
@@ -40,6 +42,10 @@ const DashboardLayout = () => {
   const onLayoutChange = (changedLayout) => {
     setLayout(changedLayout);
   };
+  const oneChartClick = (selectedChartType) => {
+    openModal();
+    setChartType(selectedChartType);
+  };
 
   return (
     <Box pl={10} pt={10} pr={10}>
@@ -47,8 +53,11 @@ const DashboardLayout = () => {
         <FileUpload />
       </Box>
       <Box pb={2}>
-        <Button onClick={openModal} variant="contained" color="primary">
-          {labels.dashboardLayout.ADD_WIDGET}
+        <Button onClick={() => oneChartClick('bar')} variant="contained" color="primary">
+          {labels.dashboardLayout.Bar_CHART}
+        </Button>
+        <Button onClick={() => oneChartClick('line')} variant="contained" color="primary">
+          {labels.dashboardLayout.LINE_CHART}
         </Button>
       </Box>
       <GridLayout layout={layout} style={{ background: 'gray', minHeight: '600px' }} onLayoutChange={onLayoutChange}>
@@ -56,7 +65,7 @@ const DashboardLayout = () => {
           return createElement(item);
         })}
       </GridLayout>
-      {isOpen && <ChartConfigModal onCancel={closeModal} onOk={handleModalOk} open={isOpen} />}
+      {isOpen && <ChartConfigModal onCancel={closeModal} onOk={handleModalOk} open={isOpen} chartType={chartType} />}
     </Box>
   );
 };

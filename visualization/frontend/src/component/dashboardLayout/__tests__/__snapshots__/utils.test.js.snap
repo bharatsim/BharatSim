@@ -5,8 +5,6 @@ exports[`Dashboard layout utils Create element should provide element with data-
   <div
     data-grid="[object Object]"
     data-testid="id-1"
-  >
-    Hello, Welcome
-  </div>
+  />
 </div>
 `;

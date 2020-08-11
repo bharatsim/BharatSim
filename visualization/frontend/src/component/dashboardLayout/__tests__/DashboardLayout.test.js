@@ -27,6 +27,14 @@ jest.mock('../../fileUpload/FileUpload', () => (props) => (
   </div>
 ));
 
+jest.mock('../../barChart/BarChart', () => (props) => (
+  <div>
+    Bar Chart
+    {/* eslint-disable-next-line no-undef */}
+    <span>{mockPropsCapture(props)}</span>
+  </div>
+));
+
 jest.mock('../../lineChart/LineChart', () => (props) => (
   <div>
     Line Chart
@@ -51,7 +59,7 @@ describe('<DashboardLayout />', () => {
   it('should open modal on click of cancel button ', () => {
     const { getByText } = render(<DashboardLayout />);
 
-    const addWidgetButton = getByText(/Add widget/i);
+    const addWidgetButton = getByText(/Line chart/i);
     fireEvent.click(addWidgetButton);
 
     expect(getByText(/Modal Open/i)).toHaveTextContent(/true/i);
@@ -60,7 +68,7 @@ describe('<DashboardLayout />', () => {
   it('should closed modal on click of cancel button ', async () => {
     const { getByText, queryByText } = render(<DashboardLayout />);
 
-    const addWidgetButton = getByText(/Add widget/i);
+    const addWidgetButton = getByText(/Line Chart/i);
     fireEvent.click(addWidgetButton);
 
     const cancelButton = getByText(/Cancel/i);
@@ -69,10 +77,24 @@ describe('<DashboardLayout />', () => {
     expect(await queryByText(/Modal Open/i)).toBeNull();
   });
 
-  it('should add new widget', () => {
+  it('should add new widget with line chart', () => {
     const { getByText, getByTestId } = render(<DashboardLayout />);
 
-    const addWidgetButton = getByText(/Add widget/i);
+    const addWidgetButton = getByText(/Line Chart/i);
+    fireEvent.click(addWidgetButton);
+
+    const okButton = getByText(/Ok/i);
+    fireEvent.click(okButton);
+
+    const widget = getByTestId('widget-0');
+
+    expect(widget).toBeInTheDocument();
+    expect(widget).toMatchSnapshot();
+  });
+  it('should add new widget with bar chart', () => {
+    const { getByText, getByTestId } = render(<DashboardLayout />);
+
+    const addWidgetButton = getByText(/Bar Chart/i);
     fireEvent.click(addWidgetButton);
 
     const okButton = getByText(/Ok/i);

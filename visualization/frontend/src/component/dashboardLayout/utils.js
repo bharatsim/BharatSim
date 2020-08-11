@@ -1,10 +1,18 @@
 import React from 'react';
 import LineChart from '../lineChart/LineChart';
+import BasicBarChart from '../barChart/BarChart';
+
+const selectChart = (chartType, config) => {
+  return {
+    line: <LineChart config={config} />,
+    bar: <BasicBarChart config={config} />,
+  }[chartType];
+};
 
 export function createElement(element) {
   return (
     <div key={element.i} data-grid={element} data-testid={element.i}>
-      <LineChart config={element.config} />
+      {selectChart(element.chartType, element.config)}
     </div>
   );
 }

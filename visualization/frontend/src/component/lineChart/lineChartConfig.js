@@ -1,7 +1,7 @@
 const chartConfig = {
   datasets: [
     {
-      label: 'My First dataset',
+      label: 'Line Chart',
       fill: false,
       lineTension: 0.1,
       backgroundColor: 'rgba(75,192,192,0.4)',
