@@ -59,6 +59,9 @@
     ],
     "react/button-has-type": [
       "warn"
+    ],
+    "import/no-named-as-default": [
+      "off"
     ]
   }
 }

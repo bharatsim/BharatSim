@@ -1,40 +1,51 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography, Box } from '@material-ui/core';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Typography,
+  withStyles,
+} from '@material-ui/core';
 
 import useFetch from '../../hook/useFetch';
 import { fetch } from '../../utils/fetch';
 import { url } from '../../utils/url';
 import Dropdown from '../../uiComponent/Dropdown';
-import { convertObjectArrayToOptions, convertStringArrayToOptions, updateState } from '../../utils/helper';
+import { convertObjectArrayToOptions, updateState } from '../../utils/helper';
+import renderChartConfig from '../chartConfigOptions/renderChartConfig';
 
-function ChartConfigModal({ open, onCancel, onOk }) {
+import styles from './chartConfigModalCss';
+import chartConfig from '../../config/chartConfig';
+
+function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
   const [config, setConfig] = React.useState({});
-
   const [headers, setHeaders] = React.useState([]);
-
   const dataSources = useFetch({ url: url.DATA_SOURCES });
 
   if (!dataSources) {
     return null;
   }
-  const handleDataSourceChange = async (value) => {
-    const csvHeaders = await fetch({ url: url.getHeaderUrl(value) });
-    setConfig((prevState) => updateState(prevState, { dataSource: value }));
-    setHeaders(csvHeaders.headers);
+
+  const updateConfigState = (newConfig) => {
+    setConfig((prevState) => updateState(prevState, newConfig));
   };
 
-  const handleXChange = (value) => {
-    setConfig((prevState) => updateState(prevState, { xColumn: value }));
-  };
-  const handleYChange = (value) => {
-    setConfig((prevState) => updateState(prevState, { yColumn: value }));
+  const handleDataSourceChange = async (value) => {
+    const csvHeaders = await fetch({ url: url.getHeaderUrl(value) });
+    updateConfigState({ dataSource: value });
+    setHeaders(csvHeaders.headers);
   };
 
   const handleOk = () => {
     onOk(config);
   };
+
+  const chartConfigProps = { headers, updateConfigState };
 
   return (
     <Dialog open={open} onClose={onCancel} aria-labelledby="form-dialog-title">
@@ -47,26 +58,16 @@ function ChartConfigModal({ open, onCancel, onOk }) {
       ) : (
         <>
           <DialogContent>
-            <Dropdown
-              options={convertObjectArrayToOptions(dataSources.dataSources, '_id', 'name')}
-              onChange={handleDataSourceChange}
-              id="dropdown-dataSources"
-              label="select data source"
-            />
-            <Dropdown
-              options={convertStringArrayToOptions(headers)}
-              onChange={handleXChange}
-              id="dropdown-x"
-              label="select x axis"
-              disabled={headers.length === 0}
-            />
-            <Dropdown
-              options={convertStringArrayToOptions(headers)}
-              onChange={handleYChange}
-              id="dropdown-y"
-              label="select y axis"
-              disabled={headers.length === 0}
-            />
+            <Box className={classes.root}>
+              <Dropdown
+                options={convertObjectArrayToOptions(dataSources.dataSources, '_id', 'name')}
+                onChange={handleDataSourceChange}
+                id="dropdown-dataSources"
+                label="select data source"
+              />
+              {!!headers.length &&
+                renderChartConfig(chartConfig[chartType].configOptions, chartConfigProps)}
+            </Box>
           </DialogContent>
           <DialogActions>
             <Button onClick={onCancel} variant="contained" color="secondary">
@@ -86,6 +87,11 @@ ChartConfigModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onCancel: PropTypes.func.isRequired,
   onOk: PropTypes.func.isRequired,
+  chartType: PropTypes.string.isRequired,
+  classes: PropTypes.shape({
+    root: PropTypes.string,
+  }).isRequired,
 };
 
-export default ChartConfigModal;
+export default withStyles(styles)(ChartConfigModal);
+export { ChartConfigModal };

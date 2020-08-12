@@ -1,14 +1,25 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { createElement, getNewWidgetLayout } from '../utils';
+import { renderElement, getNewWidgetLayout } from '../utils';
 
-jest.mock('../../lineChart/LineChart.js', () => () => <>Line Chart</>);
-jest.mock('../../barChart/BarChart.js', () => () => <>Bar Chart</>);
+jest.mock('../../charts/renderChart', () => ({
+  __esModule: true,
+  default: (chartType, props) => (
+    <div>
+      Chart:
+      {chartType}
+      <span>
+        {/* eslint-disable-next-line no-undef */}
+        {mockPropsCapture(props)}
+      </span>
+    </div>
+  ),
+}));
 
 describe('Dashboard layout utils', () => {
   describe('Create element', () => {
     it('should provide element with data-grid', () => {
-      const element = createElement({ i: 'id-1' });
+      const element = renderElement({ i: 'id-1', chartType: 'Linechart', config: {} });
       const { container } = render(<>{element}</>);
 
       expect(container).toMatchSnapshot();

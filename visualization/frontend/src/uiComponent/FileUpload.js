@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { Button, Typography, Box } from '@material-ui/core';
 
-import { uploadFile } from '../../utils/fetch';
-import { url } from '../../utils/url';
+import { uploadFile } from '../utils/fetch';
+import { url } from '../utils/url';
 
 const VALID_FILE_TYPES = ['text/csv'];
 const MAX_FILE_SIZE = 10485760;
@@ -18,8 +18,16 @@ function isValidFile(file) {
 }
 
 const status = (fileName) => ({
-  error: { msg: `Error occurred while unloading ${fileName}`, color: 'error', uploadButtonDisable: true },
-  success: { msg: `${fileName} successfully uploaded`, color: 'primary', uploadButtonDisable: false },
+  error: {
+    msg: `Error occurred while unloading ${fileName}`,
+    color: 'error',
+    uploadButtonDisable: true,
+  },
+  success: {
+    msg: `${fileName} successfully uploaded`,
+    color: 'primary',
+    uploadButtonDisable: false,
+  },
   validationError: {
     msg: 'Only csv files are allowed of maxmimum size 10MB, Please upload valid csv a file',
     color: 'error',
@@ -59,8 +67,18 @@ const FileUpload = () => {
   return (
     <>
       <Box pb={2}>
-        <input type="file" ref={ref} data-testid="input-upload-file" accept=".csv" onChange={onFileInputChange} />
-        <Box>{fileUploadStatus && <Typography color={fileUploadStatus.color}>{fileUploadStatus.msg}</Typography>}</Box>
+        <input
+          type="file"
+          ref={ref}
+          data-testid="input-upload-file"
+          accept=".csv"
+          onChange={onFileInputChange}
+        />
+        <Box>
+          {fileUploadStatus && (
+            <Typography color={fileUploadStatus.color}>{fileUploadStatus.msg}</Typography>
+          )}
+        </Box>
       </Box>
       <Button
         type="button"

@@ -6,11 +6,12 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import './index.css';
 
-import { createElement, getNewWidgetLayout } from './utils';
+import { renderElement, getNewWidgetLayout } from './utils';
 import labels from '../../constants/labels';
 import ChartConfigModal from '../chartConfigModal/ChartConfigModal';
 import useModal from '../../hook/useModal';
-import FileUpload from '../fileUpload/FileUpload';
+import FileUpload from '../../uiComponent/FileUpload';
+import { chartTypes } from '../../constants/charts';
 
 const GridLayout = WidthProvider(ReactGridLayout);
 const cols = 12;
@@ -53,19 +54,38 @@ const DashboardLayout = () => {
         <FileUpload />
       </Box>
       <Box pb={2}>
-        <Button onClick={() => oneChartClick('bar')} variant="contained" color="primary">
+        <Button
+          onClick={() => oneChartClick(chartTypes.BAR_CHART)}
+          variant="contained"
+          color="primary"
+        >
           {labels.dashboardLayout.Bar_CHART}
         </Button>
-        <Button onClick={() => oneChartClick('line')} variant="contained" color="primary">
+        <Button
+          onClick={() => oneChartClick(chartTypes.LINE_CHART)}
+          variant="contained"
+          color="primary"
+        >
           {labels.dashboardLayout.LINE_CHART}
         </Button>
       </Box>
-      <GridLayout layout={layout} style={{ background: 'gray', minHeight: '600px' }} onLayoutChange={onLayoutChange}>
+      <GridLayout
+        layout={layout}
+        style={{ background: 'gray', minHeight: '600px' }}
+        onLayoutChange={onLayoutChange}
+      >
         {widgets.map((item) => {
-          return createElement(item);
+          return renderElement(item);
         })}
       </GridLayout>
-      {isOpen && <ChartConfigModal onCancel={closeModal} onOk={handleModalOk} open={isOpen} chartType={chartType} />}
+      {isOpen && (
+        <ChartConfigModal
+          onCancel={closeModal}
+          onOk={handleModalOk}
+          open={isOpen}
+          chartType={chartType}
+        />
+      )}
     </Box>
   );
 };

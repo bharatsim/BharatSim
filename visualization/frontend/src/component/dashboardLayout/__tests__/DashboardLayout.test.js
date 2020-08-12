@@ -19,7 +19,7 @@ jest.mock('../../chartConfigModal/ChartConfigModal', () => ({ open, onCancel, on
   </>
 ));
 
-jest.mock('../../fileUpload/FileUpload', () => (props) => (
+jest.mock('../../../uiComponent/FileUpload', () => (props) => (
   <div>
     File Upload
     {/* eslint-disable-next-line no-undef */}
@@ -27,7 +27,7 @@ jest.mock('../../fileUpload/FileUpload', () => (props) => (
   </div>
 ));
 
-jest.mock('../../barChart/BarChart', () => (props) => (
+jest.mock('../../charts/barChart/BarChart', () => (props) => (
   <div>
     Bar Chart
     {/* eslint-disable-next-line no-undef */}
@@ -35,7 +35,7 @@ jest.mock('../../barChart/BarChart', () => (props) => (
   </div>
 ));
 
-jest.mock('../../lineChart/LineChart', () => (props) => (
+jest.mock('../../charts/lineChart/LineChart', () => (props) => (
   <div>
     Line Chart
     {/* eslint-disable-next-line no-undef */}

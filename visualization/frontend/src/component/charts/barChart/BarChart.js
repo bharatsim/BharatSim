@@ -1,9 +1,9 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import PropTypes from 'prop-types';
-import useFetch from '../../hook/useFetch';
+import useFetch from '../../../hook/useFetch';
 
-import { url } from '../../utils/url';
+import { url } from '../../../utils/url';
 
 const chartConfig = {
   datasets: [
@@ -32,17 +32,17 @@ const chartConfig = {
 
 const options = { maintainAspectRatio: false, responsive: true };
 
-const BasicBarChart = ({ config }) => {
+const BarChart = ({ config }) => {
   const csvData = useFetch({
     url: url.getDataUrl(config.dataSource),
-    query: { columns: [config.xColumn, config.yColumn] },
+    query: { columns: [config.xAxis, config.yAxis] },
   });
 
   const data = {
-    labels: csvData && csvData.data[config.xColumn],
+    labels: csvData && csvData.data[config.xAxis],
     datasets: [
       {
-        data: csvData && csvData.data[config.yColumn],
+        data: csvData && csvData.data[config.yAxis],
         ...chartConfig.datasets[0],
       },
     ],
@@ -50,12 +50,12 @@ const BasicBarChart = ({ config }) => {
 
   return <Bar data={data} options={options} />;
 };
-BasicBarChart.propTypes = {
+BarChart.propTypes = {
   config: PropTypes.shape({
     dataSource: PropTypes.string.isRequired,
-    xColumn: PropTypes.string.isRequired,
-    yColumn: PropTypes.string.isRequired,
+    xAxis: PropTypes.string.isRequired,
+    yAxis: PropTypes.string.isRequired,
   }).isRequired,
 };
 
-export default BasicBarChart;
+export default BarChart;

@@ -1,18 +1,12 @@
 import React from 'react';
-import LineChart from '../lineChart/LineChart';
-import BasicBarChart from '../barChart/BarChart';
+import renderChart from '../charts/renderChart';
 
-const selectChart = (chartType, config) => {
-  return {
-    line: <LineChart config={config} />,
-    bar: <BasicBarChart config={config} />,
-  }[chartType];
-};
-
-export function createElement(element) {
+export function renderElement(element) {
   return (
     <div key={element.i} data-grid={element} data-testid={element.i}>
-      {selectChart(element.chartType, element.config)}
+      <div style={{ height: '100%', width: '100%', boxSizing: 'border-box', padding: '10px' }}>
+        {renderChart(element.chartType, { config: element.config })}
+      </div>
     </div>
   );
 }

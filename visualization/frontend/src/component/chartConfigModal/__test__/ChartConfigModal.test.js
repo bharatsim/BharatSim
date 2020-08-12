@@ -4,6 +4,8 @@ import { fireEvent, render, waitFor, within } from '@testing-library/react';
 
 import ChartConfigModal from '../ChartConfigModal';
 import { fetch } from '../../../utils/fetch';
+import { chartTypes } from '../../../constants/charts';
+import { selectDropDownOption } from '../../../testUtil';
 
 jest.mock('../../../utils/url', () => ({
   url: {
@@ -29,18 +31,12 @@ jest.mock('../../../utils/fetch', () => ({
   }),
 }));
 
-function selectDropDownOption(container, dropDownId, optionId) {
-  const dropDown = container.getByTestId(dropDownId);
-  fireEvent.mouseDown(within(dropDown).getByRole('button'));
-  const options = within(within(document.getElementById(`menu-${dropDownId}`)).getByRole('listbox'));
-  fireEvent.click(options.getByTestId(`${dropDownId}-${optionId}`));
-}
-
 describe('<ChartConfigModal />', () => {
   const props = {
     onCancel: jest.fn(),
     onOk: jest.fn(),
     open: true,
+    chartType: chartTypes.LINE_CHART,
   };
 
   beforeEach(() => {
@@ -55,7 +51,41 @@ describe('<ChartConfigModal />', () => {
     expect(document.querySelector('.MuiPaper-root')).toMatchSnapshot();
   });
 
-  it('should provide selected chart config to onOK callback', async () => {
+  it('should be show x-axis and y-axis dropdown if data source selected', async () => {
+    render(<ChartConfigModal {...props} />);
+
+    await waitFor(() => document.querySelector('.MuiPaper-root'));
+
+    const configModal = within(document.querySelector('.MuiPaper-root'));
+
+    selectDropDownOption(configModal, 'dropdown-dataSources', 'id1');
+
+    await waitFor(() => configModal.queryByText('dropdown-x'));
+
+    const xDropdown = within(configModal.getByTestId('dropdown-x'));
+    const yDropdown = within(configModal.getByTestId('dropdown-y'));
+
+    await waitFor(() => {
+      expect(xDropdown.getByRole('button')).toBeInTheDocument();
+      expect(yDropdown.getByRole('button')).toBeInTheDocument();
+    });
+  });
+
+  it('should be hide x-axis and y-axis dropdown if data source is not selected', async () => {
+    render(<ChartConfigModal {...props} />);
+
+    await waitFor(() => document.querySelector('.MuiPaper-root'));
+
+    const configModal = within(document.querySelector('.MuiPaper-root'));
+
+    const xDropdown = configModal.queryByTestId('dropdown-x');
+    const yDropdown = configModal.queryByTestId('dropdown-y');
+
+    expect(xDropdown).toBeNull();
+    expect(yDropdown).toBeNull();
+  });
+
+  it('should pass selected chart configs to onOK callback', async () => {
     render(<ChartConfigModal {...props} />);
 
     await waitFor(() => document.querySelector('.MuiPaper-root'));
@@ -74,38 +104,10 @@ describe('<ChartConfigModal />', () => {
 
     fireEvent.click(okButton);
 
-    expect(props.onOk).toHaveBeenCalledWith({ dataSource: 'id1', xColumn: 'x-header', yColumn: 'y-header' });
-  });
-
-  it('should be disable x-axis and y-axis dropdown if data source is not selected', async () => {
-    render(<ChartConfigModal {...props} />);
-
-    await waitFor(() => document.querySelector('.MuiPaper-root'));
-
-    const configModal = within(document.querySelector('.MuiPaper-root'));
-
-    const xDropdown = within(configModal.getByTestId('dropdown-x'));
-    const yDropdown = within(configModal.getByTestId('dropdown-y'));
-
-    expect(xDropdown.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
-    expect(yDropdown.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
-  });
-
-  it('should be enable x-axis and y-axis dropdown if data source selected', async () => {
-    render(<ChartConfigModal {...props} />);
-
-    await waitFor(() => document.querySelector('.MuiPaper-root'));
-
-    const configModal = within(document.querySelector('.MuiPaper-root'));
-
-    const xDropdown = within(configModal.getByTestId('dropdown-x'));
-    const yDropdown = within(configModal.getByTestId('dropdown-y'));
-
-    selectDropDownOption(configModal, 'dropdown-dataSources', 'id1');
-
-    await waitFor(() => {
-      expect(xDropdown.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
-      expect(yDropdown.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
+    expect(props.onOk).toHaveBeenCalledWith({
+      dataSource: 'id1',
+      xAxis: 'x-header',
+      yAxis: 'y-header',
     });
   });
 
@@ -136,7 +138,9 @@ describe('<ChartConfigModal />', () => {
     render(<ChartConfigModal {...props} />);
 
     await waitFor(() => {
-      expect(document.querySelector('.MuiPaper-root')).toHaveTextContent(/No data source present, upload data source/i);
+      expect(document.querySelector('.MuiPaper-root')).toHaveTextContent(
+        /No data source present, upload data source/i,
+      );
     });
   });
 });

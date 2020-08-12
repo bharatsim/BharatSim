@@ -1,11 +1,11 @@
+/* eslint-disable no-console */
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, act, waitFor } from '@testing-library/react';
 
-import { waitFor } from '@testing-library/dom';
 import FileUpload from '../FileUpload';
-import * as fetch from '../../../utils/fetch';
+import * as fetch from '../../utils/fetch';
 
-jest.mock('../../../utils/fetch');
+jest.mock('../../utils/fetch');
 
 describe('<FileUpload />', () => {
   it('should match a snapshot', () => {
@@ -52,7 +52,9 @@ describe('<FileUpload />', () => {
       },
     });
 
-    const errorText = getByText('Only csv files are allowed of maxmimum size 10MB, Please upload valid csv a file');
+    const errorText = getByText(
+      'Only csv files are allowed of maxmimum size 10MB, Please upload valid csv a file',
+    );
     expect(errorText).toBeInTheDocument();
   });
 
@@ -66,7 +68,9 @@ describe('<FileUpload />', () => {
       },
     });
 
-    const errorText = getByText('Only csv files are allowed of maxmimum size 10MB, Please upload valid csv a file');
+    const errorText = getByText(
+      'Only csv files are allowed of maxmimum size 10MB, Please upload valid csv a file',
+    );
     expect(errorText).toBeInTheDocument();
   });
 
@@ -80,7 +84,9 @@ describe('<FileUpload />', () => {
       },
     });
 
-    const errorText = queryByText('Only csv files are allowed of maxmimum size 10MB, Please upload valid csv a file');
+    const errorText = queryByText(
+      'Only csv files are allowed of maxmimum size 10MB, Please upload valid csv a file',
+    );
     expect(errorText).toBe(null);
   });
 
@@ -96,7 +102,9 @@ describe('<FileUpload />', () => {
       },
     });
 
-    fireEvent.click(uploadButton);
+    await act(async () => {
+      fireEvent.click(uploadButton);
+    });
 
     expect(fetch.uploadFile).toHaveBeenCalledWith({
       file: { name: 'test.csv', type: 'text/csv' },
@@ -117,12 +125,14 @@ describe('<FileUpload />', () => {
       },
     });
 
-    fireEvent.click(uploadButton);
+    await act(async () => {
+      fireEvent.click(uploadButton);
+    });
 
     expect(fileInput.value).toBe('');
   });
 
-  it('should display uploading message after file is uploaded', async () => {
+  it('should display uploading message while file is uploading', async () => {
     const { getByTestId, queryByText } = render(<FileUpload />);
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
@@ -137,7 +147,8 @@ describe('<FileUpload />', () => {
     fireEvent.click(uploadButton);
 
     const uploading = queryByText('uploading test.csv');
-    expect(uploading).toBeInTheDocument();
+
+    await waitFor(() => expect(uploading).toBeInTheDocument());
   });
 
   it('should display success message after file is uploaded', async () => {
@@ -152,7 +163,9 @@ describe('<FileUpload />', () => {
       },
     });
 
-    fireEvent.click(uploadButton);
+    await act(async () => {
+      fireEvent.click(uploadButton);
+    });
 
     await waitFor(() => findByText('test.csv successfully uploaded'));
 
@@ -172,7 +185,9 @@ describe('<FileUpload />', () => {
       },
     });
 
-    fireEvent.click(uploadButton);
+    await act(async () => {
+      fireEvent.click(uploadButton);
+    });
 
     await waitFor(() => findByText('Error occurred while unloading test.csv'));
 

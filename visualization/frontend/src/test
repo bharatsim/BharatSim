@@ -1,4 +1,0 @@
-chartConfig
-
-{bar: {chartCOfig: <BarcChartConfig />, validations: valditateConfig},line:[xaxis,yaxis]}
-{bar: [<xaxis validationFunc>,<>]}
