@@ -36,7 +36,12 @@ describe('api', () => {
 
   beforeEach(() => {
     datasourceService.getData.mockResolvedValue({ data: { exposed: [2, 3], hour: [1, 2] } });
-    dataSourceMetadataService.getHeaders.mockResolvedValue({ headers: ['hour', 'susceptible'] });
+    dataSourceMetadataService.getHeaders.mockResolvedValue({
+      headers: [
+        { name: 'hour', type: 'number' },
+        { name: 'susceptible', type: 'number' },
+      ],
+    });
     dataSourceMetadataService.getDataSources.mockResolvedValue({
       dataSources: [{ name: 'model_1' }, { name: 'model_2' }],
     });
@@ -54,7 +59,12 @@ describe('api', () => {
       await request(app)
         .get('/datasources/model_1/headers')
         .expect(200)
-        .expect({ headers: ['hour', 'susceptible'] });
+        .expect({
+          headers: [
+            { name: 'hour', type: 'number' },
+            { name: 'susceptible', type: 'number' },
+          ],
+        });
       expect(dataSourceMetadataService.getHeaders).toHaveBeenCalledWith('model_1');
     });
 

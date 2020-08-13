@@ -33,7 +33,10 @@ describe('dataSourceMetadataService', () => {
     const data = await dataSourceMetadataService.getHeaders(dataSourceId);
 
     expect(data).toEqual({
-      headers: ['hour', 'susceptible'],
+      headers: [
+        { name: 'hour', type: 'number' },
+        { name: 'susceptible', type: 'number' },
+      ],
     });
   });
 });

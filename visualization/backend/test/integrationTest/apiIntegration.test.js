@@ -48,7 +48,12 @@ describe('Integration test', () => {
       await request(app)
         .get(`/datasources/${dataSourceId}/headers`)
         .expect(200)
-        .expect({ headers: ['hour', 'susceptible'] });
+        .expect({
+          headers: [
+            { name: 'hour', type: 'number' },
+            { name: 'susceptible', type: 'number' },
+          ],
+        });
     });
 
     it('should throw error if datasource not found', async () => {
