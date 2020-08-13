@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Render chart config should render chart config with provided props 1`] = `
+<div>
+  <div>
+    Line chart
+    <span>
+      config = [object Object]
+    </span>
+  </div>
+</div>
+`;

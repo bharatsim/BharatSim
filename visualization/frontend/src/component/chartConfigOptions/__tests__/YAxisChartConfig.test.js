@@ -8,6 +8,7 @@ describe('<YAxisChartConfig />', () => {
     headers: ['a', 'b', 'c'],
     updateConfigState: jest.fn(),
     configKey: 'yAxis',
+    error: '',
   };
   it('should match snapshot', () => {
     const { container } = render(<YAxisChartConfig {...props} />);
@@ -20,6 +21,6 @@ describe('<YAxisChartConfig />', () => {
 
     selectDropDownOption(renderedContainer, 'dropdown-y', 'a');
 
-    expect(props.updateConfigState).toHaveBeenCalledWith({ yAxis: 'a' });
+    expect(props.updateConfigState).toHaveBeenCalledWith('yAxis', 'a');
   });
 });

@@ -8,13 +8,14 @@ export const chartConfigOptions = {
   Y_AXIS: 'yAxis',
 };
 
-export function getChartConfigComponent(chartConfigType, { headers, updateConfigState }) {
+export function getChartConfigComponent(chartConfigType, { headers, updateConfigState, errors }) {
   return {
     [chartConfigOptions.X_AXIS]: (
       <XAxisChartConfig
         headers={headers}
         updateConfigState={updateConfigState}
         configKey={chartConfigOptions.X_AXIS}
+        error={errors[chartConfigOptions.X_AXIS]}
       />
     ),
     [chartConfigOptions.Y_AXIS]: (
@@ -22,6 +23,7 @@ export function getChartConfigComponent(chartConfigType, { headers, updateConfig
         headers={headers}
         updateConfigState={updateConfigState}
         configKey={chartConfigOptions.Y_AXIS}
+        error={errors[chartConfigOptions.Y_AXIS]}
       />
     ),
   }[chartConfigType];

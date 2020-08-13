@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { makeStyles, InputLabel, MenuItem, FormControl, Select } from '@material-ui/core';
+import {
+  makeStyles,
+  InputLabel,
+  MenuItem,
+  FormControl,
+  Select,
+  FormHelperText,
+} from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -26,7 +33,7 @@ const renderMenuItems = (id, options) => {
   );
 };
 
-export default function Dropdown({ label, options, id, onChange, ...rest }) {
+export default function Dropdown({ label, options, id, error, onChange, ...rest }) {
   const classes = useStyles();
   const [value, setValue] = useState('');
 
@@ -36,7 +43,7 @@ export default function Dropdown({ label, options, id, onChange, ...rest }) {
   };
 
   return (
-    <FormControl variant="outlined" className={classes.formControl}>
+    <FormControl variant="outlined" className={classes.formControl} error={!!error}>
       <InputLabel id="dropdown-label">{label}</InputLabel>
       <Select
         labelId="dropdown-label"
@@ -50,6 +57,7 @@ export default function Dropdown({ label, options, id, onChange, ...rest }) {
       >
         {renderMenuItems(id, options)}
       </Select>
+      {!!error && <FormHelperText error>{error}</FormHelperText>}
     </FormControl>
   );
 }
@@ -63,5 +71,6 @@ Dropdown.propTypes = {
     }),
   ).isRequired,
   id: PropTypes.string.isRequired,
+  error: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
 };

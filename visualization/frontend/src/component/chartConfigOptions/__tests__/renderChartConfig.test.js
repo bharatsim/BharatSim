@@ -9,6 +9,7 @@ describe('Render chart config', () => {
     const chartConfigOptionProps = {
       headers: ['a', 'b', 'c'],
       updateConfigState: jest.fn(),
+      errors: { xAxis: '', yAxis: '' },
     };
 
     const ChartConfigComponent = renderChartConfig(chartConfig, chartConfigOptionProps);

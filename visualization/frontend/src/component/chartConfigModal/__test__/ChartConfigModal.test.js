@@ -51,6 +51,22 @@ describe('<ChartConfigModal />', () => {
     expect(document.querySelector('.MuiPaper-root')).toMatchSnapshot();
   });
 
+  it('should disable ok button if no option is selected for dropdown', async () => {
+    render(<ChartConfigModal {...props} />);
+
+    await waitFor(() => document.querySelector('.MuiPaper-root'));
+
+    const configModal = within(document.querySelector('.MuiPaper-root'));
+
+    selectDropDownOption(configModal, 'dropdown-dataSources', 'id1');
+
+    const okButton = configModal.getByTestId('button-ok');
+
+    await waitFor(() => {
+      expect(okButton).toBeDisabled();
+    });
+  });
+
   it('should be show x-axis and y-axis dropdown if data source selected', async () => {
     render(<ChartConfigModal {...props} />);
 

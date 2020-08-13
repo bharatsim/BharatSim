@@ -4,7 +4,7 @@ import LineChart from '../component/charts/lineChart/LineChart';
 import BarChart from '../component/charts/barChart/BarChart';
 import { chartConfigOptions } from '../constants/chartConfigOptions';
 
-const chartConfig = {
+const chartConfigs = {
   [chartTypes.LINE_CHART]: {
     key: chartTypes.LINE_CHART,
     chart: (chartProps) => <LineChart {...chartProps} />,
@@ -17,4 +17,4 @@ const chartConfig = {
   },
 };
 
-export default chartConfig;
+export default chartConfigs;

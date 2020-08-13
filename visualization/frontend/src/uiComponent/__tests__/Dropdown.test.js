@@ -13,6 +13,7 @@ describe('<Dropdown />', () => {
     id: 'numbers',
     label: 'select number',
     onChange: jest.fn(),
+    error: '',
   };
 
   it('Should match a snapshot', () => {
@@ -54,5 +55,31 @@ describe('<Dropdown />', () => {
     fireEvent.click(optionOne);
 
     expect(props.onChange).toHaveBeenCalledWith('two');
+  });
+
+  it('Should show error if error message is present', () => {
+    const { getByRole, getByText } = render(<Dropdown {...props} error="error" />);
+
+    const button = getByRole('button');
+    fireEvent.mouseDown(button);
+
+    const optionList = within(document.querySelector('ul'));
+    const optionOne = optionList.getByText(/Two/i);
+    fireEvent.click(optionOne);
+
+    expect(getByText('error')).toBeInTheDocument();
+  });
+
+  it('Should not show error if error message is not present', () => {
+    const { getByRole, queryByText } = render(<Dropdown {...props} error="" />);
+
+    const button = getByRole('button');
+    fireEvent.mouseDown(button);
+
+    const optionList = within(document.querySelector('ul'));
+    const optionOne = optionList.getByText(/Two/i);
+    fireEvent.click(optionOne);
+
+    expect(queryByText('error')).toBeNull();
   });
 });

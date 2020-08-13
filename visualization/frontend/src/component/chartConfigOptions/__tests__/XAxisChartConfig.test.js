@@ -9,6 +9,7 @@ describe('<XAxisChartConfig />', () => {
     headers: ['a', 'b', 'c'],
     updateConfigState: jest.fn(),
     configKey: 'xAxis',
+    error: '',
   };
   it('should match snapshot', () => {
     const { container } = render(<XAxisChartConfig {...props} />);
@@ -21,6 +22,6 @@ describe('<XAxisChartConfig />', () => {
 
     selectDropDownOption(renderedContainer, 'dropdown-x', 'a');
 
-    expect(props.updateConfigState).toHaveBeenCalledWith({ xAxis: 'a' });
+    expect(props.updateConfigState).toHaveBeenCalledWith('xAxis', 'a');
   });
 });

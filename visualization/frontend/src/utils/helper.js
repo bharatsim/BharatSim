@@ -3,7 +3,10 @@ function updateState(prevState, updatedValue) {
 }
 
 function convertStringArrayToOptions(stringsArray) {
-  return stringsArray.map((stringElement) => ({ value: stringElement, displayName: stringElement }));
+  return stringsArray.map((stringElement) => ({
+    value: stringElement,
+    displayName: stringElement,
+  }));
 }
 
 function convertObjectArrayToOptions(objectArray, valueKey, displayNameKey) {

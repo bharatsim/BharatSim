@@ -98,8 +98,10 @@ exports[`<ChartConfigModal /> should match a snapshot for <ChartConfigModal /> 1
       />
     </button>
     <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
-      tabindex="0"
+      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary Mui-disabled Mui-disabled"
+      data-testid="button-ok"
+      disabled=""
+      tabindex="-1"
       type="button"
     >
       <span
@@ -107,9 +109,6 @@ exports[`<ChartConfigModal /> should match a snapshot for <ChartConfigModal /> 1
       >
         Ok
       </span>
-      <span
-        class="MuiTouchRipple-root"
-      />
     </button>
   </div>
 </div>
