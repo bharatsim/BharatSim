@@ -44,6 +44,14 @@ const useForm = (validators) => {
     return keys.every((key) => errors[key] === '');
   };
 
+  const resetField = (key) => {
+    setValue(key, undefined);
+  };
+
+  const resetFields = (keys) => {
+    keys.map((key) => resetField(key));
+  };
+
   return {
     values,
     errors,
@@ -51,6 +59,7 @@ const useForm = (validators) => {
     validateAndSetValue,
     shouldEnableSubmit,
     onSubmit,
+    resetFields,
   };
 };
 

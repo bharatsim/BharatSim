@@ -9,11 +9,11 @@ function convertStringArrayToOptions(stringsArray) {
   }));
 }
 
-function convertObjectArrayToOptions(objectArray, valueKey, displayNameKey) {
+function convertObjectArrayToOptionStructure(objectArray, displayNameKey, valueKey) {
   return objectArray.map((objectElement) => ({
-    value: objectElement[valueKey],
+    value: valueKey ? objectElement[valueKey] : objectElement,
     displayName: objectElement[displayNameKey],
   }));
 }
 
-export { updateState, convertStringArrayToOptions, convertObjectArrayToOptions };
+export { updateState, convertStringArrayToOptions, convertObjectArrayToOptionStructure };

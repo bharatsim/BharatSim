@@ -18,7 +18,7 @@ import styles from './chartConfigModalCss';
 import useFetch from '../../hook/useFetch';
 import useForm from '../../hook/useForm';
 import { fetch } from '../../utils/fetch';
-import { convertObjectArrayToOptions } from '../../utils/helper';
+import { convertObjectArrayToOptionStructure } from '../../utils/helper';
 import chartConfigs from '../../config/chartConfigs';
 import { url } from '../../utils/url';
 import { datasourceValidator, getChartConfigValidator } from '../../utils/validators';
@@ -34,7 +34,14 @@ function createValidatorsSchema(configOptions) {
 function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
   const [headers, setHeaders] = React.useState([]);
   const datasources = useFetch({ url: url.DATA_SOURCES });
-  const { validateAndSetValue, errors, shouldEnableSubmit, onSubmit } = useForm({
+  const {
+    values,
+    validateAndSetValue,
+    errors,
+    shouldEnableSubmit,
+    onSubmit,
+    resetFields,
+  } = useForm({
     ...createValidatorsSchema(chartConfigs[chartType].configOptions),
     dataSource: datasourceValidator,
   });
@@ -44,16 +51,19 @@ function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
   }
 
   const handleDataSourceChange = async (value) => {
+    resetFields(chartConfigs[chartType].configOptions);
     validateAndSetValue('dataSource', value);
     const csvHeaders = await fetch({ url: url.getHeaderUrl(value) });
     setHeaders(csvHeaders.headers);
   };
 
   const handleOk = () => {
-    onSubmit((value) => onOk(value));
+    onSubmit((value) => {
+      onOk(value);
+    });
   };
 
-  const chartConfigProps = { headers, updateConfigState: validateAndSetValue, errors };
+  const chartConfigProps = { headers, updateConfigState: validateAndSetValue, errors, values };
 
   return (
     <Dialog open={open} onClose={onCancel} aria-labelledby="form-dialog-title">
@@ -68,11 +78,16 @@ function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
           <DialogContent>
             <Box className={classes.root}>
               <Dropdown
-                options={convertObjectArrayToOptions(datasources.dataSources, '_id', 'name')}
+                options={convertObjectArrayToOptionStructure(
+                  datasources.dataSources,
+                  'name',
+                  '_id',
+                )}
                 onChange={handleDataSourceChange}
                 id="dropdown-dataSources"
                 label="select data source"
                 error={errors.dataSource || ''}
+                value={values.dataSource || ''}
               />
               {!!headers.length &&
                 renderChartConfig(chartConfigs[chartType].configOptions, chartConfigProps)}

@@ -12,6 +12,7 @@ describe('<Dropdown />', () => {
     ],
     id: 'numbers',
     label: 'select number',
+    value: '',
     onChange: jest.fn(),
     error: '',
   };
@@ -31,15 +32,10 @@ describe('<Dropdown />', () => {
     expect(document.querySelector('ul')).toMatchSnapshot();
   });
 
-  it('Should change selected value after option selected', () => {
-    const { getByRole } = render(<Dropdown {...props} />);
+  it('Should show selected option after getting value', () => {
+    const { getByRole } = render(<Dropdown {...props} value="two" />);
 
     const button = getByRole('button');
-    fireEvent.mouseDown(button);
-
-    const optionList = within(document.querySelector('ul'));
-    const optionOne = optionList.getByText(/Two/i);
-    fireEvent.click(optionOne);
 
     expect(button).toHaveTextContent(/Two/i);
   });

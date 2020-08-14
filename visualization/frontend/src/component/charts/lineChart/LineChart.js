@@ -43,17 +43,22 @@ const options = {
 };
 
 const LineChart = ({ config }) => {
+  const {
+    xAxis: xColumn,
+    yAxis: { name: yColumn },
+    dataSource,
+  } = config;
   const csvData = useFetch({
-    url: url.getDataUrl(config.dataSource),
-    query: { columns: [config.xAxis, config.yAxis] },
+    url: url.getDataUrl(dataSource),
+    query: { columns: [xColumn, yColumn] },
   });
 
   const data = {
-    labels: csvData && csvData.data[config.xAxis],
+    labels: csvData && csvData.data[xColumn],
     datasets: [
       {
         ...chartConfigStyles.datasets[0],
-        data: csvData && csvData.data[config.yAxis],
+        data: csvData && csvData.data[yColumn],
       },
     ],
   };
@@ -67,7 +72,10 @@ LineChart.propTypes = {
   config: PropTypes.shape({
     dataSource: PropTypes.string.isRequired,
     xAxis: PropTypes.string.isRequired,
-    yAxis: PropTypes.string.isRequired,
+    yAxis: PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+    }).isRequired,
   }).isRequired,
 };
 

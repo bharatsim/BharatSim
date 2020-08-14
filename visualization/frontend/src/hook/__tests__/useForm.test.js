@@ -135,5 +135,23 @@ describe('Use form hook', () => {
         'name-input': 'asdasdasd',
       });
     });
+
+    it('should reset fields', () => {
+      act(() => {
+        renderedHook.current.validateAndSetValue('address-input', 'F-1212331');
+      });
+      act(() => {
+        renderedHook.current.validateAndSetValue('name-input', 'asdasdasd');
+      });
+
+      act(() => {
+        renderedHook.current.resetFields(['address-input', 'name-input']);
+      });
+
+      expect(renderedHook.current.values).toEqual({
+        'address-input': undefined,
+        'name-input': undefined,
+      });
+    });
   });
 });

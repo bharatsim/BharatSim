@@ -2,33 +2,44 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import Dropdown from '../../uiComponent/Dropdown';
-import { convertStringArrayToOptions } from '../../utils/helper';
+import { convertObjectArrayToOptionStructure } from '../../utils/helper';
 
-const YAxisChartConfig = ({ headers, updateConfigState, configKey, error }) => {
-  const handleYChange = (value) => {
-    updateConfigState(configKey, value);
+const YAxisChartConfig = ({ headers, updateConfigState, configKey, error, value }) => {
+  const handleYChange = (selectedValue) => {
+    updateConfigState(configKey, selectedValue);
   };
 
   return (
     <Dropdown
-      options={convertStringArrayToOptions(headers)}
+      options={convertObjectArrayToOptionStructure(headers, 'name')}
       onChange={handleYChange}
       id="dropdown-y"
       label="select y axis"
       error={error}
+      value={value || ''}
     />
   );
 };
 
 YAxisChartConfig.defaultProps = {
   error: '',
+  value: null,
 };
 
 YAxisChartConfig.propTypes = {
-  headers: PropTypes.arrayOf(PropTypes.string).isRequired,
+  headers: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
   updateConfigState: PropTypes.func.isRequired,
   configKey: PropTypes.string.isRequired,
   error: PropTypes.string,
+  value: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+  }),
 };
 
 export default YAxisChartConfig;

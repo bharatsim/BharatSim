@@ -13,7 +13,13 @@ describe('BarChart', () => {
 
   it('should have fetched text in <BarChart /> component', () => {
     const { container } = render(
-      <BarChart config={{ dataSource: 'dataSource', xAxis: 'hour', yAxis: 'exposed' }} />,
+      <BarChart
+        config={{
+          dataSource: 'dataSource',
+          xAxis: 'hour',
+          yAxis: { type: 'number', name: 'exposed' },
+        }}
+      />,
     );
     expect(container).toMatchSnapshot();
   });

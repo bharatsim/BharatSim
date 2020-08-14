@@ -17,7 +17,12 @@ jest.mock('../../../utils/url', () => ({
 jest.mock('../../../utils/fetch', () => ({
   fetch: jest.fn(({ url }) => {
     if (url === '/headers') {
-      return Promise.resolve({ headers: ['x-header', 'y-header'] });
+      return Promise.resolve({
+        headers: [
+          { name: 'x-header', type: 'string' },
+          { name: 'y-header', type: 'number' },
+        ],
+      });
     }
     if (url === '/datasources') {
       return Promise.resolve({
@@ -58,7 +63,7 @@ describe('<ChartConfigModal />', () => {
 
     const configModal = within(document.querySelector('.MuiPaper-root'));
 
-    selectDropDownOption(configModal, 'dropdown-dataSources', 'id1');
+    selectDropDownOption(configModal, 'dropdown-dataSources', 'modelone');
 
     const okButton = configModal.getByTestId('button-ok');
 
@@ -74,7 +79,7 @@ describe('<ChartConfigModal />', () => {
 
     const configModal = within(document.querySelector('.MuiPaper-root'));
 
-    selectDropDownOption(configModal, 'dropdown-dataSources', 'id1');
+    selectDropDownOption(configModal, 'dropdown-dataSources', 'modelone');
 
     await waitFor(() => configModal.queryByText('dropdown-x'));
 
@@ -108,7 +113,7 @@ describe('<ChartConfigModal />', () => {
 
     const configModal = within(document.querySelector('.MuiPaper-root'));
 
-    selectDropDownOption(configModal, 'dropdown-dataSources', 'id1');
+    selectDropDownOption(configModal, 'dropdown-dataSources', 'modelone');
 
     await waitFor(() => expect(fetch).toBeCalledTimes(2));
 
@@ -123,8 +128,29 @@ describe('<ChartConfigModal />', () => {
     expect(props.onOk).toHaveBeenCalledWith({
       dataSource: 'id1',
       xAxis: 'x-header',
-      yAxis: 'y-header',
+      yAxis: {
+        name: 'y-header',
+        type: 'number',
+      },
     });
+  });
+
+  it('should show validation error if column selected is of x-type', async () => {
+    render(<ChartConfigModal {...props} />);
+
+    await waitFor(() => document.querySelector('.MuiPaper-root'));
+
+    const configModal = within(document.querySelector('.MuiPaper-root'));
+
+    selectDropDownOption(configModal, 'dropdown-dataSources', 'modelone');
+
+    await waitFor(() => expect(fetch).toBeCalledTimes(2));
+
+    selectDropDownOption(configModal, 'dropdown-x', 'x-header');
+
+    selectDropDownOption(configModal, 'dropdown-y', 'x-header');
+
+    expect(configModal.queryByText(/Please select number type option/)).not.toBeNull();
   });
 
   it('should close select config modal on cancel click', async () => {

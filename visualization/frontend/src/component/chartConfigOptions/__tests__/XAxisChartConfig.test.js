@@ -6,10 +6,15 @@ import { selectDropDownOption } from '../../../testUtil';
 
 describe('<XAxisChartConfig />', () => {
   const props = {
-    headers: ['a', 'b', 'c'],
+    headers: [
+      { name: 'a', type: 'number' },
+      { name: 'b', type: 'number' },
+      { name: 'c', type: 'number' },
+    ],
     updateConfigState: jest.fn(),
     configKey: 'xAxis',
     error: '',
+    value: '',
   };
   it('should match snapshot', () => {
     const { container } = render(<XAxisChartConfig {...props} />);

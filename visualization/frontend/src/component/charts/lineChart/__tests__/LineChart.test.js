@@ -13,7 +13,13 @@ describe('LineChart', () => {
 
   it('should have fetched text in <LineChart /> component', () => {
     const { container } = render(
-      <LineChart config={{ dataSource: 'dataSource', xAxis: 'hour', yAxis: 'exposed' }} />,
+      <LineChart
+        config={{
+          dataSource: 'dataSource',
+          xAxis: 'hour',
+          yAxis: { type: 'number', name: 'exposed' },
+        }}
+      />,
     );
     expect(container).toMatchSnapshot();
   });

@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  makeStyles,
-  InputLabel,
-  MenuItem,
   FormControl,
-  Select,
   FormHelperText,
+  InputLabel,
+  makeStyles,
+  MenuItem,
+  Select,
 } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
@@ -23,9 +23,15 @@ const useStyles = makeStyles((theme) => ({
 const renderMenuItems = (id, options) => {
   return (
     options &&
-    options.map(({ value, displayName }) => {
+    options.map(({ value, displayName }, index) => {
+      const key = `${displayName}-${index}`;
       return (
-        <MenuItem value={value} key={value} id={`${id}-${value}`} data-testid={`${id}-${value}`}>
+        <MenuItem
+          value={value}
+          key={key}
+          id={`${id}-${displayName}`}
+          data-testid={`${id}-${displayName}`}
+        >
           {displayName}
         </MenuItem>
       );
@@ -33,12 +39,10 @@ const renderMenuItems = (id, options) => {
   );
 };
 
-export default function Dropdown({ label, options, id, error, onChange, ...rest }) {
+export default function Dropdown({ label, options, id, error, value, onChange, ...rest }) {
   const classes = useStyles();
-  const [value, setValue] = useState('');
 
   const handleChange = (event) => {
-    setValue(event.target.value);
     onChange(event.target.value);
   };
 
@@ -62,15 +66,22 @@ export default function Dropdown({ label, options, id, error, onChange, ...rest 
   );
 }
 
+const valuePropType = PropTypes.oneOfType([
+  PropTypes.string,
+  PropTypes.shape({}),
+  PropTypes.number,
+]);
+
 Dropdown.propTypes = {
   label: PropTypes.string.isRequired,
   options: PropTypes.arrayOf(
     PropTypes.shape({
-      value: PropTypes.string.isRequired,
+      value: valuePropType.isRequired,
       displayName: PropTypes.string.isRequired,
     }),
   ).isRequired,
   id: PropTypes.string.isRequired,
   error: PropTypes.string.isRequired,
+  value: valuePropType.isRequired,
   onChange: PropTypes.func.isRequired,
 };

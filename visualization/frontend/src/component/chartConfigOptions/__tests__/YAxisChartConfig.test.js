@@ -5,7 +5,11 @@ import YAxisChartConfig from '../YAxisChartConfig';
 
 describe('<YAxisChartConfig />', () => {
   const props = {
-    headers: ['a', 'b', 'c'],
+    headers: [
+      { name: 'a', type: 'number' },
+      { name: 'b', type: 'number' },
+      { name: 'c', type: 'number' },
+    ],
     updateConfigState: jest.fn(),
     configKey: 'yAxis',
     error: '',
@@ -21,6 +25,6 @@ describe('<YAxisChartConfig />', () => {
 
     selectDropDownOption(renderedContainer, 'dropdown-y', 'a');
 
-    expect(props.updateConfigState).toHaveBeenCalledWith('yAxis', 'a');
+    expect(props.updateConfigState).toHaveBeenCalledWith('yAxis', { name: 'a', type: 'number' });
   });
 });

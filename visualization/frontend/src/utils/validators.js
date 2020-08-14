@@ -4,6 +4,10 @@ const isAbsent = (value) => {
   return value === null || value === undefined || value === '';
 };
 
+function isNotAxisTypeNumber(value) {
+  return value.type !== 'number';
+}
+
 const xAxisValidator = (value = '') => {
   if (isAbsent(value)) {
     return 'Please select value for x axis';
@@ -11,9 +15,12 @@ const xAxisValidator = (value = '') => {
   return '';
 };
 
-const yAxisValidator = (value = '') => {
+const yAxisValidator = (value = null) => {
   if (isAbsent(value)) {
     return 'Please select value for y axis';
+  }
+  if (isNotAxisTypeNumber(value)) {
+    return 'Please select number type option';
   }
   return '';
 };
