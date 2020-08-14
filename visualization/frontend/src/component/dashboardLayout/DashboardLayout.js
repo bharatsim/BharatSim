@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Box, Button } from '@material-ui/core';
+import PropTypes from 'prop-types';
+
+import { Box, Button, withStyles } from '@material-ui/core';
 import ReactGridLayout, { WidthProvider } from 'react-grid-layout';
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import './index.css';
+import styles from './dashboardLayoutCss';
 
 import { renderElement, getNewWidgetLayout } from './utils';
 import labels from '../../constants/labels';
@@ -16,7 +18,7 @@ import { chartTypes } from '../../constants/charts';
 const GridLayout = WidthProvider(ReactGridLayout);
 const cols = 12;
 
-const DashboardLayout = () => {
+const DashboardLayout = ({ classes }) => {
   const [widgets, setWidgets] = useState([]);
   const [count, setCount] = useState(0);
   const [layout, setLayout] = useState();
@@ -58,6 +60,7 @@ const DashboardLayout = () => {
           onClick={() => oneChartClick(chartTypes.BAR_CHART)}
           variant="contained"
           color="primary"
+          className={classes.buttonRoot}
         >
           {labels.dashboardLayout.Bar_CHART}
         </Button>
@@ -65,14 +68,15 @@ const DashboardLayout = () => {
           onClick={() => oneChartClick(chartTypes.LINE_CHART)}
           variant="contained"
           color="primary"
+          className={classes.buttonRoot}
         >
           {labels.dashboardLayout.LINE_CHART}
         </Button>
       </Box>
       <GridLayout
         layout={layout}
-        style={{ background: 'gray', minHeight: '600px' }}
         onLayoutChange={onLayoutChange}
+        className={classes.reactGridLayout}
       >
         {widgets.map((item) => {
           return renderElement(item);
@@ -90,4 +94,11 @@ const DashboardLayout = () => {
   );
 };
 
-export default DashboardLayout;
+DashboardLayout.propTypes = {
+  classes: PropTypes.shape({
+    buttonRoot: PropTypes.string.isRequired,
+    reactGridLayout: PropTypes.string.isRequired,
+  }).isRequired,
+};
+
+export default withStyles(styles)(DashboardLayout);

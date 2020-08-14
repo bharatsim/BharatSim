@@ -3,6 +3,12 @@ const styles = (theme) => ({
     height: theme.spacing(50),
     width: theme.spacing(50),
   },
+
+  buttonRoot: {
+    '& + &': {
+      marginLeft: theme.spacing(50),
+    },
+  },
 });
 
 export default styles;

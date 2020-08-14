@@ -49,10 +49,10 @@ exports[`<DashboardLayout /> should add new widget with line chart 1`] = `
 exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-1"
+    class="MuiBox-root MuiBox-root-3"
   >
     <div
-      class="MuiBox-root MuiBox-root-2"
+      class="MuiBox-root MuiBox-root-4"
     >
       <div>
         File Upload
@@ -60,10 +60,10 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
       </div>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-3"
+      class="MuiBox-root MuiBox-root-5"
     >
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained DashboardLayout-buttonRoot-1 MuiButton-containedPrimary"
         tabindex="0"
         type="button"
       >
@@ -77,7 +77,7 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
         />
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained DashboardLayout-buttonRoot-1 MuiButton-containedPrimary"
         tabindex="0"
         type="button"
       >
@@ -92,8 +92,8 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
       </button>
     </div>
     <div
-      class="react-grid-layout"
-      style="height: 10px; background: gray; min-height: 600px;"
+      class="react-grid-layout DashboardLayout-reactGridLayout-2"
+      style="height: 10px;"
     />
   </div>
 </div>
