@@ -1,12 +1,12 @@
 import React from 'react';
-import { getChartConfigComponent } from '../../constants/chartConfigOptions';
+import chartConfigOptions from '../../config/chartConfigOptions';
 
 export default function renderChartConfig(chartConfigs, chartConfigProps) {
   return (
     <div>
       {chartConfigs.map((chartConfigType) => (
         <div key={chartConfigType}>
-          {getChartConfigComponent(chartConfigType, chartConfigProps)}
+          {chartConfigOptions[chartConfigType].component(chartConfigProps)}
         </div>
       ))}
     </div>

@@ -1,11 +1,11 @@
 import { render } from '@testing-library/react';
 
-import { chartConfigOptions } from '../../../constants/chartConfigOptions';
+import { chartConfigOptionTypes } from '../../../constants/chartConfigOptionTypes';
 import renderChartConfig from '../renderChartConfig';
 
 describe('Render chart config', () => {
   it('should render chart config with provided props', () => {
-    const chartConfig = [chartConfigOptions.X_AXIS, chartConfigOptions.Y_AXIS];
+    const chartConfig = [chartConfigOptionTypes.X_AXIS, chartConfigOptionTypes.Y_AXIS];
     const chartConfigOptionProps = {
       headers: [
         { name: 'a', type: 'number' },

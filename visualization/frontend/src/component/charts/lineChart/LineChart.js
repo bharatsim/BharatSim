@@ -32,13 +32,6 @@ const options = {
         },
       },
     ],
-    xAxes: [
-      {
-        ticks: {
-          display: false,
-        },
-      },
-    ],
   },
 };
 

@@ -21,15 +21,7 @@ import { fetch } from '../../utils/fetch';
 import { convertObjectArrayToOptionStructure } from '../../utils/helper';
 import chartConfigs from '../../config/chartConfigs';
 import { url } from '../../utils/url';
-import { datasourceValidator, getChartConfigValidator } from '../../utils/validators';
-
-function createValidatorsSchema(configOptions) {
-  const chartConfigValidatorSchema = {};
-  configOptions.forEach((chartConfig) => {
-    chartConfigValidatorSchema[chartConfig] = getChartConfigValidator(chartConfig);
-  });
-  return chartConfigValidatorSchema;
-}
+import { datasourceValidator } from '../../utils/validators';
 
 function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
   const [headers, setHeaders] = React.useState([]);
@@ -42,7 +34,7 @@ function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
     onSubmit,
     resetFields,
   } = useForm({
-    ...createValidatorsSchema(chartConfigs[chartType].configOptions),
+    ...chartConfigs[chartType].configOptionValidationSchema,
     dataSource: datasourceValidator,
   });
 

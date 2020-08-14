@@ -1,43 +1,37 @@
-import { datasourceValidator, getChartConfigValidator } from '../validators';
+import { datasourceValidator, xAxisValidator, yAxisValidator } from '../validators';
 
 describe('Validators', () => {
   describe('X axis validator', () => {
     it('should provide message if x axis value is not present', () => {
-      const validator = getChartConfigValidator('xAxis');
-
-      expect(validator('')).toEqual('Please select value for x axis');
+      expect(xAxisValidator('')).toEqual('Please select value for x axis');
     });
 
     it('should provide empty message if x axis value is present', () => {
-      const validator = getChartConfigValidator('xAxis');
-
-      expect(validator('test')).toEqual('');
+      expect(xAxisValidator('test')).toEqual('');
     });
 
     it('should provide message if x axis value is undefined', () => {
-      const validator = getChartConfigValidator('xAxis');
-
-      expect(validator()).toEqual('Please select value for x axis');
+      expect(xAxisValidator()).toEqual('Please select value for x axis');
     });
   });
 
   describe('Y axis validator', () => {
     it('should provide message if y axis value is not present', () => {
-      const validator = getChartConfigValidator('yAxis');
-
-      expect(validator('')).toEqual('Please select value for y axis');
-    });
-
-    it('should provide empty message if y axis value is present', () => {
-      const validator = getChartConfigValidator('xAxis');
-
-      expect(validator('test')).toEqual('');
+      expect(yAxisValidator(null)).toEqual('Please select value for y axis');
     });
 
     it('should provide message if y axis value undefined', () => {
-      const validator = getChartConfigValidator('yAxis');
+      expect(yAxisValidator()).toEqual('Please select value for y axis');
+    });
 
-      expect(validator()).toEqual('Please select value for y axis');
+    it('should provide message if selected y axis type is not number', () => {
+      expect(yAxisValidator({ name: 'y-axis', type: 'string' })).toEqual(
+        'Please select number type option',
+      );
+    });
+
+    it('should provide empty message if selected y axis type is number', () => {
+      expect(yAxisValidator({ name: 'y-axis', type: 'number' })).toEqual('');
     });
   });
 
