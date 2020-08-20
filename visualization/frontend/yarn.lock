@@ -1673,6 +1673,13 @@
   resolved "https://registry.npmjs.org/@types/node/-/node-14.0.24.tgz#b0f86f58564fa02a28b68f8b55d4cdec42e3b9d6"
   integrity sha512-btt/oNOiDWcSuI721MdL8VQGnjsKjlTMdrKyTcLCKeQp/n4AAMFJ961wMbp+09y8WuGPClDEv07RIItdXKIXAA==
 
+"@types/papaparse@^5.0.3":
+  version "5.0.6"
+  resolved "https://registry.yarnpkg.com/@types/papaparse/-/papaparse-5.0.6.tgz#4fee1a17dc24fed839d276c807f875bd653abbb4"
+  integrity sha512-fCQnycsOSviVLtxuydQ82IhTAv1lSPIA8zY3sYaRHI00lERsa7QSA616HsQZixqEF2asGXZag3hM13N8bm/jAw==
+  dependencies:
+    "@types/node" "*"
+
 "@types/parse-json@^4.0.0":
   version "4.0.0"
   resolved "https://registry.npmjs.org/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
@@ -8366,6 +8373,11 @@ pako@~1.0.5:
   resolved "https://registry.npmjs.org/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
   integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
 
+papaparse@^5.1.1:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/papaparse/-/papaparse-5.2.0.tgz#97976a1b135c46612773029153dc64995caa3b7b"
+  integrity sha512-ylq1wgUSnagU+MKQtNeVqrPhZuMYBvOSL00DHycFTCxownF95gpLAk1HiHdUW77N8yxRq1qHXLdlIPyBSG9NSA==
+
 parallel-transform@^1.1.0:
   version "1.2.0"
   resolved "https://registry.npmjs.org/parallel-transform/-/parallel-transform-1.2.0.tgz#9049ca37d6cb2182c3b1d2c720be94d14a5814fc"
@@ -9605,6 +9617,14 @@ react-chartjs-2@2.9.0:
   dependencies:
     lodash "^4.17.4"
     prop-types "^15.5.8"
+
+react-csv-reader@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/react-csv-reader/-/react-csv-reader-3.1.1.tgz#a0fe4c30152b9fa149e34abcdcdd98866dc28490"
+  integrity sha512-rPe7/aMT8W0VAkdiXQwC14wjyVP1hejRzLT344Hpu4LACL1YoDPD6AANkHFfC5YMmpDExlgp0XQZCBkJAAdAsQ==
+  dependencies:
+    "@types/papaparse" "^5.0.3"
+    papaparse "^5.1.1"
 
 react-dev-utils@^10.2.1:
   version "10.2.1"

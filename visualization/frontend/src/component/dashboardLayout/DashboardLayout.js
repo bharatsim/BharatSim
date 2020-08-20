@@ -13,6 +13,7 @@ import labels from '../../constants/labels';
 import ChartConfigModal from '../chartConfigModal/ChartConfigModal';
 import useModal from '../../hook/useModal';
 import FileUpload from '../../uiComponent/FileUpload';
+import FilePreview from '../../uiComponent/FilePreview';
 import { chartTypes } from '../../constants/charts';
 
 const GridLayout = WidthProvider(ReactGridLayout);
@@ -54,6 +55,8 @@ const DashboardLayout = ({ classes }) => {
     <Box pl={10} pt={10} pr={10}>
       <Box pb={2}>
         <FileUpload />
+        <FilePreview />
+
       </Box>
       <Box pb={2}>
         <Button
