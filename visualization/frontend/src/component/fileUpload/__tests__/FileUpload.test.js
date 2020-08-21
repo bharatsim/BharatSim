@@ -2,20 +2,26 @@
 import React from 'react';
 import { fireEvent, render, act, waitFor } from '@testing-library/react';
 
+import * as fetch from '../../../utils/fetch';
 import FileUpload from '../FileUpload';
-import * as fetch from '../../utils/fetch';
 
-jest.mock('../../utils/fetch');
+jest.mock('../../../utils/fetch');
 
 describe('<FileUpload />', () => {
+  let renderedComponent;
+
+  beforeEach(() => {
+    renderedComponent = render(<FileUpload />);
+  });
+
   it('should match a snapshot', () => {
-    const { container } = render(<FileUpload />);
+    const { container } = renderedComponent;
 
     expect(container).toMatchSnapshot();
   });
 
   it('should enable upload button if csv file is upload', () => {
-    const { getByTestId } = render(<FileUpload />);
+    const { getByTestId } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
 
@@ -29,7 +35,7 @@ describe('<FileUpload />', () => {
   });
 
   it('should disable upload button if other than csv file is upload', () => {
-    const { getByTestId } = render(<FileUpload />);
+    const { getByTestId } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
 
@@ -43,7 +49,7 @@ describe('<FileUpload />', () => {
   });
 
   it('should show error message if other than csv file is upload', async () => {
-    const { getByTestId, getByText } = render(<FileUpload />);
+    const { getByTestId, getByText } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
 
     fireEvent.change(fileInput, {
@@ -52,30 +58,12 @@ describe('<FileUpload />', () => {
       },
     });
 
-    const errorText = getByText(
-      'Only csv files are allowed of maxmimum size 10MB, Please upload valid csv a file',
-    );
+    const errorText = getByText('Please upload valid csv file');
     expect(errorText).toBeInTheDocument();
   });
 
-  it('should show error message if file uploaded is larger than 10 mb', async () => {
-    const { getByTestId, getByText } = render(<FileUpload />);
-    const fileInput = getByTestId(/input-upload-file/);
-
-    fireEvent.change(fileInput, {
-      target: {
-        files: [{ name: 'test.csv', type: 'text/csv', size: 10485762 }],
-      },
-    });
-
-    const errorText = getByText(
-      'Only csv files are allowed of maxmimum size 10MB, Please upload valid csv a file',
-    );
-    expect(errorText).toBeInTheDocument();
-  });
-
-  it('should not show error message if csv file is upload', async () => {
-    const { getByTestId, queryByText } = render(<FileUpload />);
+  it('should not show error message if valid csv file is upload', async () => {
+    const { getByTestId, queryByText } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
 
     fireEvent.change(fileInput, {
@@ -91,7 +79,7 @@ describe('<FileUpload />', () => {
   });
 
   it('should send data on click of upload button', async () => {
-    const { getByTestId } = render(<FileUpload />);
+    const { getByTestId } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
     fetch.uploadFile.mockResolvedValue('success');
@@ -114,7 +102,7 @@ describe('<FileUpload />', () => {
 
   it('should reset file input', async () => {
     fetch.uploadFile.mockResolvedValue('success');
-    const { getByTestId } = render(<FileUpload />);
+    const { getByTestId } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
     fetch.uploadFile.mockResolvedValue('success');
@@ -133,7 +121,7 @@ describe('<FileUpload />', () => {
   });
 
   it('should display uploading message while file is uploading', async () => {
-    const { getByTestId, queryByText } = render(<FileUpload />);
+    const { getByTestId, queryByText } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
     fetch.uploadFile.mockResolvedValue('success');
@@ -152,7 +140,7 @@ describe('<FileUpload />', () => {
   });
 
   it('should display success message after file is uploaded', async () => {
-    const { getByTestId, queryByText, findByText } = render(<FileUpload />);
+    const { getByTestId, queryByText, findByText } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
     fetch.uploadFile.mockResolvedValue('success');
@@ -174,7 +162,7 @@ describe('<FileUpload />', () => {
   });
 
   it('should display error message after file uploading failed', async () => {
-    const { getByTestId, queryByText, findByText } = render(<FileUpload />);
+    const { getByTestId, queryByText, findByText } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
     fetch.uploadFile.mockRejectedValueOnce('failed');

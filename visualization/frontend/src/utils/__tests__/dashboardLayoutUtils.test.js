@@ -1,8 +1,8 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { renderElement, getNewWidgetLayout } from '../utils';
+import { renderElement, getNewWidgetLayout } from '../dashboardLayoutUtils';
 
-jest.mock('../../charts/renderChart', () => ({
+jest.mock('../../component/charts/renderChart', () => ({
   __esModule: true,
   default: (chartType, props) => (
     <div>

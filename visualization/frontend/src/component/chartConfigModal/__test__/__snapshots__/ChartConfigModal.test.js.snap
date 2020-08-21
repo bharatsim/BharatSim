@@ -20,10 +20,10 @@ exports[`<ChartConfigModal /> should match a snapshot for <ChartConfigModal /> 1
     class="MuiDialogContent-root"
   >
     <div
-      class="MuiBox-root MuiBox-root-3 ChartConfigModal-root-1"
+      class="MuiBox-root MuiBox-root-2 ChartConfigModal-root-1"
     >
       <div
-        class="MuiFormControl-root makeStyles-formControl-4"
+        class="MuiFormControl-root makeStyles-formControl-3"
       >
         <label
           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined"
@@ -66,10 +66,10 @@ exports[`<ChartConfigModal /> should match a snapshot for <ChartConfigModal /> 1
           </svg>
           <fieldset
             aria-hidden="true"
-            class="PrivateNotchedOutline-root-6 MuiOutlinedInput-notchedOutline"
+            class="PrivateNotchedOutline-root-5 MuiOutlinedInput-notchedOutline"
           >
             <legend
-              class="PrivateNotchedOutline-legendLabelled-8"
+              class="PrivateNotchedOutline-legendLabelled-7"
             >
               <span>
                 select data source

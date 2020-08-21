@@ -1,30 +1,30 @@
 import { useState } from 'react';
 
-const useForm = (validators) => {
+function useForm(validators) {
   const [values, setValues] = useState({});
   const [errors, setErrors] = useState({});
 
-  const setValue = (key, value) => {
+  function setValue(key, value) {
     setValues((prevState) => ({ ...prevState, [key]: value }));
-  };
+  }
 
-  const setError = (key, error) => {
+  function setError(key, error) {
     setErrors((prevState) => ({ ...prevState, [key]: error }));
-  };
+  }
 
-  const validateFieldAndSetErrorMessage = (key, value, validator) => {
+  function validateFieldAndSetErrorMessage(key, value, validator) {
     const errorMessage = validator(value);
     setError(key, errorMessage);
     return errorMessage;
-  };
+  }
 
-  const validateAndSetValue = (key, value) => {
+  function validateAndSetValue(key, value) {
     validateFieldAndSetErrorMessage(key, value, validators[key]);
 
     setValue(key, value);
-  };
+  }
 
-  const onSubmit = (submitCallback) => {
+  function onSubmit(submitCallback) {
     const validatorKeys = Object.keys(validators);
     const isFormValid = validatorKeys.every((validatorKey) => {
       return (
@@ -37,20 +37,20 @@ const useForm = (validators) => {
     });
 
     if (isFormValid) submitCallback(values);
-  };
+  }
 
-  const shouldEnableSubmit = () => {
+  function shouldEnableSubmit() {
     const keys = Object.keys(validators);
-    return keys.every((key) => errors[key] === '');
-  };
+    return keys.every((key) => errors[key] === '' && !!values[key]);
+  }
 
-  const resetField = (key) => {
+  function resetField(key) {
     setValue(key, undefined);
-  };
+  }
 
-  const resetFields = (keys) => {
+  function resetFields(keys) {
     keys.map((key) => resetField(key));
-  };
+  }
 
   return {
     values,
@@ -61,6 +61,6 @@ const useForm = (validators) => {
     onSubmit,
     resetFields,
   };
-};
+}
 
 export default useForm;

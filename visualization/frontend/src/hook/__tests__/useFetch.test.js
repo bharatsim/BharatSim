@@ -22,7 +22,13 @@ describe('Use fetch hook', () => {
 
   it('should return fetch data for given url and other data ', async () => {
     const { result, waitForNextUpdate } = renderHook(() =>
-      useFetch({ url: '/test/api', headers: 'headers', method: httpMethods.POST, data: 'data', query: 'page' }),
+      useFetch({
+        url: '/test/api',
+        headers: 'headers',
+        method: httpMethods.POST,
+        data: 'data',
+        query: 'page',
+      }),
     );
 
     await waitForNextUpdate();

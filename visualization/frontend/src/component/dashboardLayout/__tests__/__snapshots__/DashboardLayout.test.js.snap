@@ -49,10 +49,10 @@ exports[`<DashboardLayout /> should add new widget with line chart 1`] = `
 exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-3"
+    class="MuiBox-root MuiBox-root-2"
   >
     <div
-      class="MuiBox-root MuiBox-root-4"
+      class="MuiBox-root MuiBox-root-3"
     >
       <div>
         File Upload
@@ -60,39 +60,43 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
       </div>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-5"
+      class="MuiBox-root MuiBox-root-4"
     >
-      <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained DashboardLayout-buttonRoot-1 MuiButton-containedPrimary"
-        tabindex="0"
-        type="button"
+      <div
+        class="MuiBox-root MuiBox-root-6 makeStyles-buttonGroup-5"
       >
-        <span
-          class="MuiButton-label"
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
+          tabindex="0"
+          type="button"
         >
-          Bar Chart
-        </span>
-        <span
-          class="MuiTouchRipple-root"
-        />
-      </button>
-      <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained DashboardLayout-buttonRoot-1 MuiButton-containedPrimary"
-        tabindex="0"
-        type="button"
-      >
-        <span
-          class="MuiButton-label"
+          <span
+            class="MuiButton-label"
+          >
+            Bar Chart
+          </span>
+          <span
+            class="MuiTouchRipple-root"
+          />
+        </button>
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
+          tabindex="0"
+          type="button"
         >
-          Line Chart
-        </span>
-        <span
-          class="MuiTouchRipple-root"
-        />
-      </button>
+          <span
+            class="MuiButton-label"
+          >
+            Line Chart
+          </span>
+          <span
+            class="MuiTouchRipple-root"
+          />
+        </button>
+      </div>
     </div>
     <div
-      class="react-grid-layout DashboardLayout-reactGridLayout-2"
+      class="react-grid-layout DashboardLayout-reactGridLayout-1"
       style="height: 10px;"
     />
   </div>

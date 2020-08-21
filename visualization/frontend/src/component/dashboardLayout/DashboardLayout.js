@@ -8,18 +8,18 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import styles from './dashboardLayoutCss';
 
-import { renderElement, getNewWidgetLayout } from './utils';
+import { getNewWidgetLayout, renderElement } from '../../utils/dashboardLayoutUtils';
 import labels from '../../constants/labels';
 import ChartConfigModal from '../chartConfigModal/ChartConfigModal';
 import useModal from '../../hook/useModal';
-import FileUpload from '../../uiComponent/FileUpload';
-import FilePreview from '../../uiComponent/FilePreview';
 import { chartTypes } from '../../constants/charts';
+import FileUpload from '../fileUpload/FileUpload';
+import ButtonGroup from '../../uiComponent/ButtonGroup';
 
 const GridLayout = WidthProvider(ReactGridLayout);
 const cols = 12;
 
-const DashboardLayout = ({ classes }) => {
+function DashboardLayout({ classes }) {
   const [widgets, setWidgets] = useState([]);
   const [count, setCount] = useState(0);
   const [layout, setLayout] = useState();
@@ -27,7 +27,7 @@ const DashboardLayout = ({ classes }) => {
 
   const { isOpen, closeModal, openModal } = useModal();
 
-  const addItem = (config) => {
+  function addItem(config) {
     setWidgets((prevWidgets) => {
       return prevWidgets.concat({
         ...getNewWidgetLayout(prevWidgets.length, cols, count),
@@ -36,45 +36,44 @@ const DashboardLayout = ({ classes }) => {
       });
     });
     setCount((prevCount) => prevCount + 1);
-  };
+  }
 
-  const handleModalOk = (config) => {
+  function handleModalOk(config) {
     addItem(config);
     closeModal();
-  };
+  }
 
-  const onLayoutChange = (changedLayout) => {
+  function onLayoutChange(changedLayout) {
     setLayout(changedLayout);
-  };
-  const oneChartClick = (selectedChartType) => {
+  }
+
+  function oneChartClick(selectedChartType) {
     openModal();
     setChartType(selectedChartType);
-  };
+  }
 
   return (
     <Box pl={10} pt={10} pr={10}>
       <Box pb={2}>
         <FileUpload />
-        <FilePreview />
-
       </Box>
       <Box pb={2}>
-        <Button
-          onClick={() => oneChartClick(chartTypes.BAR_CHART)}
-          variant="contained"
-          color="primary"
-          className={classes.buttonRoot}
-        >
-          {labels.dashboardLayout.Bar_CHART}
-        </Button>
-        <Button
-          onClick={() => oneChartClick(chartTypes.LINE_CHART)}
-          variant="contained"
-          color="primary"
-          className={classes.buttonRoot}
-        >
-          {labels.dashboardLayout.LINE_CHART}
-        </Button>
+        <ButtonGroup>
+          <Button
+            onClick={() => oneChartClick(chartTypes.BAR_CHART)}
+            variant="contained"
+            color="primary"
+          >
+            {labels.dashboardLayout.Bar_CHART}
+          </Button>
+          <Button
+            onClick={() => oneChartClick(chartTypes.LINE_CHART)}
+            variant="contained"
+            color="primary"
+          >
+            {labels.dashboardLayout.LINE_CHART}
+          </Button>
+        </ButtonGroup>
       </Box>
       <GridLayout
         layout={layout}
@@ -95,11 +94,10 @@ const DashboardLayout = ({ classes }) => {
       )}
     </Box>
   );
-};
+}
 
 DashboardLayout.propTypes = {
   classes: PropTypes.shape({
-    buttonRoot: PropTypes.string.isRequired,
     reactGridLayout: PropTypes.string.isRequired,
   }).isRequired,
 };

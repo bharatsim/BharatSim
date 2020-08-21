@@ -32,14 +32,14 @@ const chartConfigOptions = {
   },
 };
 
-const createConfigOptionValidationSchema = (configOptions) => {
+function createConfigOptionValidationSchema(configOptions) {
   const configOptionValidationSchema = {};
   configOptions.forEach((configOption) => {
     configOptionValidationSchema[configOption] = chartConfigOptions[configOption].validator;
   });
 
   return configOptionValidationSchema;
-};
+}
 
 export default chartConfigOptions;
 export { createConfigOptionValidationSchema };

@@ -1,5 +1,5 @@
 import React from 'react';
-import renderChart from '../charts/renderChart';
+import renderChart from '../component/charts/renderChart';
 
 export function renderElement(element) {
   return (

@@ -42,18 +42,18 @@ function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
     return null;
   }
 
-  const handleDataSourceChange = async (value) => {
+  async function handleDataSourceChange(value) {
     resetFields(chartConfigs[chartType].configOptions);
     validateAndSetValue('dataSource', value);
     const csvHeaders = await fetch({ url: url.getHeaderUrl(value) });
     setHeaders(csvHeaders.headers);
-  };
+  }
 
-  const handleOk = () => {
+  function handleOk() {
     onSubmit((value) => {
       onOk(value);
     });
-  };
+  }
 
   const chartConfigProps = { headers, updateConfigState: validateAndSetValue, errors, values };
 

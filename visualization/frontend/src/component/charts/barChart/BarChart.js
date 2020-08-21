@@ -32,7 +32,7 @@ const chartConfig = {
 
 const options = { maintainAspectRatio: false, responsive: true };
 
-const BarChart = ({ config }) => {
+function BarChart({ config }) {
   const {
     xAxis: xColumn,
     yAxis: { name: yColumn },
@@ -54,7 +54,8 @@ const BarChart = ({ config }) => {
   };
 
   return <Bar data={data} options={options} />;
-};
+}
+
 BarChart.propTypes = {
   config: PropTypes.shape({
     dataSource: PropTypes.string.isRequired,

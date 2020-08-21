@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import Dropdown from '../../uiComponent/Dropdown';
 import { convertObjectArrayToOptionStructure } from '../../utils/helper';
 
-const XAxisChartConfig = ({ headers, updateConfigState, configKey, error, value }) => {
-  const handleXChange = (selectedValue) => {
+function XAxisChartConfig({ headers, updateConfigState, configKey, error, value }) {
+  function handleXChange(selectedValue) {
     updateConfigState(configKey, selectedValue);
-  };
+  }
 
   return (
     <Dropdown
@@ -19,7 +19,7 @@ const XAxisChartConfig = ({ headers, updateConfigState, configKey, error, value 
       value={value}
     />
   );
-};
+}
 
 XAxisChartConfig.defaultProps = {
   error: '',

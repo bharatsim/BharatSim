@@ -35,7 +35,7 @@ const options = {
   },
 };
 
-const LineChart = ({ config }) => {
+function LineChart({ config }) {
   const {
     xAxis: xColumn,
     yAxis: { name: yColumn },
@@ -57,7 +57,7 @@ const LineChart = ({ config }) => {
   };
 
   return <Line data={data} options={options} />;
-};
+}
 
 LineChart.displayName = 'LineChart';
 

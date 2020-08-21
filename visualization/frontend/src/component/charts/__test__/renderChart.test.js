@@ -12,7 +12,7 @@ jest.mock('../lineChart/LineChart', () => (props) => (
       {mockPropsCapture(props)}
     </span>
   </div>
-  ));
+));
 
 describe('Render chart config', () => {
   it('should render chart config with provided props', () => {

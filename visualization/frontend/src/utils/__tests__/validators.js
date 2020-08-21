@@ -1,4 +1,4 @@
-import { datasourceValidator, xAxisValidator, yAxisValidator } from '../validators';
+import { datasourceValidator, validateFile, xAxisValidator, yAxisValidator } from '../validators';
 
 describe('Validators', () => {
   describe('X axis validator', () => {
@@ -46,6 +46,28 @@ describe('Validators', () => {
 
     it('should provide message if datasource value is undefined', () => {
       expect(datasourceValidator()).toEqual('Please select data source');
+    });
+  });
+
+  describe('file validator', () => {
+    it('should provide message if file is not present', () => {
+      expect(validateFile()).toEqual('Please upload valid csv file');
+    });
+
+    it('should provide message if uploaded file is not type of csv', () => {
+      expect(validateFile({ type: 'image/png', size: 10000 })).toEqual(
+        'Please upload valid csv file',
+      );
+    });
+
+    it('should provide message if uploaded file size exceed limit of 10MB', () => {
+      expect(validateFile({ type: 'text/csv', size: 10485761 })).toEqual(
+        'Please upload valid csv file with size less than 10MB',
+      );
+    });
+
+    it('should provide empty message for valid file', () => {
+      expect(validateFile({ type: 'text/csv', size: 1000 })).toEqual('');
     });
   });
 });

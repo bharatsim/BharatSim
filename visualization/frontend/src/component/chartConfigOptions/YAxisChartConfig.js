@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import Dropdown from '../../uiComponent/Dropdown';
 import { convertObjectArrayToOptionStructure } from '../../utils/helper';
 
-const YAxisChartConfig = ({ headers, updateConfigState, configKey, error, value }) => {
-  const handleYChange = (selectedValue) => {
+function YAxisChartConfig({ headers, updateConfigState, configKey, error, value }) {
+  function handleYChange(selectedValue) {
     updateConfigState(configKey, selectedValue);
-  };
+  }
 
   return (
     <Dropdown
@@ -19,7 +19,7 @@ const YAxisChartConfig = ({ headers, updateConfigState, configKey, error, value 
       value={value || ''}
     />
   );
-};
+}
 
 YAxisChartConfig.defaultProps = {
   error: '',

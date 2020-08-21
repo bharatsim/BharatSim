@@ -19,7 +19,7 @@ jest.mock('../../chartConfigModal/ChartConfigModal', () => ({ open, onCancel, on
   </>
 ));
 
-jest.mock('../../../uiComponent/FileUpload', () => (props) => (
+jest.mock('../../fileUpload/FileUpload', () => (props) => (
   <div>
     File Upload
     {/* eslint-disable-next-line no-undef */}

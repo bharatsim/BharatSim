@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const renderMenuItems = (id, options) => {
+function renderMenuItems(id, options) {
   return (
     options &&
     options.map(({ value, displayName }, index) => {
@@ -37,14 +37,14 @@ const renderMenuItems = (id, options) => {
       );
     })
   );
-};
+}
 
 export default function Dropdown({ label, options, id, error, value, onChange, ...rest }) {
   const classes = useStyles();
 
-  const handleChange = (event) => {
+  function handleChange(event) {
     onChange(event.target.value);
-  };
+  }
 
   return (
     <FormControl variant="outlined" className={classes.formControl} error={!!error}>
