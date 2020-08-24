@@ -11,7 +11,7 @@ describe('<Modal />', () => {
         open
         handleClose={jest.fn()}
         title="Modal"
-        actions={[{ name: 'Apply', handleClick: jest.fn() }]}
+        actions={[{ name: 'Apply', handleClick: jest.fn(), type: 'primary' }]}
       >
         Hello this is modal
       </Modal>,
@@ -37,7 +37,7 @@ describe('<Modal />', () => {
         open
         handleClose={handleClose}
         title="Modal"
-        actions={[{ name: 'Apply', handleClick: jest.fn() }]}
+        actions={[{ name: 'Apply', handleClick: jest.fn(), type: 'primary' }]}
       >
         Hello this is modal
       </Modal>,
@@ -58,7 +58,7 @@ describe('<Modal />', () => {
         open
         handleClose={jest.fn()}
         title="Modal"
-        actions={[{ name: 'Apply', handleClick: handleApply }]}
+        actions={[{ name: 'Apply', handleClick: handleApply, type: 'primary' }]}
       >
         Hello this is modal
       </Modal>,

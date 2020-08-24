@@ -1,4 +1,12 @@
-import { fileUploadedStatus, getStatusAndMessageFor } from '../fileUploadUtils';
+import { fileUploadedStatus, getStatusAndMessageFor, parseCsv } from '../fileUploadUtils';
+
+jest.mock('papaparse', () => {
+  return {
+    parse: (csvFile, config) => {
+      config.complete('data');
+    },
+  };
+});
 
 describe('File Upload utils', () => {
   it('should provide status for file upload', () => {
@@ -42,5 +50,13 @@ describe('File Upload utils', () => {
     const actual = getStatusAndMessageFor('success', 'file.csv');
 
     expect(actual).toEqual(expected);
+  });
+
+  it('should parse the csv file and call the given function', () => {
+    const onApply = jest.fn();
+
+    parseCsv('MockFile', onApply);
+
+    expect(onApply).toHaveBeenCalledWith('data');
   });
 });

@@ -1,11 +1,17 @@
 /* eslint-disable no-console */
 import React from 'react';
-import { fireEvent, render, act, waitFor } from '@testing-library/react';
+import { fireEvent, render, act, waitFor, within } from '@testing-library/react';
 
 import * as fetch from '../../../utils/fetch';
 import FileUpload from '../FileUpload';
+import * as fileUtils from '../../../utils/fileUploadUtils';
 
 jest.mock('../../../utils/fetch');
+
+jest.spyOn(fileUtils, 'parseCsv').mockImplementation((csvFile, onComplete) => {
+  const data = { data: [{ col1: 'row1', col2: 1 }] };
+  onComplete(data);
+});
 
 describe('<FileUpload />', () => {
   let renderedComponent;
@@ -78,7 +84,7 @@ describe('<FileUpload />', () => {
     expect(errorText).toBe(null);
   });
 
-  it('should send data on click of upload button', async () => {
+  it('should open datatype config modal for selected file on click of upload button', async () => {
     const { getByTestId } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
@@ -94,10 +100,8 @@ describe('<FileUpload />', () => {
       fireEvent.click(uploadButton);
     });
 
-    expect(fetch.uploadFile).toHaveBeenCalledWith({
-      file: { name: 'test.csv', type: 'text/csv' },
-      url: '/api/dataSources',
-    });
+    const container = within(document.querySelector('.MuiPaper-root'));
+    expect(container.queryByText('Configure Datatype')).toBeInTheDocument();
   });
 
   it('should reset file input', async () => {
@@ -133,9 +137,13 @@ describe('<FileUpload />', () => {
     });
 
     fireEvent.click(uploadButton);
+    const Modal = within(document.querySelector('.MuiPaper-root'));
+    const { getByText } = Modal;
+
+    const applyAndUploadButton = getByText('apply and upload');
+    fireEvent.click(applyAndUploadButton);
 
     const uploading = queryByText('uploading test.csv');
-
     await waitFor(() => expect(uploading).toBeInTheDocument());
   });
 
@@ -151,14 +159,20 @@ describe('<FileUpload />', () => {
       },
     });
 
+    fireEvent.click(uploadButton);
+
+    const Modal = within(document.querySelector('.MuiPaper-root'));
+    const { getByText } = Modal;
+
+    const applyAndUploadButton = getByText('apply and upload');
+
     await act(async () => {
-      fireEvent.click(uploadButton);
+      fireEvent.click(applyAndUploadButton);
     });
 
-    await waitFor(() => findByText('test.csv successfully uploaded'));
-
+    await findByText('test.csv successfully uploaded');
     const uploaded = queryByText('test.csv successfully uploaded');
-    expect(uploaded).toBeInTheDocument();
+    await waitFor(() => expect(uploaded).toBeInTheDocument());
   });
 
   it('should display error message after file uploading failed', async () => {
@@ -172,14 +186,19 @@ describe('<FileUpload />', () => {
         files: [{ name: 'test.csv', type: 'text/csv' }],
       },
     });
+    fireEvent.click(uploadButton);
+
+    const Modal = within(document.querySelector('.MuiPaper-root'));
+    const { getByText } = Modal;
+
+    const applyAndUploadButton = getByText('apply and upload');
 
     await act(async () => {
-      fireEvent.click(uploadButton);
+      fireEvent.click(applyAndUploadButton);
     });
 
-    await waitFor(() => findByText('Error occurred while unloading test.csv'));
-
+    await findByText('Error occurred while unloading test.csv');
     const uploadFiled = queryByText('Error occurred while unloading test.csv');
-    expect(uploadFiled).toBeInTheDocument();
+    await waitFor(() => expect(uploadFiled).toBeInTheDocument());
   });
 });

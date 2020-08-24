@@ -71,6 +71,9 @@ const valuePropType = PropTypes.oneOfType([
   PropTypes.shape({}),
   PropTypes.number,
 ]);
+Dropdown.defaultProps = {
+  error: '',
+};
 
 Dropdown.propTypes = {
   label: PropTypes.string.isRequired,
@@ -81,7 +84,7 @@ Dropdown.propTypes = {
     }),
   ).isRequired,
   id: PropTypes.string.isRequired,
-  error: PropTypes.string.isRequired,
+  error: PropTypes.string,
   value: valuePropType.isRequired,
   onChange: PropTypes.func.isRequired,
 };

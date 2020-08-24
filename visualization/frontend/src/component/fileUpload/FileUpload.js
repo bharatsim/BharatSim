@@ -5,14 +5,26 @@ import useForm from '../../hook/useForm';
 import { uploadFile } from '../../utils/fetch';
 import { url } from '../../utils/url';
 import { validateFile } from '../../utils/validators';
-import { fileUploadedStatus, getStatusAndMessageFor } from '../../utils/fileUploadUtils';
+import { fileUploadedStatus, getStatusAndMessageFor, parseCsv } from '../../utils/fileUploadUtils';
 import FileInput from '../../uiComponent/FileInput';
+import useModal from '../../hook/useModal';
+import DataTypeConfigModal from './DataTypeConfigModal';
 
 const FILE_INPUT_KEY = 'fileInput';
 
 function FileUpload() {
   const [fileUpload, setFileUpload] = useState({ status: null, message: '' });
-  const { errors, validateAndSetValue, resetFields, onSubmit, shouldEnableSubmit } = useForm({
+  const [parsedData, setParsedData] = useState(null);
+  const { isOpen, closeModal, openModal } = useModal();
+
+  const {
+    errors,
+    validateAndSetValue,
+    resetFields,
+    onSubmit,
+    shouldEnableSubmit,
+    values,
+  } = useForm({
     [FILE_INPUT_KEY]: validateFile,
   });
   const ref = useRef();
@@ -33,9 +45,16 @@ function FileUpload() {
         ref.current.value = '';
       });
   }
-
-  async function validateAndUploadFile() {
-    onSubmit((validatedValues) => upload(validatedValues[FILE_INPUT_KEY]));
+  async function onSchemaChangesApply() {
+    await upload(values[FILE_INPUT_KEY]);
+    closeModal();
+  }
+  function validateAndParseCsv() {
+    onSubmit((validatedValues) => parseCsv(validatedValues[FILE_INPUT_KEY], onCompleteParseCsv));
+  }
+  function onCompleteParseCsv(parsedResult) {
+    setParsedData(parsedResult.data);
+    openModal();
   }
 
   function onFileInputChange(uploadedFile) {
@@ -55,7 +74,7 @@ function FileUpload() {
       </Box>
       <Button
         type="button"
-        onClick={validateAndUploadFile}
+        onClick={validateAndParseCsv}
         data-testid="button-upload"
         disabled={isUploadDisable}
         variant="contained"
@@ -63,6 +82,14 @@ function FileUpload() {
       >
         Upload
       </Button>
+      {isOpen && !!parsedData && (
+        <DataTypeConfigModal
+          closeModal={closeModal}
+          isOpen={isOpen}
+          dataRow={parsedData[0]}
+          onApply={onSchemaChangesApply}
+        />
+      )}
     </>
   );
 }
