@@ -71,6 +71,7 @@ function FileUpload() {
   }
 
   function onFileInputChange(uploadedFile) {
+    setFileUpload({ status: null, message: '' });
     validateAndSetValue(FILE_INPUT_KEY, uploadedFile);
   }
 

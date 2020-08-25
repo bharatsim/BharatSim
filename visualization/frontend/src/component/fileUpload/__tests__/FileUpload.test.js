@@ -232,4 +232,39 @@ describe('<FileUpload />', () => {
     const uploadFiled = queryByText('Error occurred while unloading test.csv');
     await waitFor(() => expect(uploadFiled).toBeInTheDocument());
   });
+
+  it('should reset file upload status after adding new file', async () => {
+    const { getByTestId, queryByText, findByText } = renderedComponent;
+    const fileInput = getByTestId(/input-upload-file/);
+    const uploadButton = getByTestId('button-upload');
+    fetch.uploadData.mockRejectedValueOnce('failed');
+
+    fireEvent.change(fileInput, {
+      target: {
+        files: [{ name: 'test.csv', type: 'text/csv' }],
+      },
+    });
+    fireEvent.click(uploadButton);
+
+    const Modal = within(document.querySelector('.MuiPaper-root'));
+    const { getByText } = Modal;
+
+    const applyAndUploadButton = getByText('apply and upload');
+
+    await act(async () => {
+      fireEvent.click(applyAndUploadButton);
+    });
+
+    await findByText('Error occurred while unloading test.csv');
+    const uploadFiled = queryByText('Error occurred while unloading test.csv');
+    await waitFor(() => expect(uploadFiled).toBeInTheDocument());
+
+    fireEvent.change(fileInput, {
+      target: {
+        files: [{ name: 'test.csv', type: 'text/csv' }],
+      },
+    });
+
+    expect(uploadFiled).not.toBeInTheDocument();
+  });
 });
