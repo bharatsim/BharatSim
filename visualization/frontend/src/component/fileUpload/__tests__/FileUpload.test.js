@@ -7,6 +7,8 @@ import FileUpload from '../FileUpload';
 import * as fileUtils from '../../../utils/fileUploadUtils';
 
 jest.mock('../../../utils/fetch');
+fetch.formDataBuilder.mockReturnValue('data');
+fetch.headerBuilder.mockReturnValue('header');
 
 jest.spyOn(fileUtils, 'parseCsv').mockImplementation((csvFile, onComplete) => {
   const data = { data: [{ col1: 'row1', col2: 1 }] };
@@ -88,7 +90,7 @@ describe('<FileUpload />', () => {
     const { getByTestId } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
-    fetch.uploadFile.mockResolvedValue('success');
+    fetch.uploadData.mockResolvedValue('success');
 
     fireEvent.change(fileInput, {
       target: {
@@ -105,11 +107,11 @@ describe('<FileUpload />', () => {
   });
 
   it('should reset file input', async () => {
-    fetch.uploadFile.mockResolvedValue('success');
+    fetch.uploadData.mockResolvedValue('success');
     const { getByTestId } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
-    fetch.uploadFile.mockResolvedValue('success');
+    fetch.uploadData.mockResolvedValue('success');
 
     fireEvent.change(fileInput, {
       target: {
@@ -124,11 +126,40 @@ describe('<FileUpload />', () => {
     expect(fileInput.value).toBe('');
   });
 
+  it('should upload file and metadata of csv file at upload api', async () => {
+    const { getByTestId } = renderedComponent;
+    const fileInput = getByTestId(/input-upload-file/);
+    const uploadButton = getByTestId('button-upload');
+    fetch.uploadData.mockResolvedValue('success');
+
+    fireEvent.change(fileInput, {
+      target: {
+        files: [{ name: 'test.csv', type: 'text/csv' }],
+      },
+    });
+
+    fireEvent.click(uploadButton);
+    const Modal = within(document.querySelector('.MuiPaper-root'));
+    const { getByText } = Modal;
+
+    const applyAndUploadButton = getByText('apply and upload');
+
+    await act(async () => {
+      fireEvent.click(applyAndUploadButton);
+    });
+
+    expect(fetch.uploadData).toHaveBeenCalledWith({
+      url: '/api/dataSources',
+      data: 'data',
+      headers: 'header',
+    });
+  });
+
   it('should display uploading message while file is uploading', async () => {
     const { getByTestId, queryByText } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
-    fetch.uploadFile.mockResolvedValue('success');
+    fetch.uploadData.mockResolvedValue('success');
 
     fireEvent.change(fileInput, {
       target: {
@@ -151,7 +182,7 @@ describe('<FileUpload />', () => {
     const { getByTestId, queryByText, findByText } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
-    fetch.uploadFile.mockResolvedValue('success');
+    fetch.uploadData.mockResolvedValue('success');
 
     fireEvent.change(fileInput, {
       target: {
@@ -179,7 +210,7 @@ describe('<FileUpload />', () => {
     const { getByTestId, queryByText, findByText } = renderedComponent;
     const fileInput = getByTestId(/input-upload-file/);
     const uploadButton = getByTestId('button-upload');
-    fetch.uploadFile.mockRejectedValueOnce('failed');
+    fetch.uploadData.mockRejectedValueOnce('failed');
 
     fireEvent.change(fileInput, {
       target: {

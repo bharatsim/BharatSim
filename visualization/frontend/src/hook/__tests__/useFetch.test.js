@@ -2,13 +2,13 @@ import { renderHook } from '@testing-library/react-hooks';
 
 import useFetch from '../useFetch';
 import { httpMethods } from '../../constants/fetch';
-import { fetch } from '../../utils/fetch';
+import { fetchData } from '../../utils/fetch';
 
 jest.mock('../../utils/fetch');
 
 describe('Use fetch hook', () => {
   beforeEach(() => {
-    fetch.mockReturnValue(Promise.resolve('Hello Welcome'));
+    fetchData.mockReturnValue(Promise.resolve('Hello Welcome'));
   });
 
   it('should return fetch data for given url', async () => {
@@ -17,7 +17,7 @@ describe('Use fetch hook', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual('Hello Welcome');
-    expect(fetch).toHaveBeenCalledWith({ method: 'get', url: '/test/api' });
+    expect(fetchData).toHaveBeenCalledWith({ method: 'get', url: '/test/api' });
   });
 
   it('should return fetch data for given url and other data ', async () => {
@@ -34,7 +34,7 @@ describe('Use fetch hook', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual('Hello Welcome');
-    expect(fetch).toHaveBeenCalledWith({
+    expect(fetchData).toHaveBeenCalledWith({
       data: 'data',
       headers: 'headers',
       method: 'post',

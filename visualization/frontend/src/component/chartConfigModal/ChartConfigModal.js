@@ -17,7 +17,7 @@ import styles from './chartConfigModalCss';
 
 import useFetch from '../../hook/useFetch';
 import useForm from '../../hook/useForm';
-import { fetch } from '../../utils/fetch';
+import { fetchData } from '../../utils/fetch';
 import { convertObjectArrayToOptionStructure } from '../../utils/helper';
 import chartConfigs from '../../config/chartConfigs';
 import { url } from '../../utils/url';
@@ -45,7 +45,7 @@ function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
   async function handleDataSourceChange(value) {
     resetFields(chartConfigs[chartType].configOptions);
     validateAndSetValue('dataSource', value);
-    const csvHeaders = await fetch({ url: url.getHeaderUrl(value) });
+    const csvHeaders = await fetchData({ url: url.getHeaderUrl(value) });
     setHeaders(csvHeaders.headers);
   }
 

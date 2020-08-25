@@ -3,7 +3,7 @@ import React from 'react';
 import { fireEvent, render, waitFor, within } from '@testing-library/react';
 
 import ChartConfigModal from '../ChartConfigModal';
-import { fetch } from '../../../utils/fetch';
+import { fetchData } from '../../../utils/fetch';
 import { chartTypes } from '../../../constants/charts';
 import { selectDropDownOption } from '../../../testUtil';
 
@@ -15,7 +15,7 @@ jest.mock('../../../utils/url', () => ({
 }));
 
 jest.mock('../../../utils/fetch', () => ({
-  fetch: jest.fn(({ url }) => {
+  fetchData: jest.fn(({ url }) => {
     if (url === '/headers') {
       return Promise.resolve({
         headers: [
@@ -115,7 +115,7 @@ describe('<ChartConfigModal />', () => {
 
     selectDropDownOption(configModal, 'dropdown-dataSources', 'modelone');
 
-    await waitFor(() => expect(fetch).toBeCalledTimes(2));
+    await waitFor(() => expect(fetchData).toBeCalledTimes(2));
 
     selectDropDownOption(configModal, 'dropdown-x', 'x-header');
 
@@ -144,7 +144,7 @@ describe('<ChartConfigModal />', () => {
 
     selectDropDownOption(configModal, 'dropdown-dataSources', 'modelone');
 
-    await waitFor(() => expect(fetch).toBeCalledTimes(2));
+    await waitFor(() => expect(fetchData).toBeCalledTimes(2));
 
     selectDropDownOption(configModal, 'dropdown-x', 'x-header');
 
@@ -167,7 +167,7 @@ describe('<ChartConfigModal />', () => {
   });
 
   it('should provide empty element if csv header is null', async () => {
-    fetch.mockReturnValue(null);
+    fetchData.mockReturnValue(null);
     render(<ChartConfigModal {...props} />);
 
     await waitFor(() => {
@@ -176,7 +176,7 @@ describe('<ChartConfigModal />', () => {
   });
 
   it('should display message of no data source preset if api return empty datasource array', async () => {
-    fetch.mockReturnValue({ dataSources: [] });
+    fetchData.mockReturnValue({ dataSources: [] });
     render(<ChartConfigModal {...props} />);
 
     await waitFor(() => {

@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
-import { fetch } from '../utils/fetch';
+import { fetchData } from '../utils/fetch';
 import { httpMethods } from '../constants/fetch';
 
 function useFetch({ url, method = httpMethods.GET, headers, data, query }) {
   const [responseData, setResponseData] = useState();
 
   useEffect(() => {
-    async function fetchData() {
-      const resData = await fetch({ url, method, headers, data, query });
+    async function fetchApiData() {
+      const resData = await fetchData({ url, method, headers, data, query });
       setResponseData(resData);
     }
 
-    fetchData();
+    fetchApiData();
   }, []);
 
   return responseData;

@@ -3,6 +3,6 @@ export const httpMethods = {
   POST: 'post',
 };
 
-export const contentType = {
+export const contentTypes = {
   FILE: 'multipart/form-data',
 };

@@ -1,6 +1,8 @@
 import csvParser from 'papaparse';
 import dataTypesMapping from '../constants/dataTypesMapping';
 import csvParserConfig from '../config/csvParserConfig';
+import { formDataBuilder, headerBuilder } from './fetch';
+import { contentTypes } from '../constants/fetch';
 
 const fileUploadedStatus = {
   LOADING: 'loading',
@@ -31,6 +33,17 @@ function createSchema(row) {
   }, {});
 }
 
+function getFileUploadData(file, schema) {
+  return formDataBuilder([
+    { name: 'datafile', value: file },
+    { name: 'schema', value: JSON.stringify(schema) },
+  ]);
+}
+
+function getFileUploadHeader() {
+  return headerBuilder({ contentType: contentTypes.FILE });
+}
+
 function parseCsv(csvFile, onComplete) {
   csvParser.parse(csvFile, {
     ...csvParserConfig,
@@ -38,4 +51,11 @@ function parseCsv(csvFile, onComplete) {
   });
 }
 
-export { fileUploadedStatus, getStatusAndMessageFor, createSchema, parseCsv };
+export {
+  fileUploadedStatus,
+  getStatusAndMessageFor,
+  createSchema,
+  getFileUploadData,
+  getFileUploadHeader,
+  parseCsv,
+};

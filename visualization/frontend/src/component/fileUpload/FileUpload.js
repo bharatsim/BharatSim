@@ -2,10 +2,16 @@ import React, { useRef, useState } from 'react';
 import { Box, Button } from '@material-ui/core';
 
 import useForm from '../../hook/useForm';
-import { uploadFile } from '../../utils/fetch';
+import { uploadData } from '../../utils/fetch';
 import { url } from '../../utils/url';
 import { validateFile } from '../../utils/validators';
-import { fileUploadedStatus, getStatusAndMessageFor, parseCsv } from '../../utils/fileUploadUtils';
+import {
+  fileUploadedStatus,
+  getFileUploadData,
+  getFileUploadHeader,
+  getStatusAndMessageFor,
+  parseCsv,
+} from '../../utils/fileUploadUtils';
 import FileInput from '../../uiComponent/FileInput';
 import useModal from '../../hook/useModal';
 import DataTypeConfigModal from './DataTypeConfigModal';
@@ -31,9 +37,13 @@ function FileUpload() {
 
   const isUploadDisable = !shouldEnableSubmit() || fileUpload.status === fileUploadedStatus.LOADING;
 
-  async function upload(file) {
+  async function upload(file, schema) {
     setFileUpload(getStatusAndMessageFor(fileUploadedStatus.LOADING, file.name));
-    uploadFile({ url: url.DATA_SOURCES, file })
+    uploadData({
+      url: url.DATA_SOURCES,
+      data: getFileUploadData(file, schema),
+      headers: getFileUploadHeader(),
+    })
       .then(() => {
         setFileUpload(getStatusAndMessageFor(fileUploadedStatus.SUCCESS, file.name));
       })
@@ -45,13 +55,16 @@ function FileUpload() {
         ref.current.value = '';
       });
   }
-  async function onSchemaChangesApply() {
-    await upload(values[FILE_INPUT_KEY]);
+
+  async function onSchemaChangesApply(selectedSchema) {
+    await upload(values[FILE_INPUT_KEY], selectedSchema);
     closeModal();
   }
+
   function validateAndParseCsv() {
     onSubmit((validatedValues) => parseCsv(validatedValues[FILE_INPUT_KEY], onCompleteParseCsv));
   }
+
   function onCompleteParseCsv(parsedResult) {
     setParsedData(parsedResult.data);
     openModal();
