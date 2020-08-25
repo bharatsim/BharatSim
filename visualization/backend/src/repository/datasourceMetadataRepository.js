@@ -23,7 +23,7 @@ async function insert({ name, dataSourceSchema }) {
   return dataSourceMetadata.save();
 }
 
-async function deleteDatasource(dataSourceId) {
+async function deleteDatasourceMetadata(dataSourceId) {
   DataSourceMetadata.deleteOne({ _id: dataSourceId }).exec();
 }
 
@@ -31,5 +31,5 @@ module.exports = {
   getDataSourceNames,
   getDataSourceSchemaById,
   insert,
-  deleteDatasource,
+  deleteDatasourceMetadata,
 };

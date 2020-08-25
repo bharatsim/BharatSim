@@ -99,7 +99,7 @@ describe('get Datasource name ', () => {
       dataSourceSchema: dataSourceMetadata[0].dataSourceSchema,
     });
 
-    await DataSourceMetaDataRepository.deleteDatasource(collectionId);
+    await DataSourceMetaDataRepository.deleteDatasourceMetadata(collectionId);
 
     const result = parseMongoDBResult(await DataSourceMetaData.findOne({ name: 'model_1' }, { _id: 0, __v: 0 }));
 

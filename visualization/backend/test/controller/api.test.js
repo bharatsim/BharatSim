@@ -12,6 +12,7 @@ const ColumnsNotFoundException = require('../../src/exceptions/ColumnsNotFoundEx
 const InvalidInputException = require('../../src/exceptions/InvalidInputException');
 
 const TEST_FILE_UPLOAD_PATH = './test/testUpload/';
+const testSchema = '{ "col1": "String", "col2": "Number" }';
 jest.mock('multer');
 jest.mock('../../src/services/dataSourceMetadataService');
 jest.mock('../../src/services/dataSourceService');
@@ -20,7 +21,8 @@ jest.mock('../../src/services/uploadDatasourceService');
 multer.mockImplementation(() => ({
   single() {
     return (req, res, next) => {
-      req.body = { title: req.query.title };
+      req.body.title = req.query.title;
+      req.body.schema = testSchema;
       req.file = { originalname: 'sample.name', mimetype: 'sample.type', path: 'sample.path' };
       return next();
     };
@@ -173,10 +175,19 @@ describe('api', () => {
     it('should upload file successfully', async () => {
       await request(app)
         .post('/datasources')
+        .field('schema', JSON.stringify(testSchema))
         .field('name', 'datafile')
         .attach('datafile', 'test/data/simulation.csv')
         .expect(200)
         .expect({ collectionId: 'id' });
+      expect(uploadDatasourceService.uploadCsv).toHaveBeenCalledWith(
+        {
+          mimetype: 'sample.type',
+          originalname: 'sample.name',
+          path: 'sample.path',
+        },
+        testSchema,
+      );
     });
 
     it('should delete file after successful upload', async () => {
@@ -186,7 +197,6 @@ describe('api', () => {
         .attach('datafile', 'test/data/simulation.csv')
         .expect(200)
         .expect({ collectionId: 'id' });
-
       expect(uploadDatasourceService.deleteUploadedFile).toHaveBeenCalledWith('sample.path');
     });
 
@@ -207,16 +217,20 @@ describe('api', () => {
       uploadDatasourceService.uploadCsv.mockRejectedValueOnce(invalidInputError);
       await request(app)
         .post('/datasources')
+        .field('schema', JSON.stringify(testSchema))
         .field('name', 'datafile')
         .attach('datafile', 'test/data/test.png')
         .expect(400)
         .expect({ errorMessage: 'error message' });
 
-      expect(uploadDatasourceService.uploadCsv).toHaveBeenCalledWith({
-        mimetype: 'sample.type',
-        originalname: 'sample.name',
-        path: 'sample.path',
-      });
+      expect(uploadDatasourceService.uploadCsv).toHaveBeenCalledWith(
+        {
+          mimetype: 'sample.type',
+          originalname: 'sample.name',
+          path: 'sample.path',
+        },
+        testSchema,
+      );
     });
 
     it('should throw an technical exception for file type not match', async () => {

@@ -24,16 +24,17 @@ const model1Model = (modelName) => {
     return mongoose.model(modelName, {
       hour: 'number',
       susceptible: 'number',
+      city: 'string',
     });
   }
 };
 
 const model1 = [
-  { hour: 0, susceptible: 1 },
-  { hour: 1, susceptible: 2 },
-  { hour: 2, susceptible: 3 },
-  { hour: 3, susceptible: 4 },
-  { hour: 4, susceptible: 5 },
+  { hour: 0, susceptible: 1, city: 'pune' },
+  { hour: 1, susceptible: 2, city: 'pune' },
+  { hour: 2, susceptible: 3, city: 'pune' },
+  { hour: 3, susceptible: 4, city: 'pune' },
+  { hour: 4, susceptible: 5, city: 'pune' },
 ];
 
 module.exports = {

@@ -25,12 +25,15 @@ describe('upload datasource  service', function () {
     it('should insert schema and datasource name in dataSource metadata for uploaded csv', async function () {
       dataSourceMetadataRepository.insert.mockResolvedValue({ _id: 'collection' });
 
-      const collectionId = await uploadDatasourceService.uploadCsv({
-        path: '/uploads/1223',
-        originalname: 'test.csv',
-        mimetype: 'text/csv',
-        size: 12132,
-      });
+      const collectionId = await uploadDatasourceService.uploadCsv(
+        {
+          path: '/uploads/1223',
+          originalname: 'test.csv',
+          mimetype: 'text/csv',
+          size: 12132,
+        },
+        '{ "hour": "number", "susceptible": "number" }',
+      );
 
       expect(collectionId).toEqual({ collectionId: 'collection' });
     });
@@ -38,12 +41,15 @@ describe('upload datasource  service', function () {
     it('should insert schema and datasource name in dataSource metadata for uploaded csv', async function () {
       dataSourceMetadataRepository.insert.mockResolvedValue({ _id: new mongoose.Types.ObjectId(123123) });
 
-      await uploadDatasourceService.uploadCsv({
-        path: '/uploads/1223',
-        originalname: 'test.csv',
-        mimetype: 'text/csv',
-        size: 12132,
-      });
+      await uploadDatasourceService.uploadCsv(
+        {
+          path: '/uploads/1223',
+          originalname: 'test.csv',
+          mimetype: 'text/csv',
+          size: 12132,
+        },
+        '{ "hour": "number", "susceptible": "number" }',
+      );
 
       expect(dataSourceMetadataRepository.insert).toHaveBeenCalledWith({
         dataSourceSchema: { hour: 'number', susceptible: 'number' },
@@ -55,12 +61,15 @@ describe('upload datasource  service', function () {
       dataSourceMetadataRepository.insert.mockResolvedValue({ _id: 'collectionId' });
       createModel.createModel.mockImplementation((id) => id);
 
-      await uploadDatasourceService.uploadCsv({
-        path: '/uploads/1223',
-        originalname: 'test.csv',
-        mimetype: 'text/csv',
-        size: 12132,
-      });
+      await uploadDatasourceService.uploadCsv(
+        {
+          path: '/uploads/1223',
+          originalname: 'test.csv',
+          mimetype: 'text/csv',
+          size: 12132,
+        },
+        '{ "hour": "number", "susceptible": "number" }',
+      );
 
       expect(dataSourceRepository.insert).toHaveBeenCalledWith('collectionId', [
         { hour: 0, susceptible: 1 },
@@ -77,15 +86,18 @@ describe('upload datasource  service', function () {
       createModel.createModel.mockImplementation((id) => id);
 
       const result = async () => {
-        await uploadDatasourceService.uploadCsv({
-          path: '/uploads/1223',
-          originalname: 'test.csv',
-          mimetype: 'text/csv',
-          size: 12132,
-        });
+        await uploadDatasourceService.uploadCsv(
+          {
+            path: '/uploads/1223',
+            originalname: 'test.csv',
+            mimetype: 'text/csv',
+            size: 12132,
+          },
+          '{ "hour": "number", "susceptible": "number" }',
+        );
       };
 
-      expect(result).rejects.toThrow(new InvalidInputException('Error while uploading csv file data'));
+      await expect(result).rejects.toThrow(new InvalidInputException('Error while uploading csv file data'));
     });
 
     it('should delete metadata added in database if csv data insertion failed', async function () {
@@ -96,14 +108,17 @@ describe('upload datasource  service', function () {
       createModel.createModel.mockImplementation((id) => id);
 
       try {
-        await uploadDatasourceService.uploadCsv({
-          path: '/uploads/1223',
-          originalname: 'test.csv',
-          mimetype: 'text/csv',
-          size: 12132,
-        });
+        await uploadDatasourceService.uploadCsv(
+          {
+            path: '/uploads/1223',
+            originalname: 'test.csv',
+            mimetype: 'text/csv',
+            size: 12132,
+          },
+          '{ "hour": "number", "susceptible": "number" }',
+        );
       } catch {
-        expect(dataSourceMetadataRepository.deleteDatasource).toHaveBeenCalledWith('collectionId');
+        expect(dataSourceMetadataRepository.deleteDatasourceMetadata).toHaveBeenCalledWith('collectionId');
       }
     });
 
@@ -115,15 +130,41 @@ describe('upload datasource  service', function () {
       createModel.createModel.mockImplementation((id) => id);
 
       const result = async () => {
-        await uploadDatasourceService.uploadCsv({
-          path: '/uploads/1223',
-          originalname: 'test.csv',
-          mimetype: 'text/csv',
-          size: 10485761,
-        });
+        await uploadDatasourceService.uploadCsv(
+          {
+            path: '/uploads/1223',
+            originalname: 'test.csv',
+            mimetype: 'text/csv',
+            size: 10485761,
+          },
+          '{ "hour": "number", "susceptible": "number" }',
+        );
       };
 
-      expect(result).rejects.toThrow(new InvalidInputException('File is too large'));
+      await expect(result).rejects.toThrow(new InvalidInputException('File is too large'));
+    });
+
+    it('should throw exception is file is not csv', async function () {
+      dataSourceMetadataRepository.insert.mockResolvedValue({ _id: 'collectionId' });
+      dataSourceRepository.insert.mockImplementationOnce(() => {
+        throw new Error();
+      });
+      createModel.createModel.mockImplementation((id) => id);
+
+      const result = async () => {
+        await uploadDatasourceService.uploadCsv(
+          {
+            path: '/uploads/1223',
+            originalname: 'test.png',
+            mimetype: 'img/png',
+            size: 10485,
+          },
+          '{ "hour": "number", "susceptible": "number" }',
+        );
+      };
+
+      await expect(result).rejects.toThrowError('File type does not match');
+      await expect(result).rejects.toThrow(new InvalidInputException('File type does not match'));
     });
   });
 

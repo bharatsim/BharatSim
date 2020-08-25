@@ -10,7 +10,7 @@ const { dataSourceMetadata, model1, model1Model } = require('./data');
 const apiRoute = require('../../src/controller/api');
 const { parseDBObject } = require('../../src/utils/dbUtils');
 
-const TEST_FILE_UPLOAD_PATH = './test/testUpload/';
+const TEST_FILE_UPLOAD_PATH = './uploads/';
 
 describe('Integration test', () => {
   const app = express();
@@ -92,26 +92,74 @@ describe('Integration test', () => {
 
   describe('Post /datasources', function () {
     it('should uploaded file in database with 200 as http response', async function () {
+      const testSchemaModal1 = {
+        hour: 'Number',
+        susceptible: 'Number',
+        exposed: 'Number',
+        infected: 'Number',
+        hospitalized: 'Number',
+        recovered: 'Number',
+        deceased: 'Number',
+        city: 'String',
+      };
+
       const response = await request(app)
         .post('/datasources')
+        .field('schema', JSON.stringify(testSchemaModal1))
         .field('name', 'datafile')
         .attach('datafile', 'test/data/simulation.csv')
         .expect(200);
 
       const uploadedFileCollectionId = response.body.collectionId;
-      const { _id } = parseDBObject(await DataSourceMetaData.findOne({ _id: uploadedFileCollectionId }));
-      expect(_id).toEqual(uploadedFileCollectionId);
+      const { _id, dataSourceSchema } = parseDBObject(
+        await DataSourceMetaData.findOne({ _id: uploadedFileCollectionId }),
+      );
       const collections = Object.keys(mongoose.connections[0].collections);
+
+      expect(_id).toEqual(uploadedFileCollectionId);
+      expect(dataSourceSchema).toEqual(testSchemaModal1);
       expect(collections.includes(uploadedFileCollectionId).toString()).toBe('true');
     });
 
     it('should provide a error when invalid file is uploaded', async function () {
+      const testSchemaModal1 = {
+        hour: 'Number',
+        susceptible: 'Number',
+        exposed: 'Number',
+        infected: 'Number',
+        hospitalized: 'Number',
+        recovered: 'Number',
+        deceased: 'Number',
+        city: 'String',
+      };
+
       await request(app)
         .post('/datasources')
+        .field('schema', JSON.stringify(testSchemaModal1))
         .field('name', 'datafile')
         .attach('datafile', 'test/data/test.png')
         .expect(400)
         .expect({ errorMessage: 'File type does not match' });
+    });
+    it('should throw and error if column data and schema are not compatible', async function () {
+      const testSchemaModal1 = {
+        hour: 'Number',
+        susceptible: 'Number',
+        exposed: 'Number',
+        infected: 'Number',
+        hospitalized: 'Number',
+        recovered: 'Number',
+        deceased: 'Number',
+        city: 'Number',
+      };
+
+      await request(app)
+        .post('/datasources')
+        .field('schema', JSON.stringify(testSchemaModal1))
+        .field('name', 'datafile')
+        .attach('datafile', 'test/data/simulation.csv')
+        .expect(400)
+        .expect({ errorMessage: 'Error while uploading csv file data' });
     });
   });
 });

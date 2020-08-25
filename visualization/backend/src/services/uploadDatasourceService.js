@@ -3,7 +3,6 @@ const fs = require('fs');
 const dataSourceMetadataRepository = require('../repository/datasourceMetadataRepository');
 const dataSourceRepository = require('../repository/datasourceRepository');
 const { validateAndParseCSV } = require('../utils/csvParser');
-const { createSchema } = require('../utils/dbUtils');
 const modelCreator = require('../utils/modelCreator');
 const InvalidInputException = require('../exceptions/InvalidInputException');
 const { fileTypes, MAX_FILE_SIZE } = require('../constants/fileTypes');
@@ -12,12 +11,12 @@ async function insertMetadata(fileName, schema) {
   return dataSourceMetadataRepository.insert({ name: fileName, dataSourceSchema: schema });
 }
 
-async function insertCSVData(collectionId, schema, data) {
+async function insertCSVData(metadataId, schema, data) {
   try {
-    const DatasourceModel = modelCreator.createModel(collectionId, schema);
+    const DatasourceModel = modelCreator.createModel(metadataId, schema);
     await dataSourceRepository.insert(DatasourceModel, data);
   } catch (error) {
-    await dataSourceMetadataRepository.deleteDatasource(collectionId);
+    await dataSourceMetadataRepository.deleteDatasourceMetadata(metadataId);
     throw new InvalidInputException('Error while uploading csv file data');
   }
 }
@@ -37,13 +36,13 @@ function validateFileAndThrowException(fileType, fileSize) {
   }
 }
 
-async function uploadCsv(csvFile) {
+async function uploadCsv(csvFile, schema) {
+  const schemaJson = JSON.parse(schema);
   const { path, originalname: fileName, mimetype: fileType, size } = csvFile;
   validateFileAndThrowException(fileType, size);
   const data = validateAndParseCSV(path);
-  const schema = createSchema(data[0]);
-  const { _id: collectionId } = await insertMetadata(fileName, schema);
-  await insertCSVData(collectionId.toString(), schema, data);
-  return { collectionId };
+  const { _id: metadataId } = await insertMetadata(fileName, schemaJson);
+  await insertCSVData(metadataId.toString(), schemaJson, data);
+  return { collectionId: metadataId };
 }
 module.exports = { uploadCsv, deleteUploadedFile };
