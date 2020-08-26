@@ -31,7 +31,9 @@ describe('dataSourceService', () => {
   });
 
   it('should fetch data from database for give datasource name and selected columns only', async () => {
-    dataSourceMetadataRepository.getDataSourceSchemaById.mockResolvedValue({ dataSourceSchema: 'DataSourceSchema' });
+    dataSourceMetadataRepository.getDataSourceSchemaById.mockResolvedValue({
+      dataSourceSchema: 'DataSourceSchema',
+    });
     dataSourceRepository.getData.mockResolvedValue([{ hour: 1 }, { hour: 2 }, { hour: 3 }]);
     modelCreator.createModel.mockReturnValue('DataSourceModel');
     const dataSourceID = 'model';
@@ -47,7 +49,9 @@ describe('dataSourceService', () => {
   });
 
   it('should throw an exception for column mismatch', async () => {
-    dataSourceMetadataRepository.getDataSourceSchemaById.mockResolvedValue({ dataSourceSchema: 'DataSourceSchema' });
+    dataSourceMetadataRepository.getDataSourceSchemaById.mockResolvedValue({
+      dataSourceSchema: 'DataSourceSchema',
+    });
     modelCreator.createModel.mockReturnValue('DataSourceModel');
     dataSourceRepository.getData.mockResolvedValue([
       { hour: 1, susceptible: 99, exposed: 90 },
@@ -65,7 +69,9 @@ describe('dataSourceService', () => {
 
   describe('mocked function testing', function () {
     beforeEach(() => {
-      dataSourceMetadataRepository.getDataSourceSchemaById.mockResolvedValue({ dataSourceSchema: 'DataSourceSchema' });
+      dataSourceMetadataRepository.getDataSourceSchemaById.mockResolvedValue({
+        dataSourceSchema: 'DataSourceSchema',
+      });
       dataSourceRepository.getData.mockResolvedValue([{ hour: 1 }, { hour: 2 }, { hour: 3 }]);
       modelCreator.createModel.mockReturnValue('DataSourceModel');
       const dataSourceId = 'model';

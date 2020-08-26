@@ -40,7 +40,9 @@ describe('get Datasource name ', () => {
   it('should return all data for given datasource model', async () => {
     await DataSourceModel.insertMany(datasourceData);
 
-    const data = parseMongoDBResult(await DataSourceRepository.getData(DataSourceModel, { __v: 0 }));
+    const data = parseMongoDBResult(
+      await DataSourceRepository.getData(DataSourceModel, { __v: 0 }),
+    );
 
     expect(data).toEqual([
       { hour: 1, susceptible: 99 },
@@ -52,7 +54,9 @@ describe('get Datasource name ', () => {
   it('should return all data for given datasource model and selected fields', async () => {
     await DataSourceModel.insertMany(datasourceData);
 
-    const data = parseMongoDBResult(await DataSourceRepository.getData(DataSourceModel, { hour: 1 }));
+    const data = parseMongoDBResult(
+      await DataSourceRepository.getData(DataSourceModel, { hour: 1 }),
+    );
 
     expect(data).toEqual([{ hour: 1 }, { hour: 2 }, { hour: 3 }]);
   });
@@ -64,7 +68,9 @@ describe('get Datasource name ', () => {
   });
 
   it('should insert data for given model', async () => {
-    const data = parseMongoDBResult(await DataSourceRepository.insert(DataSourceModel, datasourceData));
+    const data = parseMongoDBResult(
+      await DataSourceRepository.insert(DataSourceModel, datasourceData),
+    );
     expect(data.length).toEqual(datasourceData.length);
   });
 });

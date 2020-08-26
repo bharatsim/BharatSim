@@ -39,7 +39,9 @@ describe('upload datasource  service', function () {
     });
 
     it('should insert schema and datasource name in dataSource metadata for uploaded csv', async function () {
-      dataSourceMetadataRepository.insert.mockResolvedValue({ _id: new mongoose.Types.ObjectId(123123) });
+      dataSourceMetadataRepository.insert.mockResolvedValue({
+        _id: new mongoose.Types.ObjectId(123123),
+      });
 
       await uploadDatasourceService.uploadCsv(
         {
@@ -97,7 +99,9 @@ describe('upload datasource  service', function () {
         );
       };
 
-      await expect(result).rejects.toThrow(new InvalidInputException('Error while uploading csv file data'));
+      await expect(result).rejects.toThrow(
+        new InvalidInputException('Error while uploading csv file data'),
+      );
     });
 
     it('should delete metadata added in database if csv data insertion failed', async function () {
@@ -118,7 +122,9 @@ describe('upload datasource  service', function () {
           '{ "hour": "number", "susceptible": "number" }',
         );
       } catch {
-        expect(dataSourceMetadataRepository.deleteDatasourceMetadata).toHaveBeenCalledWith('collectionId');
+        expect(dataSourceMetadataRepository.deleteDatasourceMetadata).toHaveBeenCalledWith(
+          'collectionId',
+        );
       }
     });
 

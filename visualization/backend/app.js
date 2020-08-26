@@ -2,8 +2,9 @@ const express = require('express');
 const multer = require('multer');
 const morgan = require('morgan');
 
-const LOGGER_FORMAT_STRING = ':method :url :status :param[id] :res[content-length] - :response-time ms';
-const apiRoutes = require('./src/controller/api.js');
+const LOGGER_FORMAT_STRING = ':method :url :status :res[content-length] - :response-time ms';
+const apiRoutes = require('./src/controller/datasourcesController.js');
+const dashBoardRoutes = require('./src/controller/dashboardController.js');
 require('./setupDB');
 
 const FILE_UPLOAD_PATH = './uploads/';
@@ -22,8 +23,8 @@ app.use(multer({ dest: FILE_UPLOAD_PATH }).single('datafile'));
 const port = 3005;
 
 app.get('/', (req, res) => res.send('Hello World!'));
-
-app.use('/api', apiRoutes);
+app.use('/datasources', apiRoutes);
+app.use('/dashboard', dashBoardRoutes);
 
 // eslint-disable-next-line no-console
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));

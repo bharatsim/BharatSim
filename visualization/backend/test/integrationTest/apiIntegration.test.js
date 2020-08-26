@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const dbHandler = require('../db-handler');
 const DataSourceMetaData = require('../../src/model/datasourceMetadata');
 const { dataSourceMetadata, model1, model1Model } = require('./data');
-const apiRoute = require('../../src/controller/api');
+const datasourcesRoutes = require('../../src/controller/datasourcesController');
 const { parseDBObject } = require('../../src/utils/dbUtils');
 
 const TEST_FILE_UPLOAD_PATH = './uploads/';
@@ -17,7 +17,7 @@ describe('Integration test', () => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(multer({ dest: TEST_FILE_UPLOAD_PATH }).single('datafile'));
-  app.use(apiRoute);
+  app.use('/datasources', datasourcesRoutes);
   let insertedMetadata;
   let dataSourceId;
 
@@ -38,8 +38,14 @@ describe('Integration test', () => {
 
   describe('/datasources', () => {
     it('should get data source names', async () => {
-      const expectedDataSource = insertedMetadata.map((metadata) => ({ _id: metadata.id, name: metadata.name }));
-      await request(app).get('/datasources').expect(200).expect({ dataSources: expectedDataSource });
+      const expectedDataSource = insertedMetadata.map((metadata) => ({
+        _id: metadata.id,
+        name: metadata.name,
+      }));
+      await request(app)
+        .get('/datasources')
+        .expect(200)
+        .expect({ dataSources: expectedDataSource });
     });
   });
 

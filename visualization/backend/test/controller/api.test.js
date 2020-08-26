@@ -6,7 +6,7 @@ const fs = require('fs');
 const dataSourceMetadataService = require('../../src/services/datasourceMetadataService');
 const datasourceService = require('../../src/services/datasourceService');
 const uploadDatasourceService = require('../../src/services/uploadDatasourceService');
-const apiRoute = require('../../src/controller/api');
+const dataSourcesRoutes = require('../../src/controller/datasourcesController');
 const DataSourceNotFoundException = require('../../src/exceptions/DatasourceNotFoundException');
 const ColumnsNotFoundException = require('../../src/exceptions/ColumnsNotFoundException');
 const InvalidInputException = require('../../src/exceptions/InvalidInputException');
@@ -34,7 +34,7 @@ describe('api', () => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(multer({ dest: TEST_FILE_UPLOAD_PATH }).single('datafile'));
-  app.use(apiRoute);
+  app.use('/datasources', dataSourcesRoutes);
 
   beforeEach(() => {
     datasourceService.getData.mockResolvedValue({ data: { exposed: [2, 3], hour: [1, 2] } });
