@@ -65,7 +65,7 @@ describe('<ChartConfigModal />', () => {
 
     selectDropDownOption(configModal, 'dropdown-dataSources', 'modelone');
 
-    const okButton = configModal.getByTestId('button-ok');
+    const okButton = configModal.getByTestId('button-Ok');
 
     await waitFor(() => {
       expect(okButton).toBeDisabled();

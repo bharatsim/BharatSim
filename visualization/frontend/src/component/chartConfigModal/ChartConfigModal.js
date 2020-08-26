@@ -1,16 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Typography,
-  withStyles,
-} from '@material-ui/core';
+import { Box, Typography, withStyles } from '@material-ui/core';
 import Dropdown from '../../uiComponent/Dropdown';
 import renderChartConfig from '../chartConfigOptions/renderChartConfig';
 import styles from './chartConfigModalCss';
@@ -22,6 +13,7 @@ import { convertObjectArrayToOptionStructure } from '../../utils/helper';
 import chartConfigs from '../../config/chartConfigs';
 import { url } from '../../utils/url';
 import { datasourceValidator } from '../../utils/validators';
+import Modal from '../../uiComponent/Modal';
 
 function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
   const [headers, setHeaders] = React.useState([]);
@@ -57,51 +49,41 @@ function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
 
   const chartConfigProps = { headers, updateConfigState: validateAndSetValue, errors, values };
 
-  return (
-    <Dialog open={open} onClose={onCancel} aria-labelledby="form-dialog-title">
-      <DialogTitle id="form-dialog-title">Chart Config</DialogTitle>
+  const isDatasourcePresent = datasources.dataSources.length !== 0;
 
-      {datasources.dataSources.length === 0 ? (
-        <Box p={10}>
-          <Typography>No data source present, upload data source</Typography>
-        </Box>
-      ) : (
-        <>
-          <DialogContent>
-            <Box className={classes.root}>
-              <Dropdown
-                options={convertObjectArrayToOptionStructure(
-                  datasources.dataSources,
-                  'name',
-                  '_id',
-                )}
-                onChange={handleDataSourceChange}
-                id="dropdown-dataSources"
-                label="select data source"
-                error={errors.dataSource || ''}
-                value={values.dataSource || ''}
-              />
-              {!!headers.length &&
-                renderChartConfig(chartConfigs[chartType].configOptions, chartConfigProps)}
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={onCancel} variant="contained" color="secondary">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleOk}
-              variant="contained"
-              color="primary"
-              data-testid="button-ok"
-              disabled={!shouldEnableSubmit()}
-            >
-              Ok
-            </Button>
-          </DialogActions>
-        </>
-      )}
-    </Dialog>
+  const modalActions = [
+    { name: 'Ok', handleClick: handleOk, type: 'primary', isDisable: !shouldEnableSubmit() },
+    { name: 'Cancel', handleClick: onCancel, type: 'secondary' },
+  ];
+
+  return (
+    <Modal
+      handleClose={onCancel}
+      open={open}
+      title="Configure Chart"
+      actions={isDatasourcePresent ? modalActions : []}
+    >
+      <Box className={classes.root} p={2}>
+        {isDatasourcePresent ? (
+          <Box>
+            <Dropdown
+              options={convertObjectArrayToOptionStructure(datasources.dataSources, 'name', '_id')}
+              onChange={handleDataSourceChange}
+              id="dropdown-dataSources"
+              label="select data source"
+              error={errors.dataSource || ''}
+              value={values.dataSource || ''}
+            />
+            {!!headers.length &&
+              renderChartConfig(chartConfigs[chartType].configOptions, chartConfigProps)}
+          </Box>
+        ) : (
+          <Box>
+            <Typography>No data source present, upload data source</Typography>
+          </Box>
+        )}
+      </Box>
+    </Modal>
   );
 }
 

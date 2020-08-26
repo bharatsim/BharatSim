@@ -65,7 +65,7 @@ function Modal({ open, handleClose, title, children, actions }) {
       {actions.length !== 0 && (
         <DialogActions>
           <ButtonGroup>
-            {actions.map(({ name, handleClick, type }) => (
+            {actions.map(({ name, handleClick, type, isDisable }) => (
               <Button
                 key={name}
                 data-testid={`button-${name}`}
@@ -73,6 +73,7 @@ function Modal({ open, handleClose, title, children, actions }) {
                 onClick={handleClick}
                 color={type}
                 variant="contained"
+                disabled={isDisable}
               >
                 {name}
               </Button>
@@ -98,6 +99,7 @@ Modal.propTypes = {
       name: PropTypes.string.isRequired,
       handleClick: PropTypes.func.isRequired,
       type: PropTypes.oneOf(['primary', 'secondary']).isRequired,
+      isDisable: PropTypes.bool,
     }),
   ),
 };
