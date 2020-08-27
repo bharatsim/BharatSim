@@ -6,9 +6,10 @@ const parseMongoDBResult = (result) => JSON.parse(JSON.stringify(result));
 const dbHandler = require('../db-handler');
 
 const widget = {
-  layout: { h: 1, i: 'test', w: 2, x: 1, y: Infinity },
+  config: { xAxis: 'xCol', yAxis: 'ycol' },
   dataSource: 'datasource',
-  configs: { xAxis: 'xCol', yAxis: 'ycol' },
+  layout: { h: 1, i: 'test', w: 2, x: 1, y: null },
+  chartType: 'chartType',
 };
 
 const dashboard = {
@@ -34,9 +35,10 @@ describe('DashboardRepository', function () {
       name: 'dashboard1',
       widgets: [
         {
-          configs: { xAxis: 'xCol', yAxis: 'ycol' },
+          config: { xAxis: 'xCol', yAxis: 'ycol' },
           dataSource: 'datasource',
           layout: { h: 1, i: 'test', w: 2, x: 1, y: null },
+          chartType: 'chartType',
         },
       ],
     });
@@ -51,11 +53,20 @@ describe('DashboardRepository', function () {
       name: 'newName',
       widgets: [
         {
-          configs: { xAxis: 'xCol', yAxis: 'ycol' },
+          config: { xAxis: 'xCol', yAxis: 'ycol' },
           dataSource: 'datasource',
           layout: { h: 1, i: 'test', w: 2, x: 1, y: null },
+          chartType: 'chartType',
         },
       ],
     });
+  });
+  it('should fetch all the uploaded dashboards from database', async function () {
+    await DashboardRepository.insert(dashboard);
+    await DashboardRepository.insert(dashboard);
+
+    const data = parseMongoDBResult(await DashboardRepository.getAll());
+
+    expect(data.length).toEqual(2);
   });
 });

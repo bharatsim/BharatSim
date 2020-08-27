@@ -5,7 +5,8 @@ const widgetSchema = new Schema(
   {
     layout: { h: Number, i: String, w: Number, x: Number, y: Number },
     dataSource: String,
-    configs: Object,
+    config: Object,
+    chartType: String,
   },
   { _id: false },
 );

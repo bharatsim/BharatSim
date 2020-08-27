@@ -1,4 +1,4 @@
-const { saveDashboard } = require('../../src/services/dashboardService');
+const { saveDashboard, getAllDashboards } = require('../../src/services/dashboardService');
 const dashboardRepository = require('../../src/repository/dashboardRepository');
 
 jest.mock('../../src/repository/dashboardRepository');
@@ -34,5 +34,9 @@ describe('Dashboard Service', function () {
     const result = await saveDashboard(dashboardDataToUpdate);
 
     expect(result).toEqual({ dashboardId: 'id' });
+  });
+  it('should get all dashboards', async function () {
+    await getAllDashboards(dashboardDataToUpdate);
+    expect(dashboardRepository.getAll).toHaveBeenCalled();
   });
 });

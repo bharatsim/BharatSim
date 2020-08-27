@@ -1,4 +1,4 @@
-const { insert, update } = require('../repository/dashboardRepository');
+const { insert, update, getAll } = require('../repository/dashboardRepository');
 
 async function saveDashboard(dashboardData) {
   const { dashboardId, ...dashboardConfigs } = dashboardData;
@@ -10,4 +10,9 @@ async function saveDashboard(dashboardData) {
   return { dashboardId: _id };
 }
 
-module.exports = { saveDashboard };
+async function getAllDashboards() {
+  const dashboards = await getAll();
+  return dashboards;
+}
+
+module.exports = { saveDashboard, getAllDashboards };

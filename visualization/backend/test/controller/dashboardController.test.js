@@ -33,4 +33,21 @@ describe('dashboardController', function () {
         .expect({ dashboardId: '_id' });
     });
   });
+  describe('Get /', function () {
+    it('should save dashboard data into database', async function () {
+      await request(app).post('/dashboard/').send({ dashboardData: 'Data' }).expect(200);
+
+      expect(dashboardService.saveDashboard).toHaveBeenCalledWith('Data');
+    });
+
+    it('should save dashboard data into database and return the id', async function () {
+      dashboardService.saveDashboard.mockResolvedValue({ dashboardId: '_id' });
+
+      await request(app)
+        .post('/dashboard/')
+        .send({ dashboardData: 'Data' })
+        .expect(200)
+        .expect({ dashboardId: '_id' });
+    });
+  });
 });

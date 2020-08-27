@@ -13,7 +13,8 @@ const TEST_FILE_UPLOAD_PATH = './uploads/';
 const widget = {
   layout: { h: 1, i: 'test', w: 2, x: 1, y: 3 },
   dataSource: 'datasource',
-  configs: { xAxis: 'xCol', yAxis: 'ycol' },
+  config: { xAxis: 'xCol', yAxis: 'ycol' },
+  chartType: 'chartType',
 };
 
 const dashboardData = {
@@ -31,6 +32,9 @@ describe('Integration test for dashboard api', () => {
   beforeAll(async () => {
     await dbHandler.connect();
   });
+  afterEach(async () => {
+    await dbHandler.clearDatabase();
+  });
   afterAll(async () => {
     await dbHandler.clearDatabase();
     await dbHandler.closeDatabase();
@@ -43,6 +47,14 @@ describe('Integration test for dashboard api', () => {
         await dashboardModel.findOne({ _id: dashboardId }, { __v: 0, _id: 0 }),
       );
       expect(dashboardRow).toEqual(dashboardData);
+    });
+  });
+
+  describe('Get /dashboard', function () {
+    it('should get all dashboards from database', async function () {
+      dashboardModel.insertMany([dashboardData]);
+      const response = await request(app).get('/dashboard').expect(200);
+      expect(response.body.length).toEqual(1);
     });
   });
 });
