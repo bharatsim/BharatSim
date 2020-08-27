@@ -1,8 +1,11 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
 
 import DashboardLayout from '../DashboardLayout';
 import useFetch from '../../../hook/useFetch';
+import * as fetch from '../../../utils/fetch';
+
+jest.spyOn(fetch, 'uploadData');
 
 jest.mock('../../chartConfigModal/ChartConfigModal', () => ({ open, onCancel, onOk }) => (
   <>
@@ -10,7 +13,7 @@ jest.mock('../../chartConfigModal/ChartConfigModal', () => ({ open, onCancel, on
       Modal Open
       {`${open.toString()}`}
     </span>
-    <button type="button" onClick={onOk}>
+    <button type="button" onClick={() => onOk('config')}>
       Ok
     </button>
     <button type="button" onClick={onCancel}>
@@ -48,6 +51,7 @@ jest.mock('../../../hook/useFetch');
 describe('<DashboardLayout />', () => {
   beforeEach(() => {
     useFetch.mockReturnValue({ headers: ['x-header', 'y-header'] });
+    fetch.uploadData.mockResolvedValue({ dashboardId: 'id' });
   });
 
   it('should match a snapshot for <DashboardLayout />', () => {
@@ -104,5 +108,56 @@ describe('<DashboardLayout />', () => {
 
     expect(widget).toBeInTheDocument();
     expect(widget).toMatchSnapshot();
+  });
+  it('should save dashboard on click of save dashboard button with empty widgets', async () => {
+    const { getByText } = render(<DashboardLayout />);
+    const saveDashboard = getByText(/Save Dashboard/i);
+    const requestObject = {
+      data: JSON.stringify({
+        dashboardData: { name: 'dashboard1', widgets: [], dashboardId: null },
+      }),
+      headers: { 'content-type': 'application/json' },
+      url: '/api/dashboard',
+    };
+
+    await act(async () => {
+      fireEvent.click(saveDashboard);
+    });
+
+    expect(fetch.uploadData).toHaveBeenCalledWith(requestObject);
+  });
+  it('should save dashboard with widgets on click of save dashboard button ', async () => {
+    const { getByText } = render(<DashboardLayout />);
+    const saveDashboard = getByText(/Save Dashboard/i);
+
+    const requestObject = {
+      data: JSON.stringify({
+        dashboardData: {
+          name: 'dashboard1',
+          widgets: [
+            {
+              layout: { i: 'widget-0', x: 0, y: null, w: 2, h: 2 },
+              config: 'config',
+              chartType: 'barChart',
+            },
+          ],
+          dashboardId: null,
+        },
+      }),
+      headers: { 'content-type': 'application/json' },
+      url: '/api/dashboard',
+    };
+
+    const addWidgetButton = getByText(/Bar Chart/i);
+    fireEvent.click(addWidgetButton);
+
+    const okButton = getByText(/Ok/i);
+    fireEvent.click(okButton);
+
+    await act(async () => {
+      fireEvent.click(saveDashboard);
+    });
+
+    expect(fetch.uploadData).toHaveBeenCalledWith(requestObject);
   });
 });

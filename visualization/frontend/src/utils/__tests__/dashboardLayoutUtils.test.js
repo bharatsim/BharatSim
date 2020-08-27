@@ -19,7 +19,7 @@ jest.mock('../../component/charts/renderChart', () => ({
 describe('Dashboard layout utils', () => {
   describe('Create element', () => {
     it('should provide element with data-grid', () => {
-      const element = renderElement({ i: 'id-1', chartType: 'Linechart', config: {} });
+      const element = renderElement({ layout: { i: 'id-1' }, chartType: 'Linechart', config: {} });
       const { container } = render(<>{element}</>);
 
       expect(container).toMatchSnapshot();

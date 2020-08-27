@@ -13,7 +13,7 @@ exports[`<DashboardLayout /> should add new widget with bar chart 1`] = `
     <div>
       Bar Chart
       <span>
-        config = [object Object]
+        config = config
       </span>
     </div>
   </div>
@@ -36,7 +36,7 @@ exports[`<DashboardLayout /> should add new widget with line chart 1`] = `
     <div>
       Line Chart
       <span>
-        config = [object Object]
+        config = config
       </span>
     </div>
   </div>
@@ -94,6 +94,20 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
           />
         </button>
       </div>
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiButton-label"
+        >
+          save dashboard
+        </span>
+        <span
+          class="MuiTouchRipple-root"
+        />
+      </button>
     </div>
     <div
       class="react-grid-layout DashboardLayout-reactGridLayout-1"

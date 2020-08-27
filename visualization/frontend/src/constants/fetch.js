@@ -5,4 +5,5 @@ export const httpMethods = {
 
 export const contentTypes = {
   FILE: 'multipart/form-data',
+  JSON: 'application/json',
 };

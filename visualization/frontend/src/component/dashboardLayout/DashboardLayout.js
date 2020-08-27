@@ -15,6 +15,9 @@ import useModal from '../../hook/useModal';
 import { chartTypes } from '../../constants/charts';
 import FileUpload from '../fileUpload/FileUpload';
 import ButtonGroup from '../../uiComponent/ButtonGroup';
+import { headerBuilder, uploadData } from '../../utils/fetch';
+import { url } from '../../utils/url';
+import { contentTypes } from '../../constants/fetch';
 
 const GridLayout = WidthProvider(ReactGridLayout);
 const cols = 12;
@@ -24,13 +27,13 @@ function DashboardLayout({ classes }) {
   const [count, setCount] = useState(0);
   const [layout, setLayout] = useState();
   const [chartType, setChartType] = useState();
-
+  const [dashboardConfig, setDashboardConfig] = useState({ name: 'dashboard1', id: null });
   const { isOpen, closeModal, openModal } = useModal();
 
   function addItem(config) {
     setWidgets((prevWidgets) => {
       return prevWidgets.concat({
-        ...getNewWidgetLayout(prevWidgets.length, cols, count),
+        layout: getNewWidgetLayout(prevWidgets.length, cols, count),
         config,
         chartType,
       });
@@ -51,13 +54,22 @@ function DashboardLayout({ classes }) {
     openModal();
     setChartType(selectedChartType);
   }
+  function saveDashboard() {
+    uploadData({
+      url: url.saveDashboard,
+      headers: headerBuilder({ contentType: contentTypes.JSON }),
+      data: JSON.stringify({
+        dashboardData: { name: dashboardConfig.name, widgets, dashboardId: dashboardConfig.id },
+      }),
+    }).then((data) => setDashboardConfig((prevState) => ({ ...prevState, id: data.dashboardId })));
+  }
 
   return (
     <Box pl={10} pt={10} pr={10}>
       <Box pb={2}>
         <FileUpload />
       </Box>
-      <Box pb={2}>
+      <Box pb={2} display="flex" justifyContent="space-between">
         <ButtonGroup>
           <Button
             onClick={() => oneChartClick(chartTypes.BAR_CHART)}
@@ -74,6 +86,9 @@ function DashboardLayout({ classes }) {
             {labels.dashboardLayout.LINE_CHART}
           </Button>
         </ButtonGroup>
+        <Button onClick={() => saveDashboard()} variant="contained" color="primary">
+          {labels.dashboardLayout.SAVE_DASHBOARD_BUTTON}
+        </Button>
       </Box>
       <GridLayout
         layout={layout}
