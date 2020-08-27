@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { Box, Button, withStyles } from '@material-ui/core';
@@ -15,7 +15,7 @@ import useModal from '../../hook/useModal';
 import { chartTypes } from '../../constants/charts';
 import FileUpload from '../fileUpload/FileUpload';
 import ButtonGroup from '../../uiComponent/ButtonGroup';
-import { headerBuilder, uploadData } from '../../utils/fetch';
+import { fetchData, headerBuilder, uploadData } from '../../utils/fetch';
 import { url } from '../../utils/url';
 import { contentTypes } from '../../constants/fetch';
 
@@ -23,22 +23,34 @@ const GridLayout = WidthProvider(ReactGridLayout);
 const cols = 12;
 
 function DashboardLayout({ classes }) {
-  const [widgets, setWidgets] = useState([]);
-  const [count, setCount] = useState(0);
-  const [layout, setLayout] = useState();
-  const [chartType, setChartType] = useState();
   const [dashboardConfig, setDashboardConfig] = useState({ name: 'dashboard1', id: null });
+  const [widgets, setWidgets] = useState([]);
+  const [layout, setLayout] = useState([]);
+  const [chartType, setChartType] = useState();
   const { isOpen, closeModal, openModal } = useModal();
+
+  useEffect(() => {
+    async function fetchApiData() {
+      const resData = await fetchData({ url: url.DASHBOARD_URL });
+      if (resData.length > 0) {
+        const { widgets: savedWidgets, name, _id, layout: savedLayout } = resData[0];
+        setWidgets(savedWidgets);
+        setLayout(savedLayout);
+        setDashboardConfig({ name, id: _id });
+      }
+    }
+
+    fetchApiData();
+  }, []);
 
   function addItem(config) {
     setWidgets((prevWidgets) => {
       return prevWidgets.concat({
-        layout: getNewWidgetLayout(prevWidgets.length, cols, count),
+        layout: getNewWidgetLayout(prevWidgets.length, cols),
         config,
         chartType,
       });
     });
-    setCount((prevCount) => prevCount + 1);
   }
 
   function handleModalOk(config) {
@@ -56,10 +68,15 @@ function DashboardLayout({ classes }) {
   }
   function saveDashboard() {
     uploadData({
-      url: url.saveDashboard,
+      url: url.DASHBOARD_URL,
       headers: headerBuilder({ contentType: contentTypes.JSON }),
       data: JSON.stringify({
-        dashboardData: { name: dashboardConfig.name, widgets, dashboardId: dashboardConfig.id },
+        dashboardData: {
+          name: dashboardConfig.name,
+          widgets,
+          dashboardId: dashboardConfig.id,
+          layout,
+        },
       }),
     }).then((data) => setDashboardConfig((prevState) => ({ ...prevState, id: data.dashboardId })));
   }
@@ -86,7 +103,7 @@ function DashboardLayout({ classes }) {
             {labels.dashboardLayout.LINE_CHART}
           </Button>
         </ButtonGroup>
-        <Button onClick={() => saveDashboard()} variant="contained" color="primary">
+        <Button onClick={saveDashboard} variant="contained" color="primary">
           {labels.dashboardLayout.SAVE_DASHBOARD_BUTTON}
         </Button>
       </Box>

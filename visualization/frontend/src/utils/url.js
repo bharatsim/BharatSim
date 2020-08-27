@@ -5,5 +5,5 @@ export const url = {
   getDataUrl: (dataSource) => `${DATASOURCE_URL}/${dataSource}`,
   getHeaderUrl: (dataSource) => `${DATASOURCE_URL}/${dataSource}/headers`,
   DATA_SOURCES: `${DATASOURCE_URL}`,
-  saveDashboard: DASHBOARD_URL,
+  DASHBOARD_URL,
 };

@@ -18,6 +18,7 @@ const dashboard = new Schema(
       required: true,
     },
     widgets: [widgetSchema],
+    layout: [Object],
   },
   { collection: 'dashboard' },
 );

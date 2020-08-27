@@ -2,9 +2,9 @@
 
 exports[`URL should provide a url 1`] = `
 Object {
+  "DASHBOARD_URL": "/api/dashboard",
   "DATA_SOURCES": "/api/dataSources",
   "getDataUrl": [Function],
   "getHeaderUrl": [Function],
-  "saveDashboard": "/api/dashboard",
 }
 `;

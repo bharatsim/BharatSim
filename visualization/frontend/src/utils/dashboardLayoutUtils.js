@@ -4,8 +4,9 @@ import React from 'react';
 import renderChart from '../component/charts/renderChart';
 
 export function renderElement({ layout, chartType, config }) {
+  const updatedLayout = { ...layout, y: layout.y ? layout.y : Infinity };
   return (
-    <div key={layout.i} data-grid={layout} data-testid={layout.i}>
+    <div key={updatedLayout.i} data-grid={updatedLayout} data-testid={updatedLayout.i}>
       <div style={{ height: '100%', width: '100%', boxSizing: 'border-box', padding: '10px' }}>
         {renderChart(chartType, { config })}
       </div>
@@ -13,9 +14,9 @@ export function renderElement({ layout, chartType, config }) {
   );
 }
 
-export function getNewWidgetLayout(numberOfWidgetAdded, cols, count) {
+export function getNewWidgetLayout(numberOfWidgetAdded, cols) {
   return createLayout({
-    id: `widget-${count}`,
+    id: `widget-${numberOfWidgetAdded}`,
     xPosition: (numberOfWidgetAdded * 2) % cols,
     yPosition: Infinity, // puts it at the bottom
     width: 2,

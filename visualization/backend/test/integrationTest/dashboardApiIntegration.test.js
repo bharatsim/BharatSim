@@ -20,6 +20,7 @@ const widget = {
 const dashboardData = {
   name: 'dashboard1',
   widgets: [widget],
+  layout: [],
 };
 
 describe('Integration test for dashboard api', () => {

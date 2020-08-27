@@ -1,11 +1,13 @@
 import React from 'react';
 import { act, fireEvent, render } from '@testing-library/react';
 
+import { waitFor } from '@testing-library/dom';
 import DashboardLayout from '../DashboardLayout';
 import useFetch from '../../../hook/useFetch';
 import * as fetch from '../../../utils/fetch';
 
 jest.spyOn(fetch, 'uploadData');
+jest.spyOn(fetch, 'fetchData');
 
 jest.mock('../../chartConfigModal/ChartConfigModal', () => ({ open, onCancel, onOk }) => (
   <>
@@ -52,10 +54,35 @@ describe('<DashboardLayout />', () => {
   beforeEach(() => {
     useFetch.mockReturnValue({ headers: ['x-header', 'y-header'] });
     fetch.uploadData.mockResolvedValue({ dashboardId: 'id' });
+    fetch.fetchData.mockResolvedValue([]);
+  });
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should match a snapshot for <DashboardLayout />', () => {
     const { container } = render(<DashboardLayout />);
+
+    expect(container).toMatchSnapshot();
+  });
+  it('should match a snapshot for <DashboardLayout /> if dashboard is loaded with data', async () => {
+    const data = {
+      name: 'dashboard1',
+      widgets: [
+        {
+          layout: { i: 'widget-0', x: 0, y: null, w: 2, h: 2 },
+          config: 'config',
+          chartType: 'barChart',
+        },
+      ],
+      dashboardId: null,
+      layout: [{ w: 2, h: 2, x: 0, y: 0, i: 'widget-0', moved: false, static: false }],
+    };
+    fetch.fetchData.mockResolvedValue([data]);
+
+    const { container, findByTestId } = render(<DashboardLayout />);
+
+    await findByTestId('widget-0');
 
     expect(container).toMatchSnapshot();
   });
@@ -114,7 +141,7 @@ describe('<DashboardLayout />', () => {
     const saveDashboard = getByText(/Save Dashboard/i);
     const requestObject = {
       data: JSON.stringify({
-        dashboardData: { name: 'dashboard1', widgets: [], dashboardId: null },
+        dashboardData: { name: 'dashboard1', widgets: [], dashboardId: null, layout: [] },
       }),
       headers: { 'content-type': 'application/json' },
       url: '/api/dashboard',
@@ -142,6 +169,7 @@ describe('<DashboardLayout />', () => {
             },
           ],
           dashboardId: null,
+          layout: [{ w: 2, h: 2, x: 0, y: 0, i: 'widget-0', moved: false, static: false }],
         },
       }),
       headers: { 'content-type': 'application/json' },
@@ -157,7 +185,6 @@ describe('<DashboardLayout />', () => {
     await act(async () => {
       fireEvent.click(saveDashboard);
     });
-
     expect(fetch.uploadData).toHaveBeenCalledWith(requestObject);
   });
 });
