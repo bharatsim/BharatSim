@@ -1,7 +1,5 @@
 import React from 'react';
 import { act, fireEvent, render } from '@testing-library/react';
-
-import { waitFor } from '@testing-library/dom';
 import DashboardLayout from '../DashboardLayout';
 import useFetch from '../../../hook/useFetch';
 import * as fetch from '../../../utils/fetch';
@@ -54,7 +52,7 @@ describe('<DashboardLayout />', () => {
   beforeEach(() => {
     useFetch.mockReturnValue({ headers: ['x-header', 'y-header'] });
     fetch.uploadData.mockResolvedValue({ dashboardId: 'id' });
-    fetch.fetchData.mockResolvedValue([]);
+    fetch.fetchData.mockResolvedValue({ dashboards: [] });
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -78,7 +76,7 @@ describe('<DashboardLayout />', () => {
       dashboardId: null,
       layout: [{ w: 2, h: 2, x: 0, y: 0, i: 'widget-0', moved: false, static: false }],
     };
-    fetch.fetchData.mockResolvedValue([data]);
+    fetch.fetchData.mockResolvedValue({ dashboards: [data] });
 
     const { container, findByTestId } = render(<DashboardLayout />);
 
@@ -141,7 +139,13 @@ describe('<DashboardLayout />', () => {
     const saveDashboard = getByText(/Save Dashboard/i);
     const requestObject = {
       data: JSON.stringify({
-        dashboardData: { name: 'dashboard1', widgets: [], dashboardId: null, layout: [], count: 0 },
+        dashboardData: {
+          widgets: [],
+          layout: [],
+          dashboardId: null,
+          name: 'dashboard1',
+          count: 0,
+        },
       }),
       headers: { 'content-type': 'application/json' },
       url: '/api/dashboard',
@@ -160,16 +164,16 @@ describe('<DashboardLayout />', () => {
     const requestObject = {
       data: JSON.stringify({
         dashboardData: {
-          name: 'dashboard1',
           widgets: [
             {
-              layout: { i: 'widget-0', x: 0, y: null, w: 2, h: 2 },
               config: 'config',
               chartType: 'barChart',
+              layout: { i: 'widget-0', x: 0, y: null, w: 2, h: 2 },
             },
           ],
-          dashboardId: null,
           layout: [{ w: 2, h: 2, x: 0, y: 0, i: 'widget-0', moved: false, static: false }],
+          dashboardId: null,
+          name: 'dashboard1',
           count: 1,
         },
       }),
