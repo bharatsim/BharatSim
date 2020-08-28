@@ -141,7 +141,7 @@ describe('<DashboardLayout />', () => {
     const saveDashboard = getByText(/Save Dashboard/i);
     const requestObject = {
       data: JSON.stringify({
-        dashboardData: { name: 'dashboard1', widgets: [], dashboardId: null, layout: [] },
+        dashboardData: { name: 'dashboard1', widgets: [], dashboardId: null, layout: [], count: 0 },
       }),
       headers: { 'content-type': 'application/json' },
       url: '/api/dashboard',
@@ -170,6 +170,7 @@ describe('<DashboardLayout />', () => {
           ],
           dashboardId: null,
           layout: [{ w: 2, h: 2, x: 0, y: 0, i: 'widget-0', moved: false, static: false }],
+          count: 1,
         },
       }),
       headers: { 'content-type': 'application/json' },

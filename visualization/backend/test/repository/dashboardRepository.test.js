@@ -16,6 +16,7 @@ const dashboard = {
   name: 'dashboard1',
   widgets: [widget],
   layout: [],
+  count: 0,
 };
 
 describe('DashboardRepository', function () {
@@ -43,6 +44,7 @@ describe('DashboardRepository', function () {
         },
       ],
       layout: [],
+      count: 0,
     });
   });
   it('should update dashboard data into database', async function () {
@@ -62,6 +64,7 @@ describe('DashboardRepository', function () {
         },
       ],
       layout: [],
+      count: 0,
     });
   });
   it('should fetch all the uploaded dashboards from database', async function () {

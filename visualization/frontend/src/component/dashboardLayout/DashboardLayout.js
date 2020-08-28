@@ -23,7 +23,11 @@ const GridLayout = WidthProvider(ReactGridLayout);
 const cols = 12;
 
 function DashboardLayout({ classes }) {
-  const [dashboardConfig, setDashboardConfig] = useState({ name: 'dashboard1', id: null });
+  const [dashboardConfig, setDashboardConfig] = useState({
+    name: 'dashboard1',
+    id: null,
+    count: 0,
+  });
   const [widgets, setWidgets] = useState([]);
   const [layout, setLayout] = useState([]);
   const [chartType, setChartType] = useState();
@@ -33,10 +37,10 @@ function DashboardLayout({ classes }) {
     async function fetchApiData() {
       const resData = await fetchData({ url: url.DASHBOARD_URL });
       if (resData.length > 0) {
-        const { widgets: savedWidgets, name, _id, layout: savedLayout } = resData[0];
+        const { widgets: savedWidgets, name, _id, layout: savedLayout, count } = resData[0];
         setWidgets(savedWidgets);
         setLayout(savedLayout);
-        setDashboardConfig({ name, id: _id });
+        setDashboardConfig({ name, id: _id, count });
       }
     }
 
@@ -46,11 +50,12 @@ function DashboardLayout({ classes }) {
   function addItem(config) {
     setWidgets((prevWidgets) => {
       return prevWidgets.concat({
-        layout: getNewWidgetLayout(prevWidgets.length, cols),
+        layout: getNewWidgetLayout(prevWidgets.length, cols, dashboardConfig.count),
         config,
         chartType,
       });
     });
+    setDashboardConfig((prevState) => ({ ...prevState, count: prevState.count + 1 }));
   }
 
   function handleModalOk(config) {
@@ -76,6 +81,7 @@ function DashboardLayout({ classes }) {
           widgets,
           dashboardId: dashboardConfig.id,
           layout,
+          count: dashboardConfig.count,
         },
       }),
     }).then((data) => setDashboardConfig((prevState) => ({ ...prevState, id: data.dashboardId })));

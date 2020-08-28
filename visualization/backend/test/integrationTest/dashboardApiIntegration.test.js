@@ -21,6 +21,7 @@ const dashboardData = {
   name: 'dashboard1',
   widgets: [widget],
   layout: [],
+  count: 0,
 };
 
 describe('Integration test for dashboard api', () => {

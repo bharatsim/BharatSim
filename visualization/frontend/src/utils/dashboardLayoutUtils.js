@@ -14,9 +14,9 @@ export function renderElement({ layout, chartType, config }) {
   );
 }
 
-export function getNewWidgetLayout(numberOfWidgetAdded, cols) {
+export function getNewWidgetLayout(numberOfWidgetAdded, cols, count) {
   return createLayout({
-    id: `widget-${numberOfWidgetAdded}`,
+    id: `widget-${count}`,
     xPosition: (numberOfWidgetAdded * 2) % cols,
     yPosition: Infinity, // puts it at the bottom
     width: 2,

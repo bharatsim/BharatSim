@@ -30,8 +30,9 @@ describe('Dashboard layout utils', () => {
     it('should provide layout for newly added widget', () => {
       const numberOfWidgetAdded = 2;
       const cols = 12;
+      const count = 2;
 
-      const layout = getNewWidgetLayout(numberOfWidgetAdded, cols);
+      const layout = getNewWidgetLayout(numberOfWidgetAdded, cols, count);
 
       expect(layout).toEqual({
         i: 'widget-2',

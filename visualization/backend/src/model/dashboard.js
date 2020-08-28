@@ -19,6 +19,7 @@ const dashboard = new Schema(
     },
     widgets: [widgetSchema],
     layout: [Object],
+    count: { type: Number },
   },
   { collection: 'dashboard' },
 );
