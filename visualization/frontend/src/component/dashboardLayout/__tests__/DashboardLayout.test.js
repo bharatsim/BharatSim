@@ -63,7 +63,7 @@ describe('<DashboardLayout />', () => {
 
     expect(container).toMatchSnapshot();
   });
-  it('should match a snapshot for <DashboardLayout /> if dashboard is loaded with data', async () => {
+  it('should match a snapshot for <DashboardLayout /> when dashboard is loaded with data', async () => {
     const data = {
       name: 'dashboard1',
       widgets: [
@@ -120,6 +120,7 @@ describe('<DashboardLayout />', () => {
     expect(widget).toBeInTheDocument();
     expect(widget).toMatchSnapshot();
   });
+
   it('should add new widget with bar chart', () => {
     const { getByText, getByTestId } = render(<DashboardLayout />);
 
@@ -134,6 +135,7 @@ describe('<DashboardLayout />', () => {
     expect(widget).toBeInTheDocument();
     expect(widget).toMatchSnapshot();
   });
+
   it('should save dashboard on click of save dashboard button with empty widgets', async () => {
     const { getByText } = render(<DashboardLayout />);
     const saveDashboard = getByText(/Save Dashboard/i);
@@ -157,6 +159,7 @@ describe('<DashboardLayout />', () => {
 
     expect(fetch.uploadData).toHaveBeenCalledWith(requestObject);
   });
+
   it('should save dashboard with widgets on click of save dashboard button ', async () => {
     const { getByText } = render(<DashboardLayout />);
     const saveDashboard = getByText(/Save Dashboard/i);
@@ -190,6 +193,19 @@ describe('<DashboardLayout />', () => {
     await act(async () => {
       fireEvent.click(saveDashboard);
     });
+
     expect(fetch.uploadData).toHaveBeenCalledWith(requestObject);
+  });
+
+  it('should show error while saving dashboard failed', async () => {
+    const { getByText } = render(<DashboardLayout />);
+    const saveDashboard = getByText(/Save Dashboard/i);
+    fetch.uploadData.mockRejectedValue('error');
+
+    await act(async () => {
+      fireEvent.click(saveDashboard);
+    });
+
+    expect(getByText(/Failed to save dashboard/)).toBeInTheDocument();
   });
 });

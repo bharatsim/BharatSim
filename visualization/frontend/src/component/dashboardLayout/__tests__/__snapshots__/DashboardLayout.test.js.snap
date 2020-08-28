@@ -94,20 +94,24 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
           />
         </button>
       </div>
-      <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
-        tabindex="0"
-        type="button"
+      <div
+        class="MuiBox-root MuiBox-root-7"
       >
-        <span
-          class="MuiButton-label"
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
+          tabindex="0"
+          type="button"
         >
-          save dashboard
-        </span>
-        <span
-          class="MuiTouchRipple-root"
-        />
-      </button>
+          <span
+            class="MuiButton-label"
+          >
+            save dashboard
+          </span>
+          <span
+            class="MuiTouchRipple-root"
+          />
+        </button>
+      </div>
     </div>
     <div
       class="react-grid-layout DashboardLayout-reactGridLayout-1"
@@ -117,13 +121,13 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
 </div>
 `;
 
-exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> if dashboard is loaded with data 1`] = `
+exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> when dashboard is loaded with data 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-8"
+    class="MuiBox-root MuiBox-root-9"
   >
     <div
-      class="MuiBox-root MuiBox-root-9"
+      class="MuiBox-root MuiBox-root-10"
     >
       <div>
         File Upload
@@ -131,10 +135,10 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> if 
       </div>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-10"
+      class="MuiBox-root MuiBox-root-11"
     >
       <div
-        class="MuiBox-root MuiBox-root-12 makeStyles-buttonGroup-11"
+        class="MuiBox-root MuiBox-root-13 makeStyles-buttonGroup-12"
       >
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
@@ -165,23 +169,27 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> if 
           />
         </button>
       </div>
-      <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
-        tabindex="0"
-        type="button"
+      <div
+        class="MuiBox-root MuiBox-root-14"
       >
-        <span
-          class="MuiButton-label"
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
+          tabindex="0"
+          type="button"
         >
-          save dashboard
-        </span>
-        <span
-          class="MuiTouchRipple-root"
-        />
-      </button>
+          <span
+            class="MuiButton-label"
+          >
+            save dashboard
+          </span>
+          <span
+            class="MuiTouchRipple-root"
+          />
+        </button>
+      </div>
     </div>
     <div
-      class="react-grid-layout DashboardLayout-reactGridLayout-7"
+      class="react-grid-layout DashboardLayout-reactGridLayout-8"
       style="height: 330px;"
     >
       <div

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { Box, Button, withStyles } from '@material-ui/core';
+import { Box, Button, FormHelperText, Typography, withStyles } from '@material-ui/core';
 import ReactGridLayout, { WidthProvider } from 'react-grid-layout';
 
 import 'react-grid-layout/css/styles.css';
@@ -29,6 +29,7 @@ function DashboardLayout({ classes }) {
     count: 0,
   });
   const [widgets, setWidgets] = useState([]);
+  const [dashboardError, setDashboardError] = useState(null);
   const [layout, setLayout] = useState([]);
   const [chartType, setChartType] = useState();
   const { isOpen, closeModal, openModal } = useModal();
@@ -90,7 +91,13 @@ function DashboardLayout({ classes }) {
           count: dashboardConfig.count,
         },
       }),
-    }).then((data) => setDashboardConfig((prevState) => ({ ...prevState, id: data.dashboardId })));
+    })
+      .then((data) => {
+        setDashboardConfig((prevState) => ({ ...prevState, id: data.dashboardId }));
+      })
+      .catch(() => {
+        setDashboardError('Failed to save dashboard');
+      });
   }
 
   return (
@@ -115,9 +122,12 @@ function DashboardLayout({ classes }) {
             {labels.dashboardLayout.LINE_CHART}
           </Button>
         </ButtonGroup>
-        <Button onClick={saveDashboard} variant="contained" color="primary">
-          {labels.dashboardLayout.SAVE_DASHBOARD_BUTTON}
-        </Button>
+        <Box>
+          <Button onClick={saveDashboard} variant="contained" color="primary">
+            {labels.dashboardLayout.SAVE_DASHBOARD_BUTTON}
+          </Button>
+          {!!dashboardError && <FormHelperText error> {dashboardError} </FormHelperText>}
+        </Box>
       </Box>
       <GridLayout
         layout={layout}
