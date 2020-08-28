@@ -1,15 +1,32 @@
 const router = require('express').Router();
+
+const InvalidInputException = require('../exceptions/InvalidInputException');
+const technicalErrorException = require('../exceptions/TechnicalErrorException');
 const { saveDashboard, getAllDashboards } = require('../services/dashboardService');
 
 router.post('/', async function (req, res) {
   const { dashboardData } = req.body;
-  const result = await saveDashboard(dashboardData);
-  res.send(result);
+  saveDashboard(dashboardData)
+    .then((dashboardId) => {
+      res.send(dashboardId);
+    })
+    .catch((err) => {
+      if (err instanceof InvalidInputException) {
+        res.status(400).send({ errorMessage: err.message });
+      } else {
+        technicalErrorException(err, res);
+      }
+    });
 });
 
 router.get('/', async function (req, res) {
-  const result = await getAllDashboards();
-  res.send(result);
+  getAllDashboards()
+    .then((dashboards) => {
+      res.send(dashboards);
+    })
+    .catch((err) => {
+      technicalErrorException(err, res);
+    });
 });
 
 module.exports = router;

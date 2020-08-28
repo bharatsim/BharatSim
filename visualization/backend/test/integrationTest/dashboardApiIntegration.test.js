@@ -56,7 +56,7 @@ describe('Integration test for dashboard api', () => {
     it('should get all dashboards from database', async function () {
       dashboardModel.insertMany([dashboardData]);
       const response = await request(app).get('/dashboard').expect(200);
-      expect(response.body.length).toEqual(1);
+      expect(response.body.dashboards.length).toEqual(1);
     });
   });
 });

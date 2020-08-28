@@ -36,8 +36,14 @@ function DashboardLayout({ classes }) {
   useEffect(() => {
     async function fetchApiData() {
       const resData = await fetchData({ url: url.DASHBOARD_URL });
-      if (resData.length > 0) {
-        const { widgets: savedWidgets, name, _id, layout: savedLayout, count } = resData[0];
+      if (resData.dashboards.length > 0) {
+        const {
+          count,
+          name,
+          _id,
+          widgets: savedWidgets,
+          layout: savedLayout,
+        } = resData.dashboards[0];
         setWidgets(savedWidgets);
         setLayout(savedLayout);
         setDashboardConfig({ name, id: _id, count });
@@ -50,9 +56,9 @@ function DashboardLayout({ classes }) {
   function addItem(config) {
     setWidgets((prevWidgets) => {
       return prevWidgets.concat({
-        layout: getNewWidgetLayout(prevWidgets.length, cols, dashboardConfig.count),
         config,
         chartType,
+        layout: getNewWidgetLayout(prevWidgets.length, cols, dashboardConfig.count),
       });
     });
     setDashboardConfig((prevState) => ({ ...prevState, count: prevState.count + 1 }));
@@ -77,10 +83,10 @@ function DashboardLayout({ classes }) {
       headers: headerBuilder({ contentType: contentTypes.JSON }),
       data: JSON.stringify({
         dashboardData: {
-          name: dashboardConfig.name,
           widgets,
-          dashboardId: dashboardConfig.id,
           layout,
+          dashboardId: dashboardConfig.id,
+          name: dashboardConfig.name,
           count: dashboardConfig.count,
         },
       }),

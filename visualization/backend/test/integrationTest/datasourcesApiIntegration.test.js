@@ -145,7 +145,7 @@ describe('Integration test', () => {
         .field('name', 'datafile')
         .attach('datafile', 'test/data/test.png')
         .expect(400)
-        .expect({ errorMessage: 'File type does not match' });
+        .expect({ errorMessage: 'Invalid Input - File type does not match' });
     });
     it('should throw and error if column data and schema are not compatible', async function () {
       const testSchemaModal1 = {
@@ -165,7 +165,7 @@ describe('Integration test', () => {
         .field('name', 'datafile')
         .attach('datafile', 'test/data/simulation.csv')
         .expect(400)
-        .expect({ errorMessage: 'Error while uploading csv file data' });
+        .expect({ errorMessage: 'Invalid Input - Error while uploading csv file data' });
     });
   });
 });

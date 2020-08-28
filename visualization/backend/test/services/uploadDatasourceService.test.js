@@ -169,7 +169,6 @@ describe('upload datasource  service', function () {
         );
       };
 
-      await expect(result).rejects.toThrowError('File type does not match');
       await expect(result).rejects.toThrow(new InvalidInputException('File type does not match'));
     });
   });

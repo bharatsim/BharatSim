@@ -221,7 +221,7 @@ describe('api', () => {
         .field('name', 'datafile')
         .attach('datafile', 'test/data/test.png')
         .expect(400)
-        .expect({ errorMessage: 'error message' });
+        .expect({ errorMessage: 'Invalid Input - error message' });
 
       expect(uploadDatasourceService.uploadCsv).toHaveBeenCalledWith(
         {
