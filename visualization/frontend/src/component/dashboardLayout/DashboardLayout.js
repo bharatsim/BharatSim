@@ -4,22 +4,21 @@ import PropTypes from 'prop-types';
 import { Box, Button, FormHelperText, withStyles } from '@material-ui/core';
 import ReactGridLayout, { WidthProvider } from 'react-grid-layout';
 
-import ChartConfigModal from '../chartConfigModal/ChartConfigModal';
-import ButtonGroup from '../../uiComponent/ButtonGroup';
-import FileUpload from '../fileUpload/FileUpload';
-
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import styles from './dashboardLayoutCss';
+
+import { getNewWidgetLayout, renderElement } from '../../utils/dashboardLayoutUtils';
+import labels from '../../constants/labels';
+import ChartConfigModal from '../chartConfigModal/ChartConfigModal';
+import ButtonGroup from '../../uiComponent/ButtonGroup';
+import FileUpload from '../fileUpload/FileUpload';
 
 import useFetch from '../../hook/useFetch';
 
 import useModal from '../../hook/useModal';
 import chartConfigs from '../../config/chartConfigs';
 import { api } from '../../utils/api';
-import { getNewWidgetLayout, renderElement } from '../../utils/dashboardLayoutUtils';
-
-import labels from '../../constants/labels';
 
 const GridLayout = WidthProvider(ReactGridLayout);
 
@@ -30,9 +29,10 @@ function DashboardLayout({ classes }) {
     name: 'dashboard1',
     id: null,
     count: 0,
+    message: null,
+    messageType: null,
   });
   const [widgets, setWidgets] = useState([]);
-  const [dashboardError, setDashboardError] = useState(null);
   const [layout, setLayout] = useState([]);
   const [chartType, setChartType] = useState();
   const { isOpen, closeModal, openModal } = useModal();
@@ -45,7 +45,7 @@ function DashboardLayout({ classes }) {
       const { name, _id, count } = firstDashboard;
       setWidgets(firstDashboard.widgets);
       setLayout(firstDashboard.layout);
-      setDashboardConfig({ name, id: _id, count });
+      setDashboardConfig((prevState) => ({ ...prevState, name, id: _id, count }));
     }
   }, [allDashboards]);
 
@@ -83,10 +83,19 @@ function DashboardLayout({ classes }) {
         count: dashboardConfig.count,
       })
       .then((data) => {
-        setDashboardConfig((prevState) => ({ ...prevState, id: data.dashboardId }));
+        setDashboardConfig((prevState) => ({
+          ...prevState,
+          id: data.dashboardId,
+          message: 'Dashboard Saved Successfully',
+          messageType: 'success',
+        }));
       })
       .catch(() => {
-        setDashboardError('Failed to save dashboard');
+        setDashboardConfig((prevState) => ({
+          ...prevState,
+          message: 'Failed to save dashboard',
+          messageType: 'error',
+        }));
       });
   }
 
@@ -114,7 +123,11 @@ function DashboardLayout({ classes }) {
           <Button onClick={onClickOfSaveDashboard} variant="contained" color="primary">
             {labels.dashboardLayout.SAVE_DASHBOARD_BUTTON}
           </Button>
-          {!!dashboardError && <FormHelperText error>{dashboardError}</FormHelperText>}
+          {!!dashboardConfig.message && (
+            <FormHelperText error={dashboardConfig.messageType === 'error'}>
+              {dashboardConfig.message}
+            </FormHelperText>
+          )}
         </Box>
       </Box>
       <GridLayout
