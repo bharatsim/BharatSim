@@ -27,9 +27,10 @@ function DashboardLayout({ classes }) {
     name: 'dashboard1',
     id: null,
     count: 0,
+    message: null,
+    messageType: null,
   });
   const [widgets, setWidgets] = useState([]);
-  const [dashboardError, setDashboardError] = useState(null);
   const [layout, setLayout] = useState([]);
   const [chartType, setChartType] = useState();
   const { isOpen, closeModal, openModal } = useModal();
@@ -93,10 +94,19 @@ function DashboardLayout({ classes }) {
       }),
     })
       .then((data) => {
-        setDashboardConfig((prevState) => ({ ...prevState, id: data.dashboardId }));
+        setDashboardConfig((prevState) => ({
+          ...prevState,
+          id: data.dashboardId,
+          message: 'Dashboard Saved Successfully',
+          messageType: 'success',
+        }));
       })
       .catch(() => {
-        setDashboardError('Failed to save dashboard');
+        setDashboardConfig((prevState) => ({
+          ...prevState,
+          message: 'Failed to save dashboard',
+          messageType: 'error',
+        }));
       });
   }
 
@@ -126,7 +136,11 @@ function DashboardLayout({ classes }) {
           <Button onClick={saveDashboard} variant="contained" color="primary">
             {labels.dashboardLayout.SAVE_DASHBOARD_BUTTON}
           </Button>
-          {!!dashboardError && <FormHelperText error> {dashboardError} </FormHelperText>}
+          {!!dashboardConfig.message && (
+            <FormHelperText error={dashboardConfig.messageType === 'error'}>
+              {dashboardConfig.message}
+            </FormHelperText>
+          )}
         </Box>
       </Box>
       <GridLayout

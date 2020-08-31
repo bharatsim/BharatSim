@@ -196,6 +196,16 @@ describe('<DashboardLayout />', () => {
 
     expect(fetch.uploadData).toHaveBeenCalledWith(requestObject);
   });
+  it('should show message for successful saving of dashboard', async () => {
+    const { getByText } = render(<DashboardLayout />);
+    const saveDashboard = getByText(/Save Dashboard/i);
+
+    await act(async () => {
+      fireEvent.click(saveDashboard);
+    });
+
+    expect(getByText(/Dashboard Saved Successfully/)).toBeInTheDocument();
+  });
 
   it('should show error while saving dashboard failed', async () => {
     const { getByText } = render(<DashboardLayout />);
