@@ -10,6 +10,7 @@ describe('DataTypeConfigModal', () => {
     isOpen: true,
     closeModal: jest.fn(),
     onApply: jest.fn(),
+    onCancel: jest.fn(),
   };
 
   beforeEach(() => {
@@ -28,7 +29,7 @@ describe('DataTypeConfigModal', () => {
 
     fireEvent.click(cancelButton);
 
-    expect(props.closeModal).toHaveBeenCalled();
+    expect(props.onCancel).toHaveBeenCalled();
   });
   it('should call apply function on click of apply and upload button with default schema', () => {
     const container = within(document.querySelector('.MuiPaper-root'));

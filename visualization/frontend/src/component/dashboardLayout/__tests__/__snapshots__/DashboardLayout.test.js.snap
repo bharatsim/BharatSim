@@ -73,7 +73,7 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
           <span
             class="MuiButton-label"
           >
-            Bar Chart
+            Line Chart
           </span>
           <span
             class="MuiTouchRipple-root"
@@ -87,7 +87,7 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> 1`]
           <span
             class="MuiButton-label"
           >
-            Line Chart
+            Bar Chart
           </span>
           <span
             class="MuiTouchRipple-root"
@@ -148,7 +148,7 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> whe
           <span
             class="MuiButton-label"
           >
-            Bar Chart
+            Line Chart
           </span>
           <span
             class="MuiTouchRipple-root"
@@ -162,7 +162,7 @@ exports[`<DashboardLayout /> should match a snapshot for <DashboardLayout /> whe
           <span
             class="MuiButton-label"
           >
-            Line Chart
+            Bar Chart
           </span>
           <span
             class="MuiTouchRipple-root"

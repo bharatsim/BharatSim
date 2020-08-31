@@ -2,19 +2,18 @@ import React, { useRef, useState } from 'react';
 import { Box, Button } from '@material-ui/core';
 
 import useForm from '../../hook/useForm';
-import { uploadData } from '../../utils/fetch';
-import { url } from '../../utils/url';
-import { validateFile } from '../../utils/validators';
-import {
-  fileUploadedStatus,
-  getFileUploadData,
-  getFileUploadHeader,
-  getStatusAndMessageFor,
-  parseCsv,
-} from '../../utils/fileUploadUtils';
 import FileInput from '../../uiComponent/FileInput';
 import useModal from '../../hook/useModal';
 import DataTypeConfigModal from './DataTypeConfigModal';
+
+import { api } from '../../utils/api';
+import { validateFile } from '../../utils/validators';
+import {
+  fileUploadedStatus,
+  getStatusAndMessageFor,
+  parseCsv,
+  resetFileInput,
+} from '../../utils/fileUploadUtils';
 
 const FILE_INPUT_KEY = 'fileInput';
 
@@ -37,13 +36,15 @@ function FileUpload() {
 
   const isUploadDisable = !shouldEnableSubmit() || fileUpload.status === fileUploadedStatus.LOADING;
 
+  function onCancel() {
+    closeModal();
+    resetFileInput(ref.current);
+  }
+
   async function upload(file, schema) {
     setFileUpload(getStatusAndMessageFor(fileUploadedStatus.LOADING, file.name));
-    uploadData({
-      url: url.DATA_SOURCES,
-      data: getFileUploadData(file, schema),
-      headers: getFileUploadHeader(),
-    })
+    api
+      .uploadFileAndSchema(file, schema)
       .then(() => {
         setFileUpload(getStatusAndMessageFor(fileUploadedStatus.SUCCESS, file.name));
       })
@@ -52,7 +53,7 @@ function FileUpload() {
       })
       .finally(() => {
         resetFields([FILE_INPUT_KEY]);
-        ref.current.value = '';
+        resetFileInput(ref.current);
       });
   }
 
@@ -102,6 +103,7 @@ function FileUpload() {
           isOpen={isOpen}
           dataRow={parsedData[0]}
           onApply={onSchemaChangesApply}
+          onCancel={onCancel}
         />
       )}
     </>

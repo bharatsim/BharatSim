@@ -8,16 +8,15 @@ import styles from './chartConfigModalCss';
 
 import useFetch from '../../hook/useFetch';
 import useForm from '../../hook/useForm';
-import { fetchData } from '../../utils/fetch';
-import { convertObjectArrayToOptionStructure } from '../../utils/helper';
 import chartConfigs from '../../config/chartConfigs';
-import { url } from '../../utils/url';
-import { datasourceValidator } from '../../utils/validators';
 import Modal from '../../uiComponent/Modal';
+import { api } from '../../utils/api';
+import { datasourceValidator } from '../../utils/validators';
+import { convertObjectArrayToOptionStructure } from '../../utils/helper';
 
 function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
   const [headers, setHeaders] = React.useState([]);
-  const datasources = useFetch({ url: url.DATA_SOURCES });
+  const datasources = useFetch(api.getDatasources);
   const {
     values,
     validateAndSetValue,
@@ -34,10 +33,10 @@ function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
     return null;
   }
 
-  async function handleDataSourceChange(value) {
+  async function handleDataSourceChange(dataSourceId) {
     resetFields(chartConfigs[chartType].configOptions);
-    validateAndSetValue('dataSource', value);
-    const csvHeaders = await fetchData({ url: url.getHeaderUrl(value) });
+    validateAndSetValue('dataSource', dataSourceId);
+    const csvHeaders = await api.getCsvHeaders(dataSourceId);
     setHeaders(csvHeaders.headers);
   }
 

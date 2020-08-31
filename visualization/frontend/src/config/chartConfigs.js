@@ -8,6 +8,7 @@ import { createConfigOptionValidationSchema } from './chartConfigOptions';
 const chartConfigs = {
   [chartTypes.LINE_CHART]: {
     key: chartTypes.LINE_CHART,
+    label: 'Line Chart',
     chart: (chartProps) => <LineChart {...chartProps} />,
     configOptions: [chartConfigOptionTypes.X_AXIS, chartConfigOptionTypes.Y_AXIS],
     configOptionValidationSchema: createConfigOptionValidationSchema([
@@ -17,6 +18,7 @@ const chartConfigs = {
   },
   [chartTypes.BAR_CHART]: {
     key: chartTypes.BAR_CHART,
+    label: 'Bar Chart',
     chart: (chartProps) => <BarChart {...chartProps} />,
     configOptions: [chartConfigOptionTypes.X_AXIS, chartConfigOptionTypes.Y_AXIS],
     configOptionValidationSchema: createConfigOptionValidationSchema([

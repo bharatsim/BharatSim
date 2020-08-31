@@ -1,25 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { Box, Button, FormHelperText, Typography, withStyles } from '@material-ui/core';
+import { Box, Button, FormHelperText, withStyles } from '@material-ui/core';
 import ReactGridLayout, { WidthProvider } from 'react-grid-layout';
+
+import ChartConfigModal from '../chartConfigModal/ChartConfigModal';
+import ButtonGroup from '../../uiComponent/ButtonGroup';
+import FileUpload from '../fileUpload/FileUpload';
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import styles from './dashboardLayoutCss';
 
-import { getNewWidgetLayout, renderElement } from '../../utils/dashboardLayoutUtils';
-import labels from '../../constants/labels';
-import ChartConfigModal from '../chartConfigModal/ChartConfigModal';
+import useFetch from '../../hook/useFetch';
+
 import useModal from '../../hook/useModal';
-import { chartTypes } from '../../constants/charts';
-import FileUpload from '../fileUpload/FileUpload';
-import ButtonGroup from '../../uiComponent/ButtonGroup';
-import { fetchData, headerBuilder, uploadData } from '../../utils/fetch';
-import { url } from '../../utils/url';
-import { contentTypes } from '../../constants/fetch';
+import chartConfigs from '../../config/chartConfigs';
+import { api } from '../../utils/api';
+import { getNewWidgetLayout, renderElement } from '../../utils/dashboardLayoutUtils';
+
+import labels from '../../constants/labels';
 
 const GridLayout = WidthProvider(ReactGridLayout);
+
 const cols = 12;
 
 function DashboardLayout({ classes }) {
@@ -34,25 +37,17 @@ function DashboardLayout({ classes }) {
   const [chartType, setChartType] = useState();
   const { isOpen, closeModal, openModal } = useModal();
 
-  useEffect(() => {
-    async function fetchApiData() {
-      const resData = await fetchData({ url: url.DASHBOARD_URL });
-      if (resData.dashboards.length > 0) {
-        const {
-          count,
-          name,
-          _id,
-          widgets: savedWidgets,
-          layout: savedLayout,
-        } = resData.dashboards[0];
-        setWidgets(savedWidgets);
-        setLayout(savedLayout);
-        setDashboardConfig({ name, id: _id, count });
-      }
-    }
+  const allDashboards = useFetch(api.getAllDashBoard);
 
-    fetchApiData();
-  }, []);
+  useEffect(() => {
+    if (allDashboards && allDashboards.dashboards.length > 0) {
+      const firstDashboard = allDashboards.dashboards[0];
+      const { name, _id, count } = firstDashboard;
+      setWidgets(firstDashboard.widgets);
+      setLayout(firstDashboard.layout);
+      setDashboardConfig({ name, id: _id, count });
+    }
+  }, [allDashboards]);
 
   function addItem(config) {
     setWidgets((prevWidgets) => {
@@ -78,20 +73,15 @@ function DashboardLayout({ classes }) {
     openModal();
     setChartType(selectedChartType);
   }
-  function saveDashboard() {
-    uploadData({
-      url: url.DASHBOARD_URL,
-      headers: headerBuilder({ contentType: contentTypes.JSON }),
-      data: JSON.stringify({
-        dashboardData: {
-          widgets,
-          layout,
-          dashboardId: dashboardConfig.id,
-          name: dashboardConfig.name,
-          count: dashboardConfig.count,
-        },
-      }),
-    })
+  function onClickOfSaveDashboard() {
+    api
+      .saveDashboard({
+        widgets,
+        layout,
+        dashboardId: dashboardConfig.id,
+        name: dashboardConfig.name,
+        count: dashboardConfig.count,
+      })
       .then((data) => {
         setDashboardConfig((prevState) => ({ ...prevState, id: data.dashboardId }));
       })
@@ -107,26 +97,24 @@ function DashboardLayout({ classes }) {
       </Box>
       <Box pb={2} display="flex" justifyContent="space-between">
         <ButtonGroup>
-          <Button
-            onClick={() => oneChartClick(chartTypes.BAR_CHART)}
-            variant="contained"
-            color="primary"
-          >
-            {labels.dashboardLayout.Bar_CHART}
-          </Button>
-          <Button
-            onClick={() => oneChartClick(chartTypes.LINE_CHART)}
-            variant="contained"
-            color="primary"
-          >
-            {labels.dashboardLayout.LINE_CHART}
-          </Button>
+          {Object.values(chartConfigs).map((chart) => {
+            return (
+              <Button
+                key={chart.key}
+                onClick={() => oneChartClick(chart.key)}
+                variant="contained"
+                color="primary"
+              >
+                {chart.label}
+              </Button>
+            );
+          })}
         </ButtonGroup>
         <Box>
-          <Button onClick={saveDashboard} variant="contained" color="primary">
+          <Button onClick={onClickOfSaveDashboard} variant="contained" color="primary">
             {labels.dashboardLayout.SAVE_DASHBOARD_BUTTON}
           </Button>
-          {!!dashboardError && <FormHelperText error> {dashboardError} </FormHelperText>}
+          {!!dashboardError && <FormHelperText error>{dashboardError}</FormHelperText>}
         </Box>
       </Box>
       <GridLayout

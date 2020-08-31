@@ -1,45 +1,41 @@
 import { renderHook } from '@testing-library/react-hooks';
 
 import useFetch from '../useFetch';
-import { httpMethods } from '../../constants/fetch';
-import { fetchData } from '../../utils/fetch';
-
-jest.mock('../../utils/fetch');
 
 describe('Use fetch hook', () => {
+  let api;
   beforeEach(() => {
-    fetchData.mockReturnValue(Promise.resolve('Hello Welcome'));
+    api = jest.fn().mockImplementation(async () => Promise.resolve('Hello Welcome'));
+  });
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should return fetch data for given url', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useFetch({ url: '/test/api' }));
+    const { result, waitForNextUpdate } = renderHook(() => useFetch(api));
 
     await waitForNextUpdate();
 
     expect(result.current).toEqual('Hello Welcome');
-    expect(fetchData).toHaveBeenCalledWith({ method: 'get', url: '/test/api' });
+    expect(api).toHaveBeenCalledWith({ data: undefined, params: undefined, query: undefined });
   });
 
   it('should return fetch data for given url and other data ', async () => {
     const { result, waitForNextUpdate } = renderHook(() =>
-      useFetch({
-        url: '/test/api',
-        headers: 'headers',
-        method: httpMethods.POST,
+      useFetch(api, {
         data: 'data',
-        query: 'page',
+        params: 'params',
+        query: 'query',
       }),
     );
 
     await waitForNextUpdate();
 
     expect(result.current).toEqual('Hello Welcome');
-    expect(fetchData).toHaveBeenCalledWith({
+    expect(api).toHaveBeenCalledWith({
       data: 'data',
-      headers: 'headers',
-      method: 'post',
-      query: 'page',
-      url: '/test/api',
+      params: 'params',
+      query: 'query',
     });
   });
 });

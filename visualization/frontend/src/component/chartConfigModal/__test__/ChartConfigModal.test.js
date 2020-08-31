@@ -3,37 +3,25 @@ import React from 'react';
 import { fireEvent, render, waitFor, within } from '@testing-library/react';
 
 import ChartConfigModal from '../ChartConfigModal';
-import { fetchData } from '../../../utils/fetch';
 import { chartTypes } from '../../../constants/charts';
 import { selectDropDownOption } from '../../../testUtil';
+import { api } from '../../../utils/api';
 
-jest.mock('../../../utils/url', () => ({
-  url: {
-    getHeaderUrl: jest.fn().mockReturnValue('/headers'),
-    DATA_SOURCES: '/datasources',
+jest.mock('../../../utils/api', () => ({
+  api: {
+    getDatasources: jest.fn().mockResolvedValue({
+      dataSources: [
+        { _id: 'id1', name: 'modelone' },
+        { _id: 'id2', name: 'modeltwo' },
+      ],
+    }),
+    getCsvHeaders: jest.fn().mockResolvedValue({
+      headers: [
+        { name: 'x-header', type: 'string' },
+        { name: 'y-header', type: 'number' },
+      ],
+    }),
   },
-}));
-
-jest.mock('../../../utils/fetch', () => ({
-  fetchData: jest.fn(({ url }) => {
-    if (url === '/headers') {
-      return Promise.resolve({
-        headers: [
-          { name: 'x-header', type: 'string' },
-          { name: 'y-header', type: 'number' },
-        ],
-      });
-    }
-    if (url === '/datasources') {
-      return Promise.resolve({
-        dataSources: [
-          { _id: 'id1', name: 'modelone' },
-          { _id: 'id2', name: 'modeltwo' },
-        ],
-      });
-    }
-    return Promise.reject();
-  }),
 }));
 
 describe('<ChartConfigModal />', () => {
@@ -115,7 +103,7 @@ describe('<ChartConfigModal />', () => {
 
     selectDropDownOption(configModal, 'dropdown-dataSources', 'modelone');
 
-    await waitFor(() => expect(fetchData).toBeCalledTimes(2));
+    await waitFor(() => expect(api.getCsvHeaders).toBeCalledTimes(1));
 
     selectDropDownOption(configModal, 'dropdown-x', 'x-header');
 
@@ -144,7 +132,7 @@ describe('<ChartConfigModal />', () => {
 
     selectDropDownOption(configModal, 'dropdown-dataSources', 'modelone');
 
-    await waitFor(() => expect(fetchData).toBeCalledTimes(2));
+    await waitFor(() => expect(api.getCsvHeaders).toBeCalledTimes(1));
 
     selectDropDownOption(configModal, 'dropdown-x', 'x-header');
 
@@ -167,7 +155,7 @@ describe('<ChartConfigModal />', () => {
   });
 
   it('should provide empty element if csv header is null', async () => {
-    fetchData.mockReturnValue(null);
+    api.getCsvHeaders.mockReturnValue(null);
     render(<ChartConfigModal {...props} />);
 
     await waitFor(() => {
@@ -176,7 +164,7 @@ describe('<ChartConfigModal />', () => {
   });
 
   it('should display message of no data source preset if api return empty datasource array', async () => {
-    fetchData.mockReturnValue({ dataSources: [] });
+    api.getDatasources.mockResolvedValue({ dataSources: [] });
     render(<ChartConfigModal {...props} />);
 
     await waitFor(() => {

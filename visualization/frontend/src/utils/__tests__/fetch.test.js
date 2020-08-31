@@ -1,7 +1,7 @@
 /* eslint-disable import/first */
 import axios from 'axios';
 
-import { fetchData, formDataBuilder, headerBuilder, uploadData } from '../fetch';
+import { fetchData, uploadData } from '../fetch';
 
 jest.mock('axios', () => ({
   __esModule: true,
@@ -40,22 +40,5 @@ describe('Fetch util', () => {
       method: 'post',
       url: 'test/api',
     });
-  });
-
-  it('should provide form data object with provide data array of name and value', () => {
-    const actual = formDataBuilder([
-      { name: 'test', value: 'test' },
-      { name: 'test1', value: 'test1' },
-    ]);
-
-    expect(actual instanceof FormData).toBeTruthy();
-    expect(actual.get('test')).toEqual('test');
-    expect(actual.get('test1')).toEqual('test1');
-  });
-
-  it('should provide header with provided content type', () => {
-    const actual = headerBuilder({ contentType: 'file' });
-
-    expect(actual).toEqual({ 'content-type': 'file' });
   });
 });

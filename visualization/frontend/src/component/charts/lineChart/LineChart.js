@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Line } from 'react-chartjs-2';
-
-import { url } from '../../../utils/url';
 import useFetch from '../../../hook/useFetch';
 import chartConfigStyles from './lineChartStyling';
+import { api } from '../../../utils/api';
 
 const options = {
   maintainAspectRatio: false,
@@ -41,8 +40,9 @@ function LineChart({ config }) {
     yAxis: { name: yColumn },
     dataSource,
   } = config;
-  const csvData = useFetch({
-    url: url.getDataUrl(dataSource),
+
+  const csvData = useFetch(api.getData, {
+    params: dataSource,
     query: { columns: [xColumn, yColumn] },
   });
 

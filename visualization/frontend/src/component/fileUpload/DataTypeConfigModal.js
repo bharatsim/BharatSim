@@ -40,7 +40,7 @@ function renderDropdown(columnName, value, onChange) {
   );
 }
 
-function DataTypeConfigModal({ dataRow, isOpen, closeModal, onApply }) {
+function DataTypeConfigModal({ dataRow, isOpen, closeModal, onApply, onCancel }) {
   const schema = createSchema(dataRow);
   const [values, setValues] = useState(schema);
   const classes = styles();
@@ -56,7 +56,7 @@ function DataTypeConfigModal({ dataRow, isOpen, closeModal, onApply }) {
       title="Configure Datatype"
       actions={[
         { name: 'apply and upload', handleClick: () => onApply(values), type: 'primary' },
-        { name: 'cancel', handleClick: closeModal, type: 'secondary' },
+        { name: 'cancel', handleClick: onCancel, type: 'secondary' },
       ]}
     >
       <Box className={classes.configContainer}>
@@ -73,6 +73,7 @@ DataTypeConfigModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   closeModal: PropTypes.func.isRequired,
   onApply: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
 };
 
 export default DataTypeConfigModal;

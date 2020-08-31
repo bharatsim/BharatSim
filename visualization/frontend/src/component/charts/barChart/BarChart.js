@@ -2,8 +2,7 @@ import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import PropTypes from 'prop-types';
 import useFetch from '../../../hook/useFetch';
-
-import { url } from '../../../utils/url';
+import { api } from '../../../utils/api';
 
 const chartConfig = {
   datasets: [
@@ -38,8 +37,9 @@ function BarChart({ config }) {
     yAxis: { name: yColumn },
     dataSource,
   } = config;
-  const csvData = useFetch({
-    url: url.getDataUrl(dataSource),
+
+  const csvData = useFetch(api.getData, {
+    params: dataSource,
     query: { columns: [xColumn, yColumn] },
   });
 

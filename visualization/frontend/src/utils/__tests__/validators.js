@@ -33,6 +33,10 @@ describe('Validators', () => {
     it('should provide empty message if selected y axis type is number', () => {
       expect(yAxisValidator({ name: 'y-axis', type: 'number' })).toEqual('');
     });
+
+    it('should provide empty message if selected y axis type is Number', () => {
+      expect(yAxisValidator({ name: 'y-axis', type: 'Number' })).toEqual('');
+    });
   });
 
   describe('datasource validator', () => {

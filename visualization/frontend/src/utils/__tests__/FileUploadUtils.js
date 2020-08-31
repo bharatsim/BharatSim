@@ -1,9 +1,8 @@
 import {
   fileUploadedStatus,
-  getFileUploadData,
-  getFileUploadHeader,
   getStatusAndMessageFor,
   parseCsv,
+  resetFileInput,
 } from '../fileUploadUtils';
 
 jest.mock('papaparse', () => {
@@ -66,15 +65,17 @@ describe('File Upload utils', () => {
     expect(onApply).toHaveBeenCalledWith('data');
   });
 
-  it('should provide file upload header', () => {
-    const headers = getFileUploadHeader();
+  it('should reset file input', () => {
+    const fileInput = {
+      value: 'file',
+      files: [],
+    };
 
-    expect(headers).toEqual({ 'content-type': 'multipart/form-data' });
-  });
+    resetFileInput(fileInput);
 
-  it('should FormData object for file upload data', () => {
-    const headers = getFileUploadData('file', 'schema');
-
-    expect(headers).toBeInstanceOf(FormData);
+    expect(fileInput).toEqual({
+      value: '',
+      files: null,
+    });
   });
 });

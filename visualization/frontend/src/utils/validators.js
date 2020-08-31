@@ -6,7 +6,7 @@ function isAbsent(value) {
 }
 
 function isNotAxisTypeNumber(value) {
-  return value.type !== 'number';
+  return !(value.type === 'Number' || value.type === 'number');
 }
 
 function isEmptyObject(value) {
