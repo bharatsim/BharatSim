@@ -1,13 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<FileInput /> should display file upload status for error with error class 1`] = `
-<p
-  class="MuiFormHelperText-root Mui-error"
->
-  error while upload
-</p>
-`;
-
 exports[`<FileInput /> should match snapshot 1`] = `
 <div>
   <input

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Box, Button } from '@material-ui/core';
+import { Box, Button, FormHelperText } from '@material-ui/core';
 
 import useForm from '../../hook/useForm';
 import FileInput from '../../uiComponent/FileInput';
@@ -8,19 +8,21 @@ import DataTypeConfigModal from './DataTypeConfigModal';
 
 import { api } from '../../utils/api';
 import { validateFile } from '../../utils/validators';
-import {
-  fileUploadedStatus,
-  getStatusAndMessageFor,
-  parseCsv,
-  resetFileInput,
-} from '../../utils/fileUploadUtils';
+import { getMessage, parseCsv, resetFileInput } from '../../utils/fileUploadUtils';
+import useInlineLoader, { loaderStates } from '../../hook/useInlineLoader';
 
 const FILE_INPUT_KEY = 'fileInput';
 
 function FileUpload() {
-  const [fileUpload, setFileUpload] = useState({ status: null, message: '' });
   const [parsedData, setParsedData] = useState(null);
   const { isOpen, closeModal, openModal } = useModal();
+  const {
+    loadingState,
+    startLoader,
+    stopLoaderAfterError,
+    stopLoaderAfterSuccess,
+    resetLoader,
+  } = useInlineLoader();
 
   const {
     errors,
@@ -32,9 +34,10 @@ function FileUpload() {
   } = useForm({
     [FILE_INPUT_KEY]: validateFile,
   });
+
   const ref = useRef();
 
-  const isUploadDisable = !shouldEnableSubmit() || fileUpload.status === fileUploadedStatus.LOADING;
+  const isUploadDisable = !shouldEnableSubmit() || loadingState.state === loaderStates.LOADING;
 
   function onCancel() {
     closeModal();
@@ -42,14 +45,14 @@ function FileUpload() {
   }
 
   async function upload(file, schema) {
-    setFileUpload(getStatusAndMessageFor(fileUploadedStatus.LOADING, file.name));
+    startLoader(getMessage(loaderStates.LOADING, file.name));
     api
       .uploadFileAndSchema(file, schema)
       .then(() => {
-        setFileUpload(getStatusAndMessageFor(fileUploadedStatus.SUCCESS, file.name));
+        stopLoaderAfterSuccess(getMessage(loaderStates.SUCCESS, file.name));
       })
       .catch(() => {
-        setFileUpload(getStatusAndMessageFor(fileUploadedStatus.ERROR, file.name));
+        stopLoaderAfterError(getMessage(loaderStates.ERROR, file.name));
       })
       .finally(() => {
         resetFields([FILE_INPUT_KEY]);
@@ -72,7 +75,7 @@ function FileUpload() {
   }
 
   function onFileInputChange(uploadedFile) {
-    setFileUpload({ status: null, message: '' });
+    resetLoader();
     validateAndSetValue(FILE_INPUT_KEY, uploadedFile);
   }
 
@@ -82,11 +85,16 @@ function FileUpload() {
         <FileInput
           error={errors[FILE_INPUT_KEY]}
           onChange={onFileInputChange}
-          fileUploadStatus={fileUpload.status}
-          fileUploadStatusMessage={fileUpload.message}
+          fileUploadStatus={loadingState.state}
+          fileUploadStatusMessage={loadingState.message}
           ref={ref}
         />
       </Box>
+      {!!loadingState.message && (
+        <FormHelperText error={loadingState.state === loadingState.ERROR}>
+          {loadingState.message}
+        </FormHelperText>
+      )}
       <Button
         type="button"
         onClick={validateAndParseCsv}

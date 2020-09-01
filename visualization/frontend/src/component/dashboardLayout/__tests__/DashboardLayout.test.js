@@ -205,7 +205,7 @@ describe('<DashboardLayout />', () => {
       fireEvent.click(saveDashboard);
     });
 
-    expect(getByText(/Dashboard Saved Successfully/)).toBeInTheDocument();
+    expect(getByText(/Dashboard dashboard1 Saved Successfully/)).toBeInTheDocument();
   });
 
   it('should show error while saving dashboard failed', async () => {

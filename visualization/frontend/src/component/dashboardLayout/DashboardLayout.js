@@ -19,6 +19,7 @@ import useFetch from '../../hook/useFetch';
 import useModal from '../../hook/useModal';
 import chartConfigs from '../../config/chartConfigs';
 import { api } from '../../utils/api';
+import useInlineLoader from '../../hook/useInlineLoader';
 
 const GridLayout = WidthProvider(ReactGridLayout);
 
@@ -29,15 +30,19 @@ function DashboardLayout({ classes }) {
     name: 'dashboard1',
     id: null,
     count: 0,
-    message: null,
-    messageType: null,
   });
   const [widgets, setWidgets] = useState([]);
   const [layout, setLayout] = useState([]);
   const [chartType, setChartType] = useState();
-  const { isOpen, closeModal, openModal } = useModal();
 
+  const { isOpen, closeModal, openModal } = useModal();
   const allDashboards = useFetch(api.getAllDashBoard);
+  const {
+    loadingState,
+    startLoader,
+    stopLoaderAfterError,
+    stopLoaderAfterSuccess,
+  } = useInlineLoader();
 
   useEffect(() => {
     if (allDashboards && allDashboards.dashboards.length > 0) {
@@ -45,7 +50,7 @@ function DashboardLayout({ classes }) {
       const { name, _id, count } = firstDashboard;
       setWidgets(firstDashboard.widgets);
       setLayout(firstDashboard.layout);
-      setDashboardConfig((prevState) => ({ ...prevState, name, id: _id, count }));
+      setDashboardConfig({ name, id: _id, count });
     }
   }, [allDashboards]);
 
@@ -74,6 +79,7 @@ function DashboardLayout({ classes }) {
     setChartType(selectedChartType);
   }
   function onClickOfSaveDashboard() {
+    startLoader(`Saving ${dashboardConfig.name}...`);
     api
       .saveDashboard({
         widgets,
@@ -86,16 +92,11 @@ function DashboardLayout({ classes }) {
         setDashboardConfig((prevState) => ({
           ...prevState,
           id: data.dashboardId,
-          message: 'Dashboard Saved Successfully',
-          messageType: 'success',
         }));
+        stopLoaderAfterSuccess(`Dashboard ${dashboardConfig.name} Saved Successfully`);
       })
       .catch(() => {
-        setDashboardConfig((prevState) => ({
-          ...prevState,
-          message: 'Failed to save dashboard',
-          messageType: 'error',
-        }));
+        stopLoaderAfterError(`Failed to save dashboard ${dashboardConfig.name}`);
       });
   }
 
@@ -123,9 +124,9 @@ function DashboardLayout({ classes }) {
           <Button onClick={onClickOfSaveDashboard} variant="contained" color="primary">
             {labels.dashboardLayout.SAVE_DASHBOARD_BUTTON}
           </Button>
-          {!!dashboardConfig.message && (
+          {!!loadingState.message && (
             <FormHelperText error={dashboardConfig.messageType === 'error'}>
-              {dashboardConfig.message}
+              {loadingState.message}
             </FormHelperText>
           )}
         </Box>

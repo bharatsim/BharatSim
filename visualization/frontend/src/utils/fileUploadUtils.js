@@ -1,27 +1,13 @@
 import csvParser from 'papaparse';
 import dataTypesMapping from '../constants/dataTypesMapping';
 import csvParserConfig from '../config/csvParserConfig';
+import { loaderStates } from '../hook/useInlineLoader';
 
-const fileUploadedStatus = {
-  LOADING: 'loading',
-  SUCCESS: 'success',
-  ERROR: 'error',
-};
-
-function getStatusAndMessageFor(fileUploadStatus, fileName) {
+function getMessage(fileUploadStatus, fileName) {
   return {
-    [fileUploadedStatus.ERROR]: {
-      status: fileUploadedStatus.ERROR,
-      message: `Error occurred while unloading ${fileName}`,
-    },
-    [fileUploadedStatus.SUCCESS]: {
-      status: fileUploadedStatus.SUCCESS,
-      message: `${fileName} successfully uploaded`,
-    },
-    [fileUploadedStatus.LOADING]: {
-      status: fileUploadedStatus.LOADING,
-      message: `uploading ${fileName}`,
-    },
+    [loaderStates.ERROR]: `Error occurred while unloading ${fileName}`,
+    [loaderStates.SUCCESS]: `${fileName} successfully uploaded`,
+    [loaderStates.LOADING]: `uploading ${fileName}`,
   }[fileUploadStatus];
 }
 function createSchema(row) {
@@ -45,4 +31,4 @@ function resetFileInput(fileInput) {
   fileInput.files = null;
 }
 
-export { fileUploadedStatus, getStatusAndMessageFor, createSchema, parseCsv, resetFileInput };
+export { getMessage, createSchema, parseCsv, resetFileInput };

@@ -10,30 +10,6 @@ describe('<FileInput />', () => {
     expect(container).toMatchSnapshot();
   });
 
-  it('should display file upload status', () => {
-    const { queryByText } = render(
-      <FileInput
-        onChange={jest.fn()}
-        fileUploadStatus="loading"
-        fileUploadStatusMessage="Loading..."
-      />,
-    );
-
-    expect(queryByText('Loading...')).toBeInTheDocument();
-  });
-
-  it('should display file upload status for error with error class', () => {
-    const { queryByText } = render(
-      <FileInput
-        onChange={jest.fn()}
-        fileUploadStatus="error"
-        fileUploadStatusMessage="error while upload"
-      />,
-    );
-
-    expect(queryByText('error while upload')).toMatchSnapshot();
-  });
-
   it('should display validation error if selected object is not file', () => {
     const { queryByText } = render(
       <FileInput onChange={jest.fn()} error="Please upload valid csv a file" />,
