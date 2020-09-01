@@ -36,9 +36,9 @@ describe('Dashboard layout utils', () => {
 
       expect(layout).toEqual({
         i: 'widget-2',
-        x: 4,
+        x: 0,
         y: Infinity,
-        w: 2,
+        w: 6,
         h: 2,
       });
     });

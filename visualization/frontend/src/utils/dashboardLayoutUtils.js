@@ -17,9 +17,9 @@ export function renderElement({ layout, chartType, config }) {
 export function getNewWidgetLayout(numberOfWidgetAdded, cols, count) {
   return createLayout({
     id: `widget-${count}`,
-    xPosition: (numberOfWidgetAdded * 2) % cols,
+    xPosition: (numberOfWidgetAdded * 6) % cols,
     yPosition: Infinity, // puts it at the bottom
-    width: 2,
+    width: 6,
     height: 2,
   });
 }

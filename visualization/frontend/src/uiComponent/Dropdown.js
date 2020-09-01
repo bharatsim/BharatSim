@@ -39,7 +39,16 @@ function renderMenuItems(id, options) {
   );
 }
 
-export default function Dropdown({ label, options, id, error, value, onChange, ...rest }) {
+export default function Dropdown({
+  label,
+  options,
+  id,
+  error,
+  value,
+  onChange,
+  multiple,
+  ...rest
+}) {
   const classes = useStyles();
 
   function handleChange(event) {
@@ -54,6 +63,7 @@ export default function Dropdown({ label, options, id, error, value, onChange, .
         id={id}
         value={value}
         onChange={handleChange}
+        multiple={multiple}
         label={label}
         data-testid={id}
         MenuProps={{ id: `menu-${id}` }}
@@ -70,7 +80,9 @@ const valuePropType = PropTypes.oneOfType([
   PropTypes.string,
   PropTypes.shape({}),
   PropTypes.number,
+  PropTypes.array,
 ]);
+
 Dropdown.defaultProps = {
   error: '',
 };

@@ -17,7 +17,7 @@ describe('Validators', () => {
 
   describe('Y axis validator', () => {
     it('should provide message if y axis value is not present', () => {
-      expect(yAxisValidator(null)).toEqual('Please select value for y axis');
+      expect(yAxisValidator(null)).toEqual('Please select valid value for y axis');
     });
 
     it('should provide message if y axis value undefined', () => {
@@ -25,17 +25,17 @@ describe('Validators', () => {
     });
 
     it('should provide message if selected y axis type is not number', () => {
-      expect(yAxisValidator({ name: 'y-axis', type: 'string' })).toEqual(
+      expect(yAxisValidator([{ name: 'y-axis', type: 'string' }])).toEqual(
         'Please select number type option',
       );
     });
 
     it('should provide empty message if selected y axis type is number', () => {
-      expect(yAxisValidator({ name: 'y-axis', type: 'number' })).toEqual('');
+      expect(yAxisValidator([{ name: 'y-axis', type: 'number' }])).toEqual('');
     });
 
     it('should provide empty message if selected y axis type is Number', () => {
-      expect(yAxisValidator({ name: 'y-axis', type: 'Number' })).toEqual('');
+      expect(yAxisValidator([{ name: 'y-axis', type: 'Number' }])).toEqual('');
     });
   });
 

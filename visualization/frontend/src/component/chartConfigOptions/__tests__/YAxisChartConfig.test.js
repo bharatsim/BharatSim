@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { selectDropDownOption } from '../../../testUtil';
+import { selectDropDownOption, selectDropDownOptionForMultiselect } from '../../../testUtil';
 import YAxisChartConfig from '../YAxisChartConfig';
 
 describe('<YAxisChartConfig />', () => {
@@ -14,6 +14,9 @@ describe('<YAxisChartConfig />', () => {
     configKey: 'yAxis',
     error: '',
   };
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   it('should match snapshot', () => {
     const { container } = render(<YAxisChartConfig {...props} />);
 
@@ -25,6 +28,15 @@ describe('<YAxisChartConfig />', () => {
 
     selectDropDownOption(renderedContainer, 'dropdown-y', 'a');
 
-    expect(props.updateConfigState).toHaveBeenCalledWith('yAxis', { name: 'a', type: 'number' });
+    expect(props.updateConfigState).toHaveBeenCalledWith('yAxis', [{ name: 'a', type: 'number' }]);
+  });
+  it('should call setConfig callback after value change for multiple axis', () => {
+    const renderedContainer = render(<YAxisChartConfig {...props} />);
+
+    selectDropDownOptionForMultiselect(renderedContainer, 'dropdown-y', ['a', 'b']);
+
+    expect(props.updateConfigState).toHaveBeenCalledWith('yAxis', [{ name: 'a', type: 'number' }]);
+    expect(props.updateConfigState).toHaveBeenCalledWith('yAxis', [{ name: 'b', type: 'number' }]);
+    expect(props.updateConfigState).toHaveBeenCalledTimes(2);
   });
 });

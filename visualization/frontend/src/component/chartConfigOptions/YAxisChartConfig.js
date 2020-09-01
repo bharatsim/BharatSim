@@ -16,7 +16,8 @@ function YAxisChartConfig({ headers, updateConfigState, configKey, error, value 
       id="dropdown-y"
       label="select y axis"
       error={error}
-      value={value || ''}
+      value={value || []}
+      multiple
     />
   );
 }
@@ -36,10 +37,12 @@ YAxisChartConfig.propTypes = {
   updateConfigState: PropTypes.func.isRequired,
   configKey: PropTypes.string.isRequired,
   error: PropTypes.string,
-  value: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-  }),
+  value: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+    }),
+  ),
 };
 
 export default YAxisChartConfig;

@@ -116,10 +116,12 @@ describe('<ChartConfigModal />', () => {
     expect(props.onOk).toHaveBeenCalledWith({
       dataSource: 'id1',
       xAxis: 'x-header',
-      yAxis: {
-        name: 'y-header',
-        type: 'number',
-      },
+      yAxis: [
+        {
+          name: 'y-header',
+          type: 'number',
+        },
+      ],
     });
   });
 

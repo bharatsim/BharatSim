@@ -11,13 +11,28 @@ describe('LineChart', () => {
     useFetch.mockReturnValue({ data: { exposed: [2, 3], hour: [1, 2] } });
   });
 
-  it('should have fetched text in <LineChart /> component', () => {
+  it('should create a line chart with single yaxis <LineChart /> component', () => {
     const { container } = render(
       <LineChart
         config={{
           dataSource: 'dataSource',
           xAxis: 'hour',
-          yAxis: { type: 'number', name: 'exposed' },
+          yAxis: [{ type: 'number', name: 'exposed' }],
+        }}
+      />,
+    );
+    expect(container).toMatchSnapshot();
+  });
+  it('should create a line chart with multiple yaxis <LineChart /> component', () => {
+    const { container } = render(
+      <LineChart
+        config={{
+          dataSource: 'dataSource',
+          xAxis: 'hour',
+          yAxis: [
+            { type: 'number', name: 'exposed' },
+            { type: 'number', name: 'suseptible' },
+          ],
         }}
       />,
     );

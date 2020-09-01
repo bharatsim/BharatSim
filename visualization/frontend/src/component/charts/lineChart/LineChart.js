@@ -2,37 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Line } from 'react-chartjs-2';
 import useFetch from '../../../hook/useFetch';
-import chartConfigStyles from './lineChartStyling';
+import { chartConfig, lineChartOptions } from './lineChartStyling';
 import { api } from '../../../utils/api';
-
-const options = {
-  maintainAspectRatio: false,
-  responsive: true,
-  animation: {
-    duration: 0, // general animation time
-  },
-  hover: {
-    animationDuration: 0, // duration of animations when hovering an item
-  },
-  responsiveAnimationDuration: 0,
-  elements: {
-    line: {
-      tension: 0, // disables bezier curves
-    },
-  },
-  scales: {
-    yAxes: [
-      {
-        id: 'first-y-axis',
-        type: 'linear',
-        ticks: {
-          sampleSize: 10,
-          min: 0,
-        },
-      },
-    ],
-  },
-};
 
 function LineChart({ config }) {
   const {
@@ -50,13 +21,13 @@ function LineChart({ config }) {
     labels: csvData && csvData.data[xColumn],
     datasets: [
       {
-        ...chartConfigStyles.datasets[0],
+        ...chartConfig.datasets[0],
         data: csvData && csvData.data[yColumn],
       },
     ],
   };
 
-  return <Line data={data} options={options} />;
+  return <Line data={data} options={lineChartOptions} />;
 }
 
 LineChart.displayName = 'LineChart';
@@ -65,10 +36,12 @@ LineChart.propTypes = {
   config: PropTypes.shape({
     dataSource: PropTypes.string.isRequired,
     xAxis: PropTypes.string.isRequired,
-    yAxis: PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      type: PropTypes.string.isRequired,
-    }).isRequired,
+    yAxis: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        type: PropTypes.string.isRequired,
+      }),
+    ).isRequired,
   }).isRequired,
 };
 

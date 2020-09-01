@@ -1,6 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`LineChart should have fetched text in <LineChart /> component 1`] = `
+exports[`LineChart should create a line chart with multiple yaxis <LineChart /> component 1`] = `
+<div>
+  <canvas
+    class="chartjs-render-monitor"
+    height="0"
+    style="display: block;"
+    width="0"
+  />
+</div>
+`;
+
+exports[`LineChart should create a line chart with single yaxis <LineChart /> component 1`] = `
 <div>
   <canvas
     class="chartjs-render-monitor"

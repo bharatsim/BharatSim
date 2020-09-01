@@ -5,7 +5,7 @@ exports[`<DashboardLayout /> should add new widget with bar chart 1`] = `
   class="react-grid-item react-draggable cssTransforms react-resizable"
   data-grid="[object Object]"
   data-testid="widget-0"
-  style="transform: translate(10px,10px); width: -12px; height: 310px; position: absolute;"
+  style="transform: translate(10px,10px); width: -15px; height: 310px; position: absolute;"
 >
   <div
     style="height: 100%; width: 100%; box-sizing: border-box; padding: 10px;"
@@ -28,7 +28,7 @@ exports[`<DashboardLayout /> should add new widget with line chart 1`] = `
   class="react-grid-item react-draggable cssTransforms react-resizable"
   data-grid="[object Object]"
   data-testid="widget-0"
-  style="transform: translate(10px,10px); width: -12px; height: 310px; position: absolute;"
+  style="transform: translate(10px,10px); width: -15px; height: 310px; position: absolute;"
 >
   <div
     style="height: 100%; width: 100%; box-sizing: border-box; padding: 10px;"

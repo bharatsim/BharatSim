@@ -9,3 +9,12 @@ export function selectDropDownOption(container, dropDownId, optionId) {
   );
   fireEvent.click(options.getByTestId(`${dropDownId}-${optionId}`));
 }
+
+export function selectDropDownOptionForMultiselect(container, dropDownId, optionIds) {
+  const dropDown = container.getByTestId(dropDownId);
+  fireEvent.mouseDown(within(dropDown).getByRole('button'));
+  const options = within(
+    within(document.getElementById(`menu-${dropDownId}`)).getByRole('listbox'),
+  );
+  optionIds.forEach((id) => fireEvent.click(options.getByTestId(`${dropDownId}-${id}`)));
+}

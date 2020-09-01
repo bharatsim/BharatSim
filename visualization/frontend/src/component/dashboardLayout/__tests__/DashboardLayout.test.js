@@ -176,10 +176,10 @@ describe('<DashboardLayout />', () => {
         {
           config: 'config',
           chartType: 'barChart',
-          layout: { i: 'widget-0', x: 0, y: Infinity, w: 2, h: 2 },
+          layout: { i: 'widget-0', x: 0, y: Infinity, w: 6, h: 2 },
         },
       ],
-      layout: [{ w: 2, h: 2, x: 0, y: 0, i: 'widget-0', moved: false, static: false }],
+      layout: [{ w: 6, h: 2, x: 0, y: 0, i: 'widget-0', moved: false, static: false }],
       dashboardId: null,
       name: 'dashboard1',
       count: 1,
