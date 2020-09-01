@@ -2,29 +2,33 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Line } from 'react-chartjs-2';
 import useFetch from '../../../hook/useFetch';
-import { chartConfig, lineChartOptions } from './lineChartStyling';
+import { chartConfig, getColor, lineChartOptions } from '../chartConfig';
 import { api } from '../../../utils/api';
 
+function getYaxisNames(yColumns) {
+  return yColumns.map((yColumn) => yColumn.name);
+}
 function LineChart({ config }) {
-  const {
-    xAxis: xColumn,
-    yAxis: { name: yColumn },
-    dataSource,
-  } = config;
-
+  const { xAxis: xColumn, yAxis, dataSource } = config;
+  const yColumns = getYaxisNames(yAxis);
   const csvData = useFetch(api.getData, {
     params: dataSource,
-    query: { columns: [xColumn, yColumn] },
+    query: { columns: [xColumn, ...yColumns] },
   });
 
   const data = {
     labels: csvData && csvData.data[xColumn],
-    datasets: [
-      {
-        ...chartConfig.datasets[0],
-        data: csvData && csvData.data[yColumn],
-      },
-    ],
+    datasets:
+      csvData &&
+      yColumns.map((yColumn, index) => {
+        return {
+          ...chartConfig.datasets[0],
+          label: yColumn,
+          borderColor: getColor(index),
+          backgroundColor: getColor(index),
+          data: csvData && csvData.data[yColumn],
+        };
+      }),
   };
 
   return <Line data={data} options={lineChartOptions} />;

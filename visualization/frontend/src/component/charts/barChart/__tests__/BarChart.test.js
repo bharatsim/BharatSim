@@ -17,7 +17,7 @@ describe('BarChart', () => {
         config={{
           dataSource: 'dataSource',
           xAxis: 'hour',
-          yAxis: { type: 'number', name: 'exposed' },
+          yAxis: [{ type: 'number', name: 'exposed' }],
         }}
       />,
     );
