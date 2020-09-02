@@ -14,15 +14,11 @@ function getColor(index) {
 }
 
 const chartConfig = {
-  datasets: [
-    {
-      fill: false,
-      borderWidth: 1,
-      pointBorderWidth: 1,
-      pointRadius: 1,
-      pointHitRadius: 10,
-    },
-  ],
+  fill: false,
+  borderWidth: 1,
+  pointBorderWidth: 1,
+  pointRadius: 1,
+  pointHitRadius: 10,
 };
 
 const lineChartOptions = {
