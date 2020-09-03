@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Box, Button, FormHelperText } from '@material-ui/core';
+import { Box, Button } from '@material-ui/core';
 
 import useForm from '../../hook/useForm';
 import FileInput from '../../uiComponent/FileInput';
@@ -10,6 +10,7 @@ import { api } from '../../utils/api';
 import { validateFile } from '../../utils/validators';
 import { getMessage, parseCsv, resetFileInput } from '../../utils/fileUploadUtils';
 import useInlineLoader, { loaderStates } from '../../hook/useInlineLoader';
+import InlineLoader from '../loader/InlineLoader';
 
 const FILE_INPUT_KEY = 'fileInput';
 
@@ -90,11 +91,7 @@ function FileUpload() {
           ref={ref}
         />
       </Box>
-      {!!loadingState.message && (
-        <FormHelperText error={loadingState.state === loadingState.ERROR}>
-          {loadingState.message}
-        </FormHelperText>
-      )}
+      <InlineLoader status={loadingState.state} message={loadingState.message} />
       <Button
         type="button"
         onClick={validateAndParseCsv}

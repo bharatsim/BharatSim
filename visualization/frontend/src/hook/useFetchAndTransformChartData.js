@@ -1,6 +1,6 @@
 import useFetch from './useFetch';
 import { api } from '../utils/api';
-import { chartConfig, getColor } from '../component/charts/chartConfig';
+import { chartStyleConfig, getColor } from '../component/charts/chartStyleConfig';
 
 function getYaxisNames(yColumns) {
   return yColumns.map((yColumn) => yColumn.name);
@@ -21,7 +21,7 @@ export default function useFetchAndTransformChartData(config) {
       csvData &&
       yColumns.map((yColumn, index) => {
         return {
-          ...chartConfig,
+          ...chartStyleConfig,
           label: yColumn,
           borderColor: getColor(index),
           backgroundColor: getColor(index),

@@ -13,7 +13,7 @@ function getColor(index) {
   return colors[index % colors.length];
 }
 
-const chartConfig = {
+const chartStyleConfig = {
   fill: false,
   borderWidth: 1,
   pointBorderWidth: 1,
@@ -50,4 +50,4 @@ const lineChartOptions = {
   },
 };
 
-export { chartConfig, getColor, lineChartOptions };
+export { chartStyleConfig, getColor, lineChartOptions };

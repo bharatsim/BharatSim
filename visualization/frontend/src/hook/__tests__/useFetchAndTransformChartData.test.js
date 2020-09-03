@@ -1,7 +1,7 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react-hooks';
 import useFetchAndTransformChartData from '../useFetchAndTransformChartData';
 import useFetch from '../useFetch';
-import { chartConfig } from '../../component/charts/chartConfig';
+import { chartStyleConfig } from '../../component/charts/chartStyleConfig';
 
 jest.mock('../useFetch');
 
@@ -21,7 +21,7 @@ describe('Use FetchAndTransformChartData hook', () => {
       labels: [1, 2],
       datasets: [
         {
-          ...chartConfig,
+          ...chartStyleConfig,
           label: 'exposed',
           borderColor: '#4dc9f6',
           backgroundColor: '#4dc9f6',

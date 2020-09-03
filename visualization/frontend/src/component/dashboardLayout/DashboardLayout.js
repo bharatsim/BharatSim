@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { Box, Button, FormHelperText, withStyles } from '@material-ui/core';
+import { Box, Button, withStyles } from '@material-ui/core';
 import ReactGridLayout, { WidthProvider } from 'react-grid-layout';
 
 import 'react-grid-layout/css/styles.css';
@@ -11,15 +11,15 @@ import styles from './dashboardLayoutCss';
 import { getNewWidgetLayout, renderElement } from '../../utils/dashboardLayoutUtils';
 import labels from '../../constants/labels';
 import ChartConfigModal from '../chartConfigModal/ChartConfigModal';
-import ButtonGroup from '../../uiComponent/ButtonGroup';
 import FileUpload from '../fileUpload/FileUpload';
 
 import useFetch from '../../hook/useFetch';
 
 import useModal from '../../hook/useModal';
-import chartConfigs from '../../config/chartConfigs';
 import { api } from '../../utils/api';
 import useInlineLoader from '../../hook/useInlineLoader';
+import ChartSelector from '../chartSelector/ChartSelector';
+import InlineLoader from '../loader/InlineLoader';
 
 const GridLayout = WidthProvider(ReactGridLayout);
 
@@ -74,7 +74,7 @@ function DashboardLayout({ classes }) {
     setLayout(changedLayout);
   }
 
-  function oneChartClick(selectedChartType) {
+  function onChartClick(selectedChartType) {
     openModal();
     setChartType(selectedChartType);
   }
@@ -106,29 +106,12 @@ function DashboardLayout({ classes }) {
         <FileUpload />
       </Box>
       <Box pb={2} display="flex" justifyContent="space-between">
-        <ButtonGroup>
-          {Object.values(chartConfigs).map((chart) => {
-            return (
-              <Button
-                key={chart.key}
-                onClick={() => oneChartClick(chart.key)}
-                variant="contained"
-                color="primary"
-              >
-                {chart.label}
-              </Button>
-            );
-          })}
-        </ButtonGroup>
+        <ChartSelector onClick={onChartClick} />
         <Box>
           <Button onClick={onClickOfSaveDashboard} variant="contained" color="primary">
             {labels.dashboardLayout.SAVE_DASHBOARD_BUTTON}
           </Button>
-          {!!loadingState.message && (
-            <FormHelperText error={dashboardConfig.messageType === 'error'}>
-              {loadingState.message}
-            </FormHelperText>
-          )}
+          <InlineLoader status={loadingState.state} message={loadingState.message} />
         </Box>
       </Box>
       <GridLayout

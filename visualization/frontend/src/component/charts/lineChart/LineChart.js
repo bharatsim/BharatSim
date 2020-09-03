@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Line } from 'react-chartjs-2';
-import { lineChartOptions } from '../chartConfig';
+import { lineChartOptions } from '../chartStyleConfig';
 import useFetchAndTransformChartData from '../../../hook/useFetchAndTransformChartData';
 
 function LineChart({ config }) {
