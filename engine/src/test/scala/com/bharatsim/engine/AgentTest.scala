@@ -21,19 +21,19 @@ class AgentTest extends AnyFunSuite {
     val mockBehaviour1 = (context: Context) => {}
     val mockBehaviour2 = (context: Context) => {}
     val agent = new Agent()
-    agent.addBehaviour(mockBehaviour1);
-    agent.addBehaviour(mockBehaviour2);
+    agent.addBehaviour(mockBehaviour1)
+    agent.addBehaviour(mockBehaviour2)
 
     agent.behaviours should have length 2
-    agent.behaviours(0) shouldBe mockBehaviour1
+    agent.behaviours.head shouldBe mockBehaviour1
     agent.behaviours(1) shouldBe mockBehaviour2
   }
 
   test("Should allow to set network") {
     val agent = new Agent()
-    val network = new Network();
+    val network = new Network()
     agent.setNetwork(network)
-    agent.getNetwork().get shouldBe network
+    agent.getNetwork.get shouldBe network
   }
 
 }

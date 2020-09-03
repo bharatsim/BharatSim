@@ -5,27 +5,22 @@ import com.bharatsim.engine.Agent.idGenerator
 import scala.collection.mutable
 
 class Agent(identifier: Int = idGenerator.generateId) extends Identity {
-  import Agent._
-  override val id = identifier;
+  override val id: Int = identifier
   private[engine] val behaviours: mutable.ListBuffer[Function[Context, Unit]] =
     mutable.ListBuffer.empty
-  private var network: Option[Network] = None;
+  private var network: Option[Network] = None
 
-  def getNetwork(): Option[Network] = {
-    network;
-  }
+  def getNetwork: Option[Network] = network
 
   private[engine] def setNetwork(newNetwork: Network): Unit = {
     network = Some(newNetwork)
   }
 
-  protected[engine] def addBehaviour(
-      behaviour: Function[Context, Unit]
-  ): Unit = {
+  protected[engine] def addBehaviour(behaviour: Function[Context, Unit]): Unit = {
     behaviours.addOne(behaviour)
   }
 }
 
 object Agent {
-  private val idGenerator = new IdGenerator;
+  private val idGenerator = new IdGenerator
 }

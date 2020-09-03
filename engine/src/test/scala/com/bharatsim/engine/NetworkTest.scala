@@ -36,10 +36,10 @@ class NetworkTest extends AnyFunSuite with MockitoSugar {
     network.connectAgent(agent1)
     network.connectAgent(agent2)
 
-    val members = network.getMembers().toList
+    val members = network.getMembers.toList
     members should have length 2
-    members should contain(agent1);
-    members should contain(agent2);
+    members should contain(agent1)
+    members should contain(agent2)
   }
 
   test(
@@ -54,10 +54,10 @@ class NetworkTest extends AnyFunSuite with MockitoSugar {
 
     newNetwork.connectAgent(agent1)
 
-    val membersOfPreviousNetwork = previousNetwork.getMembers().toList
-    val membersOfNewNetwork = newNetwork.getMembers().toList
+    val membersOfPreviousNetwork = previousNetwork.getMembers.toList
+    val membersOfNewNetwork = newNetwork.getMembers.toList
 
-    membersOfPreviousNetwork should not contain (agent1)
+    membersOfPreviousNetwork should not contain agent1
     membersOfPreviousNetwork should contain(agent2)
     membersOfNewNetwork should contain(agent1)
   }
@@ -69,7 +69,7 @@ class NetworkTest extends AnyFunSuite with MockitoSugar {
     network.connectAgent(agent1)
     network.connectAgent(agent1)
 
-    val members = network.getMembers().toList
+    val members = network.getMembers.toList
 
     members should contain(agent1)
     members should have length 1

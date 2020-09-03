@@ -11,9 +11,9 @@ class CollectionTest extends AnyFunSuite {
     val agents = new Collection[Agent]
     agents.add(agent1)
     agents.add(agent2)
-    agents.getAll()
+    agents.getAll
 
-    val agentsList = agents.getAll().toList
+    val agentsList = agents.getAll.toList
     agentsList should have length 2
   }
 
