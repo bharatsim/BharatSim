@@ -1,20 +1,19 @@
 package com.bharatsim.model
-
-import com.bharatsim.engine.{Context, Network, Simulation}
+import com.bharatsim.engine.{Context, Simulation}
 
 import scala.util.Random
 
 object Main {
   def steUpContext(context: Context): Unit = {
-    val numberOfCitizen = 10
-    val house = new Network
-    context.networks.add(house)
-    for (_ <- 1 to numberOfCitizen) {
-      val citizen = new Citizen
-      house.connectAgent(citizen)
-      citizen.infectionStatus =
-        if (Random.nextBoolean()) Infected else Susceptible
+
+    val numberOfCitizen = 10;
+    val house = new House
+
+    for (i <- 1 to numberOfCitizen) {
+      val citizen = new Citizen()
+      citizen.infectionStatus = if (Random.nextBoolean()) Infected else Susceptible
       context.agents.add(citizen)
+      house.addMember(citizen)
     }
     context.simulationContext.setSteps(10)
     context.setDynamics(Disease)

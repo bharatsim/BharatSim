@@ -5,14 +5,12 @@ import org.scalatest.matchers.should.Matchers._
 
 class AgentTest extends AnyFunSuite {
 
-  test("Should have Id") {
+  test("Should be instanceOf Node") {
     val agent = new Agent()
-
-    agent.id shouldBe a[Int]
+    agent shouldBe a[Node]
   }
 
   test("Should be able to give Id") {
-
     val agent = new Agent(1)
     agent.id shouldBe 1
   }
@@ -27,13 +25,6 @@ class AgentTest extends AnyFunSuite {
     agent.behaviours should have length 2
     agent.behaviours.head shouldBe mockBehaviour1
     agent.behaviours(1) shouldBe mockBehaviour2
-  }
-
-  test("Should allow to set network") {
-    val agent = new Agent()
-    val network = new Network()
-    agent.setNetwork(network)
-    agent.getNetwork.get shouldBe network
   }
 
 }
