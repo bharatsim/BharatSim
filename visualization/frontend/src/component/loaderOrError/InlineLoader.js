@@ -14,7 +14,7 @@ function InlineLoader({ status, message }) {
 }
 
 InlineLoader.propTypes = {
-  status: PropTypes.oneOf(['',...Object.values(loaderStates)]).isRequired,
+  status: PropTypes.oneOf(['', ...Object.values(loaderStates)]).isRequired,
   message: PropTypes.string.isRequired,
 };
 

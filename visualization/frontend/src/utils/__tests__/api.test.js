@@ -65,7 +65,7 @@ describe('API', () => {
       url: '/api/dataSources/id/headers',
     };
 
-    api.getCsvHeaders(dataId);
+    api.getCsvHeaders({ data: dataId });
 
     expect(fetchData).toHaveBeenCalledWith(expectedParameter);
   });
@@ -76,7 +76,7 @@ describe('API', () => {
       url: '/api/dataSources/id/headers',
     };
 
-    api.getCsvHeaders(dataId);
+    api.getCsvHeaders({ data: dataId });
 
     expect(fetchData).toHaveBeenCalledWith(expectedParameter);
   });

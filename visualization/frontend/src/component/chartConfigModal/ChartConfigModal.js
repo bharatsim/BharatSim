@@ -1,22 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Box, Typography, withStyles } from '@material-ui/core';
-import Dropdown from '../../uiComponent/Dropdown';
-import renderChartConfig from '../chartConfigOptions/renderChartConfig';
+import { Box, withStyles } from '@material-ui/core';
 import styles from './chartConfigModalCss';
 
-import useFetch from '../../hook/useFetch';
 import useForm from '../../hook/useForm';
 import chartConfigs from '../../config/chartConfigs';
 import Modal from '../../uiComponent/Modal';
-import { api } from '../../utils/api';
 import { datasourceValidator } from '../../utils/validators';
-import { convertObjectArrayToOptionStructure } from '../../utils/helper';
+import DatasourceSelector from './DatasourceSelector';
+import ChartConfigSelector from './ChartConfigSelector';
+import useFetch from '../../hook/useFetch';
+import { api } from '../../utils/api';
 
 function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
-  const [headers, setHeaders] = React.useState([]);
-  const datasources = useFetch(api.getDatasources);
   const {
     values,
     validateAndSetValue,
@@ -29,15 +26,11 @@ function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
     dataSource: datasourceValidator,
   });
 
-  if (!datasources) {
-    return null;
-  }
+  const { data: datasources, loadingState } = useFetch(api.getDatasources);
 
   async function handleDataSourceChange(dataSourceId) {
     resetFields(chartConfigs[chartType].configOptions);
     validateAndSetValue('dataSource', dataSourceId);
-    const csvHeaders = await api.getCsvHeaders(dataSourceId);
-    setHeaders(csvHeaders.headers);
   }
 
   function handleOk() {
@@ -46,40 +39,29 @@ function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
     });
   }
 
-  const chartConfigProps = { headers, updateConfigState: validateAndSetValue, errors, values };
-
-  const isDatasourcePresent = datasources.dataSources.length !== 0;
-
   const modalActions = [
     { name: 'Ok', handleClick: handleOk, type: 'primary', isDisable: !shouldEnableSubmit() },
     { name: 'Cancel', handleClick: onCancel, type: 'secondary' },
   ];
 
   return (
-    <Modal
-      handleClose={onCancel}
-      open={open}
-      title="Configure Chart"
-      actions={isDatasourcePresent ? modalActions : []}
-    >
+    <Modal handleClose={onCancel} open={open} title="Configure Chart" actions={modalActions}>
       <Box className={classes.root} p={2}>
-        {isDatasourcePresent ? (
-          <Box>
-            <Dropdown
-              options={convertObjectArrayToOptionStructure(datasources.dataSources, 'name', '_id')}
-              onChange={handleDataSourceChange}
-              id="dropdown-dataSources"
-              label="select data source"
-              error={errors.dataSource || ''}
-              value={values.dataSource || ''}
-            />
-            {!!headers.length &&
-              renderChartConfig(chartConfigs[chartType].configOptions, chartConfigProps)}
-          </Box>
-        ) : (
-          <Box>
-            <Typography>No data source present, upload data source</Typography>
-          </Box>
+        <DatasourceSelector
+          value={values.dataSource}
+          error={errors.dataSource}
+          handleDataSourceChange={handleDataSourceChange}
+          datasources={datasources && datasources.dataSources}
+          loadingState={loadingState}
+        />
+        {!!values.dataSource && (
+          <ChartConfigSelector
+            dataSourceId={values.dataSource}
+            chartType={chartType}
+            updateConfigState={validateAndSetValue}
+            errors={errors}
+            values={values}
+          />
         )}
       </Box>
     </Modal>

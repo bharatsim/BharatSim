@@ -37,7 +37,7 @@ const api = {
       headers: headerBuilder({ contentType: contentTypes.FILE }),
     }),
 
-  getCsvHeaders: async (dataSourceId) => fetchData({ url: serviceURL.getHeaderUrl(dataSourceId) }),
+  getCsvHeaders: async ({ data }) => fetchData({ url: serviceURL.getHeaderUrl(data) }),
 
   getDatasources: async () => fetchData({ url: serviceURL.DATA_SOURCES }),
 

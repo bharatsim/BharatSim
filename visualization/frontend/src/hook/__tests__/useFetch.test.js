@@ -16,7 +16,7 @@ describe('Use fetch hook', () => {
 
     await waitForNextUpdate();
 
-    expect(result.current).toEqual('Hello Welcome');
+    expect(result.current.data).toEqual('Hello Welcome');
     expect(api).toHaveBeenCalledWith({ data: undefined, params: undefined, query: undefined });
   });
 
@@ -31,11 +31,36 @@ describe('Use fetch hook', () => {
 
     await waitForNextUpdate();
 
-    expect(result.current).toEqual('Hello Welcome');
+    expect(result.current.data).toEqual('Hello Welcome');
     expect(api).toHaveBeenCalledWith({
       data: 'data',
       params: 'params',
       query: 'query',
     });
+  });
+
+  it('should return success for loading state if data fetch is successful', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useFetch(api));
+
+    await waitForNextUpdate();
+
+    expect(result.current.loadingState).toEqual('SUCCESS');
+  });
+
+  it('should return loading for loading state if data fetch is unsuccessful', async () => {
+    api = jest.fn().mockRejectedValue('error');
+    const { result, waitForNextUpdate } = renderHook(() => useFetch(api));
+
+    await waitForNextUpdate();
+
+    expect(result.current.loadingState).toEqual('ERROR');
+  });
+
+  it('should return error for loading state while fetching data', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useFetch(api));
+
+    expect(result.current.loadingState).toEqual('LOADING');
+
+    await waitForNextUpdate();
   });
 });

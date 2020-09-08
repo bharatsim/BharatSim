@@ -5,7 +5,7 @@ import InlineLoader from '../InlineLoader';
 
 describe('<InlineLoader />', () => {
   it('should match snapshot', () => {
-    const { container } = render(<InlineLoader status="LOADING" message="Loading..." />);
+    const { container } = render(<InlineLoader status="LOADING" message="Loader..." />);
 
     expect(container).toMatchSnapshot();
   });

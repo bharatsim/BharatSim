@@ -2,12 +2,17 @@ import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import PropTypes from 'prop-types';
 import useFetchAndTransformChartData from '../../../hook/useFetchAndTransformChartData';
+import LoaderOrError from '../../loaderOrError/LoaderOrError';
 
 const options = { maintainAspectRatio: false, responsive: true };
 
 function BarChart({ config }) {
-  const data = useFetchAndTransformChartData(config);
-  return <Bar data={data} options={options} />;
+  const { data, loadingState } = useFetchAndTransformChartData(config);
+  return (
+    <LoaderOrError loadingState={loadingState}>
+      <Bar data={data} options={options} />
+    </LoaderOrError>
+  );
 }
 
 BarChart.propTypes = {

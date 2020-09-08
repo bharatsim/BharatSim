@@ -19,7 +19,8 @@ import useModal from '../../hook/useModal';
 import { api } from '../../utils/api';
 import useInlineLoader from '../../hook/useInlineLoader';
 import ChartSelector from '../chartSelector/ChartSelector';
-import InlineLoader from '../loader/InlineLoader';
+import InlineLoader from '../loaderOrError/InlineLoader';
+import LoaderOrError from '../loaderOrError/LoaderOrError';
 
 const GridLayout = WidthProvider(ReactGridLayout);
 
@@ -36,7 +37,9 @@ function DashboardLayout({ classes }) {
   const [chartType, setChartType] = useState();
 
   const { isOpen, closeModal, openModal } = useModal();
-  const allDashboards = useFetch(api.getAllDashBoard);
+  const { data: allDashboards, loadingState: dashboardLoadingState } = useFetch(
+    api.getAllDashBoard,
+  );
   const {
     loadingState,
     startLoader,
@@ -101,37 +104,39 @@ function DashboardLayout({ classes }) {
   }
 
   return (
-    <Box pl={10} pt={10} pr={10}>
-      <Box pb={2}>
-        <FileUpload />
-      </Box>
-      <Box pb={2} display="flex" justifyContent="space-between">
-        <ChartSelector onClick={onChartClick} />
-        <Box>
-          <Button onClick={onClickOfSaveDashboard} variant="contained" color="primary">
-            {labels.dashboardLayout.SAVE_DASHBOARD_BUTTON}
-          </Button>
-          <InlineLoader status={loadingState.state} message={loadingState.message} />
+    <LoaderOrError loadingState={dashboardLoadingState}>
+      <Box pl={10} pt={10} pr={10}>
+        <Box pb={2}>
+          <FileUpload />
         </Box>
+        <Box pb={2} display="flex" justifyContent="space-between">
+          <ChartSelector onClick={onChartClick} />
+          <Box>
+            <Button onClick={onClickOfSaveDashboard} variant="contained" color="primary">
+              {labels.dashboardLayout.SAVE_DASHBOARD_BUTTON}
+            </Button>
+            <InlineLoader status={loadingState.state} message={loadingState.message} />
+          </Box>
+        </Box>
+        <GridLayout
+          layout={layout}
+          onLayoutChange={onLayoutChange}
+          className={classes.reactGridLayout}
+        >
+          {widgets.map((item) => {
+            return renderElement(item);
+          })}
+        </GridLayout>
+        {isOpen && (
+          <ChartConfigModal
+            onCancel={closeModal}
+            onOk={handleModalOk}
+            open={isOpen}
+            chartType={chartType}
+          />
+        )}
       </Box>
-      <GridLayout
-        layout={layout}
-        onLayoutChange={onLayoutChange}
-        className={classes.reactGridLayout}
-      >
-        {widgets.map((item) => {
-          return renderElement(item);
-        })}
-      </GridLayout>
-      {isOpen && (
-        <ChartConfigModal
-          onCancel={closeModal}
-          onOk={handleModalOk}
-          open={isOpen}
-          chartType={chartType}
-        />
-      )}
-    </Box>
+    </LoaderOrError>
   );
 }
 

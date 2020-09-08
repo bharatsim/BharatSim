@@ -3,10 +3,15 @@ import PropTypes from 'prop-types';
 import { Line } from 'react-chartjs-2';
 import { lineChartOptions } from '../chartStyleConfig';
 import useFetchAndTransformChartData from '../../../hook/useFetchAndTransformChartData';
+import LoaderOrError from '../../loaderOrError/LoaderOrError';
 
 function LineChart({ config }) {
-  const data = useFetchAndTransformChartData(config);
-  return <Line data={data} options={lineChartOptions} />;
+  const { data, loadingState } = useFetchAndTransformChartData(config);
+  return (
+    <LoaderOrError loadingState={loadingState}>
+      <Line data={data} options={lineChartOptions} />
+    </LoaderOrError>
+  );
 }
 
 LineChart.propTypes = {

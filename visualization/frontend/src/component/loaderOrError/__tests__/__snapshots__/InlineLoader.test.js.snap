@@ -5,7 +5,7 @@ exports[`<InlineLoader /> should match snapshot 1`] = `
   <p
     class="MuiFormHelperText-root"
   >
-    Loading...
+    Loader...
   </p>
 </div>
 `;

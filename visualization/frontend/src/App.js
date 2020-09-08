@@ -1,29 +1,29 @@
-import React, { useState } from 'react';
-import { Typography, Box, Link } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
+import React from 'react';
+import { Box, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+
 import DashboardLayout from './component/dashboardLayout/DashboardLayout';
-import { initApiConfig } from './utils/fetch';
+
+const styles = makeStyles(() => ({
+  root: {
+    height: '100vh',
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+  },
+}));
 
 function App() {
-  const [error, setError] = useState();
-
-  initApiConfig({ setError });
+  const classes = styles();
   return (
-    <>
-      {error && (
-        <Alert severity="error">
-          <span> Error occurred while loading the page </span>
-          <Link onClick={() => window.location.reload()}>Reload</Link>
-        </Alert>
-      )}
-
+    <div className={classes.root}>
       <Box pt={2} pb={2}>
         <Typography variant="h3" align="center">
           Welcome to BharatSim Visualization
         </Typography>
-        <DashboardLayout />
       </Box>
-    </>
+      <DashboardLayout />
+    </div>
   );
 }
 

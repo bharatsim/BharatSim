@@ -48,72 +48,68 @@ exports[`<ChartConfigModal /> should match a snapshot for <ChartConfigModal /> 1
       class="MuiBox-root MuiBox-root-5 ChartConfigModal-root-1"
     >
       <div
-        class="MuiBox-root MuiBox-root-6"
+        class="MuiFormControl-root makeStyles-formControl-11"
       >
-        <div
-          class="MuiFormControl-root makeStyles-formControl-7"
+        <label
+          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined"
+          data-shrink="false"
+          id="dropdown-label"
         >
-          <label
-            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined"
-            data-shrink="false"
-            id="dropdown-label"
-          >
-            select data source
-          </label>
+          select data source
+        </label>
+        <div
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-formControl"
+          data-testid="dropdown-dataSources"
+        >
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-formControl"
-            data-testid="dropdown-dataSources"
+            aria-haspopup="listbox"
+            aria-labelledby="dropdown-label dropdown-dataSources"
+            class="MuiSelect-root MuiSelect-select MuiSelect-selectMenu MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input"
+            id="dropdown-dataSources"
+            role="button"
+            tabindex="0"
           >
-            <div
-              aria-haspopup="listbox"
-              aria-labelledby="dropdown-label dropdown-dataSources"
-              class="MuiSelect-root MuiSelect-select MuiSelect-selectMenu MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input"
-              id="dropdown-dataSources"
-              role="button"
-              tabindex="0"
+            <span>
+              ​
+            </span>
+          </div>
+          <input
+            aria-hidden="true"
+            class="MuiSelect-nativeInput"
+            tabindex="-1"
+            value=""
+          />
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSelect-icon MuiSelect-iconOutlined"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M7 10l5 5 5-5z"
+            />
+          </svg>
+          <fieldset
+            aria-hidden="true"
+            class="PrivateNotchedOutline-root-13 MuiOutlinedInput-notchedOutline"
+          >
+            <legend
+              class="PrivateNotchedOutline-legendLabelled-15"
             >
               <span>
-                ​
+                select data source
               </span>
-            </div>
-            <input
-              aria-hidden="true"
-              class="MuiSelect-nativeInput"
-              tabindex="-1"
-              value=""
-            />
-            <svg
-              aria-hidden="true"
-              class="MuiSvgIcon-root MuiSelect-icon MuiSelect-iconOutlined"
-              focusable="false"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M7 10l5 5 5-5z"
-              />
-            </svg>
-            <fieldset
-              aria-hidden="true"
-              class="PrivateNotchedOutline-root-9 MuiOutlinedInput-notchedOutline"
-            >
-              <legend
-                class="PrivateNotchedOutline-legendLabelled-11"
-              >
-                <span>
-                  select data source
-                </span>
-              </legend>
-            </fieldset>
-          </div>
+            </legend>
+          </fieldset>
         </div>
       </div>
     </div>
   </div>
   <div
-    class="MuiDialogActions-root WithStyles(ForwardRef(DialogActions))-root-13 MuiDialogActions-spacing"
+    class="MuiDialogActions-root WithStyles(ForwardRef(DialogActions))-root-8 MuiDialogActions-spacing"
   >
     <div
-      class="MuiBox-root MuiBox-root-15 makeStyles-buttonGroup-14"
+      class="MuiBox-root MuiBox-root-10 makeStyles-buttonGroup-9"
     >
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary Mui-disabled Mui-disabled"

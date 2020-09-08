@@ -2,11 +2,12 @@ import React from 'react';
 import { act, fireEvent, render } from '@testing-library/react';
 import DashboardLayout from '../DashboardLayout';
 
+import useFetch from '../../../hook/useFetch';
 import { api } from '../../../utils/api';
 
+jest.mock('../../../hook/useFetch');
 jest.mock('../../../utils/api', () => ({
   api: {
-    getAllDashBoard: jest.fn(),
     saveDashboard: jest.fn(),
   },
 }));
@@ -52,14 +53,14 @@ jest.mock('../../charts/lineChart/LineChart', () => (props) => (
 
 describe('<DashboardLayout />', () => {
   beforeEach(() => {
-    api.getAllDashBoard.mockResolvedValue({ dashboards: [] });
+    useFetch.mockReturnValue({ data: { dashboards: [] }, loadingState: 'SUCCESS' });
     api.saveDashboard.mockResolvedValue({ dashboardId: 'id' });
   });
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should match a snapshot for <DashboardLayout />', async () => {
+  it('should match a snapshot for <DashboardLayout /> at initial state', async () => {
     const { container } = render(<DashboardLayout />);
 
     await act(async () => {
@@ -81,16 +82,30 @@ describe('<DashboardLayout />', () => {
       layout: [{ w: 2, h: 2, x: 0, y: 0, i: 'widget-0', moved: false, static: false }],
     };
 
-    api.getAllDashBoard.mockResolvedValue({ dashboards: [data] });
+    useFetch.mockReturnValue({ data: { dashboards: [data] }, loadingState: 'SUCCESS' });
 
-    const { container, findByTestId } = render(<DashboardLayout />);
-
-    await findByTestId('widget-0');
+    const { container } = render(<DashboardLayout />);
 
     expect(container).toMatchSnapshot();
   });
 
-  it('should open modal on click of cancel button ', async () => {
+  it('should show loader while fetching data for <DashboardLayout />', async () => {
+    useFetch.mockReturnValue({ data: undefined, loadingState: 'LOADING' });
+
+    const { container } = render(<DashboardLayout />);
+
+    expect(container).toMatchSnapshot();
+  });
+
+  it('should show Error while fetching data for <DashboardLayout /> if error occurred', async () => {
+    useFetch.mockReturnValue({ data: undefined, loadingState: 'ERROR' });
+
+    const { container } = render(<DashboardLayout />);
+
+    expect(container).toMatchSnapshot();
+  });
+
+  it('should open modal on click of add line chart button ', async () => {
     const { getByText } = render(<DashboardLayout />);
 
     const addWidgetButton = getByText(/Line chart/i);
@@ -119,23 +134,6 @@ describe('<DashboardLayout />', () => {
     const { getByText, getByTestId } = render(<DashboardLayout />);
 
     const addWidgetButton = getByText(/Line Chart/i);
-    fireEvent.click(addWidgetButton);
-
-    const okButton = getByText(/Ok/i);
-    fireEvent.click(okButton);
-
-    const widget = getByTestId('widget-0');
-
-    await act(async () => {
-      expect(widget).toBeInTheDocument();
-      expect(widget).toMatchSnapshot();
-    });
-  });
-
-  it('should add new widget with bar chart', async () => {
-    const { getByText, getByTestId } = render(<DashboardLayout />);
-
-    const addWidgetButton = getByText(/Bar Chart/i);
     fireEvent.click(addWidgetButton);
 
     const okButton = getByText(/Ok/i);
@@ -197,6 +195,7 @@ describe('<DashboardLayout />', () => {
 
     expect(api.saveDashboard).toHaveBeenCalledWith(expectedDashboardData);
   });
+
   it('should show message for successful saving of dashboard', async () => {
     const { getByText } = render(<DashboardLayout />);
     const saveDashboard = getByText(/Save Dashboard/i);

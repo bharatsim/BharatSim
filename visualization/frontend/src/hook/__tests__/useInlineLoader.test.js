@@ -2,7 +2,7 @@ import { renderHook, act } from '@testing-library/react-hooks';
 import useInlineLoader from '../useInlineLoader';
 
 describe('hook useInlineLoader', () => {
-  it('should return empty state and message as initial state of loader', () => {
+  it('should return empty state and message as initial state of loaderOrError', () => {
     const { result } = renderHook(() => useInlineLoader());
     expect(result.current.loadingState).toEqual({ state: '', message: '' });
   });

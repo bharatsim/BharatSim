@@ -10,7 +10,7 @@ import { api } from '../../utils/api';
 import { validateFile } from '../../utils/validators';
 import { getMessage, parseCsv, resetFileInput } from '../../utils/fileUploadUtils';
 import useInlineLoader, { loaderStates } from '../../hook/useInlineLoader';
-import InlineLoader from '../loader/InlineLoader';
+import InlineLoader from '../loaderOrError/InlineLoader';
 
 const FILE_INPUT_KEY = 'fileInput';
 

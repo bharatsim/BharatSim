@@ -11,7 +11,7 @@ describe('<ChartSelector />', () => {
     expect(container).toMatchSnapshot();
   });
 
-  it('should call onclick callback on click of button', () => {
+  it('should call onclick callback on click of Line Chart button', () => {
     const onClick = jest.fn();
     const { getByText } = render(<ChartSelector onClick={onClick} />);
 
@@ -20,5 +20,16 @@ describe('<ChartSelector />', () => {
     fireEvent.click(lineChartButton);
 
     expect(onClick).toHaveBeenCalledWith('lineChart');
+  });
+
+  it('should call onclick callback on click of Bar Chart button', () => {
+    const onClick = jest.fn();
+    const { getByText } = render(<ChartSelector onClick={onClick} />);
+
+    const lineChartButton = getByText(/Bar Chart/);
+
+    fireEvent.click(lineChartButton);
+
+    expect(onClick).toHaveBeenCalledWith('barChart');
   });
 });

@@ -155,24 +155,4 @@ describe('<ChartConfigModal />', () => {
 
     expect(props.onCancel).toHaveBeenCalled();
   });
-
-  it('should provide empty element if csv header is null', async () => {
-    api.getCsvHeaders.mockReturnValue(null);
-    render(<ChartConfigModal {...props} />);
-
-    await waitFor(() => {
-      expect(document.querySelector('.MuiPaper-root')).toBeNull();
-    });
-  });
-
-  it('should display message of no data source preset if api return empty datasource array', async () => {
-    api.getDatasources.mockResolvedValue({ dataSources: [] });
-    render(<ChartConfigModal {...props} />);
-
-    await waitFor(() => {
-      expect(document.querySelector('.MuiPaper-root')).toHaveTextContent(
-        /No data source present, upload data source/i,
-      );
-    });
-  });
 });
