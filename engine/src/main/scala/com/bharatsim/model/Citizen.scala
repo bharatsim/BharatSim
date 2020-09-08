@@ -1,33 +1,37 @@
 package com.bharatsim.model
 
-import com.bharatsim.engine.{Agent, Context}
+import
+com.bharatsim.engine.{Agent, Context}
 
 import scala.util.Random
 
-class Citizen() extends Agent {
-  var infectionStatus: InfectionStatus = Susceptible
-
+class Citizen()(implicit context: Context) extends Agent {
   def isInfected: Boolean = {
-    infectionStatus == Infected
+    fetchParam("infectionStatus") match {
+      case Some(value) => value == Infected
+      case None => false
+    }
   }
 
   def setHome(home: House): Unit = {
-    unidirectionalConnect("home", home)
+    unidirectionalConnect("STAYS_AT", home)
   }
 
-  def getHome(): House = {
-    getConnections("home").next().asInstanceOf[House]
+  def getHome: House = {
+    getConnections("STAYS_AT").next().asInstanceOf[House]
   }
 
   addBehaviour((context: Context) => {
-    if (infectionStatus == Susceptible) {
-      val infectionRate =
-        context.dynamics.asInstanceOf[Disease.type].infectionRate
+    if (isInfected) {
+      val infectionRate = context.dynamics.asInstanceOf[Disease.type].infectionRate
 
-      val infectedCount = getHome().getMember().count(_.isInfected)
+      val home = getHome
+      val infectedCount = context.graphProvider.fetchNeighborsOf(home.id, "MEMBER_OF").count(x => x("infectionState").get == Infected)
 
       val shouldInfect = Random.between(1, 100) <= infectionRate * infectedCount
-      if (shouldInfect) infectionStatus = Infected
+      if (shouldInfect) {
+        updateParam("infectionStatus", Infected)
+      }
     }
   })
 }

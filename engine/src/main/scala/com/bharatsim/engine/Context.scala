@@ -1,11 +1,5 @@
 package com.bharatsim.engine
 
-class Context() {
-  val agents = new Collection[Agent]
-  var simulationContext: SimulationContext = new SimulationContext
-  var dynamics: Dynamics = new Dynamics
+import com.bharatsim.engine.graph.GraphProvider
 
-  def setDynamics(dynamic: Dynamics) {
-    dynamics = dynamic
-  }
-}
+class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simulationContext: SimulationContext)
