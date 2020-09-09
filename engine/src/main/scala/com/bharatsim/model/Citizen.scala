@@ -6,9 +6,14 @@ import scala.util.Random
 
 class Citizen() extends Agent {
   var infectionStatus: InfectionStatus = Susceptible
+  var infectionDay: Int = 0
 
   def isInfected: Boolean = {
     infectionStatus == Infected
+  }
+
+  def isRecovered: Boolean = {
+    infectionStatus == Recovered
   }
 
   def setHome(home: House): Unit = {
@@ -19,7 +24,13 @@ class Citizen() extends Agent {
     getConnections("home").next().asInstanceOf[House]
   }
 
-  addBehaviour((context: Context) => {
+  private val incrementInfectionDay: Context => Unit = (context: Context) => {
+    if (this.infectionStatus == Infected && context.simulationContext.getCurrentStep % 24 == 0) {
+      this.infectionDay += 1
+    }
+  }
+
+  private val checkForInfection: Context => Unit = (context: Context) => {
     if (infectionStatus == Susceptible) {
       val infectionRate =
         context.dynamics.asInstanceOf[Disease.type].infectionRate
@@ -29,5 +40,19 @@ class Citizen() extends Agent {
       val shouldInfect = Random.between(1, 100) <= infectionRate * infectedCount
       if (shouldInfect) infectionStatus = Infected
     }
-  })
+  }
+
+  private val checkForRecovery: Context => Unit = (context: Context) => {
+    if (
+      this.infectionStatus == Infected && this.infectionDay == context.dynamics
+        .asInstanceOf[Disease.type]
+        .lastDay
+    ) {
+      this.infectionStatus = Recovered
+    }
+  }
+
+  addBehaviour(incrementInfectionDay)
+  addBehaviour(checkForInfection)
+  addBehaviour(checkForRecovery)
 }
