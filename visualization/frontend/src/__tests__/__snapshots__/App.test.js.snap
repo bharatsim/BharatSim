@@ -5,16 +5,9 @@ exports[`<App /> should match snapshot 1`] = `
   <div
     class="makeStyles-root-1"
   >
-    <div
-      class="MuiBox-root MuiBox-root-2"
-    >
-      <h3
-        class="MuiTypography-root MuiTypography-h3 MuiTypography-alignCenter"
-      >
-        Welcome to BharatSim Visualization
-      </h3>
+    <div>
+      home
     </div>
-    Dash Board Layout
   </div>
 </div>
 `;

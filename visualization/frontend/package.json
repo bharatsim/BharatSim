@@ -19,6 +19,7 @@
     "react-grid-layout": "0.18.3",
     "react-plotly.js": "^2.4.0",
     "react-resizable": "1.10.1",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "react-sizeme": "^2.6.12"
   },
@@ -102,6 +103,7 @@
     "eslint-plugin-jsx-a11y": "6.x",
     "eslint-plugin-react": "7.x",
     "eslint-plugin-react-hooks": "2.x",
+    "history": "^5.0.0",
     "husky": "4.2.5",
     "jest-canvas-mock": "2.2.0",
     "jest-environment-jsdom-fifteen": "^1.0.2",

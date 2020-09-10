@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Typography } from '@material-ui/core';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
-import DashboardLayout from './component/dashboardLayout/DashboardLayout';
+import AppRoute from './AppRoute';
+import withThemeProvider from './theme/withThemeProvider';
 
 const styles = makeStyles(() => ({
   root: {
@@ -16,15 +17,12 @@ const styles = makeStyles(() => ({
 function App() {
   const classes = styles();
   return (
-    <div className={classes.root}>
-      <Box pt={2} pb={2}>
-        <Typography variant="h3" align="center">
-          Welcome to BharatSim Visualization
-        </Typography>
-      </Box>
-      <DashboardLayout />
-    </div>
+    <Router>
+      <div className={classes.root}>
+        <AppRoute />
+      </div>
+    </Router>
   );
 }
 
-export default App;
+export default withThemeProvider(App);
