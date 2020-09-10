@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<SideBarLayout /> should mactch snapshot 1`] = `
+<div>
+  <div
+    class="MuiBox-root MuiBox-root-6 makeStyles-main-1"
+  >
+    <div
+      class="MuiBox-root MuiBox-root-7 makeStyles-sideBar-2"
+    >
+      <div
+        class="MuiBox-root MuiBox-root-8 makeStyles-logo-4"
+      >
+        <div
+          class="MuiBox-root MuiBox-root-9"
+        >
+          <img
+            alt="logo"
+            src="Logobharatsim-logo.svg"
+          />
+        </div>
+        <h1
+          class="MuiTypography-root makeStyles-logoText-5 MuiTypography-h1"
+        >
+          BHARATSIM
+        </h1>
+      </div>
+      <div
+        class="MuiBox-root MuiBox-root-10"
+      >
+        <div>
+          DummyController
+        </div>
+      </div>
+    </div>
+    <div
+      class="MuiBox-root MuiBox-root-11 makeStyles-view-3"
+    >
+      <div>
+        DummyView
+      </div>
+    </div>
+  </div>
+</div>
+`;
