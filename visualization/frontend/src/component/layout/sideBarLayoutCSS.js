@@ -7,7 +7,6 @@ export default makeStyles((theme) => ({
   },
   sideBar: {
     display: 'flex',
-    flex: '0.2',
     flexDirection: 'column',
     background: theme.palette.primary.main,
     width: theme.spacing(64),
@@ -15,7 +14,7 @@ export default makeStyles((theme) => ({
   },
   view: {
     display: 'flex',
-    flex: '0.8',
+    flex: '1',
     flexDirection: 'column',
   },
   logo: {

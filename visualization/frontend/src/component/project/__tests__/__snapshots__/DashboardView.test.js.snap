@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DashboardView should match snapshot for provided value 1`] = `
+<div>
+  <div
+    class="MuiBox-root MuiBox-root-1"
+  >
+    <div />
+    <div>
+      <div
+        class="MuiBox-root MuiBox-root-2"
+      >
+        dashbaord2
+      </div>
+    </div>
+  </div>
+</div>
+`;

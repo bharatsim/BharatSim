@@ -6,7 +6,7 @@ import styles from './sideBarLayoutCSS';
 
 import bharatSimLogo from '../../assets/images/Logobharatsim-logo.svg';
 
-import labels from './labels';
+import labels from './sidebarLayout.labels';
 
 function SideBarLayout({ ControllerComponent, ViewComponent }) {
   const classes = styles();

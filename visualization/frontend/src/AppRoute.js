@@ -2,6 +2,8 @@ import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import DashboardLayout from './component/dashboardLayout/DashboardLayout';
 
+import Project from './component/project/Project';
+
 function AppRoute() {
   return (
     <>
@@ -10,7 +12,7 @@ function AppRoute() {
           <DashboardLayout />
         </Route>
         <Route path="/project/:id">
-          <div>Project with id</div>
+          <Project />
         </Route>
         <Route path="/">
           <div>home</div>

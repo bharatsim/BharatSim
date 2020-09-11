@@ -6,6 +6,7 @@ import { createMemoryHistory } from 'history';
 import AppRoute from '../AppRoute';
 
 jest.mock('../component/dashboardLayout/DashboardLayout', () => () => <div>Dashboard Layout</div>);
+jest.mock('../component/project/Project', () => () => <div>Project</div>);
 
 function renderWithRouter(
   ui,
@@ -27,7 +28,7 @@ describe('<AppRoute />', () => {
   it('should navigate to project page ', () => {
     const { container } = renderWithRouter(<AppRoute />, { route: '/project/id' });
 
-    expect(container.innerHTML).toMatch('Project with id');
+    expect(container.innerHTML).toMatch('Project');
   });
 
   it('should navigate to home page ', () => {

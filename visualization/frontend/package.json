@@ -56,7 +56,9 @@
       "!src/constants/*.js",
       "!src/setupProxy.js",
       "!src/setupTests.js",
-      "!src/index.js"
+      "!src/index.js",
+      "!src/**/*.labels.js",
+      "!src/**/colorPalette.js"
     ],
     "coverageThreshold": {
       "global": {
