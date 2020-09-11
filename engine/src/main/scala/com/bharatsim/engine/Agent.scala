@@ -2,7 +2,7 @@ package com.bharatsim.engine
 
 import scala.collection.mutable
 
-class Agent()(implicit context: Context) extends Node {
+class Agent() extends Node {
   private[engine] val behaviours: mutable.ListBuffer[Function[Context, Unit]] = mutable.ListBuffer.empty
 
   protected[engine] def addBehaviour(behaviour: Function[Context, Unit]): Unit = {

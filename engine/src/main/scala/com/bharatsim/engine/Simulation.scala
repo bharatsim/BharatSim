@@ -1,6 +1,5 @@
 package com.bharatsim.engine
-
-import com.bharatsim.model.Citizen
+import com.bharatsim.engine.graph.GraphNode
 
 object Simulation {
 
@@ -8,10 +7,25 @@ object Simulation {
     for (step <- 1 to context.simulationContext.simulationSteps) {
       context.simulationContext.setCurrentStep(step)
 
-      context.graphProvider.fetchNodes("Citizen").foreach(agent => {
-        val x = agent.asInstanceOf[Agent]
-        x.behaviours.foreach(b => b(context))
+      val agentTypes = context.fetchAgentTypes
+
+      agentTypes.foreach(agentType => {
+        val label = agentType.split('.').last
+
+        context.graphProvider.fetchNodes(label).foreach(graphNode => {
+          val modelInstance: Agent = asDomainModel(graphNode, agentType)
+
+          modelInstance.behaviours.foreach(b => b(context))
+        })
       })
     }
+  }
+
+  private def asDomainModel(graphNode: GraphNode, className: String) = {
+    val value = Class.forName(className)
+    val modelInstance = value.getDeclaredConstructor().newInstance().asInstanceOf[Agent]
+    modelInstance.setId(graphNode.Id)
+    modelInstance.setParams(graphNode.getParams)
+    modelInstance
   }
 }

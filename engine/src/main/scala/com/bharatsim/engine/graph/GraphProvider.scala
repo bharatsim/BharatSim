@@ -5,6 +5,8 @@ import java.nio.file.Path
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 
 trait GraphNode {
+  def label: String
+
   def Id: NodeId
 
   def apply(key: String): Option[Any]

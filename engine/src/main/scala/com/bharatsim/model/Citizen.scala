@@ -1,11 +1,10 @@
 package com.bharatsim.model
 
-import
-com.bharatsim.engine.{Agent, Context}
+import com.bharatsim.engine.{Agent, Context}
 
 import scala.util.Random
 
-class Citizen()(implicit context: Context) extends Agent {
+class Citizen() extends Agent {
   def isInfected: Boolean = {
     fetchParam("infectionStatus") match {
       case Some(value) => value == Infected

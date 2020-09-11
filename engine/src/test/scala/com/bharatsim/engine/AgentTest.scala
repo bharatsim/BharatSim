@@ -10,11 +10,6 @@ class AgentTest extends AnyFunSuite {
     agent shouldBe a[Node]
   }
 
-  test("Should be able to give Id") {
-    val agent = new Agent(1)
-    agent.id shouldBe 1
-  }
-
   test("Should allow to add multiple behaviours") {
     val mockBehaviour1 = (context: Context) => {}
     val mockBehaviour2 = (context: Context) => {}

@@ -1,14 +1,12 @@
 package com.bharatsim.model
-import com.bharatsim.engine.graph.GraphProviderImpl
 import com.bharatsim.engine.{Context, Simulation, SimulationContext}
 
 import scala.util.Random
 
 object Main {
   def main(args: Array[String]): Unit = {
-    val graphProvider = new GraphProviderImpl
     val simulationContext = new SimulationContext(10)
-    implicit val context: Context = new Context(graphProvider, Disease, simulationContext)
+    implicit val context: Context = Context(Disease, simulationContext)
 
     ingestData()
     val beforeCount = context.graphProvider.fetchNodes("Citizens", ("infectionState", Infected)).size

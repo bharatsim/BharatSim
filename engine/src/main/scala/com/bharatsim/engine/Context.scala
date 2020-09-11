@@ -1,5 +1,19 @@
 package com.bharatsim.engine
 
-import com.bharatsim.engine.graph.GraphProvider
+import com.bharatsim.engine.graph.{GraphProvider, GraphProviderFactory}
 
-class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simulationContext: SimulationContext)
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
+import scala.reflect.{ClassTag, classTag}
+
+class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simulationContext: SimulationContext) {
+  private val agentTypes: mutable.ListBuffer[String] = ListBuffer.empty
+
+  def registerAgent[T: ClassTag]: Unit = agentTypes.addOne(classTag[T].runtimeClass.getName)
+
+  def fetchAgentTypes: ListBuffer[String] = agentTypes
+}
+
+object Context {
+  def apply(dynamics: Dynamics, simulationContext: SimulationContext): Context = new Context(GraphProviderFactory.get, dynamics, simulationContext)
+}

@@ -1,10 +1,10 @@
 package com.bharatsim.engine
 import com.bharatsim.engine.Node.fromGraphNode
-import com.bharatsim.engine.graph.GraphNode
+import com.bharatsim.engine.graph.{GraphNode, GraphProvider, GraphProviderFactory}
 
 import scala.collection.mutable
 
-class Node()(implicit context: Context) extends Identity {
+class Node()(implicit graphProvider: GraphProvider =  GraphProviderFactory.get) extends Identity {
   override var id: Int = 0
   val params = new mutable.HashMap[String, Any]()
 
@@ -20,7 +20,7 @@ class Node()(implicit context: Context) extends Identity {
   }
 
   def unidirectionalConnect(relation: String, to: Node): Unit = {
-    context.graphProvider.createRelationship(relation, id, to.id)
+    graphProvider.createRelationship(relation, id, to.id)
   }
 
   def bidirectionalConnect(relation: String, to: Node): Unit = {
@@ -29,20 +29,20 @@ class Node()(implicit context: Context) extends Identity {
   }
 
   def disconnect(relation: String, to: Node): Unit = {
-    context.graphProvider.deleteRelationship(relation, id, to.id)
+    graphProvider.deleteRelationship(relation, id, to.id)
   }
 
   def getConnections(relation: String): Iterator[Node] = {
-    context.graphProvider.fetchNeighborsOf(id, relation).map(fromGraphNode(_)).iterator
+    graphProvider.fetchNeighborsOf(id, relation).map(fromGraphNode(_)).iterator
   }
 
   def updateParam(key: String, value: Any): Unit = {
-    context.graphProvider.updateNode(id, (key, value))
+    graphProvider.updateNode(id, (key, value))
   }
 }
 
 object Node {
-  def fromGraphNode(graphNode: GraphNode)(implicit context: Context): Node = {
+  def fromGraphNode(graphNode: GraphNode): Node = {
     val node = new Node()
     node.setId(graphNode.Id)
     node.setParams(graphNode.getParams)

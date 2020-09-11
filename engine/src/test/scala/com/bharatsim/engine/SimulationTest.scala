@@ -1,109 +1,162 @@
 package com.bharatsim.engine
 
-import org.mockito.{InOrder, MockitoSugar}
+import com.bharatsim.engine.graph.GraphProvider.NodeId
+import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
+import org.mockito.{InOrder, Mockito, MockitoSugar}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.matchers.should.Matchers._
+import org.scalatest.matchers.should.Matchers
 
-class SimulationTest extends AnyFunSuite with MockitoSugar {
+class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEach with Matchers {
 
-  class Employee extends Agent {
-    val goToOffice = spyLambda((context: Context) => {})
-    addBehaviour(goToOffice)
-  }
+  import com.bharatsim.engine.SimulationTest._
 
-  class Student extends Agent {
-    val _goToSchoolForStep = spyLambda((step: Int) => {})
-    val _playAGameForStep = spyLambda((step: Int) => {})
-
-    val goToSchool = spyLambda((context: Context) => {
-      _goToSchoolForStep(context.simulationContext.getCurrentStep)
-    })
-    val playAGame = spyLambda((context: Context) => {
-      _playAGameForStep(context.simulationContext.getCurrentStep)
-    })
-    addBehaviour(goToSchool)
-    addBehaviour(playAGame)
+  override def beforeEach(): Unit = {
+    Mockito.clearInvocations(behav1)
+    Mockito.clearInvocations(behav2)
+    Mockito.clearInvocations(behav3)
   }
 
   test("should execute empty simulation") {
-    noException should be thrownBy Simulation.run(new Context)
+    noException should be thrownBy Simulation.run(getContext())
   }
 
   test("should execute multiple behaviours of agent in order") {
-    val context = new Context
-    val student = new Student
-    context.agents.add(student)
-
+    val graphProvider = {
+      val gp = mock[GraphProvider]
+      when(gp.fetchNodes("Student")).thenReturn(List(graphNodeStudent))
+      gp
+    }
+    val context = getContext(graphProvider)
+    context.registerAgent[Student]
     Simulation.run(context)
 
-    val order: InOrder = inOrder(student.playAGame, student.goToSchool)
-    order.verify(student.goToSchool)(context)
-    order.verify(student.playAGame)(context)
+    val order: InOrder = inOrder(behav1, behav2)
+    order.verify(behav1)(context)
+    order.verify(behav2)(context)
 
   }
 
   test("should execute all Behaviours for multiple agents") {
-    val context = new Context
-    val student = new Student
-    val employee = new Employee
-    context.agents.add(student)
-    context.agents.add(employee)
+    val graphProvider = {
+      val gp = mock[GraphProvider]
+      when(gp.fetchNodes("Student")).thenReturn(List(graphNodeStudent))
+      when(gp.fetchNodes("Employee")).thenReturn(List(graphNodeEmployee))
+      gp
+    }
+    val context = getContext(graphProvider)
+    context.registerAgent[Student]
+    context.registerAgent[Employee]
 
     Simulation.run(context)
 
-    verify(student.goToSchool)(context)
-    verify(student.playAGame)(context)
-    verify(employee.goToOffice)(context)
+    val order: InOrder = inOrder(behav1, behav2, behav3)
+    order.verify(behav1)(context)
+    order.verify(behav2)(context)
+    order.verify(behav3)(context)
   }
 
-  test("should set current step at the start of every simulation step") {
-    val context = new Context
-    val trackStep = spyLambda((step: Int) => {})
-    val agent = new Agent
-    agent.addBehaviour((context: Context) =>
-      trackStep(context.simulationContext.getCurrentStep)
-    )
 
-    context.agents.add(agent)
+  test("should set current step at the start of every simulation step and run all the steps") {
+    val context = getContext()
+
     val steps = 3
     context.simulationContext.setSteps(steps)
 
-    val order: InOrder = inOrder(trackStep)
     Simulation.run(context)
 
-    order.verify(trackStep)(1)
-    order.verify(trackStep)(2)
-    order.verify(trackStep)(3)
+    context.simulationContext.getCurrentStep shouldBe 3
   }
 
   test(
     "should execute all Behaviours of all agents for specified number of steps"
   ) {
-    val context = new Context
-    val student1 = new Student
-    val student2 = new Student
-    context.agents.add(student1)
-    context.agents.add(student2)
+    val graphProvider = {
+      val gp = mock[GraphProvider]
+      when(gp.fetchNodes("Student")).thenReturn(
+        List(mockGraphNode("Student", 1), mockGraphNode("Student", 2))
+      )
+      gp
+    }
+    val context = getContext(graphProvider)
+
     val steps = 2
     context.simulationContext.setSteps(steps)
+    context.registerAgent[Student]
 
     val order: InOrder = inOrder(
-      student1._goToSchoolForStep,
-      student1._playAGameForStep,
-      student2._goToSchoolForStep,
-      student2._playAGameForStep
+      _goToSchoolForStep,
+      _playAGameForStep,
+      _goToSchoolForStep,
+      _playAGameForStep
     )
 
     Simulation.run(context)
 
-    order.verify(student1._goToSchoolForStep)(1)
-    order.verify(student1._playAGameForStep)(1)
-    order.verify(student2._goToSchoolForStep)(1)
-    order.verify(student2._playAGameForStep)(1)
+    order.verify(_goToSchoolForStep)(1)
+    order.verify(_playAGameForStep)(1)
+    order.verify(_goToSchoolForStep)(1)
+    order.verify(_playAGameForStep)(1)
 
-    order.verify(student1._goToSchoolForStep)(2)
-    order.verify(student1._playAGameForStep)(2)
-    order.verify(student2._goToSchoolForStep)(2)
-    order.verify(student2._playAGameForStep)(2)
+    order.verify(_goToSchoolForStep)(2)
+    order.verify(_playAGameForStep)(2)
+    order.verify(_goToSchoolForStep)(2)
+    order.verify(_playAGameForStep)(2)
+  }
+
+  def getContext(mockGraphProvider: GraphProvider = mock[GraphProvider]) =
+    new Context(mockGraphProvider, new Dynamics, new SimulationContext())
+}
+
+class Employee extends Agent {
+
+  import com.bharatsim.engine.SimulationTest.behav3
+
+  val goToOffice: Context => Unit = behav3
+  addBehaviour(goToOffice)
+}
+
+class Student extends Agent {
+
+  import com.bharatsim.engine.SimulationTest.{behav1, behav2}
+
+  val goToSchool: Context => Unit = behav1
+
+  val playAGame: Context => Unit = behav2
+  addBehaviour(goToSchool)
+  addBehaviour(playAGame)
+}
+
+object SimulationTest {
+
+  import org.mockito.MockitoSugar.spyLambda
+
+  val _goToSchoolForStep: NodeId => Unit = spyLambda[NodeId =>  Unit]((_: Int) => {})
+  val _playAGameForStep: NodeId => Unit = spyLambda[NodeId =>  Unit]((_: Int) => {})
+
+  val behav1: Context => Unit = spyLambda[Context =>  Unit]((context: Context) => {
+    _goToSchoolForStep(context.simulationContext.getCurrentStep)
+  })
+
+  val behav2: Context => Unit = spyLambda[Context =>  Unit]((context: Context) => {
+    _playAGameForStep(context.simulationContext.getCurrentStep)
+  })
+
+  val behav3: Context => Unit = spyLambda[Context =>  Unit]((_: Context) => {})
+
+  val graphNodeStudent: GraphNode = mockGraphNode("Student", 1)
+
+  val graphNodeEmployee: GraphNode = mockGraphNode("Employee", 2)
+
+  private def mockGraphNode(name: String, id: Int) = {
+    new GraphNode {
+      override def label: String = name
+
+      override def Id: NodeId = id
+
+      override def apply(key: String): Option[Any] = None
+
+      override def getParams: Map[String, Any] = Map.empty
+    }
   }
 }
