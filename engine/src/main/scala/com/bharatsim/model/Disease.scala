@@ -11,7 +11,7 @@ object Disease extends Dynamics {
   final val transmissionStartDay: Int = 2
   final val exposedDuration: Int = 2
   final val preSymptomaticDuration: Int = 2
-  final val lastDay: Int = 17
+  final val lastDay: Int = 3
   final val asymptomaticLastDay: Int = 9
   final val mildSymptomaticLastDay: Int = 12
 
