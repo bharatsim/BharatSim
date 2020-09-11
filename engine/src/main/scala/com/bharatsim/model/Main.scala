@@ -4,12 +4,12 @@ import com.bharatsim.engine.{Context, Simulation}
 import scala.util.Random
 
 object Main {
-  def setUpContext(context: Context): Unit = {
+  def steUpContext(context: Context): Unit = {
 
     val numberOfCitizen = 10
     val house = new House
 
-    for (_ <- 1 to numberOfCitizen) {
+    for (i <- 1 to numberOfCitizen) {
       val citizen = new Citizen()
       citizen.infectionStatus = if (Random.nextBoolean()) Infected else Susceptible
       context.agents.add(citizen)
@@ -21,7 +21,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     val context = new Context
-    setUpContext(context)
+    steUpContext(context)
     val totalInfectedBeforeSimulation =
       context.agents.getAll.count(_.asInstanceOf[Citizen].isInfected)
     Simulation.run(context)
