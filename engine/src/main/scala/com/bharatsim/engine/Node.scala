@@ -20,7 +20,7 @@ class Node()(implicit graphProvider: GraphProvider =  GraphProviderFactory.get) 
   }
 
   def unidirectionalConnect(relation: String, to: Node): Unit = {
-    graphProvider.createRelationship(relation, id, to.id)
+    graphProvider.createRelationship(id, relation, to.id)
   }
 
   def bidirectionalConnect(relation: String, to: Node): Unit = {
@@ -29,7 +29,7 @@ class Node()(implicit graphProvider: GraphProvider =  GraphProviderFactory.get) 
   }
 
   def disconnect(relation: String, to: Node): Unit = {
-    graphProvider.deleteRelationship(relation, id, to.id)
+    graphProvider.deleteRelationship(id, relation, to.id)
   }
 
   def getConnections(relation: String): Iterator[Node] = {

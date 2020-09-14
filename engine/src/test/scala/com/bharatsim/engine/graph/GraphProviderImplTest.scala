@@ -114,8 +114,8 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers {
         val node1 = graphProvider.createNode("Person", ("name", "Ramesh"))
         val node2 = graphProvider.createNode("Person", ("name", "Suresh"))
         val node3 = graphProvider.createNode("Person", ("name", "Harish"))
-        graphProvider.createRelationship("OWES", node1, node2)
-        graphProvider.createRelationship("OWES", node1, node3)
+        graphProvider.createRelationship(node1, "OWES", node2)
+        graphProvider.createRelationship(node1, "OWES", node3)
 
         val neighbors = graphProvider.fetchNeighborsOf(node1, "OWES")
         neighbors.size shouldBe 2
@@ -126,9 +126,9 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers {
         val node1 = graphProvider.createNode("Person", ("name", "Ramesh"))
         val node2 = graphProvider.createNode("Person", ("name", "Suresh"))
         val node3 = graphProvider.createNode("Person", ("name", "Harish"))
-        graphProvider.createRelationship("OWES", node1, node2)
-        graphProvider.createRelationship("OWES", node1, node3)
-        graphProvider.createRelationship("LIKES", node1, node3)
+        graphProvider.createRelationship(node1, "OWES", node2)
+        graphProvider.createRelationship(node1, "OWES", node3)
+        graphProvider.createRelationship(node1, "LIKES", node3)
 
         val neighbors = graphProvider.fetchNeighborsOf(node1, "OWES", "LIKES")
         neighbors.size shouldBe 2
@@ -139,8 +139,8 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers {
         val node1 = graphProvider.createNode("Person", ("name", "Ramesh"))
         val node2 = graphProvider.createNode("Person", ("name", "Suresh"))
         val node3 = graphProvider.createNode("Person", ("name", "Harish"))
-        graphProvider.createRelationship("OWES", node1, node2)
-        graphProvider.createRelationship("OWES", node1, node3)
+        graphProvider.createRelationship(node1, "OWES", node2)
+        graphProvider.createRelationship(node1, "OWES", node3)
 
         val neighbors = graphProvider.fetchNeighborsOf(node1, "KNOWS")
         neighbors.size shouldBe 0
@@ -153,12 +153,90 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers {
         val node1 = graphProvider.createNode("Person", ("name", "Ramesh"))
         val node2 = graphProvider.createNode("Person", ("name", "Suresh"))
         val node3 = graphProvider.createNode("Person", ("name", "Harish"))
-        graphProvider.createRelationship("OWES", node1, node2)
-        graphProvider.createRelationship("OWES", node1, node3)
+        graphProvider.createRelationship(node1, "OWES", node2)
+        graphProvider.createRelationship(node1, "OWES", node3)
 
         val neighbors = graphProvider.fetchNeighborsOf(10, "OWES")
         neighbors.size shouldBe 0
       }
+    }
+  }
+
+  "updateProps" when {
+    "node exists" should {
+      "update existing or add new props" in {
+        val graphProvider = new GraphProviderImpl()
+        val nodeId = graphProvider.createNode("Person", ("name", "Rajesh"))
+
+        graphProvider.updateNode(nodeId, ("name", "Suresh"), ("age", 23))
+
+        val maybeNode = graphProvider.fetchNode("Person", Map(("name", "Suresh")))
+        maybeNode.isDefined shouldBe true
+        maybeNode.get.apply("age").get shouldBe 23
+        maybeNode.get.apply("name").get shouldBe "Suresh"
+      }
+    }
+  }
+
+  "deleteNode" should {
+    "remove node from the store" in {
+      val graphProvider = new GraphProviderImpl
+      val nodeId = graphProvider.createNode("Person", ("name", "Ramesh"))
+
+      graphProvider.fetchNodes("Person").size shouldBe 1
+
+      graphProvider.deleteNode(nodeId)
+
+      graphProvider.fetchNodes("Person").size shouldBe 0
+    }
+  }
+
+  "deleteNodes" should {
+    "remove all nodes matching the label and properties" in {
+      val graphProvider = new GraphProviderImpl
+
+      graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 24))
+      graphProvider.createNode("Person", ("name", "Suresh"), ("age", 24))
+      graphProvider.createNode("Person", ("name", "Harish"), ("age", 24))
+      graphProvider.createNode("Person", ("name", "Girish"), ("age", 26))
+
+      graphProvider.deleteNodes("Person", Map(("age", 24)))
+
+      val personList = graphProvider.fetchNodes("Person")
+      personList.size shouldBe 1
+      personList.head.apply("name").get shouldBe "Girish"
+    }
+  }
+
+  "deleteRelationship" should {
+    "remove relationship between the nodes" in {
+      val graphProvider = new GraphProviderImpl
+      val from = graphProvider.createNode("Person", ("name", "Ramesh"))
+      val to = graphProvider.createNode("Person", ("name", "Suresh"))
+      graphProvider.createRelationship(from, "OWES", to)
+
+      graphProvider.fetchNeighborsOf(from, "OWES").size shouldBe 1
+
+      graphProvider.deleteRelationship(from, "OWES", to)
+
+      graphProvider.fetchNeighborsOf(from, "OWES").size shouldBe 0
+    }
+  }
+
+  "deleteAll" should {
+    "remove all the nodes and relationships from the store" in {
+      val graphProvider = new GraphProviderImpl
+      val node1 = graphProvider.createNode("Person", ("age", 34))
+      val node2 = graphProvider.createNode("Person", ("age", 34))
+      graphProvider.createNode("Person", ("age", 34))
+      graphProvider.createNode("Person", ("age", 34))
+      graphProvider.createNode("Person", ("age", 34))
+      graphProvider.createRelationship(node1, "OWES", node2)
+
+      graphProvider.deleteAll()
+
+      graphProvider.fetchNodes("Person").size shouldBe 0
+      graphProvider.fetchNeighborsOf(node1, "Person").size shouldBe 0
     }
   }
 }

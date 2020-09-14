@@ -22,7 +22,7 @@ trait GraphProvider {
 
   def createNode(label: String, props: (String, Any)*): NodeId
 
-  def createRelationship(label: String, node1: NodeId, node2: NodeId)
+  def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit
 
   def ingestNodes(csvPath: Path): Unit
 
@@ -40,14 +40,14 @@ trait GraphProvider {
   // U
   def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit
 
-  def updateNode(nodeId: NodeId, props: (String, Any)*): Unit
+  def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit
 
   // D
   def deleteNode(nodeId: NodeId): Unit
 
-  def deleteRelationship(label: String, from: NodeId, to: NodeId)
+  def deleteRelationship(from: NodeId, label: String, to: NodeId): Unit
 
-  def deleteNodes(props: Map[String, Any])
+  def deleteNodes(label: String, props: Map[String, Any])
 
   def deleteAll(): Unit
 }

@@ -16,7 +16,9 @@ class GraphProviderImpl extends GraphProvider {
   private val indexedNodes: mutable.HashMap[NodeId, InternalNode] = mutable.HashMap.empty
 
   override def createNode(label: String, props: Map[String, Any]): NodeId = {
-    val node = InternalNode(label, idGenerator.generateId, props)
+    val hm = new mutable.HashMap[String, Any]()
+    hm.addAll(props)
+    val node = InternalNode(label, idGenerator.generateId, hm)
 
     if (nodes.contains(label)) {
       nodes(label).put(node.id, node)
@@ -32,7 +34,7 @@ class GraphProviderImpl extends GraphProvider {
 
   override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
 
-  override def createRelationship(label: String, node1: NodeId, node2: NodeId): Unit = {
+  override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
     val nodeFrom = indexedNodes.get(node1)
     val nodeTo = indexedNodes.get(node2)
 
@@ -55,18 +57,18 @@ class GraphProviderImpl extends GraphProvider {
     } else {
       if (nodes.contains(label) && nodes(label).nonEmpty) {
         val list = filterNodesByMatchingParams(label, params)
-        if(list.nonEmpty) Some(list.head.toGraphNode)
+        if (list.nonEmpty) Some(list.head.toGraphNode)
         else None
       } else None
     }
   }
 
   override def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode] = {
-    if(params.isEmpty) {
-      if(nodes.contains(label) && nodes(label).nonEmpty) nodes(label).values.map(_.toGraphNode)
+    if (params.isEmpty) {
+      if (nodes.contains(label) && nodes(label).nonEmpty) nodes(label).values.map(_.toGraphNode)
       else List.empty
     } else {
-      if(nodes.contains(label) && nodes(label).nonEmpty) {
+      if (nodes.contains(label) && nodes(label).nonEmpty) {
         filterNodesByMatchingParams(label, params).map(_.toGraphNode)
       }
       else List.empty
@@ -78,7 +80,7 @@ class GraphProviderImpl extends GraphProvider {
   override def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode] = {
     val allLabels = label :: labels.toList
 
-    if(indexedNodes.contains(nodeId)) {
+    if (indexedNodes.contains(nodeId)) {
       val node = indexedNodes(nodeId)
       allLabels
         .map(l => node.fetchNeighborsWithLabel(l))
@@ -90,17 +92,48 @@ class GraphProviderImpl extends GraphProvider {
     }
   }
 
-  override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = ???
+  override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = {
+    if (indexedNodes.contains(nodeId)) {
+      val node = indexedNodes(nodeId)
+      node.updateProps(props)
+    }
+  }
 
-  override def deleteNode(nodeId: NodeId): Unit = ???
+  override def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit =
+    updateNode(nodeId, (prop :: props.toList).toMap)
 
-  override def deleteRelationship(label: String, from: NodeId, to: NodeId): Unit = ???
+  override def deleteNode(nodeId: NodeId): Unit = {
+    if (indexedNodes.contains(nodeId)) {
+      val node = indexedNodes(nodeId)
+      nodes(node.label).remove(node.id)
+      indexedNodes.remove(nodeId)
+    }
+  }
 
-  override def deleteNodes(props: Map[String, Any]): Unit = ???
+  override def deleteNodes(label: String, props: Map[String, Any]): Unit = {
+    val matchingNodes = filterNodesByMatchingParams(label, props)
 
-  override def deleteAll(): Unit = ???
+    matchingNodes.foreach(node => {
+      indexedNodes.remove(node.id)
+      nodes(label).remove(node.id)
+    })
+  }
 
-  override def updateNode(nodeId: NodeId, props: (String, Any)*): Unit = ???
+  override def deleteRelationship(from: NodeId, label: String, to: NodeId): Unit = {
+    val nodeFrom = indexedNodes.get(from)
+    val nodeTo = indexedNodes.get(to)
+
+    (nodeFrom, nodeTo) match {
+      case (Some(_from), Some(_)) => _from.deleteRelationship(label, to)
+      case (None, _) => println(s"WARNING: Node with id $from does not exist")
+      case (_, None) => println(s"WARNING: Node with id $to does not exist")
+    }
+  }
+
+  override def deleteAll(): Unit = {
+    nodes.clear()
+    indexedNodes.clear()
+  }
 
   private def filterNodesByMatchingParams(label: String, params: Map[String, Any]) = {
     nodes(label).values.filter(node => {

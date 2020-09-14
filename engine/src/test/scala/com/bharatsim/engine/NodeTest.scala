@@ -21,7 +21,7 @@ class NodeTest extends AnyFunSuite with MockitoSugar {
 
     node1.unidirectionalConnect("uniConnect", node2)
 
-    verify(graphProvider).createRelationship("uniConnect", 1, 2)
+    verify(graphProvider).createRelationship(1, "uniConnect", 2)
   }
 
   test("Should connect nodes to each other with bidirectional connection") {
@@ -34,8 +34,8 @@ class NodeTest extends AnyFunSuite with MockitoSugar {
 
     node1.bidirectionalConnect("connects", node2)
 
-    verify(graphProvider).createRelationship("connects", 1, 2)
-    verify(graphProvider).createRelationship("connects", 2, 1)
+    verify(graphProvider).createRelationship(1, "connects", 2)
+    verify(graphProvider).createRelationship(2, "connects", 1)
   }
 
   test("Should be able to disconnect unidirectional connect") {
@@ -48,6 +48,6 @@ class NodeTest extends AnyFunSuite with MockitoSugar {
 
     node1.disconnect("connects", node2)
 
-    verify(graphProvider).deleteRelationship("connects", 1, 2)
+    verify(graphProvider).deleteRelationship(1, "connects", 2)
   }
 }

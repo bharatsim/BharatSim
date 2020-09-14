@@ -26,8 +26,8 @@ object Main {
     for (i <- 1 to numberOfCitizen) {
       val infectionState = if (Random.nextBoolean()) Infected else Susceptible
       val agentId = context.graphProvider.createNode("Citizen", ("infectionState", infectionState))
-      context.graphProvider.createRelationship("STAYS_AT", agentId, houseId)
-      context.graphProvider.createRelationship("MEMBER_OF", houseId, agentId)
+      context.graphProvider.createRelationship(agentId, "STAYS_AT", houseId)
+      context.graphProvider.createRelationship(houseId, "MEMBER_OF", agentId)
     }
   }
 }
