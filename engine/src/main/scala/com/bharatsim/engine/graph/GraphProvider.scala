@@ -29,13 +29,13 @@ trait GraphProvider {
   def ingestRelationships(csvPath: Path): Unit
 
   // R
-  def fetchNode(label: String, params: Map[String, Any]): Some[GraphNode]
+  def fetchNode(label: String, params: Map[String, Any]): Option[GraphNode]
 
   def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode]
 
   def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode]
 
-  def fetchNeighborsOf(nodeId: NodeId, labels: String*): Iterable[GraphNode]
+  def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode]
 
   // U
   def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit

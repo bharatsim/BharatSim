@@ -1,9 +1,11 @@
 package com.bharatsim.engine
 
+import java.util.concurrent.atomic.AtomicInteger
+
 private[engine] class IdGenerator {
-  private var lastGenerated = 0
+  private val lastGenerated = new AtomicInteger(0)
+
   def generateId: Int = {
-    lastGenerated += 1
-    lastGenerated
+    lastGenerated.incrementAndGet()
   }
 }
