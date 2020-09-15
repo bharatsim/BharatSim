@@ -4,10 +4,11 @@ import java.nio.file.Path
 
 import com.bharatsim.engine.IdGenerator
 import com.bharatsim.engine.graph.GraphProvider.NodeId
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.mutable
 
-class GraphProviderImpl extends GraphProvider {
+class GraphProviderImpl extends GraphProvider with LazyLogging{
 
   import GraphProviderImpl.idGenerator
 
@@ -40,8 +41,8 @@ class GraphProviderImpl extends GraphProvider {
 
     (nodeFrom, nodeTo) match {
       case (Some(from), Some(to)) => from.addRelation(label, to.id)
-      case (None, _) => println(s"WARNING: Create relationship failed, node with id $node1 not found")
-      case (_, None) => println(s"WARNING: Create relationship failed, node with id $node2 not found")
+      case (None, _) => logger.debug(s"Create relationship failed, node with id $node1 not found")
+      case (_, None) => logger.debug(s"Create relationship failed, node with id $node2 not found")
     }
   }
 
@@ -87,7 +88,7 @@ class GraphProviderImpl extends GraphProvider {
         .foldLeft(new mutable.HashSet[NodeId]())((acc, mp) => acc ++ mp)
         .map(indexedNodes(_)).map(_.toGraphNode)
     } else {
-      println(s"WARNING: Node with id $nodeId does not exist")
+      logger.debug(s"Node with id $nodeId does not exist")
       Iterable.empty
     }
   }
@@ -125,8 +126,8 @@ class GraphProviderImpl extends GraphProvider {
 
     (nodeFrom, nodeTo) match {
       case (Some(_from), Some(_)) => _from.deleteRelationship(label, to)
-      case (None, _) => println(s"WARNING: Node with id $from does not exist")
-      case (_, None) => println(s"WARNING: Node with id $to does not exist")
+      case (None, _) => logger.debug(s"Node with id $from does not exist")
+      case (_, None) => logger.debug(s"Node with id $to does not exist")
     }
   }
 
