@@ -1,5 +1,6 @@
-package com.bharatsim.engine.graph
+package com.bharatsim.engine.graph.custom
 
+import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 
 import scala.collection.mutable
