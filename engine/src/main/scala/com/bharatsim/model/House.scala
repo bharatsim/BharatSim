@@ -2,4 +2,4 @@ package com.bharatsim.model
 
 import com.bharatsim.engine.{Context, Node}
 
-class House()(implicit context: Context) extends Node
+class House() extends Node

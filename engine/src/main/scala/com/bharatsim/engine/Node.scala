@@ -3,6 +3,7 @@ import com.bharatsim.engine.Node.fromGraphNode
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider, GraphProviderFactory}
 
 import scala.collection.mutable
+import scala.reflect.{ClassTag, classTag}
 
 class Node()(implicit graphProvider: GraphProvider =  GraphProviderFactory.get) extends Identity {
   override var id: Int = 0
@@ -32,8 +33,8 @@ class Node()(implicit graphProvider: GraphProvider =  GraphProviderFactory.get) 
     graphProvider.deleteRelationship(id, relation, to.id)
   }
 
-  def getConnections(relation: String): Iterator[Node] = {
-    graphProvider.fetchNeighborsOf(id, relation).map(fromGraphNode(_)).iterator
+  def getConnections[T: ClassTag](relation: String): Iterator[T] = {
+    graphProvider.fetchNeighborsOf(id, relation).map(fromGraphNode[T](_)).iterator
   }
 
   def updateParam(key: String, value: Any): Unit = {
@@ -42,10 +43,12 @@ class Node()(implicit graphProvider: GraphProvider =  GraphProviderFactory.get) 
 }
 
 object Node {
-  def fromGraphNode(graphNode: GraphNode): Node = {
-    val node = new Node()
-    node.setId(graphNode.Id)
-    node.setParams(graphNode.getParams)
-    node
+  def fromGraphNode[T: ClassTag](graphNode: GraphNode): T = {
+    val className = classTag[T].runtimeClass.getName
+    val value = Class.forName(className)
+    val modelInstance = value.getDeclaredConstructor().newInstance().asInstanceOf[Node]
+    modelInstance.setId(graphNode.Id)
+    modelInstance.setParams(graphNode.getParams)
+    modelInstance.asInstanceOf[T]
   }
 }

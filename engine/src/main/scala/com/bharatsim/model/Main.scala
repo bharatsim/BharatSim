@@ -9,18 +9,19 @@ object Main {
     implicit val context: Context = Context(Disease, simulationContext)
 
     ingestData()
-    val beforeCount = context.graphProvider.fetchNodes("Citizens", ("infectionState", Infected)).size
+    val beforeCount = context.graphProvider.fetchNodes("Citizen", ("infectionState", Infected)).size
+    context.registerAgent[Citizen]
 
     Simulation.run(context)
 
-    val afterCount = context.graphProvider.fetchNodes("Citizens", ("infectionState", Infected)).size
+    val afterCount = context.graphProvider.fetchNodes("Citizen", ("infectionState", Infected)).size
 
     println(beforeCount)
     println(afterCount)
   }
 
   private def ingestData()(implicit context: Context): Unit = {
-    val numberOfCitizen = 10
+    val numberOfCitizen = 100
     val houseId = context.graphProvider.createNode("Home")
 
     for (i <- 1 to numberOfCitizen) {
