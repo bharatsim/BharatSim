@@ -1,10 +1,9 @@
 package com.bharatsim.engine.graph.neo4j
 
-import java.nio.file.Path
 import java.util
 
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.{GraphNode, GraphNodeImpl, GraphProvider}
+import com.bharatsim.engine.graph.{GraphData, GraphNode, GraphNodeImpl, GraphProvider}
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Values.{parameters, value}
 import org.neo4j.driver.{AuthTokens, GraphDatabase, Record, Transaction}
@@ -14,7 +13,7 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsSca
 class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging {
   private val neo4jConnection = config.username match {
     case Some(_) => GraphDatabase.driver(config.uri, AuthTokens.basic(config.username.get, config.password.get))
-    case None => GraphDatabase.driver(config.uri)
+    case None    => GraphDatabase.driver(config.uri)
   }
 
   def close(): Unit = {
@@ -60,9 +59,7 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
     }
   }
 
-  override def ingestNodes(csvPath: Path): Unit = ???
-
-  override def ingestRelationships(csvPath: Path): Unit = ???
+  override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = ???
 
   override def fetchNode(label: String, params: Map[String, Any]): Option[GraphNode] = {
     val session = neo4jConnection.session()

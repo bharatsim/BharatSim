@@ -1,7 +1,7 @@
 package com.bharatsim.model
 
 import com.bharatsim.engine.{Agent, Context, Node}
-
+import InfectionStatus._
 import scala.util.Random
 
 class Citizen() extends Agent {
@@ -27,7 +27,7 @@ class Citizen() extends Agent {
 
       val home = getHome
       val infectedCount =
-        context.graphProvider.fetchNeighborsOf(home.id, "MEMBER_OF").count(x => x("infectionState").get == Infected)
+        context.graphProvider.fetchNeighborsOf(home.id, "HOUSES").count(x => x("infectionState").get == Infected)
       val shouldInfect = Random.between(1, 100) <= infectionRate * infectedCount
       if (shouldInfect) {
         updateParam("infectionState", Infected)

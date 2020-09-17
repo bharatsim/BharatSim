@@ -1,0 +1,6 @@
+id,label,age,infectionState,house_id,
+1,Citizen,25,Infected,101
+2,Citizen,35,Infected,102
+3,Citizen,45,Susceptible,101
+4,Citizen,25,Susceptible,102
+5,Citizen,25,Susceptible,103

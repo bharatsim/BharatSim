@@ -4,15 +4,18 @@ import java.nio.file.Path
 
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 
-trait GraphNode {
+trait DataNode {
   def label: String
-
   def Id: NodeId
-
-  def apply(key: String): Option[Any]
-
   def getParams: Map[String, Any]
 }
+
+trait GraphNode extends DataNode {
+  def apply(key: String): Option[Any]
+}
+
+case class Relation(from: DataNode, relation: String, to: DataNode)
+case class GraphData(nodes: List[DataNode], relations: List[Relation])
 
 trait GraphProvider {
   /* CRUD */
@@ -24,10 +27,7 @@ trait GraphProvider {
 
   def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit
 
-  def ingestNodes(csvPath: Path): Unit
-
-  def ingestRelationships(csvPath: Path): Unit
-
+  def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit
   // R
   def fetchNode(label: String, params: Map[String, Any]): Option[GraphNode]
 

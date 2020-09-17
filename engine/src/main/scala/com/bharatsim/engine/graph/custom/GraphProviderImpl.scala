@@ -1,15 +1,14 @@
 package com.bharatsim.engine.graph.custom
 
-import java.nio.file.Path
-
 import com.bharatsim.engine.IdGenerator
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
+import com.bharatsim.engine.graph.{GraphData, GraphNode, GraphProvider}
+import com.github.tototoshi.csv.CSVReader
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.mutable
 
-class GraphProviderImpl extends GraphProvider with LazyLogging{
+class GraphProviderImpl extends GraphProvider with LazyLogging {
 
   import GraphProviderImpl.idGenerator
 
@@ -18,9 +17,17 @@ class GraphProviderImpl extends GraphProvider with LazyLogging{
   private val indexedNodes: mutable.HashMap[NodeId, InternalNode] = mutable.HashMap.empty
 
   override def createNode(label: String, props: Map[String, Any]): NodeId = {
+    val id = idGenerator.generateId
+    createNodeWithId(id, label, props)
+    id
+  }
+
+  override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
+
+  def createNodeWithId(id: NodeId, label: String, props: Map[String, Any]): Unit = {
     val hm = new mutable.HashMap[String, Any]()
     hm.addAll(props)
-    val node = InternalNode(label, idGenerator.generateId, hm)
+    val node = InternalNode(label, id, hm)
 
     if (nodes.contains(label)) {
       nodes(label).put(node.id, node)
@@ -31,10 +38,7 @@ class GraphProviderImpl extends GraphProvider with LazyLogging{
     }
 
     indexedNodes.put(node.id, node)
-    node.id
   }
-
-  override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
 
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
     val nodeFrom = indexedNodes.get(node1)
@@ -42,14 +46,29 @@ class GraphProviderImpl extends GraphProvider with LazyLogging{
 
     (nodeFrom, nodeTo) match {
       case (Some(from), Some(to)) => from.addRelation(label, to.id)
-      case (None, _) => logger.debug(s"Create relationship failed, node with id $node1 not found")
-      case (_, None) => logger.debug(s"Create relationship failed, node with id $node2 not found")
+      case (None, _)              => logger.debug(s"Create relationship failed, node with id $node1 not found")
+      case (_, None)              => logger.debug(s"Create relationship failed, node with id $node2 not found")
     }
   }
 
-  override def ingestNodes(csvPath: Path): Unit = ???
+  override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
+    val reader = CSVReader.open(csvPath);
+    val records = reader.allWithHeaders();
+    if (mapper.isDefined) {
+      records.foreach((record) => {
+        val graphData = mapper.get(record);
+        graphData.nodes.foreach((node) => {
+          if (!indexedNodes.contains(node.Id)) {
+            createNodeWithId(node.Id, node.label, node.getParams)
+          }
+        });
 
-  override def ingestRelationships(csvPath: Path): Unit = ???
+        graphData.relations.foreach((relation) => {
+          createRelationship(relation.from.Id, relation.relation, relation.to.Id)
+        })
+      })
+    }
+  }
 
   override def fetchNode(label: String, params: Map[String, Any] = Map.empty): Option[GraphNode] = {
     if (params.isEmpty) {
@@ -72,8 +91,7 @@ class GraphProviderImpl extends GraphProvider with LazyLogging{
     } else {
       if (nodes.contains(label) && nodes(label).nonEmpty) {
         filterNodesByMatchingParams(label, params).map(_.toGraphNode)
-      }
-      else List.empty
+      } else List.empty
     }
   }
 
@@ -87,7 +105,8 @@ class GraphProviderImpl extends GraphProvider with LazyLogging{
       allLabels
         .map(l => node.fetchNeighborsWithLabel(l))
         .foldLeft(new mutable.HashSet[NodeId]())((acc, mp) => acc ++ mp)
-        .map(indexedNodes(_)).map(_.toGraphNode)
+        .map(indexedNodes(_))
+        .map(_.toGraphNode)
     } else {
       logger.debug(s"Node with id $nodeId does not exist")
       Iterable.empty
@@ -127,8 +146,8 @@ class GraphProviderImpl extends GraphProvider with LazyLogging{
 
     (nodeFrom, nodeTo) match {
       case (Some(_from), Some(_)) => _from.deleteRelationship(label, to)
-      case (None, _) => logger.debug(s"Node with id $from does not exist")
-      case (_, None) => logger.debug(s"Node with id $to does not exist")
+      case (None, _)              => logger.debug(s"Node with id $from does not exist")
+      case (_, None)              => logger.debug(s"Node with id $to does not exist")
     }
   }
 

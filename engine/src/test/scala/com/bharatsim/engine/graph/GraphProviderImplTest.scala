@@ -1,10 +1,12 @@
 package com.bharatsim.engine.graph
 
+import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.custom.GraphProviderImpl
+import org.mockito.MockitoSugar
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-class GraphProviderImplTest extends AnyWordSpec with Matchers {
+class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar {
   "fetchNode" when {
     "provided with only label" should {
       "return any node with given label" in {
@@ -29,7 +31,6 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers {
         val graphProvider = new GraphProviderImpl()
         graphProvider.createNode("Person", Map(("name", "Suresh"), ("age", 32)))
 
-
         val result1 = graphProvider.fetchNode("Person", Map(("name", "Suresh"), ("age", 32)))
         val result2 = graphProvider.fetchNode("Person", Map(("name", "Suresh")))
         val result3 = graphProvider.fetchNode("Person", Map(("age", 32)))
@@ -45,7 +46,6 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers {
       "return no node if label and properties does not match with any node" in {
         val graphProvider = new GraphProviderImpl()
         graphProvider.createNode("Person", Map(("name", "Suresh"), ("age", 32)))
-
 
         val result1 = graphProvider.fetchNode("Person", Map(("name", "Suresh"), ("age", 32)))
         val result2 = graphProvider.fetchNode("Person", Map(("name", "Suresh")))
@@ -238,6 +238,63 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers {
 
       graphProvider.fetchNodes("Person").size shouldBe 0
       graphProvider.fetchNeighborsOf(node1, "Person").size shouldBe 0
+    }
+  }
+
+  "ingestFromCsv" should {
+    "create node from CSV file" in {
+      val filePath = "src/test/scala/com/bharatsim/engine/graph/sample.csv"
+      val mapper = Some((map: Map[String, String]) => {
+        val citizenNode = new DataNode {
+          override def label = map("label");
+
+          override def Id = map("id").toInt
+
+          override def getParams: Map[String, Any] = Map("age" -> map("age").toInt)
+        }
+        GraphData(List(citizenNode), List.empty)
+      })
+
+      val graphProvider = new GraphProviderImpl
+      graphProvider.ingestFromCsv(filePath, mapper)
+      val nodes = graphProvider.fetchNodes("Citizen").toList
+      nodes should have length 2
+      nodes.head.Id shouldBe 1
+      nodes.head.getParams("age") shouldBe 25
+      nodes.tail.head.Id shouldBe 2
+      nodes.tail.head.getParams("age") shouldBe 35
+    }
+
+    "create relations from CSV file" in {
+      val filePath = "src/test/scala/com/bharatsim/engine/graph/sample.csv"
+      val mapper = Some((map: Map[String, String]) => {
+        val citizenNode = new DataNode {
+          override def label = map("label");
+
+          override def Id = map("id").toInt
+
+          override def getParams: Map[String, Any] = Map("age" -> map("age").toInt)
+        }
+        val homeNode = new DataNode {
+          override def label: String = "House";
+
+          override def Id: NodeId = map("house_id").toInt
+
+          override def getParams: Map[String, Any] = Map.empty
+        }
+        val staysAt = Relation(citizenNode, "STAYS_AT", homeNode)
+        val memberOf = Relation(homeNode, "HOUSES", citizenNode)
+        GraphData(List(citizenNode, homeNode), List(staysAt, memberOf))
+      })
+
+      val graphProvider = new GraphProviderImpl
+      graphProvider.ingestFromCsv(filePath, mapper)
+      val house = graphProvider.fetchNode("House").toList.head
+      val citizensId = graphProvider.fetchNeighborsOf(house.Id, "HOUSES").toList.map(_.Id)
+
+      citizensId should have length 2
+      citizensId should contain(1)
+      citizensId should contain(2)
     }
   }
 }
