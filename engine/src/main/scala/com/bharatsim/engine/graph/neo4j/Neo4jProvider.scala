@@ -5,10 +5,11 @@ import java.util
 
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
+import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Values.parameters
 import org.neo4j.driver.{AuthTokens, GraphDatabase, Transaction}
 
-class Neo4jProvider(config: Neo4jConfig) extends GraphProvider {
+class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging {
   private val neo4jConnection = config.username match {
     case Some(_) => GraphDatabase.driver(config.uri, AuthTokens.basic(config.username.get, config.password.get))
     case None => GraphDatabase.driver(config.uri)
@@ -38,7 +39,25 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider {
 
   override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
 
-  override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = ???
+  override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
+    val session = neo4jConnection.session()
+
+    try {
+      session.writeTransaction((tx: Transaction) => {
+        tx.run(
+          s"""
+             |OPTIONAL MATCH (node1) WHERE id(node1) = $$nodeId1
+             |OPTIONAL MATCH (node2) WHERE id(node2) = $$nodeId2
+             |CREATE (node1)-[:$label]-> (node2)
+             |""".stripMargin,
+          parameters("nodeId1", node1, "nodeId2", node2))
+      })
+    } catch {
+      case e: Exception => logger.error(s"Failed to create relation '{}' due to reason -> {}", label, e.getMessage)
+    } finally {
+      session.close()
+    }
+  }
 
   override def ingestNodes(csvPath: Path): Unit = ???
 
