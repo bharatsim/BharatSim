@@ -11,7 +11,7 @@
         <queueSize>512</queueSize>
     </appender>
 
-    <root level="trace">
+    <root level="info">
         <appender-ref ref="ASYNC" />
     </root>
 </configuration>
