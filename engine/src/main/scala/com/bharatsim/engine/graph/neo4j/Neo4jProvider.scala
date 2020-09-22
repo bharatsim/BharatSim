@@ -7,10 +7,9 @@ import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.{GraphNode, GraphNodeImpl, GraphProvider}
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Values.{parameters, value}
-import org.neo4j.driver.{AuthTokens, GraphDatabase, Transaction}
+import org.neo4j.driver.{AuthTokens, GraphDatabase, Record, Transaction}
 
-import scala.jdk.CollectionConverters.{MapHasAsJava, MapHasAsScala}
-
+import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsScala}
 
 class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging {
   private val neo4jConnection = config.username match {
@@ -29,9 +28,7 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
       val javaMap = new util.HashMap[String, java.lang.Object]()
       props.foreach(kv => javaMap.put(kv._1, kv._2.asInstanceOf[java.lang.Object]))
 
-      val result = tx.run(
-        s"CREATE (n:$label) SET n=$$props return id(n) as nodeId",
-        parameters("props", javaMap))
+      val result = tx.run(s"CREATE (n:$label) SET n=$$props return id(n) as nodeId", parameters("props", javaMap))
 
       result.next().get("nodeId").asInt()
     })
@@ -53,7 +50,8 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
              |OPTIONAL MATCH (node2) WHERE id(node2) = $$nodeId2
              |CREATE (node1)-[:$label]-> (node2)
              |""".stripMargin,
-          parameters("nodeId1", node1, "nodeId2", node2))
+          parameters("nodeId1", node1, "nodeId2", node2)
+        )
       })
     } catch {
       case e: Exception => logger.error(s"Failed to create relation '{}' due to reason -> {}", label, e.getMessage)
@@ -68,37 +66,35 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
 
   override def fetchNode(label: String, params: Map[String, Any]): Option[GraphNode] = {
     val session = neo4jConnection.session()
-    val matchCriteria = toMatchCriteria(params)
 
     session.readTransaction((tx: Transaction) => {
       val paramsMapJava = params.map(kv => (kv._1, value(kv._2))).asJava
 
-      val result = tx.run(
-        s"MATCH (n:$label) where $matchCriteria return properties(n) as node, id(n) as nodeId",
-        value(paramsMapJava)
-      )
+      val result = tx.run(makeMatchNodeQuery(label, params, Some(1)), value(paramsMapJava))
 
       if (result.hasNext) {
         val record = result.next()
-        val node = record.get("node").asMap()
-        val nodeId = record.get("nodeId").asInt()
-
-        val mapWithValueTypeAny = node.asScala.map(kv => (kv._1, kv._2.asInstanceOf[Any])).toMap
-        val graphNode = new GraphNodeImpl(label, nodeId, mapWithValueTypeAny)
-        Some(graphNode)
+        Some(extractGraphNode(label, record))
       } else {
         None
       }
     })
   }
 
-  private def toMatchCriteria(params: Map[String, Any]): String = {
-    params.keys.map(key => s"n.$key = $$$key").mkString(" and ")
+  override def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode] = {
+    val session = neo4jConnection.session()
+
+    val nodes: util.List[GraphNode] = session.readTransaction((tx: Transaction) => {
+      val paramsMapJava = params.map(kv => (kv._1, value(kv._2))).asJava
+
+      val result = tx.run(makeMatchNodeQuery(label, params), value(paramsMapJava))
+
+      result.list[GraphNode](record => extractGraphNode(label, record))
+    })
+    nodes.asScala
   }
 
-  override def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode] = ???
-
-  override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = ???
+  override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
   override def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode] = ???
 
@@ -113,4 +109,26 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
   override def deleteNodes(label: String, props: Map[String, Any]): Unit = ???
 
   override def deleteAll(): Unit = ???
+
+  private def toMatchCriteria(params: Map[String, Any]): String = {
+    params.keys.map(key => s"n.$key = $$$key").mkString(" and ")
+  }
+
+  private def makeMatchNodeQuery(label: String, params: Map[String, Any], limit: Option[Int] = None) = {
+    val limitClause = if (limit.isDefined) s"LIMIT ${limit.get}" else ""
+
+    if (params.isEmpty) s"MATCH (n:$label) RETURN properties(n) AS node, id(n) AS nodeId $limitClause"
+    else {
+      val matchCriteria = toMatchCriteria(params)
+      s"MATCH (n:$label) WHERE $matchCriteria RETURN properties(n) AS node, id(n) AS nodeId $limitClause"
+    }
+  }
+
+  private def extractGraphNode(label: String, record: Record) = {
+    val node = record.get("node").asMap()
+    val nodeId = record.get("nodeId").asInt()
+
+    val mapWithValueTypeAny = node.asScala.map(kv => (kv._1, kv._2.asInstanceOf[Any])).toMap
+    new GraphNodeImpl(label, nodeId, mapWithValueTypeAny)
+  }
 }
