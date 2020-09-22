@@ -1,9 +1,10 @@
-package com.bharatsim.engine.graph
+package com.bharatsim.engine.graph.custom
 
 import java.nio.file.Path
 
 import com.bharatsim.engine.IdGenerator
 import com.bharatsim.engine.graph.GraphProvider.NodeId
+import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.mutable

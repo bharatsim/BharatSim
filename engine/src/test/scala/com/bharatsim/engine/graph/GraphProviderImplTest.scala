@@ -1,5 +1,6 @@
 package com.bharatsim.engine.graph
 
+import com.bharatsim.engine.graph.custom.GraphProviderImpl
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
