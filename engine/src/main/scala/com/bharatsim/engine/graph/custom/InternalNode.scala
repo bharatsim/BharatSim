@@ -1,17 +1,9 @@
 package com.bharatsim.engine.graph.custom
 
-import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
+import com.bharatsim.engine.graph.{GraphNode, GraphNodeImpl}
 
 import scala.collection.mutable
-
-class GraphNodeImpl(override val label: String, id: NodeId, params: Map[String, Any] = Map.empty) extends GraphNode {
-  override def Id: NodeId = id
-
-  override def apply(key: String): Option[Any] = params.get(key)
-
-  override def getParams: Map[String, Any] = params
-}
 
 
 case class InternalNode(label: String, id: NodeId, params: mutable.HashMap[String, Any]) {
