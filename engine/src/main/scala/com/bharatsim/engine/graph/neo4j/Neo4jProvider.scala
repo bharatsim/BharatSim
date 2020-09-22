@@ -9,7 +9,7 @@ import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Values.{parameters, value}
 import org.neo4j.driver.{AuthTokens, GraphDatabase, Record, Transaction}
 
-import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsScala}
+import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsScala, SeqHasAsJava}
 
 class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging {
   private val neo4jConnection = config.username match {
@@ -96,7 +96,25 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
 
   override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
-  override def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode] = ???
+  override def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode] = {
+    val session = neo4jConnection.session()
+    val allLabels = label :: labels.toList
+    val labelAOrLabelB = allLabels.mkString(" | ")
+
+    session
+      .readTransaction((tx: Transaction) => {
+        val result = tx.run(
+          s"""MATCH (n) where id(n) = $$nodeId with n
+             |MATCH (n)-[:$labelAOrLabelB]->(o)
+             |RETURN id(o) as nodeId, properties(o) as node, labels(o) as nodeLabels
+             |""".stripMargin,
+          parameters("nodeId", nodeId)
+        )
+
+        result.list(record => extractGraphNode("", record))
+      })
+      .asScala
+  }
 
   override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = ???
 
@@ -127,8 +145,9 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
   private def extractGraphNode(label: String, record: Record) = {
     val node = record.get("node").asMap()
     val nodeId = record.get("nodeId").asInt()
+    val extractedLabel = record.get("nodeLabels").asList(List[AnyRef](label).asJava)
 
     val mapWithValueTypeAny = node.asScala.map(kv => (kv._1, kv._2.asInstanceOf[Any])).toMap
-    new GraphNodeImpl(label, nodeId, mapWithValueTypeAny)
+    new GraphNodeImpl(extractedLabel.get(0).toString, nodeId, mapWithValueTypeAny)
   }
 }
