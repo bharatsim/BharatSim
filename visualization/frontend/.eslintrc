@@ -21,7 +21,7 @@
       "rules": {
         "react/prop-types": "off",
         "arrow-body-style": "warn",
-        "react/jsx-props-no-spreading": "off",
+        "react/jsx-props-no-spreading": "off"
       }
     }
   ],

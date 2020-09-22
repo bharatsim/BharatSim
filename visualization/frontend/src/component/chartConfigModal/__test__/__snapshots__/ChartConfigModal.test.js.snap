@@ -45,7 +45,7 @@ exports[`<ChartConfigModal /> should match a snapshot for <ChartConfigModal /> 1
     class="MuiDialogContent-root WithStyles(ForwardRef(DialogContent))-root-4"
   >
     <div
-      class="MuiBox-root MuiBox-root-5 ChartConfigModal-root-1"
+      class="MuiBox-root MuiBox-root-5 makeStyles-configContent-1"
     >
       <div
         class="MuiFormControl-root makeStyles-formControl-11"

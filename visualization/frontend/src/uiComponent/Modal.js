@@ -15,26 +15,26 @@ import ButtonGroup from './ButtonGroup';
 const styles = (theme) => ({
   root: {
     margin: 0,
-    padding: theme.spacing(2),
+    padding: theme.spacing(4),
   },
   closeButton: {
     position: 'absolute',
-    right: theme.spacing(1),
-    top: theme.spacing(1),
+    right: theme.spacing(2),
+    top: theme.spacing(2),
     color: theme.palette.grey[500],
   },
 });
 
 const DialogContent = withStyles((theme) => ({
   root: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(4),
   },
 }))(MuiDialogContent);
 
 const DialogActions = withStyles((theme) => ({
   root: {
     margin: 0,
-    padding: theme.spacing(1),
+    padding: theme.spacing(4),
   },
 }))(MuiDialogActions);
 

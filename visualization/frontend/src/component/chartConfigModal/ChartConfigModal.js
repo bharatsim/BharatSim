@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Box, withStyles } from '@material-ui/core';
-import styles from './chartConfigModalCss';
+import { Box } from '@material-ui/core';
 
 import useForm from '../../hook/useForm';
 import chartConfigs from '../../config/chartConfigs';
@@ -12,8 +11,9 @@ import DatasourceSelector from './DatasourceSelector';
 import ChartConfigSelector from './ChartConfigSelector';
 import useFetch from '../../hook/useFetch';
 import { api } from '../../utils/api';
+import styles from './chartConfigModalCss';
 
-function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
+function ChartConfigModal({ open, onCancel, onOk, chartType }) {
   const {
     values,
     validateAndSetValue,
@@ -25,6 +25,8 @@ function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
     ...chartConfigs[chartType].configOptionValidationSchema,
     dataSource: datasourceValidator,
   });
+
+  const classes = styles();
 
   const { data: datasources, loadingState } = useFetch(api.getDatasources);
 
@@ -46,7 +48,7 @@ function ChartConfigModal({ open, onCancel, onOk, chartType, classes }) {
 
   return (
     <Modal handleClose={onCancel} open={open} title="Configure Chart" actions={modalActions}>
-      <Box className={classes.root} p={2}>
+      <Box className={classes.configContent} p={2}>
         <DatasourceSelector
           value={values.dataSource}
           error={errors.dataSource}
@@ -73,10 +75,6 @@ ChartConfigModal.propTypes = {
   onCancel: PropTypes.func.isRequired,
   onOk: PropTypes.func.isRequired,
   chartType: PropTypes.string.isRequired,
-  classes: PropTypes.shape({
-    root: PropTypes.string,
-  }).isRequired,
 };
 
-export default withStyles(styles)(ChartConfigModal);
-export { ChartConfigModal };
+export default ChartConfigModal;

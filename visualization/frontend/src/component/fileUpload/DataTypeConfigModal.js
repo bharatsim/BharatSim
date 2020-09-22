@@ -16,11 +16,12 @@ const dropdownStyles = makeStyles(() => ({
     width: '100%',
   },
 }));
+
 const styles = makeStyles((theme) => ({
   configContainer: {
-    width: theme.spacing(60),
-    height: theme.spacing(50),
-    padding: theme.spacing(2),
+    width: theme.spacing(140),
+    height: theme.spacing(100),
+    padding: theme.spacing(4),
   },
 }));
 

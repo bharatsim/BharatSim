@@ -42,39 +42,39 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
     },
     "type": "light",
     "primary": {
-      "main": "rgba(0, 0, 0, 0.87)",
-      "light": "rgba(0, 0, 0, 0.54)",
-      "dark": "rgba(0, 0, 0, 0.54)",
+      "main": "#282154",
+      "light": "#413288",
+      "dark": "#535DA8",
       "contrastText": "#fff"
     },
     "secondary": {
-      "main": "#e33371",
-      "light": "#dc004e",
-      "dark": "#9a0036",
+      "main": "#494949",
+      "light": "#757575",
+      "dark": "#A4A4A4",
       "contrastText": "#fff"
     },
     "error": {
-      "light": "#e57373",
-      "main": "#f44336",
-      "dark": "#d32f2f",
+      "light": "#C31E0E",
+      "main": "#FD583A",
+      "dark": "#FF8B66",
       "contrastText": "#fff"
     },
     "warning": {
-      "light": "#ffb74d",
-      "main": "#ff9800",
-      "dark": "#f57c00",
+      "light": "#F37C22",
+      "main": "#FD9827",
+      "dark": "#FFC46A",
       "contrastText": "rgba(0, 0, 0, 0.87)"
     },
     "info": {
-      "light": "#64b5f6",
-      "main": "#2196f3",
-      "dark": "#1976d2",
+      "light": "#0F74D5",
+      "main": "#2593FC",
+      "dark": "#70D2FF",
       "contrastText": "#fff"
     },
     "success": {
-      "light": "#81c784",
-      "main": "#4caf50",
-      "dark": "#388e3c",
+      "light": "#579B21",
+      "main": "#57C22D",
+      "dark": "#9EED7E",
       "contrastText": "rgba(0, 0, 0, 0.87)"
     },
     "grey": {
@@ -96,9 +96,9 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
     "contrastThreshold": 3,
     "tonalOffset": 0.2,
     "text": {
-      "primary": "rgba(0, 0, 0, 0.87)",
-      "secondary": "rgba(0, 0, 0, 0.54)",
-      "disabled": "rgba(0, 0, 0, 0.38)",
+      "primary": "#FFFFFF",
+      "secondary": "rgba(255, 255, 255, 0.8)",
+      "disabled": "rgba(255, 255, 255, 0.6)",
       "hint": "rgba(0, 0, 0, 0.38)"
     },
     "divider": "rgba(0, 0, 0, 0.12)",
