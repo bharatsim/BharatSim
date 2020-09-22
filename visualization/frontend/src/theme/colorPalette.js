@@ -1,4 +1,33 @@
-export default {
+const colors = {
+  primaryColorScale: {
+    800: '#282154',
+    700: '#392F75',
+    600: '#493C97',
+    500: '#594AB7',
+    400: '#7769C5',
+    200: '#B4ABDF',
+    100: '#D2CDEB',
+    50: '#F0EEF9',
+  },
+  grayScale: {
+    800: '#343A40',
+    700: '#4a4f55',
+    600: '#61666b',
+    500: '#797d82',
+    400: '#929599',
+    300: '#abaeb2',
+    200: '#c5c7cb',
+    100: '#e0e1e4',
+    50: '#fbfcfe',
+  },
+  textLight: {
+    primary: '#FFFFFF',
+    secondary: 'rgba(255, 255, 255, 0.8)',
+    disabled: 'rgba(255, 255, 255, 0.6)',
+  },
+};
+
+const muiColorPalette = {
   type: 'light',
   primary: {
     main: '#282154',
@@ -31,9 +60,9 @@ export default {
     dark: '#9EED7E',
   },
   text: {
-    primary: '#FFFFFF',
-    secondary: 'rgba(255, 255, 255, 0.8)',
-    disabled: 'rgba(255, 255, 255, 0.6)',
+    primary: '#343A40',
+    secondary: 'rgba(52, 58, 64, 0.64)',
+    disabled: 'rgba(52, 58, 64, 0.38)',
   },
   action: {
     active: 'rgba(0, 0, 0, 0.54)',
@@ -50,7 +79,9 @@ export default {
   },
   divider: 'rgba(0, 0, 0, 0.12)',
   background: {
-    paper: 'white',
-    default: '#E5E5E5',
+    paper: '#fff',
+    default: '#fafafa',
   },
 };
+
+export { muiColorPalette, colors };

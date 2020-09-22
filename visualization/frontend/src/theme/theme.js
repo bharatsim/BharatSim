@@ -1,13 +1,14 @@
 import { createMuiTheme } from '@material-ui/core/styles';
-import colorPalette from './colorPalette';
+import { muiColorPalette, colors } from './colorPalette';
 
 const THEME_UNIT_SPACING = 4;
 
 const theme = createMuiTheme({
+  colors,
   typography: {
     fontFamily: '"Roboto", sans-serif',
   },
-  palette: colorPalette,
+  palette: muiColorPalette,
   spacing: THEME_UNIT_SPACING,
 });
 

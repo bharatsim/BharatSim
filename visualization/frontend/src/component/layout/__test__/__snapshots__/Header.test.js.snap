@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<App /> should match snapshot 1`] = `
+exports[`<Header /> should match snapshot 1`] = `
 <div>
   <div>
     <header
@@ -15,12 +15,8 @@ exports[`<App /> should match snapshot 1`] = `
         />
       </div>
     </header>
-    <div
-      class="makeStyles-root-5"
-    >
-      <div>
-        home
-      </div>
+    <div>
+      DummyController
     </div>
   </div>
 </div>

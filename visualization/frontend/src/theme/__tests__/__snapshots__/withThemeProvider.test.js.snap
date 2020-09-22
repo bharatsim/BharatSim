@@ -96,15 +96,15 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
     "contrastThreshold": 3,
     "tonalOffset": 0.2,
     "text": {
-      "primary": "#FFFFFF",
-      "secondary": "rgba(255, 255, 255, 0.8)",
-      "disabled": "rgba(255, 255, 255, 0.6)",
+      "primary": "#343A40",
+      "secondary": "rgba(52, 58, 64, 0.64)",
+      "disabled": "rgba(52, 58, 64, 0.38)",
       "hint": "rgba(0, 0, 0, 0.38)"
     },
     "divider": "rgba(0, 0, 0, 0.12)",
     "background": {
-      "paper": "white",
-      "default": "#E5E5E5"
+      "paper": "#fff",
+      "default": "#fafafa"
     },
     "action": {
       "active": "rgba(0, 0, 0, 0.54)",
@@ -265,6 +265,34 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
     "modal": 1300,
     "snackbar": 1400,
     "tooltip": 1500
+  },
+  "colors": {
+    "primaryColorScale": {
+      "50": "#F0EEF9",
+      "100": "#D2CDEB",
+      "200": "#B4ABDF",
+      "400": "#7769C5",
+      "500": "#594AB7",
+      "600": "#493C97",
+      "700": "#392F75",
+      "800": "#282154"
+    },
+    "grayScale": {
+      "50": "#fbfcfe",
+      "100": "#e0e1e4",
+      "200": "#c5c7cb",
+      "300": "#abaeb2",
+      "400": "#929599",
+      "500": "#797d82",
+      "600": "#61666b",
+      "700": "#4a4f55",
+      "800": "#343A40"
+    },
+    "textLight": {
+      "primary": "#FFFFFF",
+      "secondary": "rgba(255, 255, 255, 0.8)",
+      "disabled": "rgba(255, 255, 255, 0.6)"
+    }
   }
 }
     </span>
