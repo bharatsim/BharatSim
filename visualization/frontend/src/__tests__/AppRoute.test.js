@@ -7,6 +7,7 @@ import AppRoute from '../AppRoute';
 
 jest.mock('../component/dashboardLayout/DashboardLayout', () => () => <div>Dashboard Layout</div>);
 jest.mock('../component/project/Project', () => () => <div>Project</div>);
+jest.mock('../component/home/Home', () => () => <div>Home</div>);
 
 function renderWithRouter(
   ui,
@@ -34,6 +35,6 @@ describe('<AppRoute />', () => {
   it('should navigate to home page ', () => {
     const { container } = renderWithRouter(<AppRoute />, { route: '/' });
 
-    expect(container.innerHTML).toMatch('home');
+    expect(container.innerHTML).toMatch('Home');
   });
 });

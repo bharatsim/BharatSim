@@ -34,7 +34,38 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
       }
     }
   },
-  "overrides": {},
+  "overrides": {
+    "MuiButton": {
+      "sizeLarge": {
+        "height": 36
+      },
+      "sizeSmall": {
+        "height": 28
+      },
+      "contained": {
+        "color": "#FFFFFF",
+        "backgroundColor": "#594AB7",
+        "&:hover": {
+          "backgroundColor": "rgba(89, 74, 183, 0.08)"
+        },
+        "&$disabled": {
+          "color": "rgba(52, 58, 64, 0.38)",
+          "backgroundColor": "#e0e1e4"
+        }
+      },
+      "outlined": {
+        "border": "1px solid",
+        "color": "#594AB7",
+        "borderColor": "#694ED6",
+        "&: focus": {
+          "backgroundColor": "rgba(89, 74, 183, 0.2)"
+        },
+        "&: hover": {
+          "backgroundColor": "rgba(89, 74, 183, 0.08)"
+        }
+      }
+    }
+  },
   "palette": {
     "common": {
       "black": "#000",
@@ -150,90 +181,103 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
   ],
   "typography": {
     "htmlFontSize": 16,
-    "fontFamily": "\\"Roboto\\", sans-serif",
+    "fontFamily": "\\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
     "fontSize": 14,
     "fontWeightLight": 300,
     "fontWeightRegular": 400,
     "fontWeightMedium": 500,
     "fontWeightBold": 700,
     "h1": {
-      "fontFamily": "\\"Roboto\\", sans-serif",
+      "fontFamily": "\\"Rubik\\", sans-serif",
       "fontWeight": 300,
       "fontSize": "6rem",
-      "lineHeight": 1.167
+      "lineHeight": 1.167,
+      "letterSpacing": "-0.01562em"
     },
     "h2": {
-      "fontFamily": "\\"Roboto\\", sans-serif",
+      "fontFamily": "\\"Rubik\\", sans-serif",
       "fontWeight": 300,
       "fontSize": "3.75rem",
-      "lineHeight": 1.2
+      "lineHeight": 1.2,
+      "letterSpacing": "-0.00833em"
     },
     "h3": {
-      "fontFamily": "\\"Roboto\\", sans-serif",
+      "fontFamily": "\\"Rubik\\", sans-serif",
       "fontWeight": 400,
       "fontSize": "3rem",
-      "lineHeight": 1.167
+      "lineHeight": 1.167,
+      "letterSpacing": "0em"
     },
     "h4": {
-      "fontFamily": "\\"Roboto\\", sans-serif",
+      "fontFamily": "\\"Rubik\\", sans-serif",
       "fontWeight": 400,
       "fontSize": "2.125rem",
-      "lineHeight": 1.235
+      "lineHeight": 1.235,
+      "letterSpacing": "0.00735em"
     },
     "h5": {
-      "fontFamily": "\\"Roboto\\", sans-serif",
+      "fontFamily": "\\"Rubik\\", sans-serif",
       "fontWeight": 400,
       "fontSize": "1.5rem",
-      "lineHeight": 1.334
+      "lineHeight": 1.334,
+      "letterSpacing": "0em"
     },
     "h6": {
-      "fontFamily": "\\"Roboto\\", sans-serif",
+      "fontFamily": "\\"Rubik\\", sans-serif",
       "fontWeight": 500,
       "fontSize": "1.25rem",
-      "lineHeight": 1.6
+      "lineHeight": 1.6,
+      "letterSpacing": "0.0075em"
     },
     "subtitle1": {
-      "fontFamily": "\\"Roboto\\", sans-serif",
+      "fontFamily": "\\"Rubik\\", sans-serif",
       "fontWeight": 400,
       "fontSize": "1rem",
-      "lineHeight": 1.75
+      "lineHeight": 1.75,
+      "letterSpacing": "0.00938em"
     },
     "subtitle2": {
-      "fontFamily": "\\"Roboto\\", sans-serif",
+      "fontFamily": "\\"Rubik\\", sans-serif",
       "fontWeight": 500,
       "fontSize": "0.875rem",
-      "lineHeight": 1.57
+      "lineHeight": 1.57,
+      "letterSpacing": "0.00714em"
     },
     "body1": {
       "fontFamily": "\\"Roboto\\", sans-serif",
       "fontWeight": 400,
       "fontSize": "1rem",
-      "lineHeight": 1.5
+      "lineHeight": 1.5,
+      "letterSpacing": "0.00938em"
     },
     "body2": {
       "fontFamily": "\\"Roboto\\", sans-serif",
       "fontWeight": 400,
       "fontSize": "0.875rem",
-      "lineHeight": 1.43
+      "lineHeight": 1.43,
+      "letterSpacing": "0.01071em"
     },
     "button": {
       "fontFamily": "\\"Roboto\\", sans-serif",
       "fontWeight": 500,
       "fontSize": "0.875rem",
       "lineHeight": 1.75,
-      "textTransform": "uppercase"
+      "letterSpacing": "0.02857em",
+      "textTransform": "inherit"
     },
     "caption": {
       "fontFamily": "\\"Roboto\\", sans-serif",
       "fontWeight": 400,
       "fontSize": "0.75rem",
-      "lineHeight": 1.66
+      "lineHeight": 1.66,
+      "letterSpacing": "0.03333em"
     },
     "overline": {
       "fontFamily": "\\"Roboto\\", sans-serif",
       "fontWeight": 400,
       "fontSize": "0.75rem",
       "lineHeight": 2.66,
+      "letterSpacing": "0.08333em",
       "textTransform": "uppercase"
     }
   },
@@ -287,6 +331,10 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
       "600": "#61666b",
       "700": "#4a4f55",
       "800": "#343A40"
+    },
+    "button": {
+      "borderColor": "#694ED6",
+      "color": "#FFFFFF"
     },
     "textLight": {
       "primary": "#FFFFFF",

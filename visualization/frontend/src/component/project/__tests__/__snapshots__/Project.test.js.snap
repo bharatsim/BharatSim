@@ -2,8 +2,10 @@
 
 exports[`Project should match snapshot 1`] = `
 <div>
-  <div>
-    Projects 
+  <div
+    class="MuiBox-root MuiBox-root-1"
+  >
+    Project
   </div>
 </div>
 `;

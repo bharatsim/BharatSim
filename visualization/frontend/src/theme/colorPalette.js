@@ -20,6 +20,10 @@ const colors = {
     100: '#e0e1e4',
     50: '#fbfcfe',
   },
+  button: {
+    borderColor: '#694ED6',
+    color: '#FFFFFF',
+  },
   textLight: {
     primary: '#FFFFFF',
     secondary: 'rgba(255, 255, 255, 0.8)',

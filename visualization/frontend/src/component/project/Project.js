@@ -1,7 +1,8 @@
 import React from 'react';
+import Box from '@material-ui/core/Box';
 
 function Project() {
-  return <div>Projects </div>;
+  return <Box>Project</Box>;
 }
 
 export default Project;
