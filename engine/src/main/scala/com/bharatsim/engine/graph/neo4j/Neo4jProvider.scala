@@ -154,7 +154,22 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
     session.close()
   }
 
-  override def deleteRelationship(from: NodeId, label: String, to: NodeId): Unit = ???
+  override def deleteRelationship(from: NodeId, label: String, to: NodeId): Unit = {
+    val query =
+      s"""MATCH (a) where id(a) = $$from
+         |MATCH (b) where id(b) = $$to
+         |MATCH (a)-[rel:$label]->(b)
+         |DELETE rel""".stripMargin
+
+    val session = neo4jConnection.session()
+
+    session.writeTransaction(tx => {
+      tx.run(query, parameters("from", from, "to", to))
+      tx.commit()
+    })
+
+    session.close()
+  }
 
   override def deleteNodes(label: String, props: Map[String, Any]): Unit = ???
 
