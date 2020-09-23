@@ -139,7 +139,20 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
   override def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit =
     updateNode(nodeId, (prop :: props.toList).toMap)
 
-  override def deleteNode(nodeId: NodeId): Unit = ???
+  override def deleteNode(nodeId: NodeId): Unit = {
+    val query =
+      """MATCH (n) where id(n) = $nodeId
+        |DETACH DELETE n""".stripMargin
+
+    val session = neo4jConnection.session()
+
+    session.writeTransaction(tx => {
+      tx.run(query, parameters("nodeId", nodeId))
+      tx.commit()
+    })
+
+    session.close()
+  }
 
   override def deleteRelationship(from: NodeId, label: String, to: NodeId): Unit = ???
 
