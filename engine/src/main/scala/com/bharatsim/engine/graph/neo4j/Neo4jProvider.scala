@@ -64,7 +64,7 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
   override def fetchNode(label: String, params: Map[String, Any]): Option[GraphNode] = {
     val session = neo4jConnection.session()
 
-    session.readTransaction((tx: Transaction) => {
+    val retValue = session.readTransaction((tx: Transaction) => {
       val paramsMapJava = params.map(kv => (kv._1, value(kv._2))).asJava
 
       val result = tx.run(makeMatchNodeQuery(label, params, Some(1)), value(paramsMapJava))
@@ -76,6 +76,9 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
         None
       }
     })
+
+    session.close()
+    retValue
   }
 
   override def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode] = {
@@ -88,6 +91,7 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
 
       result.list[GraphNode](record => extractGraphNode(label, record))
     })
+    session.close()
     nodes.asScala
   }
 
@@ -98,7 +102,7 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
     val allLabels = label :: labels.toList
     val labelAOrLabelB = allLabels.mkString(" | ")
 
-    session
+    val retValue = session
       .readTransaction((tx: Transaction) => {
         val result = tx.run(
           s"""MATCH (n) where id(n) = $$nodeId with n
@@ -110,7 +114,9 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
 
         result.list(record => extractGraphNode("", record))
       })
-      .asScala
+
+    session.close()
+    retValue.asScala
   }
 
   override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = ???
