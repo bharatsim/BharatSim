@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const LOGGER_FORMAT_STRING = ':method :url :status :res[content-length] - :response-time ms';
 const apiRoutes = require('./src/controller/datasourcesController.js');
 const dashBoardRoutes = require('./src/controller/dashboardController.js');
+const projectRoutes = require('./src/controller/projectController.js');
 require('./setupDB');
 
 const FILE_UPLOAD_PATH = './uploads/';
@@ -25,6 +26,7 @@ const port = 3005;
 app.get('/', (req, res) => res.send('Hello World!'));
 app.use('/datasources', apiRoutes);
 app.use('/dashboard', dashBoardRoutes);
+app.use('/project', projectRoutes);
 
 // eslint-disable-next-line no-console
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));

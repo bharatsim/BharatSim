@@ -1,0 +1,60 @@
+const express = require('express');
+const request = require('supertest');
+
+const projectRoutes = require('../../src/controller/projectController');
+const projectService = require('../../src/services/projectService');
+const InvalidInputException = require('../../src/exceptions/InvalidInputException');
+
+jest.mock('../../src/services/projectService');
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use('/project', projectRoutes);
+
+describe('ProjectController', function () {
+  describe('Post /', function () {
+    it('should create new project for given config', async function () {
+      projectService.addNewProject.mockResolvedValue({ projectId: '_id' });
+
+      await request(app).post('/project').send({ projectData: 'Data' }).expect(200);
+
+      expect(projectService.addNewProject).toHaveBeenCalledWith('Data');
+    });
+    it('should throw invalid input exception while creating new project with invalid data', async function () {
+      projectService.addNewProject.mockRejectedValue(new InvalidInputException('Message'));
+
+      await request(app)
+        .post('/project/')
+        .send({ projectData: 'Data' })
+        .expect(400)
+        .expect({ errorMessage: 'Invalid Input - Message' });
+    });
+    it('should throw technical error for technical failure', async function () {
+      projectService.addNewProject.mockRejectedValue(new Error('Message'));
+
+      await request(app)
+        .post('/project')
+        .send({ projectData: 'Data' })
+        .expect(500)
+        .expect({ errorMessage: 'Technical error Message' });
+    });
+  });
+  describe('Get /projects/', function () {
+    it('should  fetch all the saved projects list', async function () {
+      projectService.getAllProjects.mockResolvedValueOnce({ projects: {} });
+
+      await request(app).get('/project/').expect(200);
+
+      expect(projectService.getAllProjects).toHaveBeenCalled();
+    });
+    it('should throw and technical error for any failure', async function () {
+      projectService.getAllProjects.mockRejectedValueOnce(new Error('Message'));
+
+      await request(app)
+        .get('/project/')
+        .expect(500)
+        .expect({ errorMessage: 'Technical error Message' });
+    });
+  });
+});

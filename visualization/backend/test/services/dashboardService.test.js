@@ -42,9 +42,7 @@ describe('Dashboard Service', function () {
     );
   });
   it('should throw error for invalid inputs while inserting', async function () {
-    dashboardRepository.insert.mockImplementationOnce(() => {
-      throw new Error('msg');
-    });
+    dashboardRepository.insert.mockRejectedValue(new Error('msg'));
 
     const result = async () => {
       await saveDashboard(dashboardDataToAdd);
