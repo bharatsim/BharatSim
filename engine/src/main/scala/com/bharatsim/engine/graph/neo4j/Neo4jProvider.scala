@@ -119,9 +119,25 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
     retValue.asScala
   }
 
-  override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = ???
+  override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = {
+    val session = neo4jConnection.session()
+    val expandedProps = toMatchCriteria("n", props, ",")
+    val query =
+      s"""MATCH (n) where id(n) = $$nodeId
+         |SET $expandedProps
+         |""".stripMargin
+    val params = props.+(("nodeId", nodeId)).map(kv => (kv._1, value(kv._2))).asJava
 
-  override def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit = ???
+    session.writeTransaction(tx => {
+      tx.run(query, value(params))
+      tx.commit()
+    })
+
+    session.close()
+  }
+
+  override def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit =
+    updateNode(nodeId, (prop :: props.toList).toMap)
 
   override def deleteNode(nodeId: NodeId): Unit = ???
 
@@ -141,8 +157,8 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
     session.close()
   }
 
-  private def toMatchCriteria(params: Map[String, Any]): String = {
-    params.keys.map(key => s"n.$key = $$$key").mkString(" and ")
+  private def toMatchCriteria(variableName: String, params: Map[String, Any], separator: String) = {
+    params.keys.map(key => s"$variableName.$key = $$$key").mkString(s" $separator ")
   }
 
   private def makeMatchNodeQuery(label: String, params: Map[String, Any], limit: Option[Int] = None) = {
@@ -150,7 +166,7 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
 
     if (params.isEmpty) s"MATCH (n:$label) RETURN properties(n) AS node, id(n) AS nodeId $limitClause"
     else {
-      val matchCriteria = toMatchCriteria(params)
+      val matchCriteria = toMatchCriteria("n", params, "and")
       s"MATCH (n:$label) WHERE $matchCriteria RETURN properties(n) AS node, id(n) AS nodeId $limitClause"
     }
   }
