@@ -1,4 +1,4 @@
-const { addNewProject, getAllProjects } = require('../../src/services/projectService');
+const { addNewProject, getAllProjects, getProject } = require('../../src/services/projectService');
 const projectRepository = require('../../src/repository/projectRepository');
 const InvalidInputException = require('../../src/exceptions/InvalidInputException');
 
@@ -25,5 +25,10 @@ describe('Project service', function () {
     projectRepository.getAll.mockResolvedValue({ project: [] });
     await getAllProjects();
     expect(projectRepository.getAll).toHaveBeenCalled();
+  });
+  it('should fetch project with matching id', async function () {
+    projectRepository.getOne.mockResolvedValue({ name: 'project' });
+    await getProject('_id');
+    expect(projectRepository.getOne).toHaveBeenCalledWith('_id');
   });
 });

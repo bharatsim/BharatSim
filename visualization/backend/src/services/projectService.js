@@ -1,6 +1,6 @@
 const InvalidInputException = require('../exceptions/InvalidInputException');
 
-const { getAll, insert } = require('../repository/projectRepository');
+const { getAll, insert, getOne } = require('../repository/projectRepository');
 
 async function addNewProject(projectConfig) {
   try {
@@ -16,7 +16,13 @@ async function getAllProjects() {
   return { projects };
 }
 
+async function getProject(projectId) {
+  const projects = await getOne(projectId);
+  return { projects };
+}
+
 module.exports = {
   getAllProjects,
   addNewProject,
+  getProject,
 };

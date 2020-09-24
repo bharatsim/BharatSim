@@ -32,4 +32,14 @@ describe('ProjectRepository', function () {
     const allProjects = await ProjectRepository.getAll();
     expect(allProjects.length).toEqual(3);
   });
+  it('should get project with matching id', async function () {
+    const { _id } = await ProjectRepository.insert(projectConfig);
+    const project = parseMongoDBResult(await ProjectRepository.getOne(_id));
+    expect(project).toEqual({ _id: _id.toString(), name: 'project1' });
+  });
+  it('should return null if  project with matching id is not available', async function () {
+    await ProjectRepository.insert(projectConfig);
+    const project = parseMongoDBResult(await ProjectRepository.getOne('5f6c7a827b048512641dabd7'));
+    expect(project).toEqual(null);
+  });
 });

@@ -4,7 +4,7 @@ const request = require('supertest');
 const dbHandler = require('../db-handler');
 const projectRoutes = require('../../src/controller/projectController');
 const { parseDBObject } = require('../../src/utils/dbUtils');
-const projectModel = require('../../src/model/project');
+const ProjectModel = require('../../src/model/project');
 
 const projectData = {
   name: 'project1',
@@ -30,7 +30,7 @@ describe('Integration test for project api', () => {
       const response = await request(app).post('/project').send({ projectData }).expect(200);
       const { projectId } = response.body;
       const projects = parseDBObject(
-        await projectModel.findOne({ _id: projectId }, { __v: 0, _id: 0 }),
+        await ProjectModel.findOne({ _id: projectId }, { __v: 0, _id: 0 }),
       );
       expect(projects).toEqual(projectData);
     });
@@ -38,9 +38,19 @@ describe('Integration test for project api', () => {
 
   describe('Get /project', function () {
     it('should get all projects from database', async function () {
-      projectModel.insertMany([projectData]);
+      ProjectModel.insertMany([projectData]);
       const response = await request(app).get('/project').expect(200);
       expect(response.body.projects.length).toEqual(1);
+    });
+    it('should get project with matching id', async function () {
+      const projectModel1 = new ProjectModel(projectData);
+      const { _id } = await projectModel1.save();
+
+      const response = await request(app).get(`/project/${_id}`).expect(200);
+      expect(response.body.projects).toEqual({
+        _id: _id.toString(),
+        name: 'project1',
+      });
     });
   });
 });

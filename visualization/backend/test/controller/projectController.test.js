@@ -56,5 +56,22 @@ describe('ProjectController', function () {
         .expect(500)
         .expect({ errorMessage: 'Technical error Message' });
     });
+    it('should  project with matching Id', async function () {
+      projectService.getProject.mockResolvedValueOnce({ project: {} });
+
+      await request(app).get('/project/id').expect(200);
+
+      expect(projectService.getProject).toHaveBeenCalledWith('id');
+    });
+    it('should throw technical error for any failure', async function () {
+      projectService.getProject.mockRejectedValue(new Error('Message'));
+
+      await request(app)
+        .get('/project/id')
+        .expect(500)
+        .expect({ errorMessage: 'Technical error Message' });
+
+      expect(projectService.getProject).toHaveBeenCalledWith('id');
+    });
   });
 });

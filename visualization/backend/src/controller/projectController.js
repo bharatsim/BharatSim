@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const InvalidInputException = require('../exceptions/InvalidInputException');
 const technicalErrorException = require('../exceptions/TechnicalErrorException');
-const { addNewProject, getAllProjects } = require('../services/projectService');
+const { addNewProject, getAllProjects, getProject } = require('../services/projectService');
 
 router.post('/', async function (req, res) {
   const { projectData } = req.body;
@@ -22,6 +22,17 @@ router.get('/', async function (req, res) {
   getAllProjects()
     .then((projects) => {
       res.send(projects);
+    })
+    .catch((err) => {
+      technicalErrorException(err, res);
+    });
+});
+
+router.get('/:id', async function (req, res) {
+  const { id: projectId } = req.params;
+  getProject(projectId)
+    .then((project) => {
+      res.send(project);
     })
     .catch((err) => {
       technicalErrorException(err, res);
