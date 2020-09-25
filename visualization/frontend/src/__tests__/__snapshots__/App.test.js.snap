@@ -24,7 +24,7 @@ exports[`<App /> should match snapshot 1`] = `
         <h4
           class="MuiTypography-root makeStyles-centered-7 MuiTypography-h4"
         >
-          Welcome to BharatSim
+          NewUserHomeScreen to BharatSim
         </h4>
         <div
           class="MuiBox-root MuiBox-root-11"

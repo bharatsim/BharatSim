@@ -5,7 +5,7 @@ import useFetch from '../useFetch';
 describe('Use fetch hook', () => {
   let api;
   beforeEach(() => {
-    api = jest.fn().mockImplementation(async () => Promise.resolve('Hello Welcome'));
+    api = jest.fn().mockImplementation(async () => Promise.resolve('Hello NewUserHomeScreen'));
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -16,7 +16,7 @@ describe('Use fetch hook', () => {
 
     await waitForNextUpdate();
 
-    expect(result.current.data).toEqual('Hello Welcome');
+    expect(result.current.data).toEqual('Hello NewUserHomeScreen');
     expect(api).toHaveBeenCalledWith({ data: undefined, params: undefined, query: undefined });
   });
 
@@ -31,7 +31,7 @@ describe('Use fetch hook', () => {
 
     await waitForNextUpdate();
 
-    expect(result.current.data).toEqual('Hello Welcome');
+    expect(result.current.data).toEqual('Hello NewUserHomeScreen');
     expect(api).toHaveBeenCalledWith({
       data: 'data',
       params: 'params',

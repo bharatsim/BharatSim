@@ -8,7 +8,7 @@ exports[`Home should match snapshot 1`] = `
     <h4
       class="MuiTypography-root makeStyles-centered-2 MuiTypography-h4"
     >
-      Welcome to BharatSim
+      NewUserHomeScreen to BharatSim
     </h4>
     <div
       class="MuiBox-root MuiBox-root-6"

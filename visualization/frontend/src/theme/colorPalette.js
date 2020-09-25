@@ -3,7 +3,7 @@ const colors = {
     800: '#282154',
     700: '#392F75',
     600: '#493C97',
-    500: '#594AB7',
+    500: '#594ab7',
     400: '#7769C5',
     200: '#B4ABDF',
     100: '#D2CDEB',
@@ -24,6 +24,7 @@ const colors = {
     borderColor: '#694ED6',
     color: '#FFFFFF',
   },
+  tab: { color: '#694ED6' },
   textLight: {
     primary: '#FFFFFF',
     secondary: 'rgba(255, 255, 255, 0.8)',

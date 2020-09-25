@@ -43,6 +43,19 @@ const api = {
 
   getData: async ({ params: datasource, query }) =>
     fetchData({ url: serviceURL.getDataUrl(datasource), query }),
+
+  createNewProject: async () => {
+    return uploadData({
+      url: serviceURL.PROJECT_URL,
+      headers: headerBuilder({ contentType: contentTypes.JSON }),
+      data: JSON.stringify({ projectData: { name: 'untitled project' } }),
+    });
+  },
+  fetchProjects: async () => {
+    return fetchData({
+      url: serviceURL.PROJECT_URL,
+    });
+  },
 };
 
 export { api };
