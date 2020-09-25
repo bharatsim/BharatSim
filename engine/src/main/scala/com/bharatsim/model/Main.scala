@@ -1,7 +1,7 @@
 package com.bharatsim.model
 import com.bharatsim.engine.graph.{DataNode, GraphData, Relation}
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.{Context, Simulation, SimulationContext}
+import com.bharatsim.engine.{Agent, Context, Day, Hour, Schedule, ScheduleUnit, Simulation, SimulationContext, Week}
 import com.bharatsim.model.InfectionStatus._
 
 import scala.collection.mutable
@@ -12,9 +12,36 @@ object Main {
     val simulationContext = new SimulationContext(1000)
     implicit val context: Context = Context(Disease, simulationContext)
 
+    val employeeScheduleOnWeekDays = new Schedule(Day, Hour)
+      .add("Home", 0, 8)
+      .add("Home", 19, 23)
+      .add("Home", 24, 26)
+
+    val employeeScheduleOnWeekEnd = new Schedule(Day, Hour)
+      .add("Home", 0, 23)
+
+    val employeeSchedule = new Schedule(Week, Day)
+      .add(employeeScheduleOnWeekDays, 0, 4)
+      .add(employeeScheduleOnWeekEnd, 5, 6)
+
+    val studentSchedule = new Schedule(Day, Hour)
+      .add("Home", 0, 8)
+      .add("School", 9, 14)
+      .add("Daycare", 15, 18)
+      .add("Home", 19, 23)
+
+    context.schedules.addSchedule(
+      employeeSchedule,
+      (agent: Agent, context: Context) => agent.asInstanceOf[Citizen].getAge >= 30
+    )
+    context.schedules.addSchedule(
+      studentSchedule,
+      (agent: Agent, context: Context) => agent.asInstanceOf[Citizen].getAge < 30
+    )
+
     ingestDataUsingCSV(context)
 
-//    ingestData()
+    //    ingestData()
     val beforeCount = context.graphProvider.fetchNodes("Citizen", ("infectionState", Infected)).size
     context.registerAgent[Citizen]
 

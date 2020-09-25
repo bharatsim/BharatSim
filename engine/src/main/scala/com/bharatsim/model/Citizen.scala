@@ -51,6 +51,10 @@ class Citizen() extends Agent {
     }
   }
 
+  def getAge: Int = {
+    fetchParam("age").get.asInstanceOf[Int]
+  }
+
   def setHome(home: House): Unit = {
     unidirectionalConnect("STAYS_AT", home)
   }
@@ -74,6 +78,9 @@ class Citizen() extends Agent {
   private val checkForExposure: Context => Unit = (context: Context) => {
     if (isSusceptible) {
       val infectionRate = context.dynamics.asInstanceOf[Disease.type].infectionRate
+
+      val schedule = context.schedules.getSchedule(this, context).get
+      val currentPlace = schedule.getForStep(context.simulationContext.getCurrentStep);
 
       val home = getHome
       val infectedCount =
