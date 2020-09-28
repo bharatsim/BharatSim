@@ -4,7 +4,7 @@ import App from '../App';
 
 jest.mock('../utils/fetch');
 
-jest.mock('../component/dashboardLayout/DashboardLayout', () => () => <>Dash Board Layout</>);
+jest.mock('../AppRoute', () => () => <>App Routes</>);
 
 describe('<App />', () => {
   it('should match snapshot', () => {

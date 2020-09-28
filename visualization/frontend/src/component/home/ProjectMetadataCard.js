@@ -18,10 +18,11 @@ const styles = makeStyles((theme) => ({
   },
 }));
 
-function ProjectMetadataCard({ name }) {
+function ProjectMetadataCard({ project, onProjectClick }) {
+  const { name, _id } = project;
   const classes = styles();
   return (
-    <Box className={classes.cardContainer}>
+    <Box className={classes.cardContainer} onClick={() => onProjectClick(_id)}>
       <Typography variant="subtitle2">{name}</Typography>
     </Box>
   );

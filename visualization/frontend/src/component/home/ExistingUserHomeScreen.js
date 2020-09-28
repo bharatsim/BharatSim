@@ -5,8 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button';
-import useFetch from '../../hook/useFetch';
-import { api } from '../../utils/api';
+import { useHistory } from 'react-router-dom';
 import ProjectMetadataCard from './ProjectMetadataCard';
 import theme from '../../theme/theme';
 import TabPanel from '../../uiComponent/TabPanel';
@@ -18,28 +17,28 @@ const styles = makeStyles(() => ({
   },
 }));
 
-function ExistingUserHomeScreen() {
-  const { data: allProjects } = useFetch(api.fetchProjects);
-  const [selectedTab, setSelectedTab] = React.useState(0);
+function ExistingUserHomeScreen({ recentProjects }) {
+  const [selectedTab] = React.useState(0);
+  const history = useHistory();
 
   const classes = styles();
-  const handleChange = (event, newValue) => {
-    setSelectedTab(newValue);
-  };
+
+  function openProject(id) {
+    history.push(`/project/${id}`);
+  }
+
+  function createNewProject() {
+    history.push('/project/createNew');
+  }
 
   return (
-    <Box pt={22}>
+    <Box>
       <Box display="flex" justifyContent="space-between">
-        <Tabs
-          value={selectedTab}
-          indicatorColor="primary"
-          onChange={handleChange}
-          aria-label="disabled tabs example"
-        >
+        <Tabs value={selectedTab} indicatorColor="primary" aria-label="disabled tabs example">
           <Tab label="Recent Projects" />
         </Tabs>
         <ButtonGroup>
-          <Button variant="contained" size="small">
+          <Button variant="contained" size="small" onClick={createNewProject}>
             Add New
           </Button>
         </ButtonGroup>
@@ -47,13 +46,16 @@ function ExistingUserHomeScreen() {
 
       <Box className={classes.projectListContainer}>
         <TabPanel value={selectedTab} index={0}>
-          {allProjects && (
+          {recentProjects && (
             <Grid container spacing={8} xl={12}>
-              {allProjects.projects.map((project) => (
-                <Grid item xs={3}>
-                  <ProjectMetadataCard name={project.name} />
-                </Grid>
-              ))}
+              {recentProjects.map((project) => {
+                const { _id } = project;
+                return (
+                  <Grid item xs={3} key={_id}>
+                    <ProjectMetadataCard project={project} onProjectClick={openProject} />
+                  </Grid>
+                );
+              })}
             </Grid>
           )}
         </TabPanel>

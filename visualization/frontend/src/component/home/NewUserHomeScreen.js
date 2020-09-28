@@ -9,9 +9,8 @@ import ButtonGroup from '../../uiComponent/ButtonGroup';
 const styles = makeStyles((theme) => ({
   mainContainer: {
     margin: 'auto',
-    marginTop: theme.spacing(21),
   },
-  centered: {
+  textCentered: {
     textAlign: 'center',
   },
   introTextContainer: {
@@ -19,7 +18,7 @@ const styles = makeStyles((theme) => ({
     marginTop: theme.spacing(9),
     width: theme.spacing(144),
   },
-  buttonContainer: {
+  itemsCentered: {
     display: 'flex',
     justifyContent: 'center',
   },
@@ -35,23 +34,23 @@ function NewUserHomeScreen() {
 
   return (
     <Box className={classes.mainContainer}>
-      <Typography variant="h4" className={classes.centered}>
+      <Typography variant="h4" className={classes.textCentered}>
         Welcome to BharatSim
       </Typography>
-      <Box mt={14}>
+      <Box mt={14} className={classes.itemsCentered}>
         <img src={bharatSimWelcome} alt="logo" />
       </Box>
       <Box className={classes.introTextContainer}>
-        <Typography variant="subtitle2" className={classes.centered}>
+        <Typography variant="subtitle2" className={classes.textCentered}>
           Intro text
         </Typography>
-        <Typography variant="body2" className={classes.centered}>
+        <Typography variant="body2" className={classes.textCentered}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
           ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
           ullamco
         </Typography>
       </Box>
-      <Box mt={5} className={classes.buttonContainer}>
+      <Box mt={5} className={classes.itemsCentered}>
         <ButtonGroup>
           <Button variant="contained" size="large" onClick={createNewProject}>
             Create new Project

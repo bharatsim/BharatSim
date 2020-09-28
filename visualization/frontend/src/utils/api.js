@@ -51,9 +51,14 @@ const api = {
       data: JSON.stringify({ projectData: { name: 'untitled project' } }),
     });
   },
-  fetchProjects: async () => {
+  getProjects: async () => {
     return fetchData({
       url: serviceURL.PROJECT_URL,
+    });
+  },
+  getProject: async (id) => {
+    return fetchData({
+      url: serviceURL.getProjectUrl(id),
     });
   },
 };

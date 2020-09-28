@@ -36,17 +36,24 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
   },
   "overrides": {
     "MuiButton": {
+      "root": {
+        "padding": "8px 16px",
+        "height": 32,
+        "color": "#594ab7"
+      },
       "sizeLarge": {
+        "padding": "8px 16px",
         "height": 36
       },
       "sizeSmall": {
-        "height": 28
+        "padding": "8px 16px",
+        "height": 32
       },
       "contained": {
         "color": "#FFFFFF",
-        "backgroundColor": "#594AB7",
+        "backgroundColor": "#594ab7",
         "&:hover": {
-          "backgroundColor": "rgba(89, 74, 183, 0.08)"
+          "backgroundColor": "rgba(89, 74, 183, 0.8)"
         },
         "&$disabled": {
           "color": "rgba(52, 58, 64, 0.38)",
@@ -55,14 +62,51 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
       },
       "outlined": {
         "border": "1px solid",
-        "color": "#594AB7",
+        "color": "#594ab7",
         "borderColor": "#694ED6",
         "&: focus": {
           "backgroundColor": "rgba(89, 74, 183, 0.2)"
         },
         "&: hover": {
-          "backgroundColor": "rgba(89, 74, 183, 0.08)"
+          "backgroundColor": "rgba(89, 74, 183, 0.8)"
         }
+      }
+    },
+    "MuiTab": {
+      "root": {
+        "padding": "4px 8px",
+        "minHeight": "unset",
+        "minWidth": "unset",
+        "height": 32,
+        "boxSizing": "border-box",
+        "fontFamily": "\\"Roboto\\", sans-serif",
+        "fontWeight": 500,
+        "fontSize": "0.875rem",
+        "lineHeight": 1.43,
+        "letterSpacing": "0.01071em",
+        "@media (min-width:600px)": {
+          "minWidth": "unset"
+        }
+      },
+      "textColorInherit": {
+        "color": "rgba(52, 58, 64, 0.64)",
+        "borderBottom": "2px solid transparent",
+        "opacity": "unset",
+        "&$selected": {
+          "opacity": "unset",
+          "color": "#594ab7",
+          "borderBottom": "2px solid",
+          "borderColor": "#282154"
+        }
+      },
+      "borderColor": "red"
+    },
+    "MuiTabs": {
+      "root": {
+        "minHeight": 32
+      },
+      "indicator": {
+        "backgroundColor": "transparent"
       }
     }
   },
@@ -316,7 +360,7 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
       "100": "#D2CDEB",
       "200": "#B4ABDF",
       "400": "#7769C5",
-      "500": "#594AB7",
+      "500": "#594ab7",
       "600": "#493C97",
       "700": "#392F75",
       "800": "#282154"
@@ -335,6 +379,9 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
     "button": {
       "borderColor": "#694ED6",
       "color": "#FFFFFF"
+    },
+    "tab": {
+      "color": "#694ED6"
     },
     "textLight": {
       "primary": "#FFFFFF",

@@ -12,4 +12,8 @@ describe('URL', () => {
   it('should provide a url for data', () => {
     expect(url.getDataUrl('dataSource')).toEqual('/api/dataSources/dataSource');
   });
+
+  it('should provide a url for project', () => {
+    expect(url.getProjectUrl('projectId')).toEqual('/api/project/projectId');
+  });
 });

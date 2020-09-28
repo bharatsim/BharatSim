@@ -1,11 +1,83 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Project should match snapshot 1`] = `
+exports[`Project should match snapshot if project id is present 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-1"
+    class="MuiBox-root MuiBox-root-8"
   >
-    Project
+    <div
+      class="MuiBox-root MuiBox-root-9 makeStyles-projectNameBar-6"
+    >
+      <h5
+        class="MuiTypography-root MuiTypography-h5"
+      >
+        project1
+      </h5>
+    </div>
+    <div
+      class="MuiBox-root MuiBox-root-10 makeStyles-configureProjectDataBar-7"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6"
+      >
+         Configure Dashboard Data
+      </h6>
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-text"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiButton-label"
+        >
+           Back to recent projects
+        </span>
+        <span
+          class="MuiTouchRipple-root"
+        />
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Project should match snapshot while creating new project 1`] = `
+<div>
+  <div
+    class="MuiBox-root MuiBox-root-3"
+  >
+    <div
+      class="MuiBox-root MuiBox-root-4 makeStyles-projectNameBar-1"
+    >
+      <h5
+        class="MuiTypography-root MuiTypography-h5"
+      >
+        untitled project
+      </h5>
+    </div>
+    <div
+      class="MuiBox-root MuiBox-root-5 makeStyles-configureProjectDataBar-2"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6"
+      >
+         Configure Dashboard Data
+      </h6>
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-text"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiButton-label"
+        >
+           Back to recent projects
+        </span>
+        <span
+          class="MuiTouchRipple-root"
+        />
+      </button>
+    </div>
   </div>
 </div>
 `;

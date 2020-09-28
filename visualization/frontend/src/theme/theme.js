@@ -17,6 +17,7 @@ theme.overrides = {
     root: {
       padding: theme.spacing(2, 4),
       height: theme.spacing(8),
+      color: theme.colors.primaryColorScale['500'],
     },
     sizeLarge: {
       padding: theme.spacing(2, 4),
@@ -51,20 +52,24 @@ theme.overrides = {
   },
   MuiTab: {
     root: {
-      padding: theme.spacing(2),
+      padding: theme.spacing(1, 2),
       minHeight: 'unset',
       minWidth: 'unset',
-      height: theme.spacing(9),
+      height: theme.spacing(8),
       boxSizing: 'border-box',
-      ...typography.subtitle2,
+      ...typography.body2,
+      fontWeight: 500,
       [theme.breakpoints.up('sm')]: {
         minWidth: 'unset',
       },
     },
     textColorInherit: {
       color: theme.palette.text.secondary,
+      borderBottom: '2px solid transparent',
+      opacity: 'unset',
       '&$selected': {
-        color: theme.palette.primary.main,
+        opacity: 'unset',
+        color: theme.colors.primaryColorScale['500'],
         borderBottom: '2px solid',
         borderColor: theme.palette.primary.main,
       },
@@ -73,7 +78,7 @@ theme.overrides = {
   },
   MuiTabs: {
     root: {
-      minHeight: theme.spacing(9),
+      minHeight: theme.spacing(8),
     },
     indicator: {
       backgroundColor: 'transparent',

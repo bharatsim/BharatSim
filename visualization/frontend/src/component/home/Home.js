@@ -1,19 +1,24 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
-import { useHistory } from 'react-router-dom';
 import ExistingUserHomeScreen from './ExistingUserHomeScreen';
+import useFetch from '../../hook/useFetch';
+import { api } from '../../utils/api';
+import NewUserHomeScreen from './NewUserHomeScreen';
+import LoaderOrError from '../loaderOrError/LoaderOrError';
 
 function Home() {
-  const history = useHistory();
-
-  function createNewProject() {
-    history.push('/project/createNew');
-  }
+  const { data: recentProjects, loadingState } = useFetch(api.getProjects);
 
   return (
-    <Box px={32}>
-      <ExistingUserHomeScreen />
-    </Box>
+    <LoaderOrError loadingState={loadingState}>
+      <Box px={32} pt={16}>
+        {recentProjects && recentProjects.projects.length > 0 ? (
+          <ExistingUserHomeScreen recentProjects={recentProjects.projects} />
+        ) : (
+          <NewUserHomeScreen />
+        )}
+      </Box>
+    </LoaderOrError>
   );
 }
 

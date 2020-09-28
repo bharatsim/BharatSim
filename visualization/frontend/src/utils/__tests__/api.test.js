@@ -14,8 +14,9 @@ describe('API', () => {
     const data = { widgets: [], layout: [], dashboardId: 'id', name: 'name', count: 0 };
 
     const expectedParameter = {
-      data:
-        '{"dashboardData":{"widgets":[],"layout":[],"dashboardId":"id","name":"name","count":0}}',
+      data: JSON.stringify({
+        dashboardData: { widgets: [], layout: [], dashboardId: 'id', name: 'name', count: 0 },
+      }),
       headers: { 'content-type': 'application/json' },
       url: '/api/dashboard',
     };
@@ -92,6 +93,35 @@ describe('API', () => {
     };
 
     api.getData(options);
+
+    expect(fetchData).toHaveBeenCalledWith(expectedParameter);
+  });
+  it('should call projects api to get all the saved projects', () => {
+    const expectedParameter = {
+      url: '/api/project',
+    };
+
+    api.getProjects();
+
+    expect(fetchData).toHaveBeenCalledWith(expectedParameter);
+  });
+  it('should should call create new project with untitled name', () => {
+    const expectedParameter = {
+      data: JSON.stringify({ projectData: { name: 'untitled project' } }),
+      headers: { 'content-type': 'application/json' },
+      url: '/api/project',
+    };
+
+    api.createNewProject();
+
+    expect(uploadData).toHaveBeenCalledWith(expectedParameter);
+  });
+  it('should call projects api with given project id', () => {
+    const expectedParameter = {
+      url: '/api/project/1',
+    };
+
+    api.getProject('1');
 
     expect(fetchData).toHaveBeenCalledWith(expectedParameter);
   });
