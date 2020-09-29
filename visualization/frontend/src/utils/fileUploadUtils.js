@@ -1,7 +1,7 @@
 import csvParser from 'papaparse';
 import dataTypesMapping from '../constants/dataTypesMapping';
 import csvParserConfig from '../config/csvParserConfig';
-import { loaderStates } from '../hook/useInlineLoader';
+import { loaderStates } from '../hook/useLoader';
 
 function getMessage(fileUploadStatus, fileName) {
   return {

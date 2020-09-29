@@ -9,7 +9,7 @@ import DataTypeConfigModal from './DataTypeConfigModal';
 import { api } from '../../utils/api';
 import { validateFile } from '../../utils/validators';
 import { getMessage, parseCsv, resetFileInput } from '../../utils/fileUploadUtils';
-import useInlineLoader, { loaderStates } from '../../hook/useInlineLoader';
+import useLoader, { loaderStates } from '../../hook/useLoader';
 import InlineLoader from '../loaderOrError/InlineLoader';
 
 const FILE_INPUT_KEY = 'fileInput';
@@ -23,7 +23,7 @@ function FileUpload() {
     stopLoaderAfterError,
     stopLoaderAfterSuccess,
     resetLoader,
-  } = useInlineLoader();
+  } = useLoader();
 
   const {
     errors,

@@ -1,7 +1,7 @@
 /* eslint-disable import/first */
 import axios from 'axios';
 
-import { fetchData, initApiConfig, uploadData } from '../fetch';
+import { fetchData, uploadData } from '../fetch';
 
 jest.mock('axios', () => ({
   __esModule: true,
@@ -41,20 +41,11 @@ describe('Fetch util', () => {
       url: 'test/api',
     });
   });
-  it('should call common error handler for api failure if handler is not provided', async () => {
-    const commonErrorHandler = jest.fn();
-    initApiConfig({ setError: commonErrorHandler });
-    axios.mockRejectedValue('test');
+  it('should return error handler for api failure', async () => {
+    axios.mockRejectedValue('error');
 
-    await fetchData({ url: 'test/api' });
+    const result = await fetchData({ url: 'test/api' });
 
-    expect(commonErrorHandler).toHaveBeenCalled();
-  });
-  it('should call custom error handler for api failure', async () => {
-    const customErrorHandler = jest.fn();
-    axios.mockRejectedValue('test');
-    await fetchData({ url: 'test/api', customErrorHandler });
-
-    expect(customErrorHandler).toHaveBeenCalled();
+    expect(result).toEqual('error');
   });
 });

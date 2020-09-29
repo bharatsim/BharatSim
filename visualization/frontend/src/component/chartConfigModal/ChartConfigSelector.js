@@ -18,15 +18,17 @@ function ChartConfigSelector({ dataSourceId, chartType, updateConfigState, error
 
   return (
     <LoaderOrError loadingState={loadingState}>
-      {headers && (
-        <div>
-          {configOptionsKeysForSelectedChart.map((chartConfigKey) => (
-            <div key={chartConfigKey}>
-              {chartConfigOptions[chartConfigKey].component(chartConfigProps)}
-            </div>
-          ))}
-        </div>
-      )}
+      <div>
+        {headers && (
+          <div>
+            {configOptionsKeysForSelectedChart.map((chartConfigKey) => (
+              <div key={chartConfigKey}>
+                {chartConfigOptions[chartConfigKey].component(chartConfigProps)}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </LoaderOrError>
   );
 }

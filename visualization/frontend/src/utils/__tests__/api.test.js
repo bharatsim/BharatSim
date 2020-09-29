@@ -105,14 +105,31 @@ describe('API', () => {
 
     expect(fetchData).toHaveBeenCalledWith(expectedParameter);
   });
-  it('should should call create new project with untitled name', () => {
+  it('should should call save new project with given name', () => {
+    const projectData = JSON.stringify({ projectData: { name: 'untitled project' } });
     const expectedParameter = {
-      data: JSON.stringify({ projectData: { name: 'untitled project' } }),
+      data: projectData,
       headers: { 'content-type': 'application/json' },
       url: '/api/project',
+      method: 'post',
     };
 
-    api.createNewProject();
+    api.saveProject({ id: undefined, name: 'untitled project' });
+
+    expect(uploadData).toHaveBeenCalledWith(expectedParameter);
+  });
+  it('should should update old project for given id with given data', () => {
+    const projectData = JSON.stringify({
+      projectData: { name: 'updated project', id: 'projectId' },
+    });
+    const expectedParameter = {
+      data: projectData,
+      headers: { 'content-type': 'application/json' },
+      url: '/api/project',
+      method: 'put',
+    };
+
+    api.saveProject({ name: 'updated project', id: 'projectId' });
 
     expect(uploadData).toHaveBeenCalledWith(expectedParameter);
   });

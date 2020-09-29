@@ -1,4 +1,4 @@
-import { contentTypes } from '../constants/fetch';
+import { contentTypes, httpMethods } from '../constants/fetch';
 import { url as serviceURL } from './url';
 import { fetchData, uploadData } from './fetch';
 
@@ -44,13 +44,25 @@ const api = {
   getData: async ({ params: datasource, query }) =>
     fetchData({ url: serviceURL.getDataUrl(datasource), query }),
 
-  createNewProject: async () => {
-    return uploadData({
+  saveProject: async ({ id, ...data }) => {
+    const requestObject = {
       url: serviceURL.PROJECT_URL,
       headers: headerBuilder({ contentType: contentTypes.JSON }),
-      data: JSON.stringify({ projectData: { name: 'untitled project' } }),
+    };
+    if (id) {
+      return uploadData({
+        ...requestObject,
+        data: JSON.stringify({ projectData: { ...data, id } }),
+        method: httpMethods.PUT,
+      });
+    }
+    return uploadData({
+      ...requestObject,
+      data: JSON.stringify({ projectData: { ...data } }),
+      method: httpMethods.POST,
     });
   },
+
   getProjects: async () => {
     return fetchData({
       url: serviceURL.PROJECT_URL,

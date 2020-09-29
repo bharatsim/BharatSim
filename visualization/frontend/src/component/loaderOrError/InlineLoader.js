@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { FormHelperText } from '@material-ui/core';
 
-import { loaderStates } from '../../hook/useInlineLoader';
+import { loaderStates } from '../../hook/useLoader';
 
 function InlineLoader({ status, message }) {
   return (

@@ -1,15 +1,10 @@
 import { useEffect, useState } from 'react';
-import useInlineLoader from './useInlineLoader';
+import useLoader from './useLoader';
 
 function useFetch(api, { data, query, params } = {}) {
   const [responseData, setResponseData] = useState();
 
-  const {
-    loadingState,
-    startLoader,
-    stopLoaderAfterError,
-    stopLoaderAfterSuccess,
-  } = useInlineLoader();
+  const { loadingState, startLoader, stopLoaderAfterError, stopLoaderAfterSuccess } = useLoader();
 
   const dependencies = data ? [...data] : [];
 

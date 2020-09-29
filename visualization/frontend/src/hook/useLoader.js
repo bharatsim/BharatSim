@@ -6,8 +6,9 @@ export const loaderStates = {
   ERROR: 'ERROR',
 };
 
-function useInlineLoader() {
+function useLoader() {
   const [loadingState, setLoadingState] = useState({ state: '', message: '' });
+
   function startLoader(message) {
     setLoadingState({ state: loaderStates.LOADING, message });
   }
@@ -23,7 +24,8 @@ function useInlineLoader() {
   function resetLoader() {
     setLoadingState({ state: '', message: '' });
   }
+
   return { loadingState, startLoader, stopLoaderAfterSuccess, stopLoaderAfterError, resetLoader };
 }
 
-export default useInlineLoader;
+export default useLoader;

@@ -17,7 +17,7 @@ import useFetch from '../../hook/useFetch';
 
 import useModal from '../../hook/useModal';
 import { api } from '../../utils/api';
-import useInlineLoader from '../../hook/useInlineLoader';
+import useLoader from '../../hook/useLoader';
 import ChartSelector from '../chartSelector/ChartSelector';
 import InlineLoader from '../loaderOrError/InlineLoader';
 import LoaderOrError from '../loaderOrError/LoaderOrError';
@@ -40,12 +40,7 @@ function DashboardLayout({ classes }) {
   const { data: allDashboards, loadingState: dashboardLoadingState } = useFetch(
     api.getAllDashBoard,
   );
-  const {
-    loadingState,
-    startLoader,
-    stopLoaderAfterError,
-    stopLoaderAfterSuccess,
-  } = useInlineLoader();
+  const { loadingState, startLoader, stopLoaderAfterError, stopLoaderAfterSuccess } = useLoader();
 
   useEffect(() => {
     if (allDashboards && allDashboards.dashboards.length > 0) {

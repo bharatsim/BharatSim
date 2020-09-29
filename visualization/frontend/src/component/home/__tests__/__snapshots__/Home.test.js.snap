@@ -3,13 +3,13 @@
 exports[`Home should match snapshot for existing users 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-16"
+    class="MuiBox-root MuiBox-root-38"
   >
     <div
-      class="MuiBox-root MuiBox-root-18"
+      class="MuiBox-root MuiBox-root-40"
     >
       <div
-        class="MuiBox-root MuiBox-root-19"
+        class="MuiBox-root MuiBox-root-41"
       >
         <div
           class="MuiTabs-root"
@@ -41,13 +41,13 @@ exports[`Home should match snapshot for existing users 1`] = `
               </button>
             </div>
             <span
-              class="PrivateTabIndicator-root-20 PrivateTabIndicator-colorPrimary-21 MuiTabs-indicator"
+              class="PrivateTabIndicator-root-42 PrivateTabIndicator-colorPrimary-43 MuiTabs-indicator"
               style="left: 0px; width: 0px;"
             />
           </div>
         </div>
         <div
-          class="MuiBox-root MuiBox-root-25 makeStyles-buttonGroup-24"
+          class="MuiBox-root MuiBox-root-47 makeStyles-buttonGroup-46"
         >
           <button
             class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSizeSmall MuiButton-sizeSmall"
@@ -66,7 +66,7 @@ exports[`Home should match snapshot for existing users 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-26 makeStyles-projectListContainer-17"
+        class="MuiBox-root MuiBox-root-48 makeStyles-projectListContainer-39"
       >
         <div
           aria-labelledby="simple-tab-0"
@@ -80,7 +80,7 @@ exports[`Home should match snapshot for existing users 1`] = `
               class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3"
             >
               <div
-                class="MuiBox-root MuiBox-root-28 makeStyles-cardContainer-27"
+                class="MuiBox-root MuiBox-root-50 makeStyles-cardContainer-49"
               >
                 <h6
                   class="MuiTypography-root MuiTypography-subtitle2"
@@ -100,18 +100,18 @@ exports[`Home should match snapshot for existing users 1`] = `
 exports[`Home should match snapshot for new user 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-3"
+    class="MuiBox-root MuiBox-root-14"
   >
     <div
-      class="MuiBox-root MuiBox-root-8 makeStyles-mainContainer-4"
+      class="MuiBox-root MuiBox-root-19 makeStyles-mainContainer-15"
     >
       <h4
-        class="MuiTypography-root makeStyles-textCentered-5 MuiTypography-h4"
+        class="MuiTypography-root makeStyles-textCentered-16 MuiTypography-h4"
       >
         Welcome to BharatSim
       </h4>
       <div
-        class="MuiBox-root MuiBox-root-9 makeStyles-itemsCentered-7"
+        class="MuiBox-root MuiBox-root-20 makeStyles-itemsCentered-18"
       >
         <img
           alt="logo"
@@ -119,24 +119,24 @@ exports[`Home should match snapshot for new user 1`] = `
         />
       </div>
       <div
-        class="MuiBox-root MuiBox-root-10 makeStyles-introTextContainer-6"
+        class="MuiBox-root MuiBox-root-21 makeStyles-introTextContainer-17"
       >
         <h6
-          class="MuiTypography-root makeStyles-textCentered-5 MuiTypography-subtitle2"
+          class="MuiTypography-root makeStyles-textCentered-16 MuiTypography-subtitle2"
         >
           Intro text
         </h6>
         <p
-          class="MuiTypography-root makeStyles-textCentered-5 MuiTypography-body2"
+          class="MuiTypography-root makeStyles-textCentered-16 MuiTypography-body2"
         >
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
         </p>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-11 makeStyles-itemsCentered-7"
+        class="MuiBox-root MuiBox-root-22 makeStyles-itemsCentered-18"
       >
         <div
-          class="MuiBox-root MuiBox-root-13 makeStyles-buttonGroup-12"
+          class="MuiBox-root MuiBox-root-24 makeStyles-buttonGroup-23"
         >
           <button
             class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSizeLarge MuiButton-sizeLarge"

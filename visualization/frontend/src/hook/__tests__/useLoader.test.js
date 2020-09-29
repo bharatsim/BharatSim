@@ -1,14 +1,14 @@
 import { renderHook, act } from '@testing-library/react-hooks';
-import useInlineLoader from '../useInlineLoader';
+import useLoader from '../useLoader';
 
 describe('hook useInlineLoader', () => {
   it('should return empty state and message as initial state of loaderOrError', () => {
-    const { result } = renderHook(() => useInlineLoader());
+    const { result } = renderHook(() => useLoader());
     expect(result.current.loadingState).toEqual({ state: '', message: '' });
   });
 
   it('should return loading state and message on startLoader', () => {
-    const { result } = renderHook(() => useInlineLoader());
+    const { result } = renderHook(() => useLoader());
     act(() => {
       result.current.startLoader('loading');
     });
@@ -17,7 +17,7 @@ describe('hook useInlineLoader', () => {
   });
 
   it('should stopLoaderAfterSuccess', () => {
-    const { result } = renderHook(() => useInlineLoader());
+    const { result } = renderHook(() => useLoader());
     act(() => {
       result.current.stopLoaderAfterSuccess('success');
     });
@@ -26,7 +26,7 @@ describe('hook useInlineLoader', () => {
   });
 
   it('should stopLoaderAfterError', () => {
-    const { result } = renderHook(() => useInlineLoader());
+    const { result } = renderHook(() => useLoader());
     act(() => {
       result.current.stopLoaderAfterError('error');
     });
@@ -35,7 +35,7 @@ describe('hook useInlineLoader', () => {
   });
 
   it('should resetLoader', () => {
-    const { result } = renderHook(() => useInlineLoader());
+    const { result } = renderHook(() => useLoader());
     act(() => {
       result.current.stopLoaderAfterSuccess('success');
     });

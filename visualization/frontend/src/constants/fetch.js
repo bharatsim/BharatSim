@@ -1,6 +1,7 @@
 export const httpMethods = {
   GET: 'get',
   POST: 'post',
+  PUT: 'put',
 };
 
 export const contentTypes = {
