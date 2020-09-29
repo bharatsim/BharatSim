@@ -14,6 +14,6 @@ describe('URL', () => {
   });
 
   it('should provide a url for project', () => {
-    expect(url.getProjectUrl('projectId')).toEqual('/api/project/projectId');
+    expect(url.getProjectUrl('projectId')).toEqual('/api/projects/projectId');
   });
 });

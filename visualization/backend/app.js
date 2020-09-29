@@ -26,7 +26,7 @@ const port = 3005;
 app.get('/', (req, res) => res.send('Hello World!'));
 app.use('/datasources', apiRoutes);
 app.use('/dashboard', dashBoardRoutes);
-app.use('/project', projectRoutes);
+app.use('/projects', projectRoutes);
 
 // eslint-disable-next-line no-console
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));

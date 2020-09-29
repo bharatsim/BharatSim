@@ -8,7 +8,6 @@ import LoaderOrError from '../loaderOrError/LoaderOrError';
 
 function Home() {
   const { data: recentProjects, loadingState } = useFetch(api.getProjects);
-
   return (
     <LoaderOrError loadingState={loadingState}>
       <Box px={32} pt={16}>

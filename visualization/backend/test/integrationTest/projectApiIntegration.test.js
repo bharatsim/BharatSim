@@ -62,7 +62,7 @@ describe('Integration test for project api', () => {
       const { _id } = await projectModel1.save();
 
       const response = await request(app).get(`/project/${_id}`).expect(200);
-      expect(response.body.projects).toEqual({
+      expect(response.body.project).toEqual({
         _id: _id.toString(),
         name: 'project1',
       });

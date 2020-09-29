@@ -17,8 +17,8 @@ async function getAllProjects() {
 }
 
 async function getProject(projectId) {
-  const projects = await getOne(projectId);
-  return { projects };
+  const project = await getOne(projectId);
+  return { project };
 }
 
 async function updateProject({ id, ...projectData }) {

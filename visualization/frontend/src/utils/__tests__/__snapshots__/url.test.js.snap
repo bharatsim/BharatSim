@@ -4,7 +4,7 @@ exports[`URL should provide a url 1`] = `
 Object {
   "DASHBOARD_URL": "/api/dashboard",
   "DATA_SOURCES": "/api/dataSources",
-  "PROJECT_URL": "/api/project",
+  "PROJECT_URL": "/api/projects",
   "getDataUrl": [Function],
   "getHeaderUrl": [Function],
   "getProjectUrl": [Function],

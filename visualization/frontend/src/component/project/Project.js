@@ -44,8 +44,8 @@ function Project() {
       if (id) {
         startLoader();
         try {
-          const { projects } = await api.getProject(id);
-          const { _id, name } = projects;
+          const { project } = await api.getProject(id);
+          const { _id, name } = project;
           stopLoaderAfterSuccess();
           setProjectMetadata({ id: _id, name });
         } catch (e) {
@@ -60,7 +60,7 @@ function Project() {
   async function saveProject() {
     const { projectId } = await api.saveProject(projectMetadata);
     if (!projectMetadata.id) {
-      history.replace({ pathname: `/project/${projectId}` });
+      history.replace({ pathname: `/projects/${projectId}` });
     }
   }
 

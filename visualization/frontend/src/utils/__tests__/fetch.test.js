@@ -42,10 +42,8 @@ describe('Fetch util', () => {
     });
   });
   it('should return error handler for api failure', async () => {
-    axios.mockRejectedValue('error');
+    axios.mockImplementationOnce(() => Promise.reject(new Error()));
 
-    const result = await fetchData({ url: 'test/api' });
-
-    expect(result).toEqual('error');
+    await expect(fetchData({ something: 'bad' })).rejects.toThrow(new Error());
   });
 });

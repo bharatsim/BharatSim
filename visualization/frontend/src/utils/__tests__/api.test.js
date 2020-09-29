@@ -98,7 +98,7 @@ describe('API', () => {
   });
   it('should call projects api to get all the saved projects', () => {
     const expectedParameter = {
-      url: '/api/project',
+      url: '/api/projects',
     };
 
     api.getProjects();
@@ -110,7 +110,7 @@ describe('API', () => {
     const expectedParameter = {
       data: projectData,
       headers: { 'content-type': 'application/json' },
-      url: '/api/project',
+      url: '/api/projects',
       method: 'post',
     };
 
@@ -125,7 +125,7 @@ describe('API', () => {
     const expectedParameter = {
       data: projectData,
       headers: { 'content-type': 'application/json' },
-      url: '/api/project',
+      url: '/api/projects',
       method: 'put',
     };
 
@@ -135,7 +135,7 @@ describe('API', () => {
   });
   it('should call projects api with given project id', () => {
     const expectedParameter = {
-      url: '/api/project/1',
+      url: '/api/projects/1',
     };
 
     api.getProject('1');

@@ -5,7 +5,7 @@ function fetchData({ url, method = httpMethods.GET, headers, data, query }) {
   return axios({ url, method, headers, data, params: query })
     .then((res) => res.data)
     .catch((err) => {
-      return err;
+      return Promise.reject(err);
     });
 }
 

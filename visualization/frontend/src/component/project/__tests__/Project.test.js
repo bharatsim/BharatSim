@@ -46,7 +46,7 @@ describe('Project', () => {
 
   it('should match snapshot if project id is present', async () => {
     router.useParams.mockReturnValue({ id: 1 });
-    api.getProject.mockResolvedValue({ projects: { _id: 1, name: 'project1' } });
+    api.getProject.mockResolvedValue({ project: { _id: 1, name: 'project1' } });
 
     const { container, findByText } = render(<Component />);
 
@@ -66,7 +66,7 @@ describe('Project', () => {
   });
   it('should navigate to recent projects on click of back to recent button', async () => {
     router.useParams.mockReturnValueOnce({ id: 1 });
-    api.getProject.mockResolvedValue({ projects: { _id: 1, name: 'project1' } });
+    api.getProject.mockResolvedValue({ project: { _id: 1, name: 'project1' } });
 
     const { getByText, findByText } = render(<Component />);
 
@@ -79,7 +79,7 @@ describe('Project', () => {
 
   it('should update the url on successful saving of project', async () => {
     api.saveProject.mockResolvedValue({ projectId: 1 });
-    api.getProject.mockResolvedValue({ projects: { _id: 1, name: 'project1' } });
+    api.getProject.mockResolvedValue({ project: { _id: 1, name: 'project1' } });
     router.useParams.mockReturnValue({ id: undefined });
     const { getByText } = render(<Component />);
 
@@ -88,13 +88,13 @@ describe('Project', () => {
     router.useParams.mockReturnValue({ id: 1 });
 
     await waitFor(() =>
-      expect(mockHistoryReplace).toHaveBeenCalledWith({ pathname: '/project/1' }),
+      expect(mockHistoryReplace).toHaveBeenCalledWith({ pathname: '/projects/1' }),
     );
   });
 
   it('should save project on click of save  button for old project', async () => {
     api.saveProject.mockResolvedValue({ projectId: 1 });
-    api.getProject.mockResolvedValue({ projects: { _id: 1, name: 'project1' } });
+    api.getProject.mockResolvedValue({ project: { _id: 1, name: 'project1' } });
     router.useParams.mockReturnValue({ id: 1 });
     const { getByText, findByText } = render(<Component />);
 

@@ -27,7 +27,7 @@ describe('<AppRoute />', () => {
   });
 
   it('should navigate to project page ', () => {
-    const { container } = renderWithRouter(<AppRoute />, { route: '/project/id' });
+    const { container } = renderWithRouter(<AppRoute />, { route: '/projects/id' });
 
     expect(container.innerHTML).toMatch('Project');
   });

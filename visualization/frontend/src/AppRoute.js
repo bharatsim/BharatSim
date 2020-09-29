@@ -11,10 +11,10 @@ function AppRoute() {
         <Route path="/old-dashboard">
           <DashboardLayout />
         </Route>
-        <Route path="/project/createNew">
+        <Route path="/projects/createNew">
           <Project />
         </Route>
-        <Route path="/project/:id">
+        <Route path="/projects/:id">
           <Project />
         </Route>
         <Route path="/">

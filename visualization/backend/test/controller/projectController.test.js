@@ -10,14 +10,14 @@ jest.mock('../../src/services/projectService');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/project', projectRoutes);
+app.use('/projects', projectRoutes);
 
 describe('ProjectController', function () {
   describe('Post /', function () {
     it('should create new project for given config', async function () {
       projectService.addNewProject.mockResolvedValue({ projectId: '_id' });
 
-      await request(app).post('/project').send({ projectData: 'Data' }).expect(200);
+      await request(app).post('/projects').send({ projectData: 'Data' }).expect(200);
 
       expect(projectService.addNewProject).toHaveBeenCalledWith('Data');
     });
@@ -25,7 +25,7 @@ describe('ProjectController', function () {
       projectService.addNewProject.mockRejectedValue(new InvalidInputException('Message'));
 
       await request(app)
-        .post('/project/')
+        .post('/projects/')
         .send({ projectData: 'Data' })
         .expect(400)
         .expect({ errorMessage: 'Invalid Input - Message' });
@@ -34,7 +34,7 @@ describe('ProjectController', function () {
       projectService.addNewProject.mockRejectedValue(new Error('Message'));
 
       await request(app)
-        .post('/project')
+        .post('/projects')
         .send({ projectData: 'Data' })
         .expect(500)
         .expect({ errorMessage: 'Technical error Message' });
@@ -44,7 +44,7 @@ describe('ProjectController', function () {
     it('should update existing project with given config', async function () {
       projectService.updateProject.mockResolvedValue({ projectId: '_id' });
 
-      await request(app).put('/project').send({ projectData: 'Data' }).expect(200);
+      await request(app).put('/projects').send({ projectData: 'Data' }).expect(200);
 
       expect(projectService.updateProject).toHaveBeenCalledWith('Data');
     });
@@ -52,7 +52,7 @@ describe('ProjectController', function () {
       projectService.updateProject.mockRejectedValue(new InvalidInputException('Message'));
 
       await request(app)
-        .put('/project/')
+        .put('/projects/')
         .send({ projectData: 'Data' })
         .expect(400)
         .expect({ errorMessage: 'Invalid Input - Message' });
@@ -61,7 +61,7 @@ describe('ProjectController', function () {
       projectService.updateProject.mockRejectedValue(new Error('Message'));
 
       await request(app)
-        .put('/project')
+        .put('/projects')
         .send({ projectData: 'Data' })
         .expect(500)
         .expect({ errorMessage: 'Technical error Message' });
@@ -72,7 +72,7 @@ describe('ProjectController', function () {
     it('should  fetch all the saved projects list', async function () {
       projectService.getAllProjects.mockResolvedValueOnce({ projects: {} });
 
-      await request(app).get('/project/').expect(200);
+      await request(app).get('/projects/').expect(200);
 
       expect(projectService.getAllProjects).toHaveBeenCalled();
     });
@@ -80,14 +80,14 @@ describe('ProjectController', function () {
       projectService.getAllProjects.mockRejectedValueOnce(new Error('Message'));
 
       await request(app)
-        .get('/project/')
+        .get('/projects/')
         .expect(500)
         .expect({ errorMessage: 'Technical error Message' });
     });
     it('should  project with matching Id', async function () {
       projectService.getProject.mockResolvedValueOnce({ project: {} });
 
-      await request(app).get('/project/id').expect(200);
+      await request(app).get('/projects/id').expect(200);
 
       expect(projectService.getProject).toHaveBeenCalledWith('id');
     });
@@ -95,7 +95,7 @@ describe('ProjectController', function () {
       projectService.getProject.mockRejectedValue(new Error('Message'));
 
       await request(app)
-        .get('/project/id')
+        .get('/projects/id')
         .expect(500)
         .expect({ errorMessage: 'Technical error Message' });
 
