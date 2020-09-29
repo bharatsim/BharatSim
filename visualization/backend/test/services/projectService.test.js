@@ -1,4 +1,9 @@
-const { addNewProject, getAllProjects, getProject } = require('../../src/services/projectService');
+const {
+  addNewProject,
+  getAllProjects,
+  getProject,
+  updateProject,
+} = require('../../src/services/projectService');
 const projectRepository = require('../../src/repository/projectRepository');
 const InvalidInputException = require('../../src/exceptions/InvalidInputException');
 
@@ -30,5 +35,21 @@ describe('Project service', function () {
     projectRepository.getOne.mockResolvedValue({ name: 'project' });
     await getProject('_id');
     expect(projectRepository.getOne).toHaveBeenCalledWith('_id');
+  });
+  it('should update project for given id', async function () {
+    projectRepository.update.mockResolvedValue({ _id: 'projectId' });
+    await updateProject({ id: 'projectId', name: 'new name' });
+    expect(projectRepository.update).toHaveBeenCalledWith('projectId', {
+      name: 'new name',
+    });
+  });
+  it('should throw InvalidInputException for invalid input', async function () {
+    projectRepository.update.mockRejectedValue(new Error());
+
+    const result = async () => {
+      await updateProject({ something: 'bad' });
+    };
+
+    await expect(result).rejects.toThrow(new InvalidInputException('Error while updating project'));
   });
 });

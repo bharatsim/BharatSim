@@ -1,11 +1,30 @@
 const router = require('express').Router();
 const InvalidInputException = require('../exceptions/InvalidInputException');
 const technicalErrorException = require('../exceptions/TechnicalErrorException');
-const { addNewProject, getAllProjects, getProject } = require('../services/projectService');
+const {
+  addNewProject,
+  getAllProjects,
+  getProject,
+  updateProject,
+} = require('../services/projectService');
 
 router.post('/', async function (req, res) {
   const { projectData } = req.body;
   addNewProject(projectData)
+    .then((projectId) => {
+      res.send(projectId);
+    })
+    .catch((err) => {
+      if (err instanceof InvalidInputException) {
+        res.status(400).send({ errorMessage: err.message });
+      } else {
+        technicalErrorException(err, res);
+      }
+    });
+});
+router.put('/', async function (req, res) {
+  const { projectData } = req.body;
+  updateProject(projectData)
     .then((projectId) => {
       res.send(projectId);
     })

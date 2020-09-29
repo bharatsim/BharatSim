@@ -1,10 +1,10 @@
 const InvalidInputException = require('../exceptions/InvalidInputException');
 
-const { getAll, insert, getOne } = require('../repository/projectRepository');
+const { getAll, insert, getOne, update } = require('../repository/projectRepository');
 
-async function addNewProject(projectConfig) {
+async function addNewProject(projectData) {
   try {
-    const { _id } = await insert(projectConfig);
+    const { _id } = await insert(projectData);
     return { projectId: _id };
   } catch (e) {
     throw new InvalidInputException('Error while creating new project');
@@ -21,8 +21,18 @@ async function getProject(projectId) {
   return { projects };
 }
 
+async function updateProject({ id, ...projectData }) {
+  try {
+    await update(id, projectData);
+    return { projectId: id };
+  } catch (e) {
+    throw new InvalidInputException('Error while updating project');
+  }
+}
+
 module.exports = {
   getAllProjects,
   addNewProject,
   getProject,
+  updateProject,
 };

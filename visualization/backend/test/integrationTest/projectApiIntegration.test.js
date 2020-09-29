@@ -35,6 +35,21 @@ describe('Integration test for project api', () => {
       expect(projects).toEqual(projectData);
     });
   });
+  describe('PUT /project', function () {
+    it('should update project ', async function () {
+      const newData = { name: 'new name' };
+      const projectModel1 = new ProjectModel(projectData);
+      const { _id } = await projectModel1.save();
+
+      const response = await request(app)
+        .put('/project')
+        .send({ projectData: { id: _id, ...newData } })
+        .expect(200);
+      const { projectId } = response.body;
+      const projects = parseDBObject(await ProjectModel.findOne({ _id: projectId }, { __v: 0 }));
+      expect(projects).toEqual({ _id: _id.toString(), ...newData });
+    });
+  });
 
   describe('Get /project', function () {
     it('should get all projects from database', async function () {

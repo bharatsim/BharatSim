@@ -40,6 +40,34 @@ describe('ProjectController', function () {
         .expect({ errorMessage: 'Technical error Message' });
     });
   });
+  describe('Put /', function () {
+    it('should update existing project with given config', async function () {
+      projectService.updateProject.mockResolvedValue({ projectId: '_id' });
+
+      await request(app).put('/project').send({ projectData: 'Data' }).expect(200);
+
+      expect(projectService.updateProject).toHaveBeenCalledWith('Data');
+    });
+    it('should throw invalid input exception while saving already existing project', async function () {
+      projectService.updateProject.mockRejectedValue(new InvalidInputException('Message'));
+
+      await request(app)
+        .put('/project/')
+        .send({ projectData: 'Data' })
+        .expect(400)
+        .expect({ errorMessage: 'Invalid Input - Message' });
+    });
+    it('should throw technical error for technical failure', async function () {
+      projectService.updateProject.mockRejectedValue(new Error('Message'));
+
+      await request(app)
+        .put('/project')
+        .send({ projectData: 'Data' })
+        .expect(500)
+        .expect({ errorMessage: 'Technical error Message' });
+    });
+  });
+
   describe('Get /projects/', function () {
     it('should  fetch all the saved projects list', async function () {
       projectService.getAllProjects.mockResolvedValueOnce({ projects: {} });

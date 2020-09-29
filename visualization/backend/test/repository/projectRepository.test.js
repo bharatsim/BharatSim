@@ -2,6 +2,7 @@ const Project = require('../../src/model/project');
 const ProjectRepository = require('../../src/repository/projectRepository');
 
 const parseMongoDBResult = (result) => JSON.parse(JSON.stringify(result));
+const ProjectModel = require('../../src/model/project');
 
 const dbHandler = require('../db-handler');
 
@@ -41,5 +42,14 @@ describe('ProjectRepository', function () {
     await ProjectRepository.insert(projectConfig);
     const project = parseMongoDBResult(await ProjectRepository.getOne('5f6c7a827b048512641dabd7'));
     expect(project).toEqual(null);
+  });
+  it('should update the existing project', async function () {
+    const projectModel1 = new ProjectModel(projectConfig);
+    const { _id } = await projectModel1.save();
+
+    await ProjectRepository.update(_id, { name: 'new name' });
+    const updatedProject = await ProjectModel.findOne({ _id }, { __v: 0 });
+
+    expect(parseMongoDBResult(updatedProject)).toEqual({ _id: _id.toString(), name: 'new name' });
   });
 });
