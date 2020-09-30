@@ -11,7 +11,7 @@ function AppRoute() {
         <Route path="/old-dashboard">
           <DashboardLayout />
         </Route>
-        <Route path="/projects/createNew">
+        <Route path="/projects/create">
           <Project />
         </Route>
         <Route path="/projects/:id">

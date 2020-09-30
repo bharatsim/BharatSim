@@ -36,6 +36,6 @@ describe('Existing User Home Screen', () => {
 
     fireEvent.click(getByText('Add New'));
 
-    expect(mockHistoryPush).toHaveBeenCalledWith('/projects/createNew');
+    expect(mockHistoryPush).toHaveBeenCalledWith('/projects/create');
   });
 });

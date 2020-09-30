@@ -23,6 +23,6 @@ describe('NewUserHomeScreen', () => {
 
     createNewProjectButton.click();
 
-    expect(mockHistoryPush).toHaveBeenCalledWith('/projects/createNew');
+    expect(mockHistoryPush).toHaveBeenCalledWith('/projects/create');
   });
 });

@@ -1,5 +1,4 @@
 import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
 import AppRoute from './AppRoute';
@@ -18,11 +17,9 @@ const styles = makeStyles(() => ({
 function App() {
   const classes = styles();
   return (
-    <Router>
-      <div className={classes.root}>
-        <AppRoute />
-      </div>
-    </Router>
+    <div className={classes.root}>
+      <AppRoute />
+    </div>
   );
 }
 

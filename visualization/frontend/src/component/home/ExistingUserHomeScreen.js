@@ -28,7 +28,7 @@ function ExistingUserHomeScreen({ recentProjects }) {
   }
 
   function createNewProject() {
-    history.push('/projects/createNew');
+    history.push('/projects/create');
   }
 
   return (
