@@ -15,7 +15,6 @@ object Main {
     val employeeScheduleOnWeekDays = new Schedule(Day, Hour)
       .add("Home", 0, 8)
       .add("Home", 19, 23)
-      .add("Home", 24, 26)
 
     val employeeScheduleOnWeekEnd = new Schedule(Day, Hour)
       .add("Home", 0, 23)
