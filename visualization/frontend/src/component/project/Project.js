@@ -7,6 +7,9 @@ import { api } from '../../utils/api';
 import LoaderOrError from '../loaderOrError/LoaderOrError';
 import useLoader from '../../hook/useLoader';
 
+import DashboardView from '../sideBarLayout/DashboardView';
+import DashboardNavbar from '../sideBarLayout/DashboardNavbar';
+
 const useStyles = makeStyles((theme) => {
   return {
     projectNameBar: {
@@ -18,13 +21,19 @@ const useStyles = makeStyles((theme) => {
       alignItems: 'center',
       justifyContent: 'space-between',
     },
-    configureProjectDataBar: {
-      height: theme.spacing(16),
+    layoutContainer: {
       display: 'flex',
-      justifyContent: 'space-between',
-      backgroundColor: theme.colors.grayScale['100'],
-      alignItems: 'center',
-      padding: theme.spacing(0, 8),
+      width: '100%',
+      height: '100%',
+      minHeight: 'calc(100vh - 64px)',
+    },
+    sideBarLayout: {
+      display: 'flex',
+      flexDirection: 'column',
+      background: theme.colors.primaryColorScale['600'],
+      width: theme.spacing(64),
+      color: theme.colors.textLight.primary,
+      paddingTop: theme.spacing(18),
     },
   };
 });
@@ -34,9 +43,10 @@ function Project() {
     id: undefined,
     name: 'untitled project',
   });
+  const [selectedDashboard] = useState(0);
   const classes = useStyles();
-  const { id } = useParams();
   const history = useHistory();
+  const { id } = useParams();
   const { loadingState, startLoader, stopLoaderAfterError, stopLoaderAfterSuccess } = useLoader();
 
   useEffect(() => {
@@ -64,22 +74,24 @@ function Project() {
     }
   }
 
-  function openRecentProjects() {
-    history.push('/');
-  }
-
   return (
     <LoaderOrError loadingState={loadingState.state}>
-      <Box>
-        <Box className={classes.projectNameBar}>
-          <Typography variant="h5">{projectMetadata.name}</Typography>
-          <Button onClick={saveProject} variant="outlined">
-            Save
-          </Button>
+      <Box className={classes.layoutContainer}>
+        <Box className={classes.sideBarLayout}>
+          <DashboardNavbar navItems={['dashboard1']} value={selectedDashboard} />
         </Box>
-        <Box className={classes.configureProjectDataBar}>
-          <Typography variant="h6"> Configure Dashboard Data</Typography>
-          <Button onClick={openRecentProjects}> Back to recent projects</Button>
+        <Box display="flex" flex={1} flexDirection="column">
+          <Box className={classes.projectNameBar}>
+            <Typography variant="h5">{projectMetadata.name}</Typography>
+            <Button onClick={saveProject} variant="outlined">
+              Save
+            </Button>
+          </Box>
+          <DashboardView
+            value={selectedDashboard}
+            projectName={projectMetadata.name}
+            dashboardData={[{ name: 'dashboard1' }]}
+          />
         </Box>
       </Box>
     </LoaderOrError>

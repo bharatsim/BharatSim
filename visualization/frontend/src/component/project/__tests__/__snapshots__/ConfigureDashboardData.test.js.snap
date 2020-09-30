@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Configure Dashboard Data should render dashboard view for given dashboard data and project name  1`] = `
+<div>
+  <div
+    class="MuiBox-root MuiBox-root-5"
+  >
+    <div
+      class="MuiBox-root MuiBox-root-6 makeStyles-configureProjectDataBar-1"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6"
+      >
+         Configure Dashboard Data
+      </h6>
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-text"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiButton-label"
+        >
+           Back to recent projects
+        </span>
+        <span
+          class="MuiTouchRipple-root"
+        />
+      </button>
+    </div>
+    <div
+      class="MuiBox-root MuiBox-root-7 makeStyles-dashboardDataContainer-3"
+    >
+      <div
+        class="MuiBox-root MuiBox-root-8"
+      >
+        <h6
+          class="MuiTypography-root MuiTypography-subtitle2"
+        >
+           Manage Dashboard Dataset
+        </h6>
+      </div>
+      <div
+        class="MuiBox-root MuiBox-root-9 makeStyles-dashboardDataHeader-2"
+      >
+        <h6
+          class="MuiTypography-root MuiTypography-subtitle2"
+        >
+          project1 :: dashboard1
+        </h6>
+      </div>
+      <div
+        class="MuiBox-root MuiBox-root-10 makeStyles-dashboardDataBody-4"
+      >
+        <h6
+          class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-colorTextPrimary"
+        >
+          Before we can create any visualization, we ‘ll need some data.
+        </h6>
+        <p
+          class="MuiTypography-root MuiTypography-body2"
+        >
+          Use Upload dataset to add data files to your dashboard.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+`;

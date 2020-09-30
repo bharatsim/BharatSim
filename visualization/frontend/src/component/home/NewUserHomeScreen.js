@@ -29,7 +29,7 @@ function NewUserHomeScreen() {
   const history = useHistory();
 
   function createNewProject() {
-    history.push('/project/createNew');
+    history.push('/projects/createNew');
   }
 
   return (

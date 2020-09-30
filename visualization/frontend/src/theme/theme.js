@@ -74,7 +74,6 @@ theme.overrides = {
         borderColor: theme.palette.primary.main,
       },
     },
-    borderColor: 'red',
   },
   MuiTabs: {
     root: {

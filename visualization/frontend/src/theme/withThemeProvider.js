@@ -4,11 +4,11 @@ import { MuiThemeProvider, CssBaseline } from '@material-ui/core';
 import theme from './theme';
 
 function withThemeProvider(WrappedComponent) {
-  return function WithTheme() {
+  return function WithTheme(props) {
     return (
       <MuiThemeProvider theme={theme}>
         <CssBaseline />
-        <WrappedComponent />
+        <WrappedComponent {...props} />
       </MuiThemeProvider>
     );
   };

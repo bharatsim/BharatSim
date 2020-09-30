@@ -27,7 +27,7 @@ describe('Existing User Home Screen', () => {
 
     fireEvent.click(getByText('project1'));
 
-    expect(mockHistoryPush).toHaveBeenCalledWith('/project/1');
+    expect(mockHistoryPush).toHaveBeenCalledWith('/projects/1');
   });
   it('should create new project on click of add new button', () => {
     const { getByText } = render(
@@ -36,6 +36,6 @@ describe('Existing User Home Screen', () => {
 
     fireEvent.click(getByText('Add New'));
 
-    expect(mockHistoryPush).toHaveBeenCalledWith('/project/createNew');
+    expect(mockHistoryPush).toHaveBeenCalledWith('/projects/createNew');
   });
 });

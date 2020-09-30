@@ -24,11 +24,11 @@ function ExistingUserHomeScreen({ recentProjects }) {
   const classes = styles();
 
   function openProject(id) {
-    history.push(`/project/${id}`);
+    history.push(`/projects/${id}`);
   }
 
   function createNewProject() {
-    history.push('/project/createNew');
+    history.push('/projects/createNew');
   }
 
   return (

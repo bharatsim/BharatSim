@@ -49,7 +49,7 @@ export const typography = {
     letterSpacing: '0.00938em',
   },
   subtitle2: {
-    fontFamily: '"Rubik", sans-serif',
+    fontFamily: '"Roboto", sans-serif',
     fontWeight: 500,
     fontSize: '0.875rem',
     lineHeight: 1.57,

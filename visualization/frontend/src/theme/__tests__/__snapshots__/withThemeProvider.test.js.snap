@@ -98,8 +98,7 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
           "borderBottom": "2px solid",
           "borderColor": "#282154"
         }
-      },
-      "borderColor": "red"
+      }
     },
     "MuiTabs": {
       "root": {
@@ -281,7 +280,7 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
       "letterSpacing": "0.00938em"
     },
     "subtitle2": {
-      "fontFamily": "\\"Rubik\\", sans-serif",
+      "fontFamily": "\\"Roboto\\", sans-serif",
       "fontWeight": 500,
       "fontSize": "0.875rem",
       "lineHeight": 1.57,

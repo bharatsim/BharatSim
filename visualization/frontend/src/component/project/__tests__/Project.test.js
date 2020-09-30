@@ -44,7 +44,7 @@ describe('Project', () => {
     expect(container).toMatchSnapshot();
   });
 
-  it('should match snapshot if project id is present', async () => {
+  it('should match snapshot for old projects', async () => {
     router.useParams.mockReturnValue({ id: 1 });
     api.getProject.mockResolvedValue({ project: { _id: 1, name: 'project1' } });
 
