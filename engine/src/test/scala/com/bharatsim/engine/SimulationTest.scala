@@ -3,6 +3,7 @@ package com.bharatsim.engine
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
+import com.bharatsim.engine.listners.{SimulationListener, SimulationListenerRegistry}
 import org.mockito.{InOrder, Mockito, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funsuite.AnyFunSuite
@@ -57,7 +58,6 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
     order.verify(behav3)(context)
   }
 
-
   test("should set current step at the start of every simulation step and run all the steps") {
     val context = getContext()
 
@@ -69,9 +69,7 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
     context.simulationContext.getCurrentStep shouldBe 3
   }
 
-  test(
-    "should execute all Behaviours of all agents for specified number of steps"
-  ) {
+  test("should execute all Behaviours of all agents for specified number of steps") {
     val graphProvider = {
       val gp = mock[GraphProvider]
       when(gp.fetchNodes("Student")).thenReturn(
@@ -105,6 +103,18 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
     order.verify(_playAGameForStep)(2)
   }
 
+  test("should notify simulation listeners") {
+    val mockListener = mock[SimulationListener]
+    SimulationListenerRegistry.register(mockListener)
+    val context = getContext()
+    Simulation.run(context)
+    val order = inOrder(mockListener)
+    order.verify(mockListener).onSimulationStart(context)
+    order.verify(mockListener).onStepStart(context)
+    order.verify(mockListener).onStepEnd(context)
+    order.verify(mockListener).onSimulationEnd(context)
+  }
+
   def getContext(mockGraphProvider: GraphProvider = mock[GraphProvider]) =
     new Context(mockGraphProvider, new Dynamics, new SimulationContext())
 }
@@ -132,18 +142,18 @@ object SimulationTest {
 
   import org.mockito.MockitoSugar.spyLambda
 
-  val _goToSchoolForStep: NodeId => Unit = spyLambda[NodeId =>  Unit]((_: Int) => {})
-  val _playAGameForStep: NodeId => Unit = spyLambda[NodeId =>  Unit]((_: Int) => {})
+  val _goToSchoolForStep: NodeId => Unit = spyLambda[NodeId => Unit]((_: Int) => {})
+  val _playAGameForStep: NodeId => Unit = spyLambda[NodeId => Unit]((_: Int) => {})
 
-  val behav1: Context => Unit = spyLambda[Context =>  Unit]((context: Context) => {
+  val behav1: Context => Unit = spyLambda[Context => Unit]((context: Context) => {
     _goToSchoolForStep(context.simulationContext.getCurrentStep)
   })
 
-  val behav2: Context => Unit = spyLambda[Context =>  Unit]((context: Context) => {
+  val behav2: Context => Unit = spyLambda[Context => Unit]((context: Context) => {
     _playAGameForStep(context.simulationContext.getCurrentStep)
   })
 
-  val behav3: Context => Unit = spyLambda[Context =>  Unit]((_: Context) => {})
+  val behav3: Context => Unit = spyLambda[Context => Unit]((_: Context) => {})
 
   val graphNodeStudent: GraphNode = mockGraphNode("Student", 1)
 
