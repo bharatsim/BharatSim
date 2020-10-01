@@ -107,6 +107,11 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
       "indicator": {
         "backgroundColor": "transparent"
       }
+    },
+    "MuiGrid": {
+      "root": {
+        "margin": 0
+      }
     }
   },
   "palette": {

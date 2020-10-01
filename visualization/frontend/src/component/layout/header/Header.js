@@ -13,7 +13,7 @@ function Header() {
     history.push('/');
   }
   return (
-    <Box className={classes.mainContainer} component="header">
+    <Box className={classes.mainContainer} component="header" cursor="pointer">
       <Box className={classes.logo} onClick={openLandingPage}>
         <img src={bharatSimLogo} alt="logo" />
       </Box>

@@ -5,6 +5,7 @@ exports[`<Header /> should match snapshot 1`] = `
   <div>
     <header
       class="MuiBox-root MuiBox-root-3 makeStyles-mainContainer-1"
+      cursor="pointer"
     >
       <div
         class="MuiBox-root MuiBox-root-4 makeStyles-logo-2"

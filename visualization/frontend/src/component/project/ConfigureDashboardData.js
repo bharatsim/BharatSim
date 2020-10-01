@@ -30,7 +30,8 @@ const useStyles = makeStyles((theme) => {
       textTransform: 'capitalize',
     },
     dashboardDataContainer: {
-      width: theme.spacing(256),
+      width: 'calc(100% - 64px)',
+      maxWidth: theme.spacing(256),
       margin: theme.spacing(8, 8, 16, 8),
     },
     dashboardDataBody: {

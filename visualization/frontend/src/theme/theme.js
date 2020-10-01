@@ -83,6 +83,11 @@ theme.overrides = {
       backgroundColor: 'transparent',
     },
   },
+  MuiGrid: {
+    root: {
+      margin: 0,
+    },
+  },
 };
 
 export default theme;
