@@ -1,6 +1,6 @@
 package com.bharatsim.engine
 
-import com.bharatsim.engine.exception.ScheduleOutOfBoundsException
+import com.bharatsim.engine.exception.{CyclicScheduleException, ScheduleOutOfBoundsException}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
@@ -44,5 +44,23 @@ class ScheduleTest extends AnyFunSuite with Matchers {
 
     val exception = the[ScheduleOutOfBoundsException] thrownBy employeeSchedule.add("Home", 0, 25)
     exception.getMessage shouldBe "Schedule exceeds period limit of :(0-23)"
+  }
+
+  test("should throw exception when cyclic schedule is added") {
+    val schedule1 = new Schedule(Day, Hour)
+    val schedule2 = new Schedule(Day, Hour)
+    val schedule3 = new Schedule(Day, Hour)
+
+    val selfReferenceError = the[CyclicScheduleException] thrownBy schedule1.add(schedule1, 0, 8)
+
+    schedule1.add(schedule2, 0, 8)
+    schedule3.add(schedule1, 0, 8)
+
+    val cyclicScheduleError = the[CyclicScheduleException] thrownBy schedule2.add(schedule3, 0, 8)
+
+    the[CyclicScheduleException] thrownBy schedule2.add(schedule1, 0, 8)
+
+    cyclicScheduleError.getMessage shouldBe "The schedule is creating cyclic reference"
+    selfReferenceError.getMessage shouldBe "The schedule is creating cyclic reference"
   }
 }

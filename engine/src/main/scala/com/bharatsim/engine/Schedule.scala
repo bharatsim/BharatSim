@@ -1,6 +1,6 @@
 package com.bharatsim.engine
 
-import com.bharatsim.engine.exception.ScheduleOutOfBoundsException
+import com.bharatsim.engine.exception.{CyclicScheduleException, ScheduleOutOfBoundsException}
 
 import scala.collection.mutable
 
@@ -25,7 +25,17 @@ class Schedule(val period: ScheduleUnit, val unit: ScheduleUnit) {
     this
   }
 
+  private def isResolvable(schedule: Schedule): Boolean = {
+    if (schedule == this) return false
+    schedule._schedule.valuesIterator.toSet
+      .forall(_ match {
+        case _: String               => true
+        case childSchedule: Schedule => isResolvable(childSchedule);
+      })
+  };
+
   def add(schedule: Schedule, from: Int, to: Int): Schedule = {
+    if (!isResolvable(schedule)) throw new CyclicScheduleException("The schedule is creating cyclic reference")
     for (i <- from to to) {
       _schedule.put(i, schedule)
     }
