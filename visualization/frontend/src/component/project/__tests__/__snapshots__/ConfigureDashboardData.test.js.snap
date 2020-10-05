@@ -3,65 +3,147 @@
 exports[`Configure Dashboard Data should render dashboard view for given dashboard data and project name  1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-5"
+    class="MuiBox-root MuiBox-root-6 makeStyles-layoutContainer-2"
   >
     <div
-      class="MuiBox-root MuiBox-root-6 makeStyles-configureProjectDataBar-1"
+      class="MuiBox-root MuiBox-root-7 makeStyles-sideBarLayout-3"
     >
-      <h6
-        class="MuiTypography-root MuiTypography-h6"
+      <div
+        class="MuiBox-root MuiBox-root-14"
       >
-         Configure Dashboard Data
-      </h6>
-      <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text"
-        tabindex="0"
-        type="button"
-      >
-        <span
-          class="MuiButton-label"
+        <div
+          class="MuiTabs-root MuiTabs-vertical"
         >
-           Back to recent projects
-        </span>
-        <span
-          class="MuiTouchRipple-root"
-        />
-      </button>
+          <div
+            class="MuiTabs-scroller MuiTabs-fixed"
+            style="overflow: hidden;"
+          >
+            <div
+              class="MuiTabs-flexContainer MuiTabs-flexContainerVertical"
+              role="tablist"
+            >
+              <button
+                aria-selected="true"
+                class="MuiButtonBase-root MuiTab-root makeStyles-root-8 MuiTab-textColorInherit makeStyles-textColorInherit-12 Mui-selected makeStyles-selected-11 MuiTab-labelIcon makeStyles-labelIcon-10 MuiTab-fullWidth"
+                data-testid="tab-dashboard1"
+                role="tab"
+                tabindex="0"
+                type="button"
+              >
+                <span
+                  class="MuiTab-wrapper makeStyles-wrapper-9"
+                >
+                  <div
+                    class="MuiBox-root MuiBox-root-15"
+                  >
+                    <img
+                      alt="dashboard-logo"
+                      src="dashboard-icon.svg"
+                    />
+                  </div>
+                  dashboard1
+                </span>
+                <span
+                  class="MuiTouchRipple-root"
+                />
+              </button>
+            </div>
+            <span
+              class="PrivateTabIndicator-root-16 PrivateTabIndicator-colorSecondary-18 MuiTabs-indicator makeStyles-indicator-13 PrivateTabIndicator-vertical-19"
+              style="top: 0px; height: 0px;"
+            />
+          </div>
+        </div>
+      </div>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-7 makeStyles-dashboardDataContainer-3"
+      class="MuiBox-root MuiBox-root-20"
     >
       <div
-        class="MuiBox-root MuiBox-root-8"
+        class="MuiBox-root MuiBox-root-21 makeStyles-projectNameBar-1"
       >
-        <h6
-          class="MuiTypography-root MuiTypography-subtitle2"
+        <h5
+          class="MuiTypography-root MuiTypography-h5"
         >
-           Manage Dashboard Dataset
-        </h6>
+          project1
+        </h5>
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-outlined"
+          tabindex="0"
+          type="button"
+        >
+          <span
+            class="MuiButton-label"
+          >
+            Save
+          </span>
+          <span
+            class="MuiTouchRipple-root"
+          />
+        </button>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-9 makeStyles-dashboardDataHeader-2"
+        class="MuiBox-root MuiBox-root-26"
       >
-        <h6
-          class="MuiTypography-root MuiTypography-subtitle2"
+        <div
+          class="MuiBox-root MuiBox-root-27 makeStyles-configureProjectDataBar-22"
         >
-          project1 :: dashboard1
-        </h6>
-      </div>
-      <div
-        class="MuiBox-root MuiBox-root-10 makeStyles-dashboardDataBody-4"
-      >
-        <h6
-          class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-colorTextPrimary"
+          <h6
+            class="MuiTypography-root MuiTypography-h6"
+          >
+             Configure Dashboard Data
+          </h6>
+          <button
+            class="MuiButtonBase-root MuiButton-root MuiButton-text"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="MuiButton-label"
+            >
+               Back to recent projects
+            </span>
+            <span
+              class="MuiTouchRipple-root"
+            />
+          </button>
+        </div>
+        <div
+          class="MuiBox-root MuiBox-root-28 makeStyles-dashboardDataContainer-24"
         >
-          Before we can create any visualization, we ‘ll need some data.
-        </h6>
-        <p
-          class="MuiTypography-root MuiTypography-body2"
-        >
-          Use Upload dataset to add data files to your dashboard.
-        </p>
+          <div
+            class="MuiBox-root MuiBox-root-29"
+          >
+            <h6
+              class="MuiTypography-root MuiTypography-subtitle2"
+            >
+               Manage Dashboard Dataset
+            </h6>
+          </div>
+          <div
+            class="MuiBox-root MuiBox-root-30 makeStyles-dashboardDataHeader-23"
+          >
+            <h6
+              class="MuiTypography-root MuiTypography-subtitle2"
+            >
+              project1 :: dashboard1
+            </h6>
+          </div>
+          <div
+            class="MuiBox-root MuiBox-root-31 makeStyles-dashboardDataBody-25"
+          >
+            <h6
+              class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-colorTextPrimary"
+            >
+              Before we can create any visualization, we ‘ll need some data.
+            </h6>
+            <p
+              class="MuiTypography-root MuiTypography-body2"
+            >
+              Use Upload dataset to add data files to your dashboard.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

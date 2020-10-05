@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import DashboardLayout from './component/dashboardLayout/DashboardLayout';
 import Home from './component/home/Home';
-import Project from './component/project/Project';
+import ConfigureDashboardData from './component/project/ConfigureDashboardData';
 
 function AppRoute() {
   return (
@@ -12,10 +12,10 @@ function AppRoute() {
           <DashboardLayout />
         </Route>
         <Route path="/projects/create">
-          <Project />
+          <ConfigureDashboardData />
         </Route>
         <Route path="/projects/:id">
-          <Project />
+          <ConfigureDashboardData />
         </Route>
         <Route path="/">
           <Home />

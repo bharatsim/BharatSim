@@ -3,11 +3,15 @@ import { render } from '@testing-library/react';
 import { fireEvent, waitFor } from '@testing-library/dom';
 import * as router from 'react-router-dom';
 import { api } from '../../../utils/api';
-import Project from '../Project';
 import withThemeProvider from '../../../theme/withThemeProvider';
+import withProjectLayout from '../withProjectLayout';
 
 const mockHistoryPush = jest.fn();
 const mockHistoryReplace = jest.fn();
+
+function ProjectView(props) {
+  return <div>{JSON.stringify(props, null, 2)}</div>;
+}
 
 jest.mock('../../../utils/api', () => ({
   api: {
@@ -33,7 +37,7 @@ describe('Project', () => {
     jest.clearAllMocks();
   });
 
-  const Component = withThemeProvider(Project);
+  const Component = withThemeProvider(withProjectLayout(ProjectView));
 
   it('should match snapshot while creating new project', async () => {
     router.useParams.mockReturnValue({ id: undefined });
@@ -64,19 +68,6 @@ describe('Project', () => {
 
     expect(queryByText('Failed to load, Refresh the page')).toBeInTheDocument();
   });
-  it('should navigate to recent projects on click of back to recent button', async () => {
-    router.useParams.mockReturnValueOnce({ id: 1 });
-    api.getProject.mockResolvedValue({ project: { _id: 1, name: 'project1' } });
-
-    const { getByText, findByText } = render(<Component />);
-
-    await findByText('project1');
-
-    fireEvent.click(getByText('Back to recent projects'));
-
-    expect(mockHistoryPush).toHaveBeenCalledWith('/');
-  });
-
   it('should update the url on successful saving of project', async () => {
     api.saveProject.mockResolvedValue({ projectId: 1 });
     api.getProject.mockResolvedValue({ project: { _id: 1, name: 'project1' } });

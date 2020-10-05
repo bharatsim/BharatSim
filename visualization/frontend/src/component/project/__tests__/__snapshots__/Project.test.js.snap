@@ -3,13 +3,13 @@
 exports[`Project should match snapshot for old projects 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-38 makeStyles-layoutContainer-34"
+    class="MuiBox-root MuiBox-root-27 makeStyles-layoutContainer-23"
   >
     <div
-      class="MuiBox-root MuiBox-root-39 makeStyles-sideBarLayout-35"
+      class="MuiBox-root MuiBox-root-28 makeStyles-sideBarLayout-24"
     >
       <div
-        class="MuiBox-root MuiBox-root-46"
+        class="MuiBox-root MuiBox-root-35"
       >
         <div
           class="MuiTabs-root MuiTabs-vertical"
@@ -24,17 +24,17 @@ exports[`Project should match snapshot for old projects 1`] = `
             >
               <button
                 aria-selected="true"
-                class="MuiButtonBase-root MuiTab-root makeStyles-root-40 MuiTab-textColorInherit makeStyles-textColorInherit-44 Mui-selected makeStyles-selected-43 MuiTab-labelIcon makeStyles-labelIcon-42 MuiTab-fullWidth"
+                class="MuiButtonBase-root MuiTab-root makeStyles-root-29 MuiTab-textColorInherit makeStyles-textColorInherit-33 Mui-selected makeStyles-selected-32 MuiTab-labelIcon makeStyles-labelIcon-31 MuiTab-fullWidth"
                 data-testid="tab-dashboard1"
                 role="tab"
                 tabindex="0"
                 type="button"
               >
                 <span
-                  class="MuiTab-wrapper makeStyles-wrapper-41"
+                  class="MuiTab-wrapper makeStyles-wrapper-30"
                 >
                   <div
-                    class="MuiBox-root MuiBox-root-47"
+                    class="MuiBox-root MuiBox-root-36"
                   >
                     <img
                       alt="dashboard-logo"
@@ -49,7 +49,7 @@ exports[`Project should match snapshot for old projects 1`] = `
               </button>
             </div>
             <span
-              class="PrivateTabIndicator-root-48 PrivateTabIndicator-colorSecondary-50 MuiTabs-indicator makeStyles-indicator-45 PrivateTabIndicator-vertical-51"
+              class="PrivateTabIndicator-root-37 PrivateTabIndicator-colorSecondary-39 MuiTabs-indicator makeStyles-indicator-34 PrivateTabIndicator-vertical-40"
               style="top: 0px; height: 0px;"
             />
           </div>
@@ -57,10 +57,10 @@ exports[`Project should match snapshot for old projects 1`] = `
       </div>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-52"
+      class="MuiBox-root MuiBox-root-41"
     >
       <div
-        class="MuiBox-root MuiBox-root-53 makeStyles-projectNameBar-33"
+        class="MuiBox-root MuiBox-root-42 makeStyles-projectNameBar-22"
       >
         <h5
           class="MuiTypography-root MuiTypography-h5"
@@ -82,78 +82,16 @@ exports[`Project should match snapshot for old projects 1`] = `
           />
         </button>
       </div>
-      <div
-        class="MuiBox-root MuiBox-root-54"
-      >
-        <div
-          aria-labelledby="simple-tab-0"
-          id="simple-tabpanel-0"
-          role="tabpanel"
-        >
-          <div
-            class="MuiBox-root MuiBox-root-59"
-          >
-            <div
-              class="MuiBox-root MuiBox-root-60 makeStyles-configureProjectDataBar-55"
-            >
-              <h6
-                class="MuiTypography-root MuiTypography-h6"
-              >
-                 Configure Dashboard Data
-              </h6>
-              <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text"
-                tabindex="0"
-                type="button"
-              >
-                <span
-                  class="MuiButton-label"
-                >
-                   Back to recent projects
-                </span>
-                <span
-                  class="MuiTouchRipple-root"
-                />
-              </button>
-            </div>
-            <div
-              class="MuiBox-root MuiBox-root-61 makeStyles-dashboardDataContainer-57"
-            >
-              <div
-                class="MuiBox-root MuiBox-root-62"
-              >
-                <h6
-                  class="MuiTypography-root MuiTypography-subtitle2"
-                >
-                   Manage Dashboard Dataset
-                </h6>
-              </div>
-              <div
-                class="MuiBox-root MuiBox-root-63 makeStyles-dashboardDataHeader-56"
-              >
-                <h6
-                  class="MuiTypography-root MuiTypography-subtitle2"
-                >
-                  project1 :: dashboard1
-                </h6>
-              </div>
-              <div
-                class="MuiBox-root MuiBox-root-64 makeStyles-dashboardDataBody-58"
-              >
-                <h6
-                  class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-colorTextPrimary"
-                >
-                  Before we can create any visualization, we ‘ll need some data.
-                </h6>
-                <p
-                  class="MuiTypography-root MuiTypography-body2"
-                >
-                  Use Upload dataset to add data files to your dashboard.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div>
+        {
+  "dashboardData": {
+    "name": "dashboard1"
+  },
+  "projectMetadata": {
+    "id": 1,
+    "name": "project1"
+  }
+}
       </div>
     </div>
   </div>
@@ -242,78 +180,15 @@ exports[`Project should match snapshot while creating new project 1`] = `
           />
         </button>
       </div>
-      <div
-        class="MuiBox-root MuiBox-root-22"
-      >
-        <div
-          aria-labelledby="simple-tab-0"
-          id="simple-tabpanel-0"
-          role="tabpanel"
-        >
-          <div
-            class="MuiBox-root MuiBox-root-27"
-          >
-            <div
-              class="MuiBox-root MuiBox-root-28 makeStyles-configureProjectDataBar-23"
-            >
-              <h6
-                class="MuiTypography-root MuiTypography-h6"
-              >
-                 Configure Dashboard Data
-              </h6>
-              <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text"
-                tabindex="0"
-                type="button"
-              >
-                <span
-                  class="MuiButton-label"
-                >
-                   Back to recent projects
-                </span>
-                <span
-                  class="MuiTouchRipple-root"
-                />
-              </button>
-            </div>
-            <div
-              class="MuiBox-root MuiBox-root-29 makeStyles-dashboardDataContainer-25"
-            >
-              <div
-                class="MuiBox-root MuiBox-root-30"
-              >
-                <h6
-                  class="MuiTypography-root MuiTypography-subtitle2"
-                >
-                   Manage Dashboard Dataset
-                </h6>
-              </div>
-              <div
-                class="MuiBox-root MuiBox-root-31 makeStyles-dashboardDataHeader-24"
-              >
-                <h6
-                  class="MuiTypography-root MuiTypography-subtitle2"
-                >
-                  untitled project :: dashboard1
-                </h6>
-              </div>
-              <div
-                class="MuiBox-root MuiBox-root-32 makeStyles-dashboardDataBody-26"
-              >
-                <h6
-                  class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-colorTextPrimary"
-                >
-                  Before we can create any visualization, we ‘ll need some data.
-                </h6>
-                <p
-                  class="MuiTypography-root MuiTypography-body2"
-                >
-                  Use Upload dataset to add data files to your dashboard.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div>
+        {
+  "dashboardData": {
+    "name": "dashboard1"
+  },
+  "projectMetadata": {
+    "name": "untitled project"
+  }
+}
       </div>
     </div>
   </div>

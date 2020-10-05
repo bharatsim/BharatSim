@@ -4,6 +4,7 @@ import { Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
+import withProjectLayout from './withProjectLayout';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -46,12 +47,15 @@ const useStyles = makeStyles((theme) => {
     },
   };
 });
-export default function ConfigureDashboardData({ dashboardData, projectName }) {
+
+function ConfigureDashboardData({ dashboardData, projectMetadata }) {
   const classes = useStyles();
   const history = useHistory();
+
   function openRecentProjects() {
     history.push('/');
   }
+
   return (
     <Box>
       <Box className={classes.configureProjectDataBar}>
@@ -63,7 +67,7 @@ export default function ConfigureDashboardData({ dashboardData, projectName }) {
           <Typography variant="subtitle2"> Manage Dashboard Dataset</Typography>
         </Box>
         <Box className={classes.dashboardDataHeader}>
-          <Typography variant="subtitle2">{`${projectName} :: ${dashboardData.name}`}</Typography>
+          <Typography variant="subtitle2">{`${projectMetadata.name} :: ${dashboardData.name}`}</Typography>
         </Box>
         <Box className={classes.dashboardDataBody}>
           <Typography variant="subtitle2" color="textPrimary">
@@ -77,3 +81,5 @@ export default function ConfigureDashboardData({ dashboardData, projectName }) {
     </Box>
   );
 }
+
+export default withProjectLayout(ConfigureDashboardData);
