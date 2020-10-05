@@ -4,11 +4,11 @@ import Loader from './Loader';
 import Error from './Error';
 
 export default function LoaderOrError({ children, loadingState }) {
-  if (loadingState === loaderStates.LOADING) {
-    return <Loader />;
+  if (loadingState === loaderStates.SUCCESS) {
+    return children;
   }
   if (loadingState === loaderStates.ERROR) {
     return <Error />;
   }
-  return children;
+  return <Loader />;
 }

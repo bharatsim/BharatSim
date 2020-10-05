@@ -9,8 +9,9 @@ function useFetch(api, { data, query, params } = {}) {
   const dependencies = data ? [...data] : [];
 
   useEffect(() => {
+    startLoader();
+
     async function fetchApiData() {
-      startLoader();
       try {
         const resData = await api({ data, query, params });
         setResponseData(resData);

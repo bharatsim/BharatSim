@@ -6,11 +6,10 @@ import useFetch from '../../hook/useFetch';
 import { api } from '../../utils/api';
 import NewUserHomeScreen from './NewUserHomeScreen';
 import LoaderOrError from '../loaderOrError/LoaderOrError';
-import theme from '../../theme/theme';
 
 const styles = makeStyles(() => ({
   mainContainer: {
-    maxWidth: theme.spacing(304),
+    width: '100%',
     margin: 'auto',
     marginTop: 0,
   },

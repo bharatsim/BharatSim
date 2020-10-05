@@ -3,13 +3,13 @@
 exports[`Home should match snapshot for existing users 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-40 makeStyles-mainContainer-26"
+    class="MuiBox-root MuiBox-root-18 makeStyles-mainContainer-15"
   >
     <div
-      class="MuiBox-root MuiBox-root-42"
+      class="MuiBox-root MuiBox-root-20"
     >
       <div
-        class="MuiBox-root MuiBox-root-43"
+        class="MuiBox-root MuiBox-root-21"
       >
         <div
           class="MuiTabs-root"
@@ -41,13 +41,13 @@ exports[`Home should match snapshot for existing users 1`] = `
               </button>
             </div>
             <span
-              class="PrivateTabIndicator-root-44 PrivateTabIndicator-colorPrimary-45 MuiTabs-indicator"
+              class="PrivateTabIndicator-root-22 PrivateTabIndicator-colorPrimary-23 MuiTabs-indicator"
               style="left: 0px; width: 0px;"
             />
           </div>
         </div>
         <div
-          class="MuiBox-root MuiBox-root-49 makeStyles-buttonGroup-48"
+          class="MuiBox-root MuiBox-root-27 makeStyles-buttonGroup-26"
         >
           <button
             class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSizeSmall MuiButton-sizeSmall"
@@ -66,7 +66,7 @@ exports[`Home should match snapshot for existing users 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-50 makeStyles-projectListContainer-41"
+        class="MuiBox-root MuiBox-root-28 makeStyles-projectListContainer-19"
       >
         <div
           aria-labelledby="simple-tab-0"
@@ -80,7 +80,7 @@ exports[`Home should match snapshot for existing users 1`] = `
               class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3"
             >
               <div
-                class="MuiBox-root MuiBox-root-52 makeStyles-cardContainer-51"
+                class="MuiBox-root MuiBox-root-30 makeStyles-cardContainer-29"
               >
                 <h6
                   class="MuiTypography-root MuiTypography-subtitle2"
@@ -100,18 +100,18 @@ exports[`Home should match snapshot for existing users 1`] = `
 exports[`Home should match snapshot for new user 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-15 makeStyles-mainContainer-1"
+    class="MuiBox-root MuiBox-root-4 makeStyles-mainContainer-1"
   >
     <div
-      class="MuiBox-root MuiBox-root-20 makeStyles-mainContainer-16"
+      class="MuiBox-root MuiBox-root-9 makeStyles-mainContainer-5"
     >
       <h4
-        class="MuiTypography-root makeStyles-textCentered-17 MuiTypography-h4"
+        class="MuiTypography-root makeStyles-textCentered-6 MuiTypography-h4"
       >
         Welcome to BharatSim
       </h4>
       <div
-        class="MuiBox-root MuiBox-root-21 makeStyles-itemsCentered-19"
+        class="MuiBox-root MuiBox-root-10 makeStyles-itemsCentered-8"
       >
         <img
           alt="logo"
@@ -119,24 +119,24 @@ exports[`Home should match snapshot for new user 1`] = `
         />
       </div>
       <div
-        class="MuiBox-root MuiBox-root-22 makeStyles-introTextContainer-18"
+        class="MuiBox-root MuiBox-root-11 makeStyles-introTextContainer-7"
       >
         <h6
-          class="MuiTypography-root makeStyles-textCentered-17 MuiTypography-subtitle2"
+          class="MuiTypography-root makeStyles-textCentered-6 MuiTypography-subtitle2"
         >
           Intro text
         </h6>
         <p
-          class="MuiTypography-root makeStyles-textCentered-17 MuiTypography-body2"
+          class="MuiTypography-root makeStyles-textCentered-6 MuiTypography-body2"
         >
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
         </p>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-23 makeStyles-itemsCentered-19"
+        class="MuiBox-root MuiBox-root-12 makeStyles-itemsCentered-8"
       >
         <div
-          class="MuiBox-root MuiBox-root-25 makeStyles-buttonGroup-24"
+          class="MuiBox-root MuiBox-root-14 makeStyles-buttonGroup-13"
         >
           <button
             class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSizeLarge MuiButton-sizeLarge"

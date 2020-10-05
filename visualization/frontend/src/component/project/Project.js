@@ -48,11 +48,10 @@ function Project() {
   const history = useHistory();
   const { id } = useParams();
   const { loadingState, startLoader, stopLoaderAfterError, stopLoaderAfterSuccess } = useLoader();
-
   useEffect(() => {
+    startLoader();
     async function fetchProjectData() {
       if (id) {
-        startLoader();
         try {
           const { project } = await api.getProject(id);
           const { _id, name } = project;
@@ -61,6 +60,8 @@ function Project() {
         } catch (e) {
           stopLoaderAfterError('failed to load');
         }
+      } else {
+        stopLoaderAfterSuccess();
       }
     }
 

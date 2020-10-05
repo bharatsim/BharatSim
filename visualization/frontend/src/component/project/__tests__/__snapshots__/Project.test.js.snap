@@ -3,13 +3,13 @@
 exports[`Project should match snapshot for old projects 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-63 makeStyles-layoutContainer-32"
+    class="MuiBox-root MuiBox-root-38 makeStyles-layoutContainer-34"
   >
     <div
-      class="MuiBox-root MuiBox-root-64 makeStyles-sideBarLayout-33"
+      class="MuiBox-root MuiBox-root-39 makeStyles-sideBarLayout-35"
     >
       <div
-        class="MuiBox-root MuiBox-root-71"
+        class="MuiBox-root MuiBox-root-46"
       >
         <div
           class="MuiTabs-root MuiTabs-vertical"
@@ -24,17 +24,17 @@ exports[`Project should match snapshot for old projects 1`] = `
             >
               <button
                 aria-selected="true"
-                class="MuiButtonBase-root MuiTab-root makeStyles-root-65 MuiTab-textColorInherit makeStyles-textColorInherit-69 Mui-selected makeStyles-selected-68 MuiTab-labelIcon makeStyles-labelIcon-67 MuiTab-fullWidth"
+                class="MuiButtonBase-root MuiTab-root makeStyles-root-40 MuiTab-textColorInherit makeStyles-textColorInherit-44 Mui-selected makeStyles-selected-43 MuiTab-labelIcon makeStyles-labelIcon-42 MuiTab-fullWidth"
                 data-testid="tab-dashboard1"
                 role="tab"
                 tabindex="0"
                 type="button"
               >
                 <span
-                  class="MuiTab-wrapper makeStyles-wrapper-66"
+                  class="MuiTab-wrapper makeStyles-wrapper-41"
                 >
                   <div
-                    class="MuiBox-root MuiBox-root-72"
+                    class="MuiBox-root MuiBox-root-47"
                   >
                     <img
                       alt="dashboard-logo"
@@ -49,7 +49,7 @@ exports[`Project should match snapshot for old projects 1`] = `
               </button>
             </div>
             <span
-              class="PrivateTabIndicator-root-73 PrivateTabIndicator-colorSecondary-75 MuiTabs-indicator makeStyles-indicator-70 PrivateTabIndicator-vertical-76"
+              class="PrivateTabIndicator-root-48 PrivateTabIndicator-colorSecondary-50 MuiTabs-indicator makeStyles-indicator-45 PrivateTabIndicator-vertical-51"
               style="top: 0px; height: 0px;"
             />
           </div>
@@ -57,10 +57,10 @@ exports[`Project should match snapshot for old projects 1`] = `
       </div>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-77"
+      class="MuiBox-root MuiBox-root-52"
     >
       <div
-        class="MuiBox-root MuiBox-root-78 makeStyles-projectNameBar-31"
+        class="MuiBox-root MuiBox-root-53 makeStyles-projectNameBar-33"
       >
         <h5
           class="MuiTypography-root MuiTypography-h5"
@@ -83,7 +83,7 @@ exports[`Project should match snapshot for old projects 1`] = `
         </button>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-79"
+        class="MuiBox-root MuiBox-root-54"
       >
         <div
           aria-labelledby="simple-tab-0"
@@ -91,10 +91,10 @@ exports[`Project should match snapshot for old projects 1`] = `
           role="tabpanel"
         >
           <div
-            class="MuiBox-root MuiBox-root-84"
+            class="MuiBox-root MuiBox-root-59"
           >
             <div
-              class="MuiBox-root MuiBox-root-85 makeStyles-configureProjectDataBar-80"
+              class="MuiBox-root MuiBox-root-60 makeStyles-configureProjectDataBar-55"
             >
               <h6
                 class="MuiTypography-root MuiTypography-h6"
@@ -117,10 +117,10 @@ exports[`Project should match snapshot for old projects 1`] = `
               </button>
             </div>
             <div
-              class="MuiBox-root MuiBox-root-86 makeStyles-dashboardDataContainer-82"
+              class="MuiBox-root MuiBox-root-61 makeStyles-dashboardDataContainer-57"
             >
               <div
-                class="MuiBox-root MuiBox-root-87"
+                class="MuiBox-root MuiBox-root-62"
               >
                 <h6
                   class="MuiTypography-root MuiTypography-subtitle2"
@@ -129,7 +129,7 @@ exports[`Project should match snapshot for old projects 1`] = `
                 </h6>
               </div>
               <div
-                class="MuiBox-root MuiBox-root-88 makeStyles-dashboardDataHeader-81"
+                class="MuiBox-root MuiBox-root-63 makeStyles-dashboardDataHeader-56"
               >
                 <h6
                   class="MuiTypography-root MuiTypography-subtitle2"
@@ -138,7 +138,7 @@ exports[`Project should match snapshot for old projects 1`] = `
                 </h6>
               </div>
               <div
-                class="MuiBox-root MuiBox-root-89 makeStyles-dashboardDataBody-83"
+                class="MuiBox-root MuiBox-root-64 makeStyles-dashboardDataBody-58"
               >
                 <h6
                   class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-colorTextPrimary"
@@ -163,13 +163,13 @@ exports[`Project should match snapshot for old projects 1`] = `
 exports[`Project should match snapshot while creating new project 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-4 makeStyles-layoutContainer-2"
+    class="MuiBox-root MuiBox-root-6 makeStyles-layoutContainer-2"
   >
     <div
-      class="MuiBox-root MuiBox-root-5 makeStyles-sideBarLayout-3"
+      class="MuiBox-root MuiBox-root-7 makeStyles-sideBarLayout-3"
     >
       <div
-        class="MuiBox-root MuiBox-root-12"
+        class="MuiBox-root MuiBox-root-14"
       >
         <div
           class="MuiTabs-root MuiTabs-vertical"
@@ -184,17 +184,17 @@ exports[`Project should match snapshot while creating new project 1`] = `
             >
               <button
                 aria-selected="true"
-                class="MuiButtonBase-root MuiTab-root makeStyles-root-6 MuiTab-textColorInherit makeStyles-textColorInherit-10 Mui-selected makeStyles-selected-9 MuiTab-labelIcon makeStyles-labelIcon-8 MuiTab-fullWidth"
+                class="MuiButtonBase-root MuiTab-root makeStyles-root-8 MuiTab-textColorInherit makeStyles-textColorInherit-12 Mui-selected makeStyles-selected-11 MuiTab-labelIcon makeStyles-labelIcon-10 MuiTab-fullWidth"
                 data-testid="tab-dashboard1"
                 role="tab"
                 tabindex="0"
                 type="button"
               >
                 <span
-                  class="MuiTab-wrapper makeStyles-wrapper-7"
+                  class="MuiTab-wrapper makeStyles-wrapper-9"
                 >
                   <div
-                    class="MuiBox-root MuiBox-root-13"
+                    class="MuiBox-root MuiBox-root-15"
                   >
                     <img
                       alt="dashboard-logo"
@@ -209,7 +209,7 @@ exports[`Project should match snapshot while creating new project 1`] = `
               </button>
             </div>
             <span
-              class="PrivateTabIndicator-root-14 PrivateTabIndicator-colorSecondary-16 MuiTabs-indicator makeStyles-indicator-11 PrivateTabIndicator-vertical-17"
+              class="PrivateTabIndicator-root-16 PrivateTabIndicator-colorSecondary-18 MuiTabs-indicator makeStyles-indicator-13 PrivateTabIndicator-vertical-19"
               style="top: 0px; height: 0px;"
             />
           </div>
@@ -217,10 +217,10 @@ exports[`Project should match snapshot while creating new project 1`] = `
       </div>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-18"
+      class="MuiBox-root MuiBox-root-20"
     >
       <div
-        class="MuiBox-root MuiBox-root-19 makeStyles-projectNameBar-1"
+        class="MuiBox-root MuiBox-root-21 makeStyles-projectNameBar-1"
       >
         <h5
           class="MuiTypography-root MuiTypography-h5"
@@ -243,7 +243,7 @@ exports[`Project should match snapshot while creating new project 1`] = `
         </button>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-20"
+        class="MuiBox-root MuiBox-root-22"
       >
         <div
           aria-labelledby="simple-tab-0"
@@ -251,10 +251,10 @@ exports[`Project should match snapshot while creating new project 1`] = `
           role="tabpanel"
         >
           <div
-            class="MuiBox-root MuiBox-root-25"
+            class="MuiBox-root MuiBox-root-27"
           >
             <div
-              class="MuiBox-root MuiBox-root-26 makeStyles-configureProjectDataBar-21"
+              class="MuiBox-root MuiBox-root-28 makeStyles-configureProjectDataBar-23"
             >
               <h6
                 class="MuiTypography-root MuiTypography-h6"
@@ -277,10 +277,10 @@ exports[`Project should match snapshot while creating new project 1`] = `
               </button>
             </div>
             <div
-              class="MuiBox-root MuiBox-root-27 makeStyles-dashboardDataContainer-23"
+              class="MuiBox-root MuiBox-root-29 makeStyles-dashboardDataContainer-25"
             >
               <div
-                class="MuiBox-root MuiBox-root-28"
+                class="MuiBox-root MuiBox-root-30"
               >
                 <h6
                   class="MuiTypography-root MuiTypography-subtitle2"
@@ -289,7 +289,7 @@ exports[`Project should match snapshot while creating new project 1`] = `
                 </h6>
               </div>
               <div
-                class="MuiBox-root MuiBox-root-29 makeStyles-dashboardDataHeader-22"
+                class="MuiBox-root MuiBox-root-31 makeStyles-dashboardDataHeader-24"
               >
                 <h6
                   class="MuiTypography-root MuiTypography-subtitle2"
@@ -298,7 +298,7 @@ exports[`Project should match snapshot while creating new project 1`] = `
                 </h6>
               </div>
               <div
-                class="MuiBox-root MuiBox-root-30 makeStyles-dashboardDataBody-24"
+                class="MuiBox-root MuiBox-root-32 makeStyles-dashboardDataBody-26"
               >
                 <h6
                   class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-colorTextPrimary"
