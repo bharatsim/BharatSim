@@ -7,7 +7,7 @@ import com.bharatsim.model.InfectionStatus._
 
 import scala.util.Random
 
-case class Citizen2(age: Int, infectionState: InfectionStatus, infectionDay: Int) extends Agent {
+case class Citizen(age: Int, infectionState: InfectionStatus, infectionDay: Int) extends Agent {
   final val numberOfHoursInADay: Int = 24
   private val incrementInfectionDay: Context => Unit = (context: Context) => {
     if ((isExposed || isInfected) && context.simulationContext.getCurrentStep % numberOfHoursInADay == 0) {
@@ -22,7 +22,7 @@ case class Citizen2(age: Int, infectionState: InfectionStatus, infectionDay: Int
 
       val home = getHome
       val infectedCount =
-        context.graphProvider.fetchNeighborsOf(home.id, "HOUSES").count(x => x.as[Citizen2].isInfected)
+        context.graphProvider.fetchNeighborsOf(home.id, "HOUSES").count(x => x.as[Citizen].isInfected)
 
       val shouldInfect = infectionRate * infectedCount > 0
 
@@ -61,9 +61,9 @@ case class Citizen2(age: Int, infectionState: InfectionStatus, infectionDay: Int
 
   def isDeceased: Boolean = infectionState == Deceased
 
-  def getHome: House2 = getConnections("STAYS_AT").next().as[House2]
+  def getHome: House = getConnections("STAYS_AT").next().as[House]
 
-  def setHome(home: House2): Unit = unidirectionalConnect("STAYS_AT", home)
+  def setHome(home: House): Unit = unidirectionalConnect("STAYS_AT", home)
 
   addBehaviour(incrementInfectionDay)
   addBehaviour(checkForExposure)

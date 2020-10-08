@@ -29,25 +29,25 @@ object Main {
 
     context.schedules.addSchedule(
       employeeSchedule,
-      (agent: Agent, context: Context) => agent.asInstanceOf[Citizen2].age >= 30
+      (agent: Agent, context: Context) => agent.asInstanceOf[Citizen].age >= 30
     )
     context.schedules.addSchedule(
       studentSchedule,
-      (agent: Agent, context: Context) => agent.asInstanceOf[Citizen2].age < 30
+      (agent: Agent, context: Context) => agent.asInstanceOf[Citizen].age < 30
     )
 
     ingestDataUsingCSV(context)
 
     //    ingestData()
-    val beforeCount = context.graphProvider.fetchNodes("Citizen2", ("infectionState", "Infected")).size
-    context.registerAgent[Citizen2]
+    val beforeCount = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Infected")).size
+    context.registerAgent[Citizen]
 
     Simulation.run(context)
 
-    val afterCountSusceptible = context.graphProvider.fetchNodes("Citizen2", ("infectionState", "Susceptible")).size
-    val afterCountInfected = context.graphProvider.fetchNodes("Citizen2", ("infectionState", "Infected")).size
-    val afterCountRecovered = context.graphProvider.fetchNodes("Citizen2", ("infectionState", "Recovered")).size
-    val afterCountDeceased = context.graphProvider.fetchNodes("Citizen2", ("infectionState", "Deceased")).size
+    val afterCountSusceptible = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Susceptible")).size
+    val afterCountInfected = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Infected")).size
+    val afterCountRecovered = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Recovered")).size
+    val afterCountDeceased = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Deceased")).size
 
     println("Infected before: " + beforeCount)
     println("Infected after: " + afterCountInfected)
@@ -61,8 +61,8 @@ object Main {
       "src/main/resources/citizen.csv",
       Some((map: Map[String, String]) => {
         val age = map("age").toInt
-        val citizen: Citizen2 = Citizen2(age, InfectionStatus.withName(map("infectionState")), 0)
-        val home = House2()
+        val citizen: Citizen = Citizen(age, InfectionStatus.withName(map("infectionState")), 0)
+        val home = House()
 
         val citizenId = map("id").toInt
         val homeId = map("house_id").toInt
