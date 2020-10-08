@@ -1,7 +1,8 @@
 package com.bharatsim.engine.graph
 
-import com.bharatsim.engine.graph.GraphProvider.NodeId
+import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.custom.GraphProviderImpl
+import com.bharatsim.engine.testModels.{TestCitizen, TestHome}
 import org.mockito.MockitoSugar
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -245,19 +246,15 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
     "create node from CSV file" in {
       val filePath = "src/test/scala/com/bharatsim/engine/graph/sample.csv"
       val mapper = Some((map: Map[String, String]) => {
-        val citizenNode = new DataNode {
-          override def label = map("label");
-
-          override def Id = map("id").toInt
-
-          override def getParams: Map[String, Any] = Map("age" -> map("age").toInt)
-        }
-        GraphData(List(citizenNode), List.empty)
+        val age = map("age").toInt
+        val graphData = new GraphData()
+        graphData.addNode(map("id").toInt, TestCitizen(age))
+        graphData
       })
 
       val graphProvider = new GraphProviderImpl
       graphProvider.ingestFromCsv(filePath, mapper)
-      val nodes = graphProvider.fetchNodes("Citizen").toList
+      val nodes = graphProvider.fetchNodes("TestCitizen").toList
       nodes should have length 2
       nodes.head.Id shouldBe 1
       nodes.head.getParams("age") shouldBe 25
@@ -268,28 +265,24 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
     "create relations from CSV file" in {
       val filePath = "src/test/scala/com/bharatsim/engine/graph/sample.csv"
       val mapper = Some((map: Map[String, String]) => {
-        val citizenNode = new DataNode {
-          override def label = map("label");
+        val nodeId = map("id").toInt
+        val age = map("age").toInt
 
-          override def Id = map("id").toInt
-
-          override def getParams: Map[String, Any] = Map("age" -> map("age").toInt)
-        }
-        val homeNode = new DataNode {
-          override def label: String = "House";
-
-          override def Id: NodeId = map("house_id").toInt
-
-          override def getParams: Map[String, Any] = Map.empty
-        }
-        val staysAt = Relation(citizenNode, "STAYS_AT", homeNode)
-        val memberOf = Relation(homeNode, "HOUSES", citizenNode)
-        GraphData(List(citizenNode, homeNode), List(staysAt, memberOf))
+        val citizenNode = TestCitizen(age)
+        val homeId = map("house_id").toInt
+        val home = TestHome()
+        val staysAt = Relation(nodeId, "STAYS_AT", homeId)
+        val memberOf = Relation(homeId, "HOUSES", nodeId)
+        val graphData = new GraphData()
+        graphData.addRelations(List(staysAt, memberOf))
+        graphData.addNode(nodeId, citizenNode)
+        graphData.addNode(homeId, home)
+        graphData
       })
 
       val graphProvider = new GraphProviderImpl
       graphProvider.ingestFromCsv(filePath, mapper)
-      val house = graphProvider.fetchNode("House").toList.head
+      val house = graphProvider.fetchNode("TestHome").toList.head
       val citizensId = graphProvider.fetchNeighborsOf(house.Id, "HOUSES").toList.map(_.Id)
 
       citizensId should have length 2

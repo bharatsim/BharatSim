@@ -1,5 +1,6 @@
 package com.bharatsim.engine
 
+import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
 import org.mockito.{InOrder, Mockito, MockitoSugar}
@@ -108,7 +109,7 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
     new Context(mockGraphProvider, new Dynamics, new SimulationContext())
 }
 
-class Employee extends Agent {
+case class Employee() extends Agent {
 
   import com.bharatsim.engine.SimulationTest.behav3
 
@@ -116,7 +117,7 @@ class Employee extends Agent {
   addBehaviour(goToOffice)
 }
 
-class Student extends Agent {
+case class Student() extends Agent {
 
   import com.bharatsim.engine.SimulationTest.{behav1, behav2}
 

@@ -1,5 +1,6 @@
 package com.bharatsim.engine
 import com.bharatsim.engine.Node.fromGraphNode
+import com.bharatsim.engine.basicConversions.encoders.BasicEncoder
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider, GraphProviderFactory}
 
 import scala.collection.mutable
@@ -37,8 +38,8 @@ class Node()(implicit graphProvider: GraphProvider =  GraphProviderFactory.get) 
     graphProvider.fetchNeighborsOf(id, relation).map(fromGraphNode[T](_)).iterator
   }
 
-  def updateParam(key: String, value: Any): Unit = {
-    graphProvider.updateNode(id, (key, value))
+  def updateParam[T](key: String, value: T)(implicit encoder: BasicEncoder[T]): Unit = {
+    graphProvider.updateNode(id, (key, encoder.encode(value).get))
   }
 }
 

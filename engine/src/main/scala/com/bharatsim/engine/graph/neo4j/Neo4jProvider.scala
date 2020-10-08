@@ -13,14 +13,16 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsSca
 class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging {
   private val neo4jConnection = config.username match {
     case Some(_) => GraphDatabase.driver(config.uri, AuthTokens.basic(config.username.get, config.password.get))
-    case None    => GraphDatabase.driver(config.uri)
+    case None => GraphDatabase.driver(config.uri)
   }
 
   def close(): Unit = {
     neo4jConnection.close()
   }
 
-  override def createNode(label: String, props: Map[String, Any]): NodeId = {
+  private[engine] override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
+
+  private[engine] override def createNode(label: String, props: Map[String, Any]): NodeId = {
     val session = neo4jConnection.session()
 
     val nodeId = session.writeTransaction((tx: Transaction) => {
@@ -35,8 +37,6 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
     session.close()
     nodeId
   }
-
-  override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
 
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
     val session = neo4jConnection.session()

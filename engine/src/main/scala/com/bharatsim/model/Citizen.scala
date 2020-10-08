@@ -1,5 +1,6 @@
 package com.bharatsim.model
 
+import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.{Agent, Context}
 import com.bharatsim.model.InfectionStatus._
 

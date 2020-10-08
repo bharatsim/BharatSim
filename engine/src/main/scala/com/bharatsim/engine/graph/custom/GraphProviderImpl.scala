@@ -16,13 +16,26 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
 
   private val indexedNodes: mutable.HashMap[NodeId, InternalNode] = mutable.HashMap.empty
 
-  override def createNode(label: String, props: Map[String, Any]): NodeId = {
-    val id = idGenerator.generateId
-    createNodeWithId(id, label, props)
-    id
+  override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
+    val reader = CSVReader.open(csvPath)
+    val records = reader.allWithHeaders()
+    if (mapper.isDefined) {
+      records.foreach(record => {
+        val graphData = mapper.get(record)
+        graphData.nodes.foreach(node => {
+          if (!indexedNodes.contains(node.Id)) {
+            createNodeWithId(node.Id, node.label, node.getParams)
+          }
+        })
+
+        graphData.relations.foreach(relation => {
+          createRelationship(relation.from, relation.relation, relation.to)
+        })
+      })
+    }
   }
 
-  override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
+  private[engine] override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
 
   def createNodeWithId(id: NodeId, label: String, props: Map[String, Any]): Unit = {
     val hm = new mutable.HashMap[String, Any]()
@@ -46,28 +59,15 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
 
     (nodeFrom, nodeTo) match {
       case (Some(from), Some(to)) => from.addRelation(label, to.id)
-      case (None, _)              => logger.debug(s"Create relationship failed, node with id $node1 not found")
-      case (_, None)              => logger.debug(s"Create relationship failed, node with id $node2 not found")
+      case (None, _) => logger.debug(s"Create relationship failed, node with id $node1 not found")
+      case (_, None) => logger.debug(s"Create relationship failed, node with id $node2 not found")
     }
   }
 
-  override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
-    val reader = CSVReader.open(csvPath);
-    val records = reader.allWithHeaders();
-    if (mapper.isDefined) {
-      records.foreach((record) => {
-        val graphData = mapper.get(record);
-        graphData.nodes.foreach((node) => {
-          if (!indexedNodes.contains(node.Id)) {
-            createNodeWithId(node.Id, node.label, node.getParams)
-          }
-        });
-
-        graphData.relations.foreach((relation) => {
-          createRelationship(relation.from.Id, relation.relation, relation.to.Id)
-        })
-      })
-    }
+  private[engine] override def createNode(label: String, props: Map[String, Any]): NodeId = {
+    val id = idGenerator.generateId
+    createNodeWithId(id, label, props)
+    id
   }
 
   override def fetchNode(label: String, params: Map[String, Any] = Map.empty): Option[GraphNode] = {

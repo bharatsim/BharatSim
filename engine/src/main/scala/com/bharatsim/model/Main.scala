@@ -1,11 +1,9 @@
 package com.bharatsim.model
-import com.bharatsim.engine.graph.{DataNode, GraphData, Relation}
-import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.{Agent, Context, Day, Hour, Schedule, ScheduleUnit, Simulation, SimulationContext, Week}
-import com.bharatsim.model.InfectionStatus._
 
-import scala.collection.mutable
-import scala.util.Random
+import com.bharatsim.engine._
+import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
+import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
+import com.bharatsim.engine.graph.{GraphData, Relation}
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -31,25 +29,25 @@ object Main {
 
     context.schedules.addSchedule(
       employeeSchedule,
-      (agent: Agent, context: Context) => agent.asInstanceOf[Citizen].getAge >= 30
+      (agent: Agent, context: Context) => agent.asInstanceOf[Citizen2].age >= 30
     )
     context.schedules.addSchedule(
       studentSchedule,
-      (agent: Agent, context: Context) => agent.asInstanceOf[Citizen].getAge < 30
+      (agent: Agent, context: Context) => agent.asInstanceOf[Citizen2].age < 30
     )
 
     ingestDataUsingCSV(context)
 
     //    ingestData()
-    val beforeCount = context.graphProvider.fetchNodes("Citizen", ("infectionState", Infected)).size
-    context.registerAgent[Citizen]
+    val beforeCount = context.graphProvider.fetchNodes("Citizen2", ("infectionState", "Infected")).size
+    context.registerAgent[Citizen2]
 
     Simulation.run(context)
 
-    val afterCountSusceptible = context.graphProvider.fetchNodes("Citizen", ("infectionState", Susceptible)).size
-    val afterCountInfected = context.graphProvider.fetchNodes("Citizen", ("infectionState", Infected)).size
-    val afterCountRecovered = context.graphProvider.fetchNodes("Citizen", ("infectionState", Recovered)).size
-    val afterCountDeceased = context.graphProvider.fetchNodes("Citizen", ("infectionState", Deceased)).size
+    val afterCountSusceptible = context.graphProvider.fetchNodes("Citizen2", ("infectionState", "Susceptible")).size
+    val afterCountInfected = context.graphProvider.fetchNodes("Citizen2", ("infectionState", "Infected")).size
+    val afterCountRecovered = context.graphProvider.fetchNodes("Citizen2", ("infectionState", "Recovered")).size
+    val afterCountDeceased = context.graphProvider.fetchNodes("Citizen2", ("infectionState", "Deceased")).size
 
     println("Infected before: " + beforeCount)
     println("Infected after: " + afterCountInfected)
@@ -61,40 +59,23 @@ object Main {
   private def ingestDataUsingCSV(context: Context): Unit = {
     context.graphProvider.ingestFromCsv(
       "src/main/resources/citizen.csv",
-      Some(value = (map: Map[String, String]) => {
-        val params = new mutable.HashMap[String, Any]
-        params.put("infectionState", InfectionStatus.withName(map("infectionState")))
-        params.put("age", map("age").toInt)
-        val citizenNode = new DataNode {
-          override def label: String = map("label")
+      Some((map: Map[String, String]) => {
+        val age = map("age").toInt
+        val citizen: Citizen2 = Citizen2(age, InfectionStatus.withName(map("infectionState")), 0)
+        val home = House2()
 
-          override def Id: NodeId = map("id").toInt
+        val citizenId = map("id").toInt
+        val homeId = map("house_id").toInt
 
-          override def getParams: Map[String, Any] = params.toMap
-        }
-        val homeNode = new DataNode {
-          override def label: String = "House";
+        val staysAt = Relation(citizenId, "STAYS_AT", homeId)
+        val memberOf = Relation(homeId, "HOUSES", citizenId)
 
-          override def Id: NodeId = map("house_id").toInt
-
-          override def getParams: Map[String, Any] = Map.empty
-        }
-        val staysAt = Relation(citizenNode, "STAYS_AT", homeNode)
-        val memberOf = Relation(homeNode, "HOUSES", citizenNode)
-        GraphData(List(citizenNode, homeNode), List(staysAt, memberOf))
+        val graphData = new GraphData()
+        graphData.addNode(citizenId, citizen)
+        graphData.addNode(homeId, home)
+        graphData.addRelations(List(staysAt, memberOf))
+        graphData
       })
     )
-  }
-
-  private def ingestData()(implicit context: Context): Unit = {
-    val numberOfCitizen = 100
-    val houseId = context.graphProvider.createNode("Home")
-
-    for (_ <- 1 to numberOfCitizen) {
-      val infectionState = if (Random.nextBoolean()) Infected else Susceptible
-      val agentId = context.graphProvider.createNode("Citizen", ("infectionState", infectionState))
-      context.graphProvider.createRelationship(agentId, "STAYS_AT", houseId)
-      context.graphProvider.createRelationship(houseId, "MEMBER_OF", agentId)
-    }
   }
 }
