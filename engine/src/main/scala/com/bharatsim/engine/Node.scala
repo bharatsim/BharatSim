@@ -2,22 +2,11 @@ package com.bharatsim.engine
 import com.bharatsim.engine.basicConversions.encoders.BasicEncoder
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider, GraphProviderFactory}
 
-import scala.collection.mutable
-import scala.reflect.{ClassTag, classTag}
-
 class Node()(implicit graphProvider: GraphProvider =  GraphProviderFactory.get) extends Identity {
   override var id: Int = 0
-  val params = new mutable.HashMap[String, Any]()
 
   private[engine] def setId(newId: Int): Unit = {
     id = newId
-  }
-
-  private[engine] def setParams(nodeParams: Map[String, Any]): Unit = params.addAll(nodeParams)
-
-  def fetchParam(key: String): Option[Any] = {
-    if(params.contains(key)) Some(params(key))
-    else None
   }
 
   def unidirectionalConnect(relation: String, to: Node): Unit = {
@@ -42,13 +31,3 @@ class Node()(implicit graphProvider: GraphProvider =  GraphProviderFactory.get) 
   }
 }
 
-object Node {
-  def fromGraphNode[T: ClassTag](graphNode: GraphNode): T = {
-    val className = classTag[T].runtimeClass.getName
-    val value = Class.forName(className)
-    val modelInstance = value.getDeclaredConstructor().newInstance().asInstanceOf[Node]
-    modelInstance.setId(graphNode.Id)
-    modelInstance.setParams(graphNode.getParams)
-    modelInstance.asInstanceOf[T]
-  }
-}
