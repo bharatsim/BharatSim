@@ -18,7 +18,7 @@ case class Citizen(age: Int, infectionState: InfectionStatus, infectionDay: Int)
     if (isSusceptible) {
       val infectionRate = context.dynamics.asInstanceOf[Disease.type].infectionRate
 
-      val schedule = context.schedules.getSchedule(this, context).get
+      val schedule = context.fetchSchedules.getSchedule(this, context).get
 
       val home = getHome
       val infectedCount =

@@ -1,81 +1,81 @@
 package com.bharatsim.model
 
+import com.bharatsim.engine.ContextBuilder._
 import com.bharatsim.engine._
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
+import com.bharatsim.engine.dsl.SyntaxHelpers._
 import com.bharatsim.engine.graph.{GraphData, Relation}
+import com.typesafe.scalalogging.LazyLogging
 
-object Main {
+object Main extends LazyLogging {
   def main(args: Array[String]): Unit = {
     val simulationContext = new SimulationContext(1000)
     implicit val context: Context = Context(Disease, simulationContext)
 
-    val employeeScheduleOnWeekDays = new Schedule(Day, Hour)
+    createSchedules()
+
+    ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
+    val beforeCount = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Infected")).size
+
+    context.registerAgent[Citizen]
+
+    Simulation.run(context)
+
+    printStats(beforeCount)
+  }
+
+  private def createSchedules()(implicit context: Context): Unit = {
+    val employeeScheduleOnWeekDays = (Day, Hour)
       .add("Home", 0, 8)
       .add("Home", 19, 23)
 
-    val employeeScheduleOnWeekEnd = new Schedule(Day, Hour)
-      .add("Home", 0, 23)
+    val employeeScheduleOnWeekEnd = (Day, Hour).add("Home", 0, 23)
 
-    val employeeSchedule = new Schedule(Week, Day)
+    val employeeSchedule = (Week, Day)
       .add(employeeScheduleOnWeekDays, 0, 4)
       .add(employeeScheduleOnWeekEnd, 5, 6)
 
-    val studentSchedule = new Schedule(Day, Hour)
+    val studentSchedule = (Day, Hour)
       .add("Home", 0, 8)
       .add("School", 9, 14)
       .add("Daycare", 15, 18)
       .add("Home", 19, 23)
 
-    context.schedules.addSchedule(
-      employeeSchedule,
-      (agent: Agent, context: Context) => agent.asInstanceOf[Citizen].age >= 30
+    registerSchedules(
+      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Citizen].age >= 30),
+      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Citizen].age < 30)
     )
-    context.schedules.addSchedule(
-      studentSchedule,
-      (agent: Agent, context: Context) => agent.asInstanceOf[Citizen].age < 30
-    )
+  }
 
-    ingestDataUsingCSV(context)
+  private def csvDataExtractor(map: Map[String, String]): GraphData = {
+    val age = map("age").toInt
+    val citizen: Citizen = Citizen(age, InfectionStatus.withName(map("infectionState")), 0)
+    val home = House()
 
-    //    ingestData()
-    val beforeCount = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Infected")).size
-    context.registerAgent[Citizen]
+    val citizenId = map("id").toInt
+    val homeId = map("house_id").toInt
 
-    Simulation.run(context)
+    val staysAt = Relation(citizenId, "STAYS_AT", homeId)
+    val memberOf = Relation(homeId, "HOUSES", citizenId)
 
+    val graphData = new GraphData()
+    graphData.addNode(citizenId, citizen)
+    graphData.addNode(homeId, home)
+    graphData.addRelations(List(staysAt, memberOf))
+    graphData
+  }
+
+  private def printStats(beforeCount: Int)(implicit context: Context): Unit = {
     val afterCountSusceptible = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Susceptible")).size
     val afterCountInfected = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Infected")).size
     val afterCountRecovered = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Recovered")).size
     val afterCountDeceased = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Deceased")).size
 
-    println("Infected before: " + beforeCount)
-    println("Infected after: " + afterCountInfected)
-    println("Recovered: " + afterCountRecovered)
-    println("Deceased: " + afterCountDeceased)
-    println("Susceptible: " + afterCountSusceptible)
-  }
-
-  private def ingestDataUsingCSV(context: Context): Unit = {
-    context.graphProvider.ingestFromCsv(
-      "src/main/resources/citizen.csv",
-      Some((map: Map[String, String]) => {
-        val age = map("age").toInt
-        val citizen: Citizen = Citizen(age, InfectionStatus.withName(map("infectionState")), 0)
-        val home = House()
-
-        val citizenId = map("id").toInt
-        val homeId = map("house_id").toInt
-
-        val staysAt = Relation(citizenId, "STAYS_AT", homeId)
-        val memberOf = Relation(homeId, "HOUSES", citizenId)
-
-        val graphData = new GraphData()
-        graphData.addNode(citizenId, citizen)
-        graphData.addNode(homeId, home)
-        graphData.addRelations(List(staysAt, memberOf))
-        graphData
-      })
-    )
+    logger.info("Infected before: {}", beforeCount)
+    logger.info("Infected after: {}", afterCountInfected)
+    logger.info("Recovered: {}", afterCountRecovered)
+    logger.info("Deceased: {}", afterCountDeceased)
+    logger.info("Susceptible: {}", afterCountSusceptible)
   }
 }
