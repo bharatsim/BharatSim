@@ -88,6 +88,29 @@ theme.overrides = {
       margin: 0,
     },
   },
+  MuiStepper: {
+    root: {
+      backgroundColor: 'transparent',
+      padding: 0,
+    },
+  },
+  MuiStepIcon: {
+    root: {
+      display: 'block',
+      color: theme.palette.text.disabled,
+      '&$completed': {
+        color: theme.colors.primaryColorScale['500'],
+      },
+      '&$active': {
+        color: theme.colors.primaryColorScale['500'],
+      },
+    },
+  },
+  MuiLink: {
+    root: {
+      color: theme.colors.primaryColorScale['500'],
+    },
+  },
 };
 
 export default theme;

@@ -1,6 +1,6 @@
 const csvParserConfig = {
   dynamicTyping: true,
-  preview: 10,
+  preview: 100,
   skipEmptyLines: true,
   header: true,
 };

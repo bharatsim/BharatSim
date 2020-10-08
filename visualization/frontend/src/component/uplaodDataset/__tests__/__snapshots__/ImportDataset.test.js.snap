@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Upload Dataser should match snapshot for import dataset component 1`] = `
+<div>
+  <div
+    class="MuiBox-root MuiBox-root-3 makeStyles-importDataContainer-1"
+  >
+    <img
+      alt="Import File"
+      src="importFileIcon.svg"
+    />
+    <div
+      class="MuiBox-root MuiBox-root-4 makeStyles-textContainer-2"
+    >
+      <p
+        class="MuiTypography-root MuiTypography-body1"
+      >
+        Drag your file here or 
+      </p>
+      <div
+        class="MuiBox-root MuiBox-root-5"
+      >
+        <label
+          aria-disabled="false"
+          class="MuiButtonBase-root MuiButton-root MuiButton-outlined"
+          role="button"
+          tabindex="0"
+        >
+          <span
+            class="MuiButton-label"
+          >
+            Browse
+            <input
+              data-testid="file-input"
+              style="display: none;"
+              type="file"
+            />
+          </span>
+          <span
+            class="MuiTouchRipple-root"
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;

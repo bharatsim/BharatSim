@@ -112,6 +112,29 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
       "root": {
         "margin": 0
       }
+    },
+    "MuiStepper": {
+      "root": {
+        "backgroundColor": "transparent",
+        "padding": 0
+      }
+    },
+    "MuiStepIcon": {
+      "root": {
+        "display": "block",
+        "color": "rgba(52, 58, 64, 0.38)",
+        "&$completed": {
+          "color": "#594ab7"
+        },
+        "&$active": {
+          "color": "#594ab7"
+        }
+      }
+    },
+    "MuiLink": {
+      "root": {
+        "color": "#594ab7"
+      }
     }
   },
   "palette": {
