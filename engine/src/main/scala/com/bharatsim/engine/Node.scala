@@ -1,5 +1,4 @@
 package com.bharatsim.engine
-import com.bharatsim.engine.Node.fromGraphNode
 import com.bharatsim.engine.basicConversions.encoders.BasicEncoder
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider, GraphProviderFactory}
 
@@ -34,8 +33,8 @@ class Node()(implicit graphProvider: GraphProvider =  GraphProviderFactory.get) 
     graphProvider.deleteRelationship(id, relation, to.id)
   }
 
-  def getConnections[T: ClassTag](relation: String): Iterator[T] = {
-    graphProvider.fetchNeighborsOf(id, relation).map(fromGraphNode[T](_)).iterator
+  def getConnections(relation: String): Iterator[GraphNode] = {
+    graphProvider.fetchNeighborsOf(id, relation).iterator
   }
 
   def updateParam[T](key: String, value: T)(implicit encoder: BasicEncoder[T]): Unit = {

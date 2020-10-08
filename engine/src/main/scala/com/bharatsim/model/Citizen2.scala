@@ -61,9 +61,9 @@ case class Citizen2(age: Int, infectionState: InfectionStatus, infectionDay: Int
 
   def isDeceased: Boolean = infectionState == Deceased
 
-  def getHome: House = getConnections[House]("STAYS_AT").next()
+  def getHome: House2 = getConnections("STAYS_AT").next().as[House2]
 
-  def setHome(home: House): Unit = unidirectionalConnect("STAYS_AT", home)
+  def setHome(home: House2): Unit = unidirectionalConnect("STAYS_AT", home)
 
   addBehaviour(incrementInfectionDay)
   addBehaviour(checkForExposure)
