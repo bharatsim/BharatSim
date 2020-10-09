@@ -16,6 +16,10 @@ case class DoubleValue(v: Double) extends BasicValue {
   override def get: Any = v
 }
 
+case class LongValue(v: Long) extends BasicValue {
+  override def get: Any = v
+}
+
 case class ByteValue(v: Byte) extends BasicValue {
   override def get: Any = v
 }
@@ -60,6 +64,7 @@ private[basicConversions] object BasicValue {
       case IntValue(v) => v
       case FloatValue(v) => v
       case DoubleValue(v) => v
+      case LongValue(v) => v
 
       case ByteValue(v) => v
       case CharValue(v) => v
@@ -90,6 +95,7 @@ private[basicConversions] object BasicValue {
       case x: Int => IntValue(x)
       case x: Float => FloatValue(x)
       case x: Double => DoubleValue(x)
+      case x: Long => LongValue(x)
 
       case x: Byte => ByteValue(x)
       case x: Char => CharValue(x)

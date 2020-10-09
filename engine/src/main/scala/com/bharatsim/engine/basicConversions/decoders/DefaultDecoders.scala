@@ -10,6 +10,7 @@ object DefaultDecoders {
 
   implicit val basicIntDecoder: BasicDecoder[Int] = {
     case IntValue(v) => v
+    case LongValue(v) => v.toInt
     case _ => throw new RuntimeException("Cannot convert to Int value, implement BasicDecoder to override default")
   }
 
