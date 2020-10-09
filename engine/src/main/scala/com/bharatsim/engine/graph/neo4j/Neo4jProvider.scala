@@ -3,21 +3,20 @@ package com.bharatsim.engine.graph.neo4j
 import java.util
 
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.{GraphData, GraphNode, GraphNodeImpl, GraphProvider}
+import com.bharatsim.engine.graph._
+import com.github.tototoshi.csv.CSVReader
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Values.{parameters, value}
 import org.neo4j.driver.{AuthTokens, GraphDatabase, Record, Transaction}
 
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsScala, SeqHasAsJava}
 
 class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging {
   private val neo4jConnection = config.username match {
     case Some(_) => GraphDatabase.driver(config.uri, AuthTokens.basic(config.username.get, config.password.get))
     case None => GraphDatabase.driver(config.uri)
-  }
-
-  def close(): Unit = {
-    neo4jConnection.close()
   }
 
   private[engine] override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
@@ -59,7 +58,47 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
     }
   }
 
-  override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = ???
+  override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
+    val reader = CSVReader.open(csvPath)
+    val records = reader.allWithHeaders()
+
+    val nodeTypes = mutable.HashMap[String, mutable.ListBuffer[CsvNode]]().empty
+    val relations = ListBuffer[Relation]().empty
+    val refToIdMapping = mutable.HashMap[Int, NodeId]().empty
+
+    if (mapper.isDefined) {
+      val extractor = mapper.get
+      records.foreach(m => {
+        val graphData = extractor(m)
+        relations.addAll(graphData.relations)
+        graphData.nodes.foreach(node => {
+          if (!nodeTypes.contains(node.label)) {
+            val list = ListBuffer[CsvNode]().empty
+            nodeTypes(node.label) = list
+          }
+          nodeTypes(node.label).addOne(node)
+        })
+      })
+    }
+
+    nodeTypes.foreach(kv => {
+      val label = kv._1
+      val nodes = kv._2
+
+      nodes.foreach(node => {
+        if (!refToIdMapping.contains(node.uniqueRef)) {
+          val nodeId = createNode(label, node.params)
+          refToIdMapping(node.uniqueRef) = nodeId
+        }
+      })
+    })
+
+    relations.foreach(rel => {
+      val fromId = refToIdMapping(rel.refFrom)
+      val toId = refToIdMapping(rel.refTo)
+      createRelationship(fromId, rel.relation, toId)
+    })
+  }
 
   override def fetchNode(label: String, params: Map[String, Any]): Option[GraphNode] = {
     val session = neo4jConnection.session()
