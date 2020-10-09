@@ -2,4 +2,4 @@ package com.bharatsim.model
 
 import com.bharatsim.engine.Node
 
-case class House() extends Node
+case class House(id: Int) extends Node

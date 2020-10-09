@@ -19,39 +19,28 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
   override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
     val reader = CSVReader.open(csvPath)
     val records = reader.allWithHeaders()
+    val refToIdMapping = mutable.HashMap[Int, NodeId]().empty
+
     if (mapper.isDefined) {
       records.foreach(record => {
         val graphData = mapper.get(record)
         graphData.nodes.foreach(node => {
-          if (!indexedNodes.contains(node.Id)) {
-            createNodeWithId(node.Id, node.label, node.getParams)
+          if (!refToIdMapping.contains(node.uniqueRef)) {
+            val nodeId = createNode(node.label, node.params)
+            refToIdMapping(node.uniqueRef) = nodeId
           }
         })
 
         graphData.relations.foreach(relation => {
-          createRelationship(relation.from, relation.relation, relation.to)
+          val fromId: NodeId = refToIdMapping(relation.refFrom)
+          val toId: NodeId = refToIdMapping(relation.refTo)
+          createRelationship(fromId, relation.relation, toId)
         })
       })
     }
   }
 
   private[engine] override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
-
-  def createNodeWithId(id: NodeId, label: String, props: Map[String, Any]): Unit = {
-    val hm = new mutable.HashMap[String, Any]()
-    hm.addAll(props)
-    val node = InternalNode(label, id, hm)
-
-    if (nodes.contains(label)) {
-      nodes(label).put(node.id, node)
-    } else {
-      val hm = new mutable.HashMap[NodeId, InternalNode]()
-      hm.put(node.id, node)
-      nodes.put(label, hm)
-    }
-
-    indexedNodes.put(node.id, node)
-  }
 
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
     val nodeFrom = indexedNodes.get(node1)
@@ -66,7 +55,19 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
 
   private[engine] override def createNode(label: String, props: Map[String, Any]): NodeId = {
     val id = idGenerator.generateId
-    createNodeWithId(id, label, props)
+    val hm = new mutable.HashMap[String, Any]()
+    hm.addAll(props)
+    val node = InternalNode(label, id, hm)
+
+    if (nodes.contains(label)) {
+      nodes(label).put(node.id, node)
+    } else {
+      val hm = new mutable.HashMap[NodeId, InternalNode]()
+      hm.put(node.id, node)
+      nodes.put(label, hm)
+    }
+
+    indexedNodes.put(node.id, node)
     id
   }
 

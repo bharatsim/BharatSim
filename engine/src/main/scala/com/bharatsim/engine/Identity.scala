@@ -1,5 +1,5 @@
 package com.bharatsim.engine
 
 trait Identity {
-  var id: Int
+  var internalId: Int
 }

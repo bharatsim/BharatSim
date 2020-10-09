@@ -10,21 +10,21 @@ import com.bharatsim.engine.utils.Utils.fetchClassName
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 
-trait CsvNode[T <: Node] {
-  def node: T
-
+trait CsvNode {
   def label: String
+
+  def uniqueRef: Int
+
+  def params: Map[String, Any]
 }
 
-trait DataNode {
+trait GraphNode {
   def label: String
 
   def Id: NodeId
 
   def getParams: Map[String, Any]
-}
 
-trait GraphNode extends DataNode {
   def apply(key: String): Option[Any]
 
   def as[T <: Node](implicit decoder: BasicMapDecoder[T]): T = {
@@ -34,19 +34,19 @@ trait GraphNode extends DataNode {
   }
 }
 
-case class Relation(from: NodeId, relation: String, to: NodeId)
+case class Relation(refFrom: Int, relation: String, refTo: Int)
 
 class GraphData() {
   private[engine] val relations: ListBuffer[Relation] = ListBuffer.empty
-  private[engine] val nodes: ListBuffer[DataNode] = ListBuffer.empty
+  private[engine] val nodes: ListBuffer[CsvNode] = ListBuffer.empty
 
-  def addNode[T <: Product : ClassTag](id: NodeId, n: T)(implicit encoder: BasicMapEncoder[T]): Unit = {
-    nodes.addOne(new DataNode {
+  def addNode[T <: Product : ClassTag](ref: Int, n: T)(implicit encoder: BasicMapEncoder[T]): Unit = {
+    nodes.addOne(new CsvNode {
       override def label: String = fetchClassName[T]
 
-      override def Id: NodeId = id
+      override def uniqueRef: NodeId = ref
 
-      override def getParams: Map[String, Any] = encoder.encode(n).toMap
+      override def params: Map[String, Any] = encoder.encode(n).toMap
     })
   }
 

@@ -54,12 +54,13 @@ object Main extends LazyLogging {
   }
 
   private def csvDataExtractor(map: Map[String, String]): GraphData = {
-    val age = map("age").toInt
-    val citizen: Citizen = Citizen(age, InfectionStatus.withName(map("infectionState")), 0)
-    val home = House()
 
     val citizenId = map("id").toInt
+    val age = map("age").toInt
+    val citizen: Citizen = Citizen(citizenId, age, InfectionStatus.withName(map("infectionState")), 0)
+
     val homeId = map("house_id").toInt
+    val home = House(homeId)
 
     val staysAt = Relation(citizenId, "STAYS_AT", homeId)
     val memberOf = Relation(homeId, "HOUSES", citizenId)

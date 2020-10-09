@@ -9,7 +9,7 @@ class NodeTest extends AnyFunSuite with MockitoSugar {
 
   test("Should have Id") {
     val node = new Node()
-    node.id shouldBe a[Int]
+    node.internalId shouldBe a[Int]
   }
 
   test("Should connect nodes to each other with unidirectional connection") {
