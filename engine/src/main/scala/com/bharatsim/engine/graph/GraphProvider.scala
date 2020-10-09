@@ -93,6 +93,8 @@ trait GraphProvider {
   def deleteNodes(label: String, props: Map[String, Any])
 
   def deleteAll(): Unit
+
+  def shutdown(): Unit
 }
 
 object GraphProvider {

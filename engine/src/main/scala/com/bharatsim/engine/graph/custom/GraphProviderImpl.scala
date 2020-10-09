@@ -167,6 +167,8 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
         .reduce((a, b) => a && b)
     })
   }
+
+  override def shutdown(): Unit = {}
 }
 
 object GraphProviderImpl {

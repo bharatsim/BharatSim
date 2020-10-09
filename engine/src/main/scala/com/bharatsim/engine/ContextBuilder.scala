@@ -15,4 +15,8 @@ object ContextBuilder {
   def ingestDataUsingCSV(path: String)(implicit context: Context): Unit = {
     context.graphProvider.ingestFromCsv(path, None)
   }
+
+  def teardown()(implicit context: Context): Unit = {
+    context.graphProvider.shutdown()
+  }
 }

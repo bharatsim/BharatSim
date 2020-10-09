@@ -28,6 +28,8 @@ object Main extends LazyLogging {
     Simulation.run(context)
 
     printStats(beforeCount)
+
+    teardown()
   }
 
   private def createSchedules()(implicit context: Context): Unit = {
