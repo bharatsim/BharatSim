@@ -256,9 +256,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
       graphProvider.ingestFromCsv(filePath, mapper)
       val nodes = graphProvider.fetchNodes("TestCitizen").toList
       nodes should have length 2
-      nodes.head.Id shouldBe 1
       nodes.head.getParams("age") shouldBe 25
-      nodes.tail.head.Id shouldBe 2
       nodes.tail.head.getParams("age") shouldBe 35
     }
 
@@ -283,11 +281,9 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
       val graphProvider = new GraphProviderImpl
       graphProvider.ingestFromCsv(filePath, mapper)
       val house = graphProvider.fetchNode("TestHome").toList.head
-      val citizensId = graphProvider.fetchNeighborsOf(house.Id, "HOUSES").toList.map(_.Id)
+      val citizensId = graphProvider.fetchNeighborsOf(house.Id, "HOUSES").toList
 
       citizensId should have length 2
-      citizensId should contain(1)
-      citizensId should contain(2)
     }
   }
 }
