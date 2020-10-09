@@ -12,6 +12,7 @@ import ChartConfigSelector from './ChartConfigSelector';
 import useFetch from '../../hook/useFetch';
 import { api } from '../../utils/api';
 import styles from './chartConfigModalCss';
+import { createConfigOptionValidationSchema } from '../../config/chartConfigOptions';
 
 function ChartConfigModal({ open, onCancel, onOk, chartType }) {
   const {
@@ -22,7 +23,7 @@ function ChartConfigModal({ open, onCancel, onOk, chartType }) {
     onSubmit,
     resetFields,
   } = useForm({
-    ...chartConfigs[chartType].configOptionValidationSchema,
+    ...createConfigOptionValidationSchema(chartConfigs[chartType].configOptions),
     dataSource: datasourceValidator,
   });
 
