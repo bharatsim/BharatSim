@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import Stepper from '@material-ui/core/Stepper';
-import withProjectLayout from '../project/withProjectLayout';
+import withProjectLayout from '../layout/projectLayout/withProjectLayout';
 import ImportDataset from './ImportDataset';
 import ConfigureDatatype from './ConfigureDatatype';
 

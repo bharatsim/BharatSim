@@ -1,20 +1,21 @@
 import React from 'react';
+import { Bar } from 'react-chartjs-2';
 import PropTypes from 'prop-types';
-import { Line } from 'react-chartjs-2';
-import { lineChartOptions } from '../chartStyleConfig';
 import useFetchAndTransformChartData from '../../../hook/useFetchAndTransformChartData';
-import LoaderOrError from '../../loaderOrError/LoaderOrError';
+import LoaderOrError from '../../../component/loaderOrError/LoaderOrError';
 
-function LineChart({ config }) {
+const options = { maintainAspectRatio: false, responsive: true };
+
+function BarChart({ config }) {
   const { data, loadingState } = useFetchAndTransformChartData(config);
   return (
     <LoaderOrError loadingState={loadingState}>
-      <Line data={data} options={lineChartOptions} />
+      <Bar data={data} options={options} />
     </LoaderOrError>
   );
 }
 
-LineChart.propTypes = {
+BarChart.propTypes = {
   config: PropTypes.shape({
     dataSource: PropTypes.string.isRequired,
     xAxis: PropTypes.string.isRequired,
@@ -27,4 +28,4 @@ LineChart.propTypes = {
   }).isRequired,
 };
 
-export default React.memo(LineChart);
+export default BarChart;

@@ -1,6 +1,6 @@
 import useFetch from './useFetch';
 import { api } from '../utils/api';
-import { chartStyleConfig, getColor } from '../component/charts/chartStyleConfig';
+import { chartStyleConfig, getColor } from '../modules/charts/chartStyleConfig';
 
 function getYaxisNames(yColumns) {
   return yColumns.map((yColumn) => yColumn.name);

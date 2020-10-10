@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 
 import React from 'react';
-import renderChart from '../component/charts/renderChart';
+import renderChart from '../modules/charts/renderChart';
 
 export function renderElement({ layout, chartType, config }) {
   const updatedLayout = { ...layout, y: layout.y ? layout.y : Infinity };

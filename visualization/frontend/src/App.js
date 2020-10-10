@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import AppRoute from './AppRoute';
 import withThemeProvider from './theme/withThemeProvider';
-import withHeader from './component/layout/withHeader';
+import withHeader from './modules/layout/withHeader';
 
 const styles = makeStyles(() => ({
   root: {

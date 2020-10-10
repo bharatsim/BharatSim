@@ -5,9 +5,11 @@ import { createMemoryHistory } from 'history';
 
 import AppRoute from '../AppRoute';
 
+
+
 jest.mock('../component/dashboardLayout/DashboardLayout', () => () => <div>Dashboard Layout</div>);
-jest.mock('../component/project/ConfigureDashboardData', () => () => <div>Project</div>);
-jest.mock('../component/home/Home', () => () => <div>Home</div>);
+jest.mock('../modules/configureDataset/ConfigureDashboardData', () => () => <div>Project</div>);
+jest.mock('../modules/home/Home', () => () => <div>Home</div>);
 
 function renderWithRouter(
   ui,

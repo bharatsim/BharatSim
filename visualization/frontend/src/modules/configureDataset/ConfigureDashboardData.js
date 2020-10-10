@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import Link from '@material-ui/core/Link';
-import withProjectLayout from './withProjectLayout';
+import withProjectLayout from '../layout/projectLayout/withProjectLayout';
 
 const useStyles = makeStyles((theme) => {
   return {

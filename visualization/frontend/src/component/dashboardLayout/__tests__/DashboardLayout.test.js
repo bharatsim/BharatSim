@@ -35,7 +35,7 @@ jest.mock('../../fileUpload/FileUpload', () => (props) => (
   </div>
 ));
 
-jest.mock('../../charts/barChart/BarChart', () => (props) => (
+jest.mock('../../../modules/charts/barChart/BarChart', () => (props) => (
   <div>
     Bar Chart
     {/* eslint-disable-next-line no-undef */}
@@ -43,7 +43,7 @@ jest.mock('../../charts/barChart/BarChart', () => (props) => (
   </div>
 ));
 
-jest.mock('../../charts/lineChart/LineChart', () => (props) => (
+jest.mock('../../../modules/charts/lineChart/LineChart', () => (props) => (
   <div>
     Line Chart
     {/* eslint-disable-next-line no-undef */}

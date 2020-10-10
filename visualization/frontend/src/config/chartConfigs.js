@@ -1,7 +1,7 @@
 import React from 'react';
 import { chartTypes } from '../constants/charts';
-import LineChart from '../component/charts/lineChart/LineChart';
-import BarChart from '../component/charts/barChart/BarChart';
+import LineChart from '../modules/charts/lineChart/LineChart';
+import BarChart from '../modules/charts/barChart/BarChart';
 import { chartConfigOptionTypes } from '../constants/chartConfigOptionTypes';
 
 const chartConfigs = {

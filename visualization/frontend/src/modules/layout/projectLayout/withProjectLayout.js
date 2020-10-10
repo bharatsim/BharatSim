@@ -4,10 +4,10 @@ import { useParams, useHistory } from 'react-router-dom';
 import { Box, Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
-import { api } from '../../utils/api';
-import LoaderOrError from '../loaderOrError/LoaderOrError';
-import useLoader from '../../hook/useLoader';
-import DashboardNavbar from '../sideBarLayout/DashboardNavbar';
+import { api } from '../../../utils/api';
+import LoaderOrError from '../../../component/loaderOrError/LoaderOrError';
+import useLoader from '../../../hook/useLoader';
+import DashboardNavbar from './sideBarLayout/DashboardNavbar';
 
 const useStyles = makeStyles((theme) => {
   return {

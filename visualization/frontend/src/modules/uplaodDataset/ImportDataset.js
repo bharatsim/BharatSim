@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import fileImportIcon from '../../assets/images/importFileIcon.svg';
 import { parseCsv } from '../../utils/fileUploadUtils';
-import LoaderOrError from '../loaderOrError/LoaderOrError';
+import LoaderOrError from '../../component/loaderOrError/LoaderOrError';
 import useLoader, { loaderStates } from '../../hook/useLoader';
 
 const useStyles = makeStyles((theme) => {

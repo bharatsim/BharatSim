@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import XAxisChartConfig from '../component/chartConfigOptions/XAxisChartConfig';
-import YAxisChartConfig from '../component/chartConfigOptions/YAxisChartConfig';
+import XAxisChartConfig from '../modules/chartConfigOptions/XAxisChartConfig';
+import YAxisChartConfig from '../modules/chartConfigOptions/YAxisChartConfig';
 import { xAxisValidator, yAxisValidator } from '../utils/validators';
 import { chartConfigOptionTypes } from '../constants/chartConfigOptionTypes';
 

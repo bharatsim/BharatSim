@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 import useFetchAndTransformChartData from '../useFetchAndTransformChartData';
 import useFetch from '../useFetch';
-import { chartStyleConfig } from '../../component/charts/chartStyleConfig';
+import { chartStyleConfig } from '../../modules/charts/chartStyleConfig';
 
 jest.mock('../useFetch');
 

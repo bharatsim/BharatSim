@@ -4,7 +4,7 @@ import { fireEvent, waitFor } from '@testing-library/dom';
 import * as router from 'react-router-dom';
 import { api } from '../../../utils/api';
 import withThemeProvider from '../../../theme/withThemeProvider';
-import withProjectLayout from '../withProjectLayout';
+import withProjectLayout from '../projectLayout/withProjectLayout';
 
 const mockHistoryPush = jest.fn();
 const mockHistoryReplace = jest.fn();

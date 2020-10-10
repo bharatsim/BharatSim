@@ -1,8 +1,9 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { renderElement, getNewWidgetLayout } from '../dashboardLayoutUtils';
+import { getNewWidgetLayout, renderElement } from '../dashboardLayoutUtils';
 
-jest.mock('../../component/charts/renderChart', () => ({
+
+jest.mock('../../modules/charts/renderChart', () => ({
   __esModule: true,
   default: (chartType, props) => (
     <div>
@@ -15,6 +16,7 @@ jest.mock('../../component/charts/renderChart', () => ({
     </div>
   ),
 }));
+
 
 describe('Dashboard layout utils', () => {
   describe('Create element', () => {

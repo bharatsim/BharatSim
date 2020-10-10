@@ -3,7 +3,7 @@ import Tabs from '@material-ui/core/Tabs';
 import React from 'react';
 import Box from '@material-ui/core/Box';
 import { makeStyles } from '@material-ui/core/styles';
-import dashboardIcon from '../../assets/images/dashboard-icon.svg';
+import dashboardIcon from '../../../../assets/images/dashboard-icon.svg';
 
 const tabStyles = makeStyles((theme) => ({
   root: {

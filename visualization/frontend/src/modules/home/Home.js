@@ -5,7 +5,7 @@ import ExistingUserHomeScreen from './ExistingUserHomeScreen';
 import useFetch from '../../hook/useFetch';
 import { api } from '../../utils/api';
 import NewUserHomeScreen from './NewUserHomeScreen';
-import LoaderOrError from '../loaderOrError/LoaderOrError';
+import LoaderOrError from '../../component/loaderOrError/LoaderOrError';
 
 const styles = makeStyles(() => ({
   mainContainer: {

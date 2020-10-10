@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import DashboardNavbar from '../DashboardNavbar';
-import withThemeProvider from '../../../theme/withThemeProvider';
+import withThemeProvider from '../../../../../theme/withThemeProvider';
 
 describe('Dashboard Navbar', function () {
   const DashboardNavbarWithTheme = withThemeProvider(DashboardNavbar);

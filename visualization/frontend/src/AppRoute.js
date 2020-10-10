@@ -1,9 +1,9 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import DashboardLayout from './component/dashboardLayout/DashboardLayout';
-import Home from './component/home/Home';
-import ConfigureDashboardData from './component/project/ConfigureDashboardData';
-import UploadDataset from './component/uplaodDataset/UploadDataset';
+import Home from './modules/home/Home';
+import ConfigureDashboardData from './modules/configureDataset/ConfigureDashboardData';
+import UploadDataset from './modules/uplaodDataset/UploadDataset';
 
 function AppRoute() {
   return (
