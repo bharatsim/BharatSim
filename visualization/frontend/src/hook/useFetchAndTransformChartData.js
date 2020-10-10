@@ -10,10 +10,10 @@ export default function useFetchAndTransformChartData(config) {
   const { xAxis: xColumn, yAxis, dataSource } = config;
   const yColumns = getYaxisNames(yAxis);
 
-  const { data: csvData, loadingState } = useFetch(api.getData, {
-    params: dataSource,
-    query: { columns: [xColumn, ...yColumns] },
-  });
+  const { data: csvData, loadingState } = useFetch(api.getData, [
+    dataSource,
+    { columns: [xColumn, ...yColumns] },
+  ]);
 
   const data = {
     labels: csvData && csvData.data[xColumn],

@@ -17,26 +17,18 @@ describe('Use fetch hook', () => {
     await waitForNextUpdate();
 
     expect(result.current.data).toEqual('Hello NewUserHomeScreen');
-    expect(api).toHaveBeenCalledWith({ data: undefined, params: undefined, query: undefined });
+    expect(api).toHaveBeenCalledWith();
   });
 
   it('should return fetch data for given url and other data ', async () => {
     const { result, waitForNextUpdate } = renderHook(() =>
-      useFetch(api, {
-        data: 'data',
-        params: 'params',
-        query: 'query',
-      }),
+      useFetch(api, ['data', 'params', 'query']),
     );
 
     await waitForNextUpdate();
 
     expect(result.current.data).toEqual('Hello NewUserHomeScreen');
-    expect(api).toHaveBeenCalledWith({
-      data: 'data',
-      params: 'params',
-      query: 'query',
-    });
+    expect(api).toHaveBeenCalledWith('data', 'params', 'query');
   });
 
   it('should return success for loading state if data fetch is successful', async () => {

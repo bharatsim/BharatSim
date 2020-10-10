@@ -1,19 +1,17 @@
 import { useEffect, useState } from 'react';
 import useLoader from './useLoader';
 
-function useFetch(api, { data, query, params } = {}) {
+function useFetch(api, apiParameters = []) {
   const [responseData, setResponseData] = useState();
 
   const { loadingState, startLoader, stopLoaderAfterError, stopLoaderAfterSuccess } = useLoader();
-
-  const dependencies = data ? [...data] : [];
 
   useEffect(() => {
     startLoader();
 
     async function fetchApiData() {
       try {
-        const resData = await api({ data, query, params });
+        const resData = await api(...apiParameters);
         setResponseData(resData);
         stopLoaderAfterSuccess();
       } catch (e) {
@@ -22,7 +20,7 @@ function useFetch(api, { data, query, params } = {}) {
     }
 
     fetchApiData();
-  }, dependencies);
+  }, apiParameters);
 
   return { data: responseData, loadingState: loadingState.state };
 }

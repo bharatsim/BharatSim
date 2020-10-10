@@ -119,13 +119,13 @@ describe('<FileUpload />', () => {
       fireEvent.click(applyAndUploadButton);
     });
 
-    expect(api.uploadFileAndSchema).toHaveBeenCalledWith(
-      {
+    expect(api.uploadFileAndSchema).toHaveBeenCalledWith({
+      file: {
         name: 'test.csv',
         type: 'text/csv',
       },
-      { col1: 'String', col2: 'Number' },
-    );
+      schema: { col1: 'String', col2: 'Number' },
+    });
   });
 
   it('should display uploading message while file is uploading', async () => {

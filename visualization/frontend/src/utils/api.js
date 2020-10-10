@@ -27,7 +27,7 @@ const api = {
 
   getAllDashBoard: async () => fetchData({ url: serviceURL.DASHBOARD_URL }),
 
-  uploadFileAndSchema: async (file, schema) =>
+  uploadFileAndSchema: async ({ file, schema }) =>
     uploadData({
       url: serviceURL.DATA_SOURCES,
       data: formDataBuilder([
@@ -37,11 +37,11 @@ const api = {
       headers: headerBuilder({ contentType: contentTypes.FILE }),
     }),
 
-  getCsvHeaders: async ({ data }) => fetchData({ url: serviceURL.getHeaderUrl(data) }),
+  getCsvHeaders: async (dataSourceId) => fetchData({ url: serviceURL.getHeaderUrl(dataSourceId) }),
 
   getDatasources: async () => fetchData({ url: serviceURL.DATA_SOURCES }),
 
-  getData: async ({ params: datasource, query }) =>
+  getData: async (datasource, query) =>
     fetchData({ url: serviceURL.getDataUrl(datasource), query }),
 
   saveProject: async ({ id, ...data }) => {

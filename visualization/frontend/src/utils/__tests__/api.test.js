@@ -66,33 +66,18 @@ describe('API', () => {
       url: '/api/dataSources/id/headers',
     };
 
-    api.getCsvHeaders({ data: dataId });
-
-    expect(fetchData).toHaveBeenCalledWith(expectedParameter);
-  });
-
-  it('should call datasources/headers api to get headers for given datasource', () => {
-    const dataId = 'id';
-    const expectedParameter = {
-      url: '/api/dataSources/id/headers',
-    };
-
-    api.getCsvHeaders({ data: dataId });
+    api.getCsvHeaders(dataId);
 
     expect(fetchData).toHaveBeenCalledWith(expectedParameter);
   });
 
   it('should call datasources/data api to get data for given datasource', () => {
-    const options = {
-      params: 'id',
-      query: 'query',
-    };
     const expectedParameter = {
       query: 'query',
       url: '/api/dataSources/id',
     };
 
-    api.getData(options);
+    api.getData('id', 'query');
 
     expect(fetchData).toHaveBeenCalledWith(expectedParameter);
   });

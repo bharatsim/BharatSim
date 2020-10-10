@@ -8,9 +8,7 @@ import chartConfigOptions from '../../config/chartConfigOptions';
 import LoaderOrError from '../loaderOrError/LoaderOrError';
 
 function ChartConfigSelector({ dataSourceId, chartType, updateConfigState, errors, values }) {
-  const { data: csvHeaders, loadingState } = useFetch(api.getCsvHeaders, {
-    data: [dataSourceId],
-  });
+  const { data: csvHeaders, loadingState } = useFetch(api.getCsvHeaders, [dataSourceId]);
 
   const { headers } = csvHeaders || {};
   const chartConfigProps = { headers, updateConfigState, errors, values };
