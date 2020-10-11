@@ -3,7 +3,8 @@ import { Route, Switch } from 'react-router-dom';
 import DashboardLayout from './component/dashboardLayout/DashboardLayout';
 import Home from './modules/home/Home';
 import ConfigureDashboardData from './modules/configureDataset/ConfigureDashboardData';
-import UploadDataset from './modules/uplaodDataset/UploadDataset';
+import UploadDataset from './modules/uploadDataset/UploadDataset';
+import ProjectLayout from './modules/layout/projectLayout/projectLayout/ProjectLayout';
 
 function AppRoute() {
   return (
@@ -13,13 +14,21 @@ function AppRoute() {
           <DashboardLayout />
         </Route>
         <Route path="/projects/create">
-          <ConfigureDashboardData />
-        </Route>
-        <Route path="/projects/:id/upload-dataset">
-          <UploadDataset />
+          <ProjectLayout>
+            <ConfigureDashboardData />
+          </ProjectLayout>
         </Route>
         <Route path="/projects/:id">
-          <ConfigureDashboardData />
+          <ProjectLayout>
+            <Switch>
+              <Route exact path="/projects/:id/upload-dataset">
+                <UploadDataset />
+              </Route>
+              <Route exact path="/projects/:id">
+                <ConfigureDashboardData />
+              </Route>
+            </Switch>
+          </ProjectLayout>
         </Route>
         <Route path="/">
           <Home />

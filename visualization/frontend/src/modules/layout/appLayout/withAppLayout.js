@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from './header/Header';
 
-function withHeader(WrappedComponent) {
+function withAppLayout(WrappedComponent) {
   return function ComponentWithHeader() {
     return (
       <div>
@@ -12,4 +12,4 @@ function withHeader(WrappedComponent) {
   };
 }
 
-export default withHeader;
+export default withAppLayout;

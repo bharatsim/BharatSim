@@ -1,8 +1,8 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { fireEvent } from '@testing-library/dom';
-import withHeader from '../withHeader';
-import withThemeProvider from '../../../theme/withThemeProvider';
+import withAppLayout from '../withAppLayout';
+import withThemeProvider from '../../../../theme/withThemeProvider';
 
 function DummyController() {
   return <div>DummyController</div>;
@@ -17,7 +17,7 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
-const Component = withThemeProvider(withHeader(DummyController));
+const Component = withThemeProvider(withAppLayout(DummyController));
 
 describe('<Header />', () => {
   it('should match snapshot', () => {
@@ -26,7 +26,7 @@ describe('<Header />', () => {
     expect(container).toMatchSnapshot();
   });
 
-  it('should get to landing on click of logo', function () {
+  it('should get to landing on click of logo', () => {
     const { getByAltText } = render(<Component />);
     fireEvent.click(getByAltText('logo'));
 

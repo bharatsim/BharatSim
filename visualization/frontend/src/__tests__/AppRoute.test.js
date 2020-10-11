@@ -5,11 +5,16 @@ import { createMemoryHistory } from 'history';
 
 import AppRoute from '../AppRoute';
 
-
-
 jest.mock('../component/dashboardLayout/DashboardLayout', () => () => <div>Dashboard Layout</div>);
 jest.mock('../modules/configureDataset/ConfigureDashboardData', () => () => <div>Project</div>);
 jest.mock('../modules/home/Home', () => () => <div>Home</div>);
+jest.mock('../modules/uploadDataset/UploadDataset', () => () => <div>Upload Dataset</div>);
+jest.mock('../modules/layout/projectLayout/projectLayout/ProjectLayout', () => ({ children }) => (
+  <div>
+    <span>Project layout </span>
+    {children}
+  </div>
+));
 
 function renderWithRouter(
   ui,
@@ -28,7 +33,7 @@ describe('<AppRoute />', () => {
     expect(container.innerHTML).toMatch('Dashboard Layout');
   });
 
-  it('should navigate to project page ', () => {
+  it('should navigate to project page /projects/id', () => {
     const { container } = renderWithRouter(<AppRoute />, { route: '/projects/id' });
 
     expect(container.innerHTML).toMatch('Project');
@@ -38,5 +43,11 @@ describe('<AppRoute />', () => {
     const { container } = renderWithRouter(<AppRoute />, { route: '/' });
 
     expect(container.innerHTML).toMatch('Home');
+  });
+
+  it('should navigate to uoload dataset page ', () => {
+    const { container } = renderWithRouter(<AppRoute />, { route: '/projects/id/upload-dataset' });
+
+    expect(container.innerHTML).toMatch('Upload Dataset');
   });
 });

@@ -84,12 +84,12 @@ exports[`Project should match snapshot for old projects 1`] = `
       </div>
       <div>
         {
-  "dashboardData": {
-    "name": "dashboard1"
-  },
   "projectMetadata": {
     "id": 1,
     "name": "project1"
+  },
+  "selectedDashboardMetadata": {
+    "name": "dashboard1"
   }
 }
       </div>
@@ -182,11 +182,11 @@ exports[`Project should match snapshot while creating new project 1`] = `
       </div>
       <div>
         {
-  "dashboardData": {
-    "name": "dashboard1"
-  },
   "projectMetadata": {
     "name": "untitled project"
+  },
+  "selectedDashboardMetadata": {
+    "name": "dashboard1"
   }
 }
       </div>

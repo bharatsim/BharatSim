@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Upload Dataser should match snapshot for import dataset component 1`] = `
+exports[`Upload Dataset should match snapshot for import dataset component 1`] = `
 <div>
   <div
     class="MuiBox-root MuiBox-root-3 makeStyles-importDataContainer-1"

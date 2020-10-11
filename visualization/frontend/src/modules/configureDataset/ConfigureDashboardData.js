@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Box from '@material-ui/core/Box';
 import { Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import Link from '@material-ui/core/Link';
-import withProjectLayout from '../layout/projectLayout/withProjectLayout';
+import { projectLayoutContext } from '../../contexts/projectLayoutContext';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -49,9 +49,11 @@ const useStyles = makeStyles((theme) => {
   };
 });
 
-function ConfigureDashboardData({ dashboardData, projectMetadata }) {
+function ConfigureDashboardData() {
   const classes = useStyles();
   const history = useHistory();
+
+  const { projectMetadata, selectedDashboardMetadata } = useContext(projectLayoutContext);
 
   function openRecentProjects() {
     history.push('/');
@@ -71,7 +73,7 @@ function ConfigureDashboardData({ dashboardData, projectMetadata }) {
           <Typography variant="subtitle2"> Manage Dashboard Dataset</Typography>
         </Box>
         <Box className={classes.dashboardDataHeader}>
-          <Typography variant="subtitle2">{`${projectMetadata.name} :: ${dashboardData.name}`}</Typography>
+          <Typography variant="subtitle2">{`${projectMetadata.name} :: ${selectedDashboardMetadata.name}`}</Typography>
         </Box>
         <Box className={classes.dashboardDataBody}>
           <Typography variant="subtitle2" color="textPrimary">
@@ -87,5 +89,4 @@ function ConfigureDashboardData({ dashboardData, projectMetadata }) {
   );
 }
 
-export default withProjectLayout(ConfigureDashboardData);
-export { ConfigureDashboardData };
+export default ConfigureDashboardData;

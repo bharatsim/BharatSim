@@ -5,7 +5,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import Stepper from '@material-ui/core/Stepper';
-import withProjectLayout from '../layout/projectLayout/withProjectLayout';
 import ImportDataset from './ImportDataset';
 import ConfigureDatatype from './ConfigureDatatype';
 
@@ -68,7 +67,8 @@ function UploadDataset() {
   const steps = ['Import Data', 'Configure Datatype', 'Upload to Dashboard'];
   const [file, setFile] = useState();
   const [schema, setSchema] = useState();
-  const [previewData, setPreviewData] = useState();
+  const [, setPreviewData] = useState();
+
   function handleNext() {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   }
@@ -105,5 +105,4 @@ function UploadDataset() {
   );
 }
 
-export default withProjectLayout(UploadDataset);
-export { UploadDataset };
+export default UploadDataset;

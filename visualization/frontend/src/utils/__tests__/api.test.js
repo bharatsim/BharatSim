@@ -73,11 +73,11 @@ describe('API', () => {
 
   it('should call datasources/data api to get data for given datasource', () => {
     const expectedParameter = {
-      query: 'query',
+      query: { columns: 'columns' },
       url: '/api/dataSources/id',
     };
 
-    api.getData('id', 'query');
+    api.getData('id', 'columns');
 
     expect(fetchData).toHaveBeenCalledWith(expectedParameter);
   });

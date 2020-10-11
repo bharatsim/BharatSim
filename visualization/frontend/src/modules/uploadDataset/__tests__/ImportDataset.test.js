@@ -10,7 +10,7 @@ jest.spyOn(fileUtils, 'parseCsv').mockImplementation((csvFile, onComplete) => {
   onComplete(data);
 });
 
-describe('Upload Dataser', () => {
+describe('Upload Dataset', () => {
   const Component = withThemeProvider(ImportDataset);
   let setFileMock;
   let handleNextMock;
@@ -32,6 +32,7 @@ describe('Upload Dataser', () => {
         setErrorStep={setErrorStepMock}
       />,
     );
+
     expect(container).toMatchSnapshot();
   });
 
@@ -45,6 +46,7 @@ describe('Upload Dataser', () => {
       />,
     );
     const inputComponent = getByTestId('file-input');
+
     fireEvent.change(inputComponent, { target: { files: [{ name: 'csv', size: '10' }] } });
 
     expect(setFileMock).toHaveBeenCalledWith({ name: 'csv', size: '10' });
@@ -59,6 +61,7 @@ describe('Upload Dataser', () => {
       />,
     );
     const inputComponent = getByTestId('file-input');
+
     fireEvent.change(inputComponent, { target: { files: [{ name: 'csv', size: '10' }] } });
 
     expect(fileUtils.parseCsv).toHaveBeenCalledWith(
@@ -76,6 +79,7 @@ describe('Upload Dataser', () => {
       />,
     );
     const inputComponent = getByTestId('file-input');
+
     fireEvent.change(inputComponent, { target: { files: [{ name: 'csv', size: '10' }] } });
 
     expect(setPreviewDataMock).toHaveBeenCalledWith([{ col1: 'row1', col2: 1 }]);
@@ -94,6 +98,7 @@ describe('Upload Dataser', () => {
       />,
     );
     const inputComponent = getByTestId('file-input');
+
     fireEvent.change(inputComponent, { target: { files: [{ name: 'csv', size: '10' }] } });
 
     expect(setErrorStepMock).toHaveBeenCalledWith(0);

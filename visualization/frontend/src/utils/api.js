@@ -41,8 +41,8 @@ const api = {
 
   getDatasources: async () => fetchData({ url: serviceURL.DATA_SOURCES }),
 
-  getData: async (datasource, query) =>
-    fetchData({ url: serviceURL.getDataUrl(datasource), query }),
+  getData: async (datasource, columns) =>
+    fetchData({ url: serviceURL.getDataUrl(datasource), query: { columns } }),
 
   saveProject: async ({ id, ...data }) => {
     const requestObject = {

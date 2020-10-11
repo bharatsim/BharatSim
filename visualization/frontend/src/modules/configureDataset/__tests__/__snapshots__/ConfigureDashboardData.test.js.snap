@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Configure Dashboard Data should render dashboard view for given dashboard data and project name  1`] = `
+exports[`Configure Dashboard Data should match snapshot for given dashboard data and project name  1`] = `
 <div>
   <div
     class="MuiBox-root MuiBox-root-5"

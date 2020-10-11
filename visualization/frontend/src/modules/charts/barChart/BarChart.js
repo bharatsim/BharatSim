@@ -1,16 +1,27 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import PropTypes from 'prop-types';
-import useFetchAndTransformChartData from '../../../hook/useFetchAndTransformChartData';
 import LoaderOrError from '../../../component/loaderOrError/LoaderOrError';
+import { getYaxisNames, trasformDataForChart } from '../utils';
+import useFetch from '../../../hook/useFetch';
+import { api } from '../../../utils/api';
 
 const options = { maintainAspectRatio: false, responsive: true };
 
 function BarChart({ config }) {
-  const { data, loadingState } = useFetchAndTransformChartData(config);
+  const { xAxis: xColumn, yAxis, dataSource } = config;
+  const yColumns = getYaxisNames(yAxis);
+
+  const { data: csvData, loadingState } = useFetch(api.getData, [
+    dataSource,
+    [xColumn, ...yColumns],
+  ]);
+
+  const transformedData = trasformDataForChart(csvData, xColumn, yColumns);
+
   return (
     <LoaderOrError loadingState={loadingState}>
-      <Bar data={data} options={options} />
+      <Bar data={transformedData} options={options} />
     </LoaderOrError>
   );
 }

@@ -12,7 +12,7 @@ export default function useFetchAndTransformChartData(config) {
 
   const { data: csvData, loadingState } = useFetch(api.getData, [
     dataSource,
-    { columns: [xColumn, ...yColumns] },
+    [xColumn, ...yColumns],
   ]);
 
   const data = {
@@ -29,5 +29,6 @@ export default function useFetchAndTransformChartData(config) {
         };
       }),
   };
+
   return { data, loadingState };
 }

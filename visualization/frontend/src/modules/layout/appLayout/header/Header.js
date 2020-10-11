@@ -4,7 +4,7 @@ import { Box } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 import styles from './headerCSS';
 
-import bharatSimLogo from '../../../assets/images/PlaceholderLogo.svg';
+import bharatSimLogo from '../../../../assets/images/PlaceholderLogo.svg';
 
 function Header() {
   const classes = styles();
