@@ -85,6 +85,7 @@ const valuePropType = PropTypes.oneOfType([
 
 Dropdown.defaultProps = {
   error: '',
+  multiple: false,
 };
 
 Dropdown.propTypes = {
@@ -99,4 +100,5 @@ Dropdown.propTypes = {
   error: PropTypes.string,
   value: valuePropType.isRequired,
   onChange: PropTypes.func.isRequired,
+  multiple: PropTypes.bool,
 };

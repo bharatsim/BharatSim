@@ -1,13 +1,14 @@
+import React from 'react';
+import PropTypes from 'prop-types';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import React from 'react';
 import Box from '@material-ui/core/Box';
 import dashboardIcon from '../../../../assets/images/dashboard-icon.svg';
 import { useTabsStyles, useTabStyles } from './sideDashboardNavbarCSS';
 
 /* TODO Add onchange for selecting dashboard */
 
-export default function SideDashboardNavbar({ navItems, value }) {
+function SideDashboardNavbar({ navItems, value }) {
   const tabClasses = useTabStyles();
   const tabsClasses = useTabsStyles();
 
@@ -16,11 +17,11 @@ export default function SideDashboardNavbar({ navItems, value }) {
       <Tabs orientation="vertical" variant="fullWidth" value={value} classes={tabsClasses}>
         {navItems.map((controller) => (
           <Tab
-            icon={(
+            icon={
               <Box pr={3} display="flex" alignItems="center">
                 <img src={dashboardIcon} alt="dashboard-logo" />
               </Box>
-            )}
+            }
             label={controller}
             key={`controller-${controller}`}
             classes={tabClasses}
@@ -31,3 +32,10 @@ export default function SideDashboardNavbar({ navItems, value }) {
     </Box>
   );
 }
+
+SideDashboardNavbar.propTypes = {
+  navItems: PropTypes.arrayOf(PropTypes.string).isRequired,
+  value: PropTypes.number.isRequired,
+};
+
+export default SideDashboardNavbar;

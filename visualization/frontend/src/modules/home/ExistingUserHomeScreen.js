@@ -1,4 +1,6 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
 import Box from '@material-ui/core/Box';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
@@ -63,5 +65,14 @@ function ExistingUserHomeScreen({ recentProjects }) {
     </Box>
   );
 }
+
+ExistingUserHomeScreen.propTypes = {
+  recentProjects: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+      _id: PropTypes.string,
+    }),
+  ).isRequired,
+};
 
 export default ExistingUserHomeScreen;

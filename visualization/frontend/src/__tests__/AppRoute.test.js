@@ -6,7 +6,7 @@ import { createMemoryHistory } from 'history';
 import AppRoute from '../AppRoute';
 
 jest.mock('../component/dashboardLayout/DashboardLayout', () => () => <div>Dashboard Layout</div>);
-jest.mock('../modules/configureDataset/ConfigureDashboardData', () => () => <div>Project</div>);
+jest.mock('../modules/configureDataset/ConfigureDataset', () => () => <div>Project</div>);
 jest.mock('../modules/home/Home', () => () => <div>Home</div>);
 jest.mock('../modules/uploadDataset/UploadDataset', () => () => <div>Upload Dataset</div>);
 jest.mock('../modules/layout/projectLayout/projectLayout/ProjectLayout', () => ({ children }) => (

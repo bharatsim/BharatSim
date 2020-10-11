@@ -1,4 +1,6 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
 import Box from '@material-ui/core/Box';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -25,7 +27,7 @@ const useStyles = makeStyles((theme) => {
   };
 });
 
-export default function ImportDataset({ setFile, handleNext, setPreviewData, setErrorStep }) {
+function ImportDataset({ setFile, handleNext, setPreviewData, setErrorStep }) {
   const classes = useStyles();
   const { loadingState, stopLoaderAfterSuccess, stopLoaderAfterError, startLoader } = useLoader(
     loaderStates.SUCCESS,
@@ -72,3 +74,12 @@ export default function ImportDataset({ setFile, handleNext, setPreviewData, set
     </LoaderOrError>
   );
 }
+
+ImportDataset.propTypes = {
+  setFile: PropTypes.func.isRequired,
+  handleNext: PropTypes.func.isRequired,
+  setPreviewData: PropTypes.func.isRequired,
+  setErrorStep: PropTypes.func.isRequired,
+};
+
+export default ImportDataset;

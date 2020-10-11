@@ -1,8 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { ChildrenPropTypes } from '../commanPropTypes';
 
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-
+function TabPanel({ children, value, index, ...other }) {
   return (
     <div
       role="tabpanel"
@@ -15,5 +15,11 @@ function TabPanel(props) {
     </div>
   );
 }
+
+TabPanel.propTypes = {
+  children: ChildrenPropTypes.isRequired,
+  value: PropTypes.number.isRequired,
+  index: PropTypes.number.isRequired,
+};
 
 export default TabPanel;

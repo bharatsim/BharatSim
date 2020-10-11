@@ -14,7 +14,7 @@ jest.mock('../../../../utils/api', () => ({
 
 describe('LineChart', () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   it('should create a line chart with single yaxis <LineChart /> component', async () => {

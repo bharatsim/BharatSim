@@ -48,7 +48,7 @@ function FileUpload() {
   async function upload(file, schema) {
     startLoader(getMessage(loaderStates.LOADING, file.name));
     api
-      .uploadFileAndSchema({file, schema})
+      .uploadFileAndSchema({ file, schema })
       .then(() => {
         stopLoaderAfterSuccess(getMessage(loaderStates.SUCCESS, file.name));
       })

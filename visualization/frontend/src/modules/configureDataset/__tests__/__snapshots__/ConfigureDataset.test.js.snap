@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Configure Dashboard Data should match snapshot for given dashboard data and project name  1`] = `
+exports[`Configure datasets should match snapshot for given dashboard data and project name  1`] = `
 <div>
   <div
     class="MuiBox-root MuiBox-root-5"
@@ -60,11 +60,15 @@ exports[`Configure Dashboard Data should match snapshot for given dashboard data
         <p
           class="MuiTypography-root MuiTypography-body2"
         >
-          Use 
+          Use
+           
           <a
             class="MuiTypography-root MuiLink-root MuiLink-underlineHover MuiTypography-colorPrimary"
+            href="/projects/123/upload-dataset"
           >
-             Upload dataset 
+             
+            Upload dataset
+             
           </a>
           to add data files to your dashboard.
         </p>

@@ -10,7 +10,7 @@ function useFetch(api, apiParameters = defaultApiParameters) {
 
   const { loadingState, startLoader, stopLoaderAfterError, stopLoaderAfterSuccess } = useLoader();
 
-  const shouldUpdate = useDeepCompareMemoize(apiParameters);
+  const memoizeValue = useDeepCompareMemoize(apiParameters);
 
   useEffect(() => {
     startLoader();
@@ -26,7 +26,7 @@ function useFetch(api, apiParameters = defaultApiParameters) {
     }
 
     fetchApiData();
-  }, [shouldUpdate]);
+  }, memoizeValue);
 
   return { data: responseData, loadingState: loadingState.state };
 }

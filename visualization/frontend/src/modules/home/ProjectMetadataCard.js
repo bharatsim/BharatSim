@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -27,5 +28,13 @@ function ProjectMetadataCard({ project, onProjectClick }) {
     </Box>
   );
 }
+
+ProjectMetadataCard.propTypes = {
+  project: PropTypes.shape({
+    name: PropTypes.string,
+    _id: PropTypes.string,
+  }).isRequired,
+  onProjectClick: PropTypes.func.isRequired,
+};
 
 export default ProjectMetadataCard;

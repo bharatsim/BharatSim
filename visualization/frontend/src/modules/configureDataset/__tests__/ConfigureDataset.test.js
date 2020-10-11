@@ -1,7 +1,10 @@
 import React from 'react';
+import { Router } from 'react-router-dom';
 import { render } from '@testing-library/react';
 import { fireEvent } from '@testing-library/dom';
-import ConfigureDashboardData from '../ConfigureDashboardData';
+import { createMemoryHistory } from 'history';
+
+import ConfigureDataset from '../ConfigureDataset';
 import withThemeProvider from '../../../theme/withThemeProvider';
 import { ProjectLayoutProvider } from '../../../contexts/projectLayoutContext';
 
@@ -17,18 +20,22 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
+const history = createMemoryHistory();
+
 const ComponentWithProvider = withThemeProvider(() => (
-  <ProjectLayoutProvider
-    value={{
-      projectMetadata: { name: 'project1', id: '123' },
-      selectedDashboardMetadata: { name: 'dashboard1' },
-    }}
-  >
-    <ConfigureDashboardData />
-  </ProjectLayoutProvider>
+  <Router history={history}>
+    <ProjectLayoutProvider
+      value={{
+        projectMetadata: { name: 'project1', id: '123' },
+        selectedDashboardMetadata: { name: 'dashboard1' },
+      }}
+    >
+      <ConfigureDataset />
+    </ProjectLayoutProvider>
+  </Router>
 ));
 
-describe('Configure Dashboard Data', () => {
+describe('Configure datasets', () => {
   it('should match snapshot for given dashboard data and project name ', () => {
     const { container } = render(<ComponentWithProvider />);
 
@@ -48,11 +55,12 @@ describe('Configure Dashboard Data', () => {
 
     expect(mockHistoryPush).toHaveBeenCalledWith('/');
   });
-  it('should opne upload data screen on click of upload dataset link', () => {
+
+  it('should navigate to upload data screen on click of upload dataset link', () => {
     const { getByText } = render(<ComponentWithProvider />);
 
     fireEvent.click(getByText('Upload dataset'));
 
-    expect(mockHistoryPush).toHaveBeenCalledWith('/projects/123/upload-dataset');
+    expect(history.location.pathname).toEqual('/projects/123/upload-dataset');
   });
 });

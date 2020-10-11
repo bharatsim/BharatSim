@@ -1,14 +1,17 @@
-import { useHistory, useParams } from 'react-router-dom';
-
 import React, { useEffect, useState } from 'react';
-import { Box, Typography } from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import { api } from '../../../../utils/api';
+
+import { useHistory, useParams } from 'react-router-dom';
+import { Box, Typography, Button } from '@material-ui/core';
+
 import LoaderOrError from '../../../../component/loaderOrError/LoaderOrError';
 import SideDashboardNavbar from '../sideDashboardNavbar/SideDashboardNavbar';
-import useFetch from '../../../../hook/useFetch';
+
 import useProjectLayoutStyle from './projectLayoutCSS';
+import useFetch from '../../../../hook/useFetch';
+
+import { api } from '../../../../utils/api';
 import { ProjectLayoutProvider } from '../../../../contexts/projectLayoutContext';
+import { ChildrenPropTypes } from '../../../../commanPropTypes';
 
 async function fetchProjectData(id) {
   if (id) {
@@ -17,7 +20,7 @@ async function fetchProjectData(id) {
   return null;
 }
 
-export default function ProjectLayout({ children }) {
+function ProjectLayout({ children }) {
   const classes = useProjectLayoutStyle();
   const history = useHistory();
   const { id } = useParams();
@@ -70,3 +73,9 @@ export default function ProjectLayout({ children }) {
     </LoaderOrError>
   );
 }
+
+ProjectLayout.propTypes = {
+  children: ChildrenPropTypes.isRequired,
+};
+
+export default ProjectLayout;
