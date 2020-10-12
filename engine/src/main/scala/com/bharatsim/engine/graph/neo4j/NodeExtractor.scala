@@ -13,7 +13,11 @@ class NodeExtractor(records: Seq[Map[String, String]], mapper: Function[Map[Stri
 
   process()
 
-  def fetchRelations: Iterator[Relation] = relations.iterator
+  def fetchRelations: Iterator[(String, ListBuffer[Relation])] = relations.foldLeft(new mutable.HashMap[String, ListBuffer[Relation]]())((acc, rel) => {
+    if (!acc.contains(rel.relation)) acc.put(rel.relation, ListBuffer[Relation]().empty)
+    acc(rel.relation).addOne(rel)
+    acc
+  }).iterator
 
   private def process(): Unit = {
     records.foreach(row => {

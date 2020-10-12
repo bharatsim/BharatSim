@@ -5,6 +5,8 @@ import com.bharatsim.engine.graph.{CsvNode, GraphData, Relation}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
+import scala.collection.mutable.ListBuffer
+
 class NodeExtractorTest extends AnyWordSpec with Matchers {
   "fetchNodes" should {
     "return nodes aggregated per label" in {
@@ -30,8 +32,10 @@ class NodeExtractorTest extends AnyWordSpec with Matchers {
       val nodeExtractor = new NodeExtractor(data, extractor)
 
       val relations = nodeExtractor.fetchRelations.toList
-      relations.size shouldBe 2
-      relations should contain theSameElementsAs List(Relation(1, "WORKS_AT", 123), Relation(2, "WORKS_AT", 123))
+      relations.size shouldBe 1
+      relations should contain theSameElementsAs List(
+        ("WORKS_AT", ListBuffer(Relation(1, "WORKS_AT", 123), Relation(2, "WORKS_AT", 123)))
+      )
     }
   }
 }
