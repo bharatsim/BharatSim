@@ -5,6 +5,7 @@ import Home from './modules/home/Home';
 import ConfigureDataset from './modules/configureDataset/ConfigureDataset';
 import UploadDataset from './modules/uploadDataset/UploadDataset';
 import ProjectLayout from './modules/layout/projectLayout/projectLayout/ProjectLayout';
+import ProjectHomeScreen from './modules/projectHomeScreen/ProjectHomeScreen';
 
 function renderProjectRoute() {
   return (
@@ -30,7 +31,7 @@ function AppRoute() {
         </Route>
         <Route path="/projects/create">
           <ProjectLayout>
-            <ConfigureDataset />
+            <ProjectHomeScreen />
           </ProjectLayout>
         </Route>
         <Route path="/projects/:id">{renderProjectRoute()}</Route>
