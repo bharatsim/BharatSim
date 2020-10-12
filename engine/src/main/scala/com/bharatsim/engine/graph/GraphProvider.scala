@@ -5,6 +5,7 @@ import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder.decodeMap
 import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
 import com.bharatsim.engine.graph.GraphProvider.NodeId
+import com.bharatsim.engine.graph.Relation.GenericRelation
 import com.bharatsim.engine.utils.Utils.fetchClassName
 
 import scala.collection.mutable.ListBuffer
@@ -34,10 +35,18 @@ trait GraphNode {
   }
 }
 
-case class Relation(refFrom: Int, relation: String, refTo: Int)
+case class Relation[F <: Node : ClassTag, T <: Node : ClassTag](refFrom: Int, relation: String, refTo: Int) {
+  private[engine] def fromLabel: String = fetchClassName[F]
+
+  private[engine] def toLabel: String = fetchClassName[T]
+}
+
+object Relation {
+  type GenericRelation = Relation[_, _]
+}
 
 class GraphData() {
-  private[engine] val relations: ListBuffer[Relation] = ListBuffer.empty
+  private[engine] val relations: ListBuffer[GenericRelation] = ListBuffer.empty
   private[engine] val nodes: ListBuffer[CsvNode] = ListBuffer.empty
 
   def addNode[T <: Product : ClassTag](ref: Int, n: T)(implicit encoder: BasicMapEncoder[T]): Unit = {
@@ -50,7 +59,7 @@ class GraphData() {
     })
   }
 
-  def addRelations(r: Iterable[Relation]): Unit = {
+  def addRelations(r: Iterable[GenericRelation]): Unit = {
     relations.addAll(r)
   }
 }

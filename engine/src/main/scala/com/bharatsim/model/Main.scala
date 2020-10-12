@@ -16,7 +16,8 @@ object Main extends LazyLogging {
 
     createSchedules()
 
-    ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
+    ingestCSVData("src/main/resources/citizen10k.csv", csvDataExtractor)
+    logger.debug("Ingestion done")
     val beforeCount = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Infected")).size
 
     context.registerAgent[Citizen]
@@ -64,8 +65,8 @@ object Main extends LazyLogging {
     val homeId = map("house_id").toInt
     val home = House(homeId)
 
-    val staysAt = Relation(citizenId, "STAYS_AT", homeId)
-    val memberOf = Relation(homeId, "HOUSES", citizenId)
+    val staysAt = Relation[Citizen, House](citizenId, "STAYS_AT", homeId)
+    val memberOf = Relation[House, Citizen](homeId, "HOUSES", citizenId)
 
     val graphData = new GraphData()
     graphData.addNode(citizenId, citizen)
