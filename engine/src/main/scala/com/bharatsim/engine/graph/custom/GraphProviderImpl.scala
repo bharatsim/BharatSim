@@ -19,24 +19,35 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
   override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
     val reader = CSVReader.open(csvPath)
     val records = reader.allWithHeaders()
-    val refToIdMapping = mutable.HashMap[Int, NodeId]().empty
+    val refToIdMappingBucket = mutable.HashMap[String, mutable.HashMap[Int, NodeId]]().empty
 
     if (mapper.isDefined) {
       records.foreach(record => {
-        val graphData = mapper.get(record)
-        graphData.nodes.foreach(node => {
-          if (!refToIdMapping.contains(node.uniqueRef)) {
+        mapper.get(record).nodes.foreach(node => {
+          if (!referenceAlreadyEncountered(node.uniqueRef, refToIdMappingBucket.get(node.label))) {
             val nodeId = createNode(node.label, node.params)
-            refToIdMapping(node.uniqueRef) = nodeId
+            if (!refToIdMappingBucket.contains(node.label))
+              refToIdMappingBucket.put(node.label, new mutable.HashMap[Int, NodeId]())
+            refToIdMappingBucket(node.label).put(node.uniqueRef, nodeId)
           }
         })
 
-        graphData.relations.foreach(relation => {
-          val fromId: NodeId = refToIdMapping(relation.refFrom)
-          val toId: NodeId = refToIdMapping(relation.refTo)
+        mapper.get(record).relations.foreach(relation => {
+          val fromLabel = relation.fromLabel
+          val toLabel = relation.toLabel
+          val fromId: NodeId = refToIdMappingBucket(fromLabel)(relation.refFrom)
+          val toId: NodeId = refToIdMappingBucket(toLabel)(relation.refTo)
           createRelationship(fromId, relation.relation, toId)
         })
       })
+    }
+  }
+
+  private def referenceAlreadyEncountered(uniqueRef: NodeId, refToIdMapping: Option[mutable.HashMap[NodeId, NodeId]]): Boolean = {
+    if (refToIdMapping.isEmpty) false
+    else {
+      if (refToIdMapping.get.contains(uniqueRef)) true
+      else false
     }
   }
 

@@ -1,3 +1,5 @@
 package com.bharatsim.engine.testModels
 
-case class TestHome()
+import com.bharatsim.engine.Node
+
+case class TestHome() extends Node
