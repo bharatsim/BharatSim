@@ -3,7 +3,7 @@ import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import ClickableCard from '../../uiComponent/ClickableCard';
 import useModal from '../../hook/useModal';
-import Modal from '../../uiComponent/Modal';
+import CreateNewDashboardModal from './CreateNewDashboardModal';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -21,6 +21,8 @@ function ProjectHomeScreen() {
   const classes = useStyles();
   const { openModal, isOpen, closeModal } = useModal();
 
+  function onCreate() {}
+
   return (
     <>
       <Box py={14} px={32}>
@@ -33,9 +35,7 @@ function ProjectHomeScreen() {
           </Box>
         </ClickableCard>
       </Box>
-      <Modal open={isOpen} title="New Dashboard" handleClose={closeModal}>
-        Create Project
-      </Modal>
+      <CreateNewDashboardModal isOpen={isOpen} closeModal={closeModal} onCreate={onCreate} />
     </>
   );
 }

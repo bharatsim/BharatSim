@@ -245,15 +245,15 @@ exports[`DataTypeConfigModal should match a snapshot 1`] = `
       class="MuiBox-root MuiBox-root-18 makeStyles-buttonGroup-17"
     >
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary Mui-focusVisible Mui-focusVisible"
-        data-testid="button-apply and upload"
+        class="MuiButtonBase-root MuiButton-root MuiButton-outlined Mui-focusVisible Mui-focusVisible"
+        data-testid="button-cancel"
         tabindex="0"
         type="button"
       >
         <span
           class="MuiButton-label"
         >
-          apply and upload
+          cancel
         </span>
         <span
           class="MuiTouchRipple-root"
@@ -269,15 +269,15 @@ exports[`DataTypeConfigModal should match a snapshot 1`] = `
         </span>
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSecondary Mui-focusVisible Mui-focusVisible"
-        data-testid="button-cancel"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained Mui-focusVisible Mui-focusVisible"
+        data-testid="button-apply and upload"
         tabindex="0"
         type="button"
       >
         <span
           class="MuiButton-label"
         >
-          cancel
+          apply and upload
         </span>
         <span
           class="MuiTouchRipple-root"

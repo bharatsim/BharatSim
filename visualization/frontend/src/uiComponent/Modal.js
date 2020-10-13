@@ -71,8 +71,7 @@ function Modal({ open, handleClose, title, children, actions }) {
                 data-testid={`button-${name}`}
                 autoFocus
                 onClick={handleClick}
-                color={type}
-                variant="contained"
+                variant={type}
                 disabled={isDisable}
               >
                 {name}
@@ -98,7 +97,7 @@ Modal.propTypes = {
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       handleClick: PropTypes.func.isRequired,
-      type: PropTypes.oneOf(['primary', 'secondary']).isRequired,
+      type: PropTypes.string.isRequired,
       isDisable: PropTypes.bool,
     }),
   ),

@@ -4,7 +4,7 @@ import { fireEvent } from '@testing-library/dom';
 import ProjectHomeScreen from '../ProjectHomeScreen';
 import withThemeProvider from '../../../theme/withThemeProvider';
 
-describe('<ClickableCard />', () => {
+describe('<ProjectHomeScreenComponent />', () => {
   const ProjectHomeScreenComponent = withThemeProvider(ProjectHomeScreen);
   it('should match snapshot', () => {
     const { container } = render(<ProjectHomeScreenComponent />);
@@ -16,6 +16,6 @@ describe('<ClickableCard />', () => {
 
     const container = within(document.querySelector('.MuiPaper-root'));
 
-    expect(container.queryByText('Create Project')).toBeInTheDocument();
+    expect(container.queryByText('New Dashboard')).toBeInTheDocument();
   });
 });

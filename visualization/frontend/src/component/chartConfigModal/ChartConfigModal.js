@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { Box } from '@material-ui/core';
 
-import useForm from '../../hook/useForm';
+import useOldForm from '../../hook/useOldForm';
 import chartConfigs from '../../config/chartConfigs';
 import Modal from '../../uiComponent/Modal';
 import { datasourceValidator } from '../../utils/validators';
@@ -22,7 +22,7 @@ function ChartConfigModal({ open, onCancel, onOk, chartType }) {
     shouldEnableSubmit,
     onSubmit,
     resetFields,
-  } = useForm({
+  } = useOldForm({
     ...createConfigOptionValidationSchema(chartConfigs[chartType].configOptions),
     dataSource: datasourceValidator,
   });
@@ -43,8 +43,8 @@ function ChartConfigModal({ open, onCancel, onOk, chartType }) {
   }
 
   const modalActions = [
-    { name: 'Ok', handleClick: handleOk, type: 'primary', isDisable: !shouldEnableSubmit() },
-    { name: 'Cancel', handleClick: onCancel, type: 'secondary' },
+    { name: 'Ok', handleClick: handleOk, type: 'contained', isDisable: !shouldEnableSubmit() },
+    { name: 'Cancel', handleClick: onCancel, type: 'outlined' },
   ];
 
   return (

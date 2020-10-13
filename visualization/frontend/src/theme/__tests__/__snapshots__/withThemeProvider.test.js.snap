@@ -135,6 +135,11 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
       "root": {
         "color": "#594ab7"
       }
+    },
+    "MuiDialog": {
+      "paperWidthSm": {
+        "maxWidth": "unset"
+      }
     }
   },
   "palette": {

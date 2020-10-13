@@ -1,66 +1,28 @@
-import { useState } from 'react';
+const { useState } = require('react');
 
-function useForm(validators) {
-  const [values, setValues] = useState({});
+function useFrom(defaultValues = {}, validators = {}) {
+  const [values, setValues] = useState(defaultValues);
   const [errors, setErrors] = useState({});
 
-  function setValue(key, value) {
-    setValues((prevState) => ({ ...prevState, [key]: value }));
+  function setValue(id, value) {
+    setValues((prevState) => ({ ...prevState, [id]: value }));
   }
-
-  function setError(key, error) {
-    setErrors((prevState) => ({ ...prevState, [key]: error }));
+  function setError(id, error) {
+    setErrors((prevState) => ({ ...prevState, [id]: error }));
   }
-
-  function validateFieldAndSetErrorMessage(key, value, validator) {
-    const errorMessage = validator(value);
-    setError(key, errorMessage);
-    return errorMessage;
+  function validate(id, value) {
+    return validators[id] ? validators[id](value) : '';
   }
-
-  function validateAndSetValue(key, value) {
-    validateFieldAndSetErrorMessage(key, value, validators[key]);
-
-    setValue(key, value);
+  function handleInputChange(id, value) {
+    const error = validate(id, value);
+    setError(id, error);
+    setValue(id, value);
   }
-
-  function onSubmit(submitCallback) {
-    const validatorKeys = Object.keys(validators);
-    const isFormValid = validatorKeys.every((validatorKey) => {
-      return (
-        validateFieldAndSetErrorMessage(
-          validatorKey,
-          values[validatorKey],
-          validators[validatorKey],
-        ) === ''
-      );
-    });
-
-    if (isFormValid) submitCallback(values);
-  }
-
   function shouldEnableSubmit() {
     const keys = Object.keys(validators);
-    return keys.every((key) => errors[key] === '' && !!values[key]);
+    return keys.every((key) => errors[key] === '');
   }
-
-  function resetField(key) {
-    setValue(key, undefined);
-  }
-
-  function resetFields(keys) {
-    keys.map((key) => resetField(key));
-  }
-
-  return {
-    values,
-    errors,
-    setError,
-    validateAndSetValue,
-    shouldEnableSubmit,
-    onSubmit,
-    resetFields,
-  };
+  return { values, errors, handleInputChange, shouldEnableSubmit };
 }
 
-export default useForm;
+export default useFrom;

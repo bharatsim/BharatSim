@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<ClickableCard /> should match snapshot 1`] = `
+exports[`<ProjectHomeScreenComponent /> should match snapshot 1`] = `
 <div>
   <div
     class="MuiBox-root MuiBox-root-2"

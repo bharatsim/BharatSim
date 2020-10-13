@@ -4,66 +4,52 @@ import useForm from '../useForm';
 
 describe('Use form hook', () => {
   let renderedHook;
-  const fieldValidators = {
-    'address-input': (value = '') => {
-      if (value.length < 5) return 'too small';
-      return '';
-    },
-    'name-input': (value = '') => (value.length < 10 ? '' : 'too long'),
+  const inputValidators = {
+    age: (value = '') => (value > 80 ? 'too old to apply' : ''),
+    name: (value = '') => (value.length > 10 ? 'too long name' : ''),
   };
 
   beforeEach(() => {
-    const { result } = renderHook(() => useForm(fieldValidators));
+    const { result } = renderHook(() => useForm({}, inputValidators));
     renderedHook = result;
   });
-
-  describe('ValidateAndSetValue', () => {
-    it('should validate and set the value when value is valid', () => {
-      act(() =>
-        renderedHook.current.validateAndSetValue('address-input', 'F-123, test road, test city.'),
-      );
+  describe('handleInputChange', () => {
+    it('should set value without any error if age less than 80', () => {
+      act(() => renderedHook.current.handleInputChange('age', 79));
 
       expect(renderedHook.current.values).toEqual({
-        'address-input': 'F-123, test road, test city.',
+        age: 79,
       });
 
       expect(renderedHook.current.errors).toEqual({
-        'address-input': '',
+        age: '',
       });
     });
 
-    it('should validate and set the value when value is invalid', () => {
-      act(() => renderedHook.current.validateAndSetValue('address-input', 'A'));
+    it('should set default values to values', () => {
+      const { result } = renderHook(() => useForm());
+      expect(result.current.values).toEqual({});
+    });
+
+    it('should set value along with given error if age greater than 80', () => {
+      act(() => renderedHook.current.handleInputChange('age', 81));
 
       expect(renderedHook.current.values).toEqual({
-        'address-input': 'A',
+        age: 81,
       });
 
       expect(renderedHook.current.errors).toEqual({
-        'address-input': 'too small',
+        age: 'too old to apply',
       });
     });
   });
-
-  describe('setError', () => {
-    it('should set error value for given key', () => {
-      act(() => {
-        renderedHook.current.setError('email-input', 'email is already exit');
-      });
-
-      expect(renderedHook.current.errors).toEqual({
-        'email-input': 'email is already exit',
-      });
-    });
-  });
-
   describe('shouldEnableSubmit', () => {
     it('should return true if no field has error', () => {
       act(() => {
-        renderedHook.current.validateAndSetValue('address-input', 'F-123, test road, test city.');
+        act(() => renderedHook.current.handleInputChange('age', 70));
       });
       act(() => {
-        renderedHook.current.validateAndSetValue('name-input', 'test name');
+        act(() => renderedHook.current.handleInputChange('name', 'someone'));
       });
 
       expect(renderedHook.current.shouldEnableSubmit()).toEqual(true);
@@ -71,87 +57,13 @@ describe('Use form hook', () => {
 
     it('should return false if any field has error', () => {
       act(() => {
-        renderedHook.current.validateAndSetValue('address-input', 'F-123, test road, test city.');
+        act(() => renderedHook.current.handleInputChange('age', 79));
       });
       act(() => {
-        renderedHook.current.validateAndSetValue('name-input', 'vary very long name');
+        renderedHook.current.handleInputChange('name', 'vary very long name');
       });
 
       expect(renderedHook.current.shouldEnableSubmit()).toEqual(false);
-    });
-  });
-
-  describe('onSubmit', () => {
-    it('should run all validation on submit', () => {
-      const submitCallback = jest.fn();
-      act(() => {
-        renderedHook.current.validateAndSetValue('address-input', 'F-12');
-      });
-      act(() => {
-        renderedHook.current.validateAndSetValue('name-input', 'asdasdasdasdasdasdasdas');
-      });
-
-      act(() => {
-        renderedHook.current.onSubmit(submitCallback);
-      });
-
-      expect(renderedHook.current.errors).toEqual({
-        'address-input': 'too small',
-        'name-input': 'too long',
-      });
-    });
-
-    it('should not call on submit callback is any validation fail', () => {
-      const submitCallback = jest.fn();
-      act(() => {
-        renderedHook.current.validateAndSetValue('address-input', 'F-1212331');
-      });
-      act(() => {
-        renderedHook.current.validateAndSetValue('name-input', 'asdasdasdasdasdasdasdas');
-      });
-
-      act(() => {
-        renderedHook.current.onSubmit(submitCallback);
-      });
-
-      expect(submitCallback).not.toHaveBeenCalled();
-    });
-
-    it('should call on submit callback with values if all validation pass', () => {
-      const submitCallback = jest.fn();
-      act(() => {
-        renderedHook.current.validateAndSetValue('address-input', 'F-1212331');
-      });
-      act(() => {
-        renderedHook.current.validateAndSetValue('name-input', 'asdasdasd');
-      });
-
-      act(() => {
-        renderedHook.current.onSubmit(submitCallback);
-      });
-
-      expect(submitCallback).toHaveBeenCalledWith({
-        'address-input': 'F-1212331',
-        'name-input': 'asdasdasd',
-      });
-    });
-
-    it('should reset fields', () => {
-      act(() => {
-        renderedHook.current.validateAndSetValue('address-input', 'F-1212331');
-      });
-      act(() => {
-        renderedHook.current.validateAndSetValue('name-input', 'asdasdasd');
-      });
-
-      act(() => {
-        renderedHook.current.resetFields(['address-input', 'name-input']);
-      });
-
-      expect(renderedHook.current.values).toEqual({
-        'address-input': undefined,
-        'name-input': undefined,
-      });
     });
   });
 });

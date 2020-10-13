@@ -111,6 +111,11 @@ theme.overrides = {
       color: theme.colors.primaryColorScale['500'],
     },
   },
+  MuiDialog: {
+    paperWidthSm: {
+      maxWidth: 'unset',
+    },
+  },
 };
 
 export default theme;

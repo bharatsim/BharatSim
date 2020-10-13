@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Box, Button } from '@material-ui/core';
 
-import useForm from '../../hook/useForm';
+import useOldForm from '../../hook/useOldForm';
 import FileInput from '../../uiComponent/FileInput';
 import useModal from '../../hook/useModal';
 import DataTypeConfigModal from './DataTypeConfigModal';
@@ -32,7 +32,7 @@ function FileUpload() {
     onSubmit,
     shouldEnableSubmit,
     values,
-  } = useForm({
+  } = useOldForm({
     [FILE_INPUT_KEY]: validateFile,
   });
 
