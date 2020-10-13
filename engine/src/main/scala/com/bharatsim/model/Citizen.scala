@@ -69,4 +69,8 @@ case class Citizen(id: Int, age: Int, infectionState: InfectionStatus, infection
   addBehaviour(checkForExposure)
   addBehaviour(checkForInfection)
   addBehaviour(checkForRecovery)
+
+  addRelation[House]("STAYS_AT")
+  addRelation[Office]("WORKS_AT")
+  addRelation[School]("STUDIES_AT")
 }
