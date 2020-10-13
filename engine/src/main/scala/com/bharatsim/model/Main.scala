@@ -16,7 +16,7 @@ object Main extends LazyLogging {
 
     createSchedules()
 
-    ingestCSVData("src/main/resources/citizen10k.csv", csvDataExtractor)
+    ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
     logger.debug("Ingestion done")
     val beforeCount = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Infected")).size
 
@@ -35,20 +35,26 @@ object Main extends LazyLogging {
 
   private def createSchedules()(implicit context: Context): Unit = {
     val employeeScheduleOnWeekDays = (Day, Hour)
-      .add("Home", 0, 8)
-      .add("Home", 19, 23)
+      .add[House](0, 8)
+      .add[Office](9, 18)
+      .add[House](19, 23)
 
-    val employeeScheduleOnWeekEnd = (Day, Hour).add("Home", 0, 23)
+    val employeeScheduleOnWeekEnd = (Day, Hour).add[House](0, 23)
 
     val employeeSchedule = (Week, Day)
       .add(employeeScheduleOnWeekDays, 0, 4)
       .add(employeeScheduleOnWeekEnd, 5, 6)
 
-    val studentSchedule = (Day, Hour)
-      .add("Home", 0, 8)
-      .add("School", 9, 14)
-      .add("Daycare", 15, 18)
-      .add("Home", 19, 23)
+    val studentScheduleOnWeekDay = (Day, Hour)
+      .add[House](0, 8)
+      .add[School](9, 15)
+      .add[House](16, 23)
+
+    val studentScheduleOnWeekEnd = (Day, Hour).add[House](0, 23)
+
+    val studentSchedule = (Week, Day)
+      .add(studentScheduleOnWeekDay, 0, 4)
+      .add(studentScheduleOnWeekEnd, 5, 6)
 
     registerSchedules(
       (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Citizen].age >= 30),
@@ -63,15 +69,28 @@ object Main extends LazyLogging {
     val citizen: Citizen = Citizen(citizenId, age, InfectionStatus.withName(map("infectionState")), 0)
 
     val homeId = map("house_id").toInt
+    val officeId = map("office_id").toInt
+    val schoolId = map("school_id").toInt
+
     val home = House(homeId)
+    val office = Office(officeId)
+    val school = School(schoolId)
 
     val staysAt = Relation[Citizen, House](citizenId, "STAYS_AT", homeId)
+    val worksAt = Relation[Citizen, Office](citizenId, "WORKS_AT", officeId)
+    val studiesAt = Relation[Citizen, School](citizenId, "STUDIES_AT", schoolId)
+
     val memberOf = Relation[House, Citizen](homeId, "HOUSES", citizenId)
+    val employerOf = Relation[Office, Citizen](officeId, "EMPLOYER_OF", citizenId)
+    val studentOf = Relation[School, Citizen](schoolId, "STUDENT_OF", citizenId)
 
     val graphData = new GraphData()
     graphData.addNode(citizenId, citizen)
     graphData.addNode(homeId, home)
-    graphData.addRelations(List(staysAt, memberOf))
+    graphData.addNode(officeId, office)
+    graphData.addNode(schoolId, school)
+
+    graphData.addRelations(List(staysAt, worksAt, studiesAt, memberOf, employerOf, studentOf))
     graphData
   }
 

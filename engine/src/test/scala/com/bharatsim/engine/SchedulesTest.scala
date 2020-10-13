@@ -15,8 +15,8 @@ class SchedulesTest extends AnyFunSuite with Matchers with MockitoSugar {
 
     val schedules = new Schedules()
 
-    schedules.addSchedule(employeeSchedule, (agent: Agent, context: Context) => { agent == employee })
-    schedules.addSchedule(studentSchedule, (agent: Agent, context: Context) => { agent == student })
+    schedules.addSchedule(employeeSchedule, (agent: Agent, _: Context) => { agent == employee })
+    schedules.addSchedule(studentSchedule, (agent: Agent, _: Context) => { agent == student })
 
     schedules.getSchedule(employee, context).get shouldBe employeeSchedule
     schedules.getSchedule(student, context).get shouldBe studentSchedule
@@ -37,7 +37,7 @@ class SchedulesTest extends AnyFunSuite with Matchers with MockitoSugar {
     val context = mock[Context]
     val employee = mock[Agent]
     val schedules = new Schedules()
-    val employeeMatcher = spyLambda((agent: Agent, context: Context) => { agent == employee })
+    val employeeMatcher = spyLambda((agent: Agent, _: Context) => { agent == employee })
 
     schedules.addSchedule(employeeSchedule1, employeeMatcher)
     schedules.addSchedule(employeeSchedule2, employeeMatcher)

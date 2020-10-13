@@ -20,14 +20,19 @@ case class Citizen(id: Int, age: Int, infectionState: InfectionStatus, infection
 
       val schedule = context.fetchSchedules.getSchedule(this, context).get
 
-      val home = getHome
-      val infectedCount =
-        context.graphProvider.fetchNeighborsOf(home.internalId, "HOUSES").count(x => x.as[Citizen].isInfected)
+      val currentStep = context.simulationContext.getCurrentStep
+      val currentNodeType: String = schedule.getForStep(currentStep)
 
-      val shouldInfect = infectionRate * infectedCount > 0
+      val houses = context.graphProvider.fetchNeighborsOf(internalId, getRelation(currentNodeType).get)
+      if (houses.nonEmpty) {
+        val house = houses.head.as[House]
+        val infectedNeighbourCount = context.graphProvider.fetchNeighborsOf(house.internalId, house.getRelation(Citizen.toString()).get)
+          .count(x => x.as[Citizen].isInfected)
+        val shouldInfect = infectionRate * infectedNeighbourCount > 0
 
-      if (shouldInfect) {
-        updateParam("infectionState", Infected)
+        if (shouldInfect) {
+          updateParam("infectionState", Infected)
+        }
       }
     }
   }
@@ -60,10 +65,6 @@ case class Citizen(id: Int, age: Int, infectionState: InfectionStatus, infection
   def isRecovered: Boolean = infectionState == Recovered
 
   def isDeceased: Boolean = infectionState == Deceased
-
-  def getHome: House = getConnections("STAYS_AT").next().as[House]
-
-  def setHome(home: House): Unit = unidirectionalConnect("STAYS_AT", home)
 
   addBehaviour(incrementInfectionDay)
   addBehaviour(checkForExposure)

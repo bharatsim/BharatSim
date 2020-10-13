@@ -1,8 +1,10 @@
 package com.bharatsim.engine
 
 import com.bharatsim.engine.exception.{CyclicScheduleException, ScheduleOutOfBoundsException}
+import com.bharatsim.engine.utils.Utils
 
 import scala.collection.mutable
+import scala.reflect.ClassTag
 
 class Schedule(val period: ScheduleUnit, val unit: ScheduleUnit) {
 
@@ -17,10 +19,10 @@ class Schedule(val period: ScheduleUnit, val unit: ScheduleUnit) {
     (step / unit.steps) % (period.steps / unit.steps)
   }
 
-  def add(place: String, from: Int, to: Int): Schedule = {
+  def add[T <: Node : ClassTag](from: Int, to: Int): Schedule = {
     checkOutOfBound(to)
     for (i <- from to to) {
-      _schedule.put(i, place)
+      _schedule.put(i, Utils.fetchClassName[T])
     }
     this
   }
