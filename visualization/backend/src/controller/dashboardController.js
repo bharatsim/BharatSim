@@ -41,7 +41,8 @@ router.post('/create-new', async function (req, res) {
 });
 
 router.get('/', async function (req, res) {
-  getAllDashboards()
+  const { columns, ...filters } = req.query;
+  getAllDashboards(filters, columns)
     .then((dashboards) => {
       res.send(dashboards);
     })

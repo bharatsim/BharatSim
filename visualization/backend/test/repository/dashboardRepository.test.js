@@ -78,4 +78,27 @@ describe('DashboardRepository', function () {
 
     expect(data.length).toEqual(2);
   });
+
+  it('should fetch all the dashboard by projectId with projected column', async function () {
+    const { _id: dash1 } = await DashboardRepository.insert(dashboard);
+    const { _id: dash2 } = await DashboardRepository.insert(dashboard);
+    const { _id: dash3 } = await DashboardRepository.insert(dashboard);
+    await DashboardRepository.insert({
+      ...dashboard,
+      projectId: '313233343536373839303137',
+    });
+
+    const data = parseMongoDBResult(
+      await DashboardRepository.getAll(
+        { projectId: '313233343536373839303133' },
+        { name: 1, _id: 1 },
+      ),
+    );
+
+    expect(parseMongoDBResult(data)).toEqual([
+      { _id: dash1.toString(), name: 'dashboard1' },
+      { _id: dash2.toString(), name: 'dashboard1' },
+      { _id: dash3.toString(), name: 'dashboard1' },
+    ]);
+  });
 });

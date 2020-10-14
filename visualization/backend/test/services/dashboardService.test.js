@@ -58,7 +58,16 @@ describe('Dashboard Service', function () {
     expect(result).toEqual({ dashboardId: 'id' });
   });
   it('should get all dashboards', async function () {
-    await getAllDashboards(dashboardDataToUpdate);
+    await getAllDashboards();
     expect(dashboardRepository.getAll).toHaveBeenCalled();
+  });
+
+  it('should get all dashboards by projectId', async function () {
+    await getAllDashboards({ projectId: 'projectId' }, ['name', '_id']);
+
+    expect(dashboardRepository.getAll).toHaveBeenCalledWith(
+      { projectId: 'projectId' },
+      { _id: 1, name: 1 },
+    );
   });
 });

@@ -82,11 +82,36 @@ describe('dashboardController', function () {
   });
 
   describe('Get /dashboard/', function () {
-    it('should save dashboard data into database', async function () {
+    it('should geta all dashboard ', async function () {
       dashboardService.getAllDashboards.mockResolvedValueOnce({ dashboards: {} });
+
       await request(app).get('/dashboard/').expect(200);
-      expect(dashboardService.getAllDashboards).toHaveBeenCalled();
+
+      expect(dashboardService.getAllDashboards).toHaveBeenCalledWith({}, undefined);
     });
+
+    it('should get dashboard data by project id filter', async function () {
+      dashboardService.getAllDashboards.mockResolvedValueOnce({ dashboards: {} });
+      await request(app).get('/dashboard?projectId=5f75ce5999399c14af5a2845').expect(200);
+
+      expect(dashboardService.getAllDashboards).toHaveBeenCalledWith(
+        { projectId: '5f75ce5999399c14af5a2845' },
+        undefined,
+      );
+    });
+
+    it('should get dashboard data with projected columns and filter', async function () {
+      dashboardService.getAllDashboards.mockResolvedValueOnce({ dashboards: {} });
+      await request(app)
+        .get('/dashboard?projectId=5f75ce5999399c14af5a2845&columns[]=name&&columns[]=_id')
+        .expect(200);
+
+      expect(dashboardService.getAllDashboards).toHaveBeenCalledWith(
+        { projectId: '5f75ce5999399c14af5a2845' },
+        ['name', '_id'],
+      );
+    });
+
     it('should throw and technical error for any failure', async function () {
       dashboardService.getAllDashboards.mockRejectedValueOnce(new Error('Message'));
       await request(app)

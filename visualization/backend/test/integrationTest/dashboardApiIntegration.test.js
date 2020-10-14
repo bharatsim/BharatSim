@@ -74,4 +74,11 @@ describe('Integration test for dashboard api', () => {
       expect(response.body.dashboards.length).toEqual(1);
     });
   });
+  describe('Get /dashboard', function () {
+    it('should get all dashboards from database', async function () {
+      dashboardModel.insertMany([dashboardData]);
+      const response = await request(app).get('/dashboard').expect(200);
+      expect(response.body.dashboards.length).toEqual(1);
+    });
+  });
 });
