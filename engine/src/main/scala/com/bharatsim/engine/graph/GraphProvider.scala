@@ -1,8 +1,8 @@
 package com.bharatsim.engine.graph
 
 import com.bharatsim.engine.Node
+import com.bharatsim.engine.basicConversions.BasicConversions
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
-import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder.decodeMap
 import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.Relation.GenericRelation
@@ -29,7 +29,7 @@ trait GraphNode {
   def apply(key: String): Option[Any]
 
   def as[T <: Node](implicit decoder: BasicMapDecoder[T]): T = {
-    val node = decodeMap(getParams)
+    val node = BasicConversions.decode(getParams)
     node.setId(Id)
     node
   }
@@ -68,7 +68,7 @@ trait GraphProvider {
   /* CRUD */
 
   def createNodeFromInstance[T <: Product](label: String, x: T)(implicit encoder: BasicMapEncoder[T]): NodeId = {
-    createNode(label, encoder.encode(x).m)
+    createNode(label, BasicConversions.encode(x))
   }
 
   // C

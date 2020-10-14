@@ -1,7 +1,6 @@
 package com.bharatsim.engine.basicConversions.decoders
 
-import com.bharatsim.engine.basicConversions.BasicValue.fromMap
-import com.bharatsim.engine.basicConversions.{BasicValue, MapValue}
+import com.bharatsim.engine.basicConversions.BasicValue
 
 
 trait BasicDecoder[T] {
@@ -17,8 +16,6 @@ trait BasicMapDecoder[T] extends BasicDecoder[T] {
 }
 
 object BasicMapDecoder {
-  def decodeMap[T](m: Map[String, Any])(implicit decoder: BasicMapDecoder[T]): T = decoder.decode(MapValue(fromMap(m)))
-
   def apply[T](implicit decoder: BasicMapDecoder[T]): BasicMapDecoder[T] = decoder
 }
 
