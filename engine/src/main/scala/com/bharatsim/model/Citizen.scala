@@ -26,7 +26,7 @@ case class Citizen(id: Int, age: Int, infectionState: InfectionStatus, infection
       val houses = context.graphProvider.fetchNeighborsOf(internalId, getRelation(currentNodeType).get)
       if (houses.nonEmpty) {
         val house = houses.head.as[House]
-        val infectedNeighbourCount = context.graphProvider.fetchNeighborsOf(house.internalId, house.getRelation(Citizen.toString()).get)
+        val infectedNeighbourCount = context.graphProvider.fetchNeighborsOf(house.internalId, house.getRelation[Citizen]().get)
           .count(x => x.as[Citizen].isInfected)
         val shouldInfect = infectionRate * infectedNeighbourCount > 0
 

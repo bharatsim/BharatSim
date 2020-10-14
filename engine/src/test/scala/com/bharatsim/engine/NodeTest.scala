@@ -60,4 +60,14 @@ class NodeTest extends AnyFunSuite with MockitoSugar {
 
     Some("STAYS_AT") should equal(expected)
   }
+
+  test("Should add newer relation using implicit class type"){
+    val node1 = new Node
+    node1.setId(1)
+
+    node1.addRelation[Node]("STAYS_AT")
+    val expected = node1.getRelation[Node]()
+
+    Some("STAYS_AT") should equal(expected)
+  }
 }

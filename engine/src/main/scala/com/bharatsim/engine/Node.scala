@@ -22,6 +22,10 @@ class Node()(implicit graphProvider: GraphProvider =  GraphProviderFactory.get) 
     relationSchema.get(toNode)
   }
 
+  def getRelation[T <: Node: ClassTag](): Option[String] = {
+    relationSchema.get(Utils.fetchClassName[T])
+  }
+
   def unidirectionalConnect(relation: String, to: Node): Unit = {
     graphProvider.createRelationship(internalId, relation, to.internalId)
   }
