@@ -32,4 +32,4 @@ async function getAllDashboards() {
   return { dashboards };
 }
 
-module.exports = { saveDashboard, getAllDashboards };
+module.exports = { saveDashboard, getAllDashboards, insertDashboard };

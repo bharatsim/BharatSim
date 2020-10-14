@@ -20,6 +20,10 @@ const dashboard = new Schema(
     widgets: [widgetSchema],
     layout: [Object],
     count: { type: Number },
+    projectId: {
+      type: Schema.Types.ObjectId,
+      ref: 'project',
+    },
   },
   { collection: 'dashboard' },
 );

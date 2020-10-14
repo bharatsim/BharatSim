@@ -17,6 +17,7 @@ const dashboard = {
   widgets: [widget],
   layout: [],
   count: 0,
+  projectId: '313233343536373839303133',
 };
 
 describe('DashboardRepository', function () {
@@ -45,6 +46,7 @@ describe('DashboardRepository', function () {
       ],
       layout: [],
       count: 0,
+      projectId: '313233343536373839303133',
     });
   });
   it('should update dashboard data into database', async function () {
@@ -64,6 +66,7 @@ describe('DashboardRepository', function () {
         },
       ],
       layout: [],
+      projectId: '313233343536373839303133',
       count: 0,
     });
   });

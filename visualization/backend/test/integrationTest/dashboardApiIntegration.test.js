@@ -22,6 +22,7 @@ const dashboardData = {
   widgets: [widget],
   layout: [],
   count: 0,
+  projectId: '313233343536373839303132',
 };
 
 describe('Integration test for dashboard api', () => {
@@ -44,6 +45,20 @@ describe('Integration test for dashboard api', () => {
   describe('POST /dashboard', function () {
     it('should save dashboard to database', async function () {
       const response = await request(app).post('/dashboard').send({ dashboardData }).expect(200);
+      const { dashboardId } = response.body;
+      const dashboardRow = parseDBObject(
+        await dashboardModel.findOne({ _id: dashboardId }, { __v: 0, _id: 0 }),
+      );
+      expect(dashboardRow).toEqual(dashboardData);
+    });
+  });
+
+  describe('POST /dashboard/creat-new', function () {
+    it('should save dashboard to database', async function () {
+      const response = await request(app)
+        .post('/dashboard/create-new')
+        .send({ dashboardData })
+        .expect(200);
       const { dashboardId } = response.body;
       const dashboardRow = parseDBObject(
         await dashboardModel.findOne({ _id: dashboardId }, { __v: 0, _id: 0 }),

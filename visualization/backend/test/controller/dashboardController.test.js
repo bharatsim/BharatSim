@@ -53,6 +53,34 @@ describe('dashboardController', function () {
     });
   });
 
+  describe('Post /create-new', function () {
+    it('should insert new dashboard', async function () {
+      dashboardService.insertDashboard.mockResolvedValue({ dashboardId: '_id' });
+      await request(app).post('/dashboard/create-new').send({ dashboardData: 'Data' }).expect(200);
+
+      expect(dashboardService.insertDashboard).toHaveBeenCalledWith('Data');
+    });
+
+    it('should throw invalid input exception while inserting invalid data', async function () {
+      dashboardService.insertDashboard.mockRejectedValue(new InvalidInputException('Message'));
+
+      await request(app)
+        .post('/dashboard/create-new')
+        .send({ dashboardData: 'Data' })
+        .expect(400)
+        .expect({ errorMessage: 'Invalid Input - Message' });
+    });
+    it('should throw technical error for technical failure', async function () {
+      dashboardService.insertDashboard.mockRejectedValue(new Error('Message'));
+
+      await request(app)
+        .post('/dashboard/create-new')
+        .send({ dashboardData: 'Data' })
+        .expect(500)
+        .expect({ errorMessage: 'Technical error Message' });
+    });
+  });
+
   describe('Get /dashboard/', function () {
     it('should save dashboard data into database', async function () {
       dashboardService.getAllDashboards.mockResolvedValueOnce({ dashboards: {} });
