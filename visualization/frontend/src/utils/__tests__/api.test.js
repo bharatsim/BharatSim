@@ -36,6 +36,42 @@ describe('API', () => {
     expect(fetchData).toHaveBeenCalledWith(expectedParameter);
   });
 
+  it('should call dashboard api to get all dashboard filter by project id with projected columns', () => {
+    const expectedParameter = {
+      url: '/api/dashboard',
+      query: {
+        columns: ['name', '_id'],
+        projectId: 'projectId',
+      },
+    };
+
+    api.getAllDashBoardByProjectId('projectId');
+
+    expect(fetchData).toHaveBeenCalledWith(expectedParameter);
+  });
+
+  it('should call dashboard api to insert new dashboard', () => {
+    const expectedParameter = {
+      data: JSON.stringify({
+        dashboardData: {
+          widgets: [],
+          layout: [],
+          name: 'dashbaord1',
+          count: 0,
+          projectId: 'projectId',
+        },
+      }),
+      headers: {
+        'content-type': 'application/json',
+      },
+      url: "/api/dashboard/create-new",
+    };
+
+    api.addNewDashboard({ name: 'dashbaord1', projectId: 'projectId' });
+
+    expect(uploadData).toHaveBeenCalledWith(expectedParameter);
+  });
+
   it('should call datasources api to upload provided file and schema', () => {
     const data = { file: 'file', schema: 'schema' };
 
@@ -81,6 +117,7 @@ describe('API', () => {
 
     expect(fetchData).toHaveBeenCalledWith(expectedParameter);
   });
+
   it('should call projects api to get all the saved projects', () => {
     const expectedParameter = {
       url: '/api/projects',
@@ -90,6 +127,7 @@ describe('API', () => {
 
     expect(fetchData).toHaveBeenCalledWith(expectedParameter);
   });
+
   it('should should call save new project with given name', () => {
     const projectData = JSON.stringify({ projectData: { name: 'untitled project' } });
     const expectedParameter = {
@@ -103,6 +141,7 @@ describe('API', () => {
 
     expect(uploadData).toHaveBeenCalledWith(expectedParameter);
   });
+
   it('should should update old project for given id with given data', () => {
     const projectData = JSON.stringify({
       projectData: { name: 'updated project', id: 'projectId' },

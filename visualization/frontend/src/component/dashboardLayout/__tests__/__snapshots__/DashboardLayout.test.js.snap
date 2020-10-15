@@ -231,6 +231,7 @@ exports[`<DashboardLayout /> should show loader while fetching data for <Dashboa
 <div>
   <div
     class="MuiBox-root MuiBox-root-17 makeStyles-root-16"
+    data-testid="loader"
   >
     <div
       class="MuiCircularProgress-root MuiCircularProgress-colorPrimary MuiCircularProgress-indeterminate"

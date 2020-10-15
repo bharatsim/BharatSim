@@ -1,8 +1,12 @@
 import React from 'react';
 
 const projectLayoutContext = React.createContext({
-  projectMetadata: {},
-  selectedDashboardMetadata: {},
+  projectMetadata: {
+    name:'',
+  },
+  selectedDashboardMetadata: {
+    name: '',
+  },
 });
 
 const ProjectLayoutProvider = projectLayoutContext.Provider;

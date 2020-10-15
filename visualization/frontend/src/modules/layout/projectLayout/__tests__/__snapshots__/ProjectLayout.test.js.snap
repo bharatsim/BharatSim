@@ -1,15 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Project should match snapshot for old projects 1`] = `
+exports[`Project should match snapshot for existed projects 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-27 makeStyles-layoutContainer-23"
+    class="MuiBox-root MuiBox-root-28 makeStyles-layoutContainer-23"
   >
     <div
-      class="MuiBox-root MuiBox-root-28 makeStyles-sideBarLayout-24"
+      class="MuiBox-root MuiBox-root-29 makeStyles-sideBarLayout-24"
     >
       <div
-        class="MuiBox-root MuiBox-root-35"
+        class="MuiBox-root MuiBox-root-36"
       >
         <div
           class="MuiTabs-root MuiTabs-vertical"
@@ -24,24 +24,24 @@ exports[`Project should match snapshot for old projects 1`] = `
             >
               <button
                 aria-selected="true"
-                class="MuiButtonBase-root MuiTab-root makeStyles-root-29 MuiTab-textColorInherit makeStyles-textColorInherit-33 Mui-selected makeStyles-selected-32 MuiTab-labelIcon makeStyles-labelIcon-31 MuiTab-fullWidth"
-                data-testid="tab-dashboard1"
+                class="MuiButtonBase-root MuiTab-root makeStyles-root-30 MuiTab-textColorInherit makeStyles-textColorInherit-34 Mui-selected makeStyles-selected-33 MuiTab-labelIcon makeStyles-labelIcon-32 MuiTab-fullWidth"
+                data-testid="tab-d_name"
                 role="tab"
                 tabindex="0"
                 type="button"
               >
                 <span
-                  class="MuiTab-wrapper makeStyles-wrapper-30"
+                  class="MuiTab-wrapper makeStyles-wrapper-31"
                 >
                   <div
-                    class="MuiBox-root MuiBox-root-36"
+                    class="MuiBox-root MuiBox-root-37"
                   >
                     <img
                       alt="dashboard-logo"
                       src="dashboard-icon.svg"
                     />
                   </div>
-                  dashboard1
+                  d_name
                 </span>
                 <span
                   class="MuiTouchRipple-root"
@@ -49,7 +49,7 @@ exports[`Project should match snapshot for old projects 1`] = `
               </button>
             </div>
             <span
-              class="PrivateTabIndicator-root-37 PrivateTabIndicator-colorSecondary-39 MuiTabs-indicator makeStyles-indicator-34 PrivateTabIndicator-vertical-40"
+              class="PrivateTabIndicator-root-38 PrivateTabIndicator-colorSecondary-40 MuiTabs-indicator makeStyles-indicator-35 PrivateTabIndicator-vertical-41"
               style="top: 0px; height: 0px;"
             />
           </div>
@@ -57,30 +57,16 @@ exports[`Project should match snapshot for old projects 1`] = `
       </div>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-41"
+      class="MuiBox-root MuiBox-root-42"
     >
       <div
-        class="MuiBox-root MuiBox-root-42 makeStyles-projectNameBar-22"
+        class="MuiBox-root MuiBox-root-43 makeStyles-projectNameBar-22"
       >
         <h5
           class="MuiTypography-root MuiTypography-h5"
         >
           project1
         </h5>
-        <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-outlined"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class="MuiButton-label"
-          >
-            Save
-          </span>
-          <span
-            class="MuiTouchRipple-root"
-          />
-        </button>
       </div>
       <div>
         {
@@ -89,7 +75,8 @@ exports[`Project should match snapshot for old projects 1`] = `
     "name": "project1"
   },
   "selectedDashboardMetadata": {
-    "name": "dashboard1"
+    "name": "d_name",
+    "_id": "d_id"
   }
 }
       </div>
@@ -101,13 +88,13 @@ exports[`Project should match snapshot for old projects 1`] = `
 exports[`Project should match snapshot while creating new project 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-6 makeStyles-layoutContainer-2"
+    class="MuiBox-root MuiBox-root-7 makeStyles-layoutContainer-2"
   >
     <div
-      class="MuiBox-root MuiBox-root-7 makeStyles-sideBarLayout-3"
+      class="MuiBox-root MuiBox-root-8 makeStyles-sideBarLayout-3"
     >
       <div
-        class="MuiBox-root MuiBox-root-14"
+        class="MuiBox-root MuiBox-root-15"
       >
         <div
           class="MuiTabs-root MuiTabs-vertical"
@@ -119,35 +106,9 @@ exports[`Project should match snapshot while creating new project 1`] = `
             <div
               class="MuiTabs-flexContainer MuiTabs-flexContainerVertical"
               role="tablist"
-            >
-              <button
-                aria-selected="true"
-                class="MuiButtonBase-root MuiTab-root makeStyles-root-8 MuiTab-textColorInherit makeStyles-textColorInherit-12 Mui-selected makeStyles-selected-11 MuiTab-labelIcon makeStyles-labelIcon-10 MuiTab-fullWidth"
-                data-testid="tab-dashboard1"
-                role="tab"
-                tabindex="0"
-                type="button"
-              >
-                <span
-                  class="MuiTab-wrapper makeStyles-wrapper-9"
-                >
-                  <div
-                    class="MuiBox-root MuiBox-root-15"
-                  >
-                    <img
-                      alt="dashboard-logo"
-                      src="dashboard-icon.svg"
-                    />
-                  </div>
-                  dashboard1
-                </span>
-                <span
-                  class="MuiTouchRipple-root"
-                />
-              </button>
-            </div>
+            />
             <span
-              class="PrivateTabIndicator-root-16 PrivateTabIndicator-colorSecondary-18 MuiTabs-indicator makeStyles-indicator-13 PrivateTabIndicator-vertical-19"
+              class="PrivateTabIndicator-root-18 PrivateTabIndicator-colorSecondary-20 MuiTabs-indicator makeStyles-indicator-14 PrivateTabIndicator-vertical-21"
               style="top: 0px; height: 0px;"
             />
           </div>
@@ -155,39 +116,23 @@ exports[`Project should match snapshot while creating new project 1`] = `
       </div>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-20"
+      class="MuiBox-root MuiBox-root-16"
     >
       <div
-        class="MuiBox-root MuiBox-root-21 makeStyles-projectNameBar-1"
+        class="MuiBox-root MuiBox-root-17 makeStyles-projectNameBar-1"
       >
         <h5
           class="MuiTypography-root MuiTypography-h5"
         >
           untitled project
         </h5>
-        <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-outlined"
-          tabindex="0"
-          type="button"
-        >
-          <span
-            class="MuiButton-label"
-          >
-            Save
-          </span>
-          <span
-            class="MuiTouchRipple-root"
-          />
-        </button>
       </div>
       <div>
         {
   "projectMetadata": {
     "name": "untitled project"
   },
-  "selectedDashboardMetadata": {
-    "name": "dashboard1"
-  }
+  "selectedDashboardMetadata": {}
 }
       </div>
     </div>

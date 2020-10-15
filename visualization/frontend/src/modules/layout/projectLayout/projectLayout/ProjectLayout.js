@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
-import { useHistory, useParams } from 'react-router-dom';
-import { Box, Typography, Button } from '@material-ui/core';
+import { useParams } from "react-router-dom";
+import { Box, Typography } from "@material-ui/core";
 
-import LoaderOrError from '../../../../component/loaderOrError/LoaderOrError';
-import SideDashboardNavbar from '../sideDashboardNavbar/SideDashboardNavbar';
+import LoaderOrError from "../../../../component/loaderOrError/LoaderOrError";
+import SideDashboardNavbar from "../sideDashboardNavbar/SideDashboardNavbar";
 
-import useProjectLayoutStyle from './projectLayoutCSS';
-import useFetch from '../../../../hook/useFetch';
+import useProjectLayoutStyle from "./projectLayoutCSS";
+import useFetch from "../../../../hook/useFetch";
 
-import { api } from '../../../../utils/api';
-import { ProjectLayoutProvider } from '../../../../contexts/projectLayoutContext';
-import { ChildrenPropTypes } from '../../../../commanPropTypes';
+import { api } from "../../../../utils/api";
+import { ProjectLayoutProvider } from "../../../../contexts/projectLayoutContext";
+import { ChildrenPropTypes } from "../../../../commanPropTypes";
 
 async function fetchProjectData(id) {
   if (id) {
@@ -20,9 +20,15 @@ async function fetchProjectData(id) {
   return null;
 }
 
+async function fetchDashboards(id) {
+  if (id) {
+    return api.getAllDashBoardByProjectId(id);
+  }
+  return null;
+}
+
 function ProjectLayout({ children }) {
   const classes = useProjectLayoutStyle();
-  const history = useHistory();
   const { id } = useParams();
 
   const [projectMetadata, setProjectMetadata] = useState({
@@ -30,11 +36,23 @@ function ProjectLayout({ children }) {
     name: 'untitled project',
   });
 
+  const [dashboards, setDashboards] = useState([]);
+
   const [selectedDashboard] = useState(0);
 
-  const { data: fetchedProjectMetadata, loadingState } = useFetch(fetchProjectData, [id]);
+  const {
+    data: fetchedProjectMetadata,
+    loadingState: projectLoadingState,
+  } = useFetch(fetchProjectData, [id]);
 
-  const dashboards = [{ name: 'dashboard1' }];
+  const { data: fetchedDashboards, loadingState: dashboardLoadingState } = useFetch(
+    fetchDashboards,
+    [id],
+  );
+
+  useEffect(() => {
+    if (fetchedDashboards) setDashboards(fetchedDashboards.dashboards);
+  }, [fetchedDashboards]);
 
   useEffect(() => {
     if (fetchedProjectMetadata) {
@@ -43,33 +61,31 @@ function ProjectLayout({ children }) {
     }
   }, [fetchedProjectMetadata]);
 
-  async function saveProject() {
-    const { projectId } = await api.saveProject(projectMetadata);
-    if (!projectMetadata.id) {
-      history.replace({ pathname: `/projects/${projectId}` });
-    }
-  }
-
   return (
-    <LoaderOrError loadingState={loadingState}>
-      <Box className={classes.layoutContainer}>
-        <Box className={classes.sideBarLayout}>
-          <SideDashboardNavbar navItems={['dashboard1']} value={selectedDashboard} />
-        </Box>
-        <Box display="flex" flex={1} flexDirection="column">
-          <Box className={classes.projectNameBar}>
-            <Typography variant="h5">{projectMetadata.name}</Typography>
-            <Button onClick={saveProject} variant="outlined">
-              Save
-            </Button>
+    <LoaderOrError loadingState={projectLoadingState}>
+      <LoaderOrError loadingState={dashboardLoadingState}>
+        <Box className={classes.layoutContainer}>
+          <Box className={classes.sideBarLayout}>
+            <SideDashboardNavbar
+              navItems={dashboards.map((dashboard) => dashboard.name)}
+              value={selectedDashboard}
+            />
           </Box>
-          <ProjectLayoutProvider
-            value={{ projectMetadata, selectedDashboardMetadata: dashboards[selectedDashboard] }}
-          >
-            {children}
-          </ProjectLayoutProvider>
+          <Box display="flex" flex={1} flexDirection="column">
+            <Box className={classes.projectNameBar}>
+              <Typography variant="h5">{projectMetadata.name}</Typography>
+            </Box>
+            <ProjectLayoutProvider
+              value={{
+                projectMetadata,
+                selectedDashboardMetadata: dashboards[selectedDashboard] || {},
+              }}
+            >
+              {children}
+            </ProjectLayoutProvider>
+          </Box>
         </Box>
-      </Box>
+      </LoaderOrError>
     </LoaderOrError>
   );
 }

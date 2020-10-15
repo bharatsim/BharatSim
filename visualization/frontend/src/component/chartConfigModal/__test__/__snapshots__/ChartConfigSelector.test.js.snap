@@ -162,6 +162,7 @@ exports[`<ChartConfigSelector /> should match snapshot for loading state 1`] = `
 <div>
   <div
     class="MuiBox-root MuiBox-root-8 makeStyles-root-7"
+    data-testid="loader"
   >
     <div
       class="MuiCircularProgress-root MuiCircularProgress-colorPrimary MuiCircularProgress-indeterminate"

@@ -57,12 +57,22 @@ describe('Dashboard Service', function () {
 
     expect(result).toEqual({ dashboardId: 'id' });
   });
-  it('should get all dashboards', async function () {
+
+  it('should called getAll dashboards', async function () {
     await getAllDashboards();
+
     expect(dashboardRepository.getAll).toHaveBeenCalled();
   });
 
-  it('should get all dashboards by projectId', async function () {
+  it('should get all dashboards', async function () {
+    dashboardRepository.getAll.mockResolvedValue([{ _id: '123' }, { _id: '123' }]);
+
+    const fetchedDashboard = await getAllDashboards();
+
+    expect(fetchedDashboard).toEqual({ dashboards: [{ _id: '123' }, { _id: '123' }] });
+  });
+
+  it('should called getAll dashboards by projectId', async function () {
     await getAllDashboards({ projectId: 'projectId' }, ['name', '_id']);
 
     expect(dashboardRepository.getAll).toHaveBeenCalledWith(

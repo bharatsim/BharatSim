@@ -25,6 +25,19 @@ const api = {
     });
   },
 
+  addNewDashboard: async ({ name, projectId }) => {
+    return uploadData({
+      url: serviceURL.INSERT_DASHBOARD,
+      headers: headerBuilder({ contentType: contentTypes.JSON }),
+      data: JSON.stringify({
+        dashboardData: { widgets: [], layout: [], name, count: 0, projectId },
+      }),
+    });
+  },
+
+  getAllDashBoardByProjectId: async (projectId) =>
+    fetchData({ url: serviceURL.DASHBOARD_URL, query: { projectId, columns: ['name', '_id'] } }),
+
   getAllDashBoard: async () => fetchData({ url: serviceURL.DASHBOARD_URL }),
 
   uploadFileAndSchema: async ({ file, schema }) =>

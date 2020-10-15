@@ -17,7 +17,7 @@ const styles = makeStyles(() => ({
 function Loader() {
   const classes = styles();
   return (
-    <Box className={classes.root}>
+    <Box className={classes.root} data-testid="loader">
       <CircularProgress />
     </Box>
   );
