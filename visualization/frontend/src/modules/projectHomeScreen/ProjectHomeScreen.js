@@ -8,6 +8,7 @@ import CreateNewDashboardModal from './CreateNewDashboardModal';
 import LoaderOrError from '../../component/loaderOrError/LoaderOrError';
 import useFetchExecutor from '../../hook/useFetchExecuter';
 import { api } from '../../utils/api';
+import ProjectHeader from '../../uiComponent/ProjectHeader';
 import { projectLayoutContext } from '../../contexts/projectLayoutContext';
 
 const useStyles = makeStyles((theme) => {
@@ -40,9 +41,7 @@ function ProjectHomeScreen() {
   return (
     <LoaderOrError loadingState={loadingState}>
       <Box>
-        <Box className={classes.projectNameBar}>
-          <Typography variant="h5">{projectMetadata.name}</Typography>
-        </Box>
+        <ProjectHeader>{projectMetadata.name}</ProjectHeader>
         <Box py={14} px={32}>
           <ClickableCard onClick={openModal}>
             <Box className={classes.addProjectContainer}>

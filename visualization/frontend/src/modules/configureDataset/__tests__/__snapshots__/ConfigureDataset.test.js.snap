@@ -6,7 +6,16 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
     class="MuiBox-root MuiBox-root-5"
   >
     <div
-      class="MuiBox-root MuiBox-root-6 makeStyles-configureProjectDataBar-1"
+      class="MuiBox-root MuiBox-root-7 makeStyles-projectNameBar-6"
+    >
+      <h5
+        class="MuiTypography-root MuiTypography-h5"
+      >
+        project1
+      </h5>
+    </div>
+    <div
+      class="MuiBox-root MuiBox-root-8 makeStyles-configureProjectDataBar-1"
     >
       <h6
         class="MuiTypography-root MuiTypography-h6"
@@ -29,10 +38,10 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
       </button>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-7 makeStyles-dashboardDataContainer-3"
+      class="MuiBox-root MuiBox-root-9 makeStyles-dashboardDataContainer-3"
     >
       <div
-        class="MuiBox-root MuiBox-root-8"
+        class="MuiBox-root MuiBox-root-10"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle2"
@@ -41,7 +50,7 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
         </h6>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-9 makeStyles-dashboardDataHeader-2"
+        class="MuiBox-root MuiBox-root-11 makeStyles-dashboardDataHeader-2"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle2"
@@ -50,7 +59,7 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
         </h6>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-10 makeStyles-dashboardDataBody-4"
+        class="MuiBox-root MuiBox-root-12 makeStyles-dashboardDataBody-4"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-colorTextPrimary"

@@ -2,10 +2,11 @@ import React, { useContext } from 'react';
 import Box from '@material-ui/core/Box';
 import { Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
-import { useHistory, Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useHistory } from 'react-router-dom';
 import Link from '@material-ui/core/Link';
 import { projectLayoutContext } from '../../contexts/projectLayoutContext';
 import useConfigureDatasetStyles from './configureDatasetCSS';
+import ProjectHeader from '../../uiComponent/ProjectHeader';
 
 function ConfigureDataset() {
   const classes = useConfigureDatasetStyles();
@@ -21,6 +22,7 @@ function ConfigureDataset() {
 
   return (
     <Box>
+      <ProjectHeader>{projectMetadata.name}</ProjectHeader>
       <Box className={classes.configureProjectDataBar}>
         <Typography variant="h6"> Configure Dashboard Data</Typography>
         <Button onClick={openRecentProjects}> Back to recent projects</Button>
@@ -37,10 +39,12 @@ function ConfigureDataset() {
             Before we can create any visualization, we ‘ll need some data.
           </Typography>
           <Typography variant="body2">
-            Use{' '}
+            Use
+            {' '}
             <Link to={uploadFilePage} component={RouterLink}>
               {' '}
-              Upload dataset{' '}
+              Upload dataset
+              {' '}
             </Link>
             to add data files to your dashboard.
           </Typography>

@@ -6,23 +6,23 @@ exports[`<ProjectHomeScreenComponent /> should match snapshot 1`] = `
     class="MuiBox-root MuiBox-root-2"
   >
     <div
-      class="MuiBox-root MuiBox-root-3"
+      class="MuiBox-root MuiBox-root-4 makeStyles-projectNameBar-3"
     >
       <h5
         class="MuiTypography-root MuiTypography-h5"
       />
     </div>
     <div
-      class="MuiBox-root MuiBox-root-4"
+      class="MuiBox-root MuiBox-root-5"
     >
       <div
-        class="MuiBox-root MuiBox-root-6 makeStyles-ClickableCardContainer-5"
+        class="MuiBox-root MuiBox-root-7 makeStyles-ClickableCardContainer-6"
       >
         <div
-          class="MuiBox-root MuiBox-root-7 makeStyles-addProjectContainer-1"
+          class="MuiBox-root MuiBox-root-8 makeStyles-addProjectContainer-1"
         >
           <div
-            class="MuiBox-root MuiBox-root-8"
+            class="MuiBox-root MuiBox-root-9"
           >
             <h6
               class="MuiTypography-root MuiTypography-h6"

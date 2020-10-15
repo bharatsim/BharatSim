@@ -1,12 +1,14 @@
 import Box from '@material-ui/core/Box';
 import { Typography } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import Stepper from '@material-ui/core/Stepper';
 import ImportDataset from './ImportDataset';
 import ConfigureDatatype from './ConfigureDatatype';
+import ProjectHeader from '../../uiComponent/ProjectHeader';
+import { projectLayoutContext } from '../../contexts/projectLayoutContext';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -62,6 +64,7 @@ function getStepContent(
 
 function UploadDataset() {
   const classes = useStyles();
+  const { projectMetadata } = useContext(projectLayoutContext);
   const [activeStep, setActiveStep] = useState(0);
   const [errorStep, setErrorStep] = useState(undefined);
   const steps = ['Import Data', 'Configure Datatype', 'Upload to Dashboard'];
@@ -75,6 +78,7 @@ function UploadDataset() {
 
   return (
     <Box>
+      <ProjectHeader>{projectMetadata.name}</ProjectHeader>
       <Box className={classes.configureProjectDataBar}>
         <Typography variant="h6"> Configure Dashboard Data :: Upload Dataset</Typography>
       </Box>

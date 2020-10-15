@@ -1,31 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
-import { useParams } from "react-router-dom";
-import { Box, Typography } from "@material-ui/core";
+import { Box } from '@material-ui/core';
+import LoaderOrError from '../../../../component/loaderOrError/LoaderOrError';
+import SideDashboardNavbar from '../sideDashboardNavbar/SideDashboardNavbar';
 
-import LoaderOrError from "../../../../component/loaderOrError/LoaderOrError";
-import SideDashboardNavbar from "../sideDashboardNavbar/SideDashboardNavbar";
+import useProjectLayoutStyle from './projectLayoutCSS';
+import useFetch from '../../../../hook/useFetch';
 
-import useProjectLayoutStyle from "./projectLayoutCSS";
-import useFetch from "../../../../hook/useFetch";
-
-import { api } from "../../../../utils/api";
-import { ProjectLayoutProvider } from "../../../../contexts/projectLayoutContext";
-import { ChildrenPropTypes } from "../../../../commanPropTypes";
-
-async function fetchProjectData(id) {
-  if (id) {
-    return api.getProject(id);
-  }
-  return null;
-}
-
-async function fetchDashboards(id) {
-  if (id) {
-    return api.getAllDashBoardByProjectId(id);
-  }
-  return null;
-}
+import { api } from '../../../../utils/api';
+import { ProjectLayoutProvider } from '../../../../contexts/projectLayoutContext';
+import { ChildrenPropTypes } from '../../../../commanPropTypes';
 
 function ProjectLayout({ children }) {
   const classes = useProjectLayoutStyle();
@@ -35,19 +20,19 @@ function ProjectLayout({ children }) {
     id: undefined,
     name: 'untitled project',
   });
-
   const [dashboards, setDashboards] = useState([]);
-
   const [selectedDashboard] = useState(0);
 
-  const {
-    data: fetchedProjectMetadata,
-    loadingState: projectLoadingState,
-  } = useFetch(fetchProjectData, [id]);
+  const { data: fetchedProjectMetadata, loadingState: projectLoadingState } = useFetch(
+    api.getProject,
+    [id],
+    !!id,
+  );
 
   const { data: fetchedDashboards, loadingState: dashboardLoadingState } = useFetch(
-    fetchDashboards,
+    api.getAllDashBoardByProjectId,
     [id],
+    !!id,
   );
 
   useEffect(() => {
@@ -62,19 +47,16 @@ function ProjectLayout({ children }) {
   }, [fetchedProjectMetadata]);
 
   return (
-    <LoaderOrError loadingState={projectLoadingState}>
-      <LoaderOrError loadingState={dashboardLoadingState}>
-        <Box className={classes.layoutContainer}>
-          <Box className={classes.sideBarLayout}>
-            <SideDashboardNavbar
-              navItems={dashboards.map((dashboard) => dashboard.name)}
-              value={selectedDashboard}
-            />
-          </Box>
-          <Box display="flex" flex={1} flexDirection="column">
-            <Box className={classes.projectNameBar}>
-              <Typography variant="h5">{projectMetadata.name}</Typography>
-            </Box>
+    <Box className={classes.layoutContainer}>
+      <Box className={classes.sideBarLayout}>
+        <SideDashboardNavbar
+          navItems={dashboards.map((dashboard) => dashboard.name)}
+          value={selectedDashboard}
+        />
+      </Box>
+      <Box display="flex" flex={1} flexDirection="column">
+        <LoaderOrError loadingState={projectLoadingState}>
+          <LoaderOrError loadingState={dashboardLoadingState}>
             <ProjectLayoutProvider
               value={{
                 projectMetadata,
@@ -83,10 +65,10 @@ function ProjectLayout({ children }) {
             >
               {children}
             </ProjectLayoutProvider>
-          </Box>
-        </Box>
-      </LoaderOrError>
-    </LoaderOrError>
+          </LoaderOrError>
+        </LoaderOrError>
+      </Box>
+    </Box>
   );
 }
 

@@ -1,17 +1,22 @@
-import React, { useContext } from "react";
-import { render } from "@testing-library/react";
-import * as router from "react-router-dom";
-import { api } from "../../../../utils/api";
-import withThemeProvider from "../../../../theme/withThemeProvider";
-import ProjectLayout from "../projectLayout/ProjectLayout";
-import { projectLayoutContext } from "../../../../contexts/projectLayoutContext";
+import React, { useContext } from 'react';
+import { render } from '@testing-library/react';
+import * as router from 'react-router-dom';
+import { api } from '../../../../utils/api';
+import withThemeProvider from '../../../../theme/withThemeProvider';
+import ProjectLayout from '../projectLayout/ProjectLayout';
+import { projectLayoutContext } from '../../../../contexts/projectLayoutContext';
 
 const mockHistoryPush = jest.fn();
 const mockHistoryReplace = jest.fn();
 
 function DummyComponent() {
   const { projectMetadata, selectedDashboardMetadata } = useContext(projectLayoutContext);
-  return <div>{JSON.stringify({ projectMetadata, selectedDashboardMetadata }, null, 2)}</div>;
+  return (
+    <div>
+      <div>ProjectLayout Child</div>
+      {JSON.stringify({ projectMetadata, selectedDashboardMetadata }, null, 2)}
+    </div>
+  );
 }
 
 jest.mock('../../../../utils/api', () => ({
@@ -43,23 +48,21 @@ describe('Project', () => {
     </ProjectLayout>
   ));
 
-  it('should match snapshot while creating new project', async () => {
+  it('should render child without any api call if project id is undefined', async () => {
     router.useParams.mockReturnValue({ id: undefined });
 
-    const { container, findByText } = render(<Component />);
-
-    await findByText('untitled project');
+    const { container } = render(<Component />);
 
     expect(container).toMatchSnapshot();
   });
 
-  it('should match snapshot for existed projects', async () => {
+  it('should render child without any api call if project id is present', async () => {
     router.useParams.mockReturnValue({ id: 1 });
     api.getProject.mockResolvedValue({ project: { _id: 1, name: 'project1' } });
 
     const { container, findByText } = render(<Component />);
 
-    await findByText('project1');
+    await findByText('ProjectLayout Child');
 
     expect(container).toMatchSnapshot();
   });
@@ -69,7 +72,7 @@ describe('Project', () => {
     api.getProject.mockResolvedValue({ project: { _id: 1, name: 'project1' } });
 
     const { findByText } = render(<Component />);
-    await findByText('project1');
+    await findByText('ProjectLayout Child');
 
     expect(await findByText('d_name')).not.toBeNull();
   });
