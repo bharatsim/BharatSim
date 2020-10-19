@@ -32,6 +32,10 @@ case class StringValue(v: String) extends BasicValue {
   override def get: Any = v
 }
 
+case class BooleanValue(v: Boolean) extends BasicValue {
+  override def get: Any = v
+}
+
 case class ListValue(v: List[BasicValue]) extends BasicValue {
   def ++(a: BasicValue): ListValue = copy(a :: v)
 
@@ -66,6 +70,7 @@ private[basicConversions] object BasicValue {
       case DoubleValue(v) => v
       case LongValue(v) => v
 
+      case BooleanValue(v) => v
       case ByteValue(v) => v
       case CharValue(v) => v
       case StringValue(v) => v
@@ -97,6 +102,7 @@ private[basicConversions] object BasicValue {
       case x: Double => DoubleValue(x)
       case x: Long => LongValue(x)
 
+      case x: Boolean => BooleanValue(x)
       case x: Byte => ByteValue(x)
       case x: Char => CharValue(x)
       case x: String => StringValue(x)
