@@ -3,9 +3,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import LoaderOrError from '../LoaderOrError';
 
-const DummyComponent = () => {
-  return <div>Dummy Components</div>;
-};
+const DummyComponent = () => <div>Dummy Components</div>;
 
 describe('<InlineLoader />', () => {
   it('should match snapshot with loader component if loading is in progress', () => {

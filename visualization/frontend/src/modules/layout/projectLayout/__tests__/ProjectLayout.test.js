@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
-import { render, act } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import * as router from 'react-router-dom';
+import { fireEvent } from '@testing-library/dom';
 import { api } from '../../../../utils/api';
 import withThemeProvider from '../../../../theme/withThemeProvider';
 import ProjectLayout from '../projectLayout/ProjectLayout';
 import { projectLayoutContext } from '../../../../contexts/projectLayoutContext';
-import { fireEvent } from '@testing-library/dom';
 
 const mockHistoryPush = jest.fn();
 const mockHistoryReplace = jest.fn();
@@ -17,7 +17,7 @@ function DummyComponent() {
   return (
     <div>
       <div>ProjectLayout Child</div>
-      <button onClick={() => addDashboard({ _id: 'id', name: 'dashboard-name' })}>
+      <button onClick={() => addDashboard({ _id: 'id', name: 'dashboard-name' })} type="button">
         add dashboard
       </button>
       {JSON.stringify({ projectMetadata, selectedDashboardMetadata }, null, 2)}

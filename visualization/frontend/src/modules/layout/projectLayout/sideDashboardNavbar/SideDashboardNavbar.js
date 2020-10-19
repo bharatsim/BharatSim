@@ -17,11 +17,11 @@ function SideDashboardNavbar({ navItems, value }) {
       <Tabs orientation="vertical" variant="fullWidth" value={value} classes={tabsClasses}>
         {navItems.map((controller) => (
           <Tab
-            icon={
+            icon={(
               <Box pr={3} display="flex" alignItems="center">
                 <img src={dashboardIcon} alt="dashboard-logo" />
               </Box>
-            }
+            )}
             label={controller}
             key={`controller-${controller}`}
             classes={tabClasses}

@@ -37,7 +37,9 @@ exports[`Project should render child without any api call if project id is undef
         <div>
           ProjectLayout Child
         </div>
-        <button>
+        <button
+          type="button"
+        >
           add dashboard
         </button>
         {

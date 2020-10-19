@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Route, Switch } from 'react-router-dom';
 import DashboardLayout from './component/dashboardLayout/DashboardLayout';
 import Home from './modules/home/Home';
@@ -6,7 +6,6 @@ import ConfigureDataset from './modules/configureDataset/ConfigureDataset';
 import UploadDataset from './modules/uploadDataset/UploadDataset';
 import ProjectLayout from './modules/layout/projectLayout/projectLayout/ProjectLayout';
 import ProjectHomeScreen from './modules/projectHomeScreen/ProjectHomeScreen';
-import { useSnackbar } from "notistack";
 
 function renderProjectRoute() {
   return (

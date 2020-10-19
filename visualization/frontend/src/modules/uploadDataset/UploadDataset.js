@@ -9,8 +9,6 @@ import ImportDataset from './ImportDataset';
 import ConfigureDatatype from './ConfigureDatatype';
 import ProjectHeader from '../../uiComponent/ProjectHeader';
 import { projectLayoutContext } from '../../contexts/projectLayoutContext';
-import Modal from '../../uiComponent/Modal';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles((theme) => {
   return {
