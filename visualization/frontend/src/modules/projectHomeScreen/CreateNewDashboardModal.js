@@ -17,13 +17,13 @@ const useStyles = makeStyles((theme) => {
 const inputFields = {
   project: {
     id: 'project-title',
-    helperText: 'some text',
+    helperText: 'Specify the name of the project',
     defaultValue: 'Untitled Project',
     label: 'Project Title',
   },
   dashboard: {
     id: 'dashboard-title',
-    helperText: '',
+    helperText: 'Specify the name of the dashboard',
     defaultValue: 'Untitled Dashboard',
     label: 'Dashboard Title',
   },
