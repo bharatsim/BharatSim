@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 
 import { Box } from '@material-ui/core';
 import LoaderOrError from '../../../../component/loaderOrError/LoaderOrError';
@@ -11,40 +11,48 @@ import useFetch from '../../../../hook/useFetch';
 import { api } from '../../../../utils/api';
 import { ProjectLayoutProvider } from '../../../../contexts/projectLayoutContext';
 import { ChildrenPropTypes } from '../../../../commanPropTypes';
+import useDeepCompareMemoize from '../../../../hook/useDeepCompareMemoize';
 
 function ProjectLayout({ children }) {
   const classes = useProjectLayoutStyle();
-  const { id } = useParams();
+  const { id: projectId } = useParams();
+  const history = useHistory();
 
   const [projectMetadata, setProjectMetadata] = useState({
-    id: undefined,
     name: 'untitled project',
   });
+
   const [dashboards, setDashboards] = useState([]);
   const [selectedDashboard] = useState(0);
 
   const { data: fetchedProjectMetadata, loadingState: projectLoadingState } = useFetch(
     api.getProject,
-    [id],
-    !!id,
+    [projectId],
+    !!projectId,
   );
-
-  const { data: fetchedDashboards, loadingState: dashboardLoadingState } = useFetch(
-    api.getAllDashBoardByProjectId,
-    [id],
-    !!id,
-  );
-
-  useEffect(() => {
-    if (fetchedDashboards) setDashboards(fetchedDashboards.dashboards);
-  }, [fetchedDashboards]);
 
   useEffect(() => {
     if (fetchedProjectMetadata) {
       const { _id, name } = fetchedProjectMetadata.project;
       setProjectMetadata({ id: _id, name });
     }
-  }, [fetchedProjectMetadata]);
+  }, useDeepCompareMemoize([fetchedProjectMetadata]));
+
+  const { data: fetchedDashboards, loadingState: dashboardLoadingState } = useFetch(
+    api.getAllDashBoardByProjectId,
+    [projectId],
+    !!projectId,
+  );
+
+  useEffect(() => {
+    if (fetchedDashboards) setDashboards(fetchedDashboards.dashboards);
+  }, useDeepCompareMemoize([fetchedDashboards]));
+
+  useEffect(() => {
+    if (fetchedDashboards && fetchedDashboards.dashboards.length === 0) {
+      history.replace({ pathname: `/projects/${projectId}/create-dashboard` });
+    }
+  }, useDeepCompareMemoize([fetchedDashboards, projectId]));
 
   return (
     <Box className={classes.layoutContainer}>

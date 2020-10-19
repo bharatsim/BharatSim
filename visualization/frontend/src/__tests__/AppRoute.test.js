@@ -6,9 +6,10 @@ import { createMemoryHistory } from 'history';
 import AppRoute from '../AppRoute';
 
 jest.mock('../component/dashboardLayout/DashboardLayout', () => () => <div>Dashboard Layout</div>);
-jest.mock('../modules/configureDataset/ConfigureDataset', () => () => <div>Project</div>);
+jest.mock('../modules/configureDataset/ConfigureDataset', () => () => <div>Project configure dataset</div>);
 jest.mock('../modules/home/Home', () => () => <div>Home</div>);
 jest.mock('../modules/uploadDataset/UploadDataset', () => () => <div>Upload Dataset</div>);
+jest.mock('../modules/projectHomeScreen/ProjectHomeScreen', () => () => <div>Project home screen</div>);
 jest.mock('../modules/layout/projectLayout/projectLayout/ProjectLayout', () => ({ children }) => (
   <div>
     <span>Project layout </span>
@@ -28,26 +29,38 @@ function renderWithRouter(
 
 describe('<AppRoute />', () => {
   it('should navigate to old dashboard layout "/" ', () => {
-    const { container } = renderWithRouter(<AppRoute />, { route: '/old-dashboard' });
+    const { queryByText } = renderWithRouter(<AppRoute />, { route: '/old-dashboard' });
 
-    expect(container.innerHTML).toMatch('Dashboard Layout');
+    expect(queryByText('Dashboard Layout')).not.toBeNull();
   });
 
-  it('should navigate to project page /projects/id', () => {
-    const { container } = renderWithRouter(<AppRoute />, { route: '/projects/id' });
+  it('should navigate to project page /projects/id/configure-dataset', () => {
+    const { queryByText } = renderWithRouter(<AppRoute />, { route: '/projects/id/configure-dataset' });
 
-    expect(container.innerHTML).toMatch('Project');
+    expect(queryByText('Project configure dataset')).not.toBeNull();
   });
 
-  it('should navigate to home page ', () => {
-    const { container } = renderWithRouter(<AppRoute />, { route: '/' });
+  it('should navigate to home page', () => {
+    const { queryByText } = renderWithRouter(<AppRoute />, { route: '/' });
 
-    expect(container.innerHTML).toMatch('Home');
+    expect(queryByText('Home')).not.toBeNull();
   });
 
-  it('should navigate to uoload dataset page ', () => {
-    const { container } = renderWithRouter(<AppRoute />, { route: '/projects/id/upload-dataset' });
+  it('should navigate to upload dataset page ', () => {
+    const { queryByText } = renderWithRouter(<AppRoute />, { route: '/projects/id/upload-dataset' });
 
-    expect(container.innerHTML).toMatch('Upload Dataset');
+    expect(queryByText('Upload Dataset')).not.toBeNull();
+  });
+
+  it('should navigate to project home screen ', () => {
+    const { queryByText } = renderWithRouter(<AppRoute />, { route: '/projects/create' });
+
+    expect(queryByText('Project home screen')).not.toBeNull();
+  });
+
+  it('should navigate to project home screen with project id', () => {
+    const { queryByText } = renderWithRouter(<AppRoute />, { route: '/projects/:id/create-dashboard' });
+
+    expect(queryByText('Project home screen')).not.toBeNull();
   });
 });

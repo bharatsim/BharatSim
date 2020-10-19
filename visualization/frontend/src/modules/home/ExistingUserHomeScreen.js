@@ -26,7 +26,7 @@ function ExistingUserHomeScreen({ recentProjects }) {
   const classes = styles();
 
   function openProject(id) {
-    history.push(`/projects/${id}`);
+    history.push(`/projects/${id}/configure-dataset`);
   }
 
   function createNewProject() {

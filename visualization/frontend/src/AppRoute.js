@@ -11,10 +11,13 @@ function renderProjectRoute() {
   return (
     <ProjectLayout>
       <Switch>
+        <Route exact path="/projects/:id/create-dashboard">
+          <ProjectHomeScreen />
+        </Route>
         <Route exact path="/projects/:id/upload-dataset">
           <UploadDataset />
         </Route>
-        <Route exact path="/projects/:id">
+        <Route exact path="/projects/:id/configure-dataset">
           <ConfigureDataset />
         </Route>
       </Switch>

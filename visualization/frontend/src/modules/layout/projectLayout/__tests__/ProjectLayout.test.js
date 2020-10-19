@@ -76,4 +76,16 @@ describe('Project', () => {
 
     expect(await findByText('d_name')).not.toBeNull();
   });
+
+  it('should navigate to project home screen if dashboards are empty', async () => {
+    router.useParams.mockReturnValue({ id: 1 });
+    api.getProject.mockResolvedValue({ project: { _id: 1, name: 'project1' } });
+    api.getAllDashBoardByProjectId.mockResolvedValue({ dashboards: [] });
+
+    const { findByText } = render(<Component />);
+
+    await findByText('ProjectLayout Child');
+
+    expect(mockHistoryReplace).toHaveBeenCalledWith({ pathname: '/projects/1/create-dashboard' });
+  });
 });

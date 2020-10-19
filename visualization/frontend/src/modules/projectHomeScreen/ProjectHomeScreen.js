@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import ClickableCard from '../../uiComponent/ClickableCard';
@@ -10,6 +11,7 @@ import useFetchExecutor from '../../hook/useFetchExecuter';
 import { api } from '../../utils/api';
 import ProjectHeader from '../../uiComponent/ProjectHeader';
 import { projectLayoutContext } from '../../contexts/projectLayoutContext';
+import snackbarVariant from '../../constants/snackbarVariant';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -30,16 +32,44 @@ function ProjectHomeScreen() {
   const { executeFetch, loadingState } = useFetchExecutor();
   const { openModal, isOpen, closeModal } = useModal();
   const { projectMetadata } = useContext(projectLayoutContext);
+  const { enqueueSnackbar } = useSnackbar();
+  const { SUCCESS, ERROR } = snackbarVariant;
+
+  async function saveDashboard(savedProjectId, projectTitle, dashboardTitle) {
+    executeFetch(api.addNewDashboard, [{ name: dashboardTitle, projectId: savedProjectId }])
+      .then(() => {
+        enqueueSnackbar(`Project ${projectTitle} and Dashboard ${dashboardTitle} are saved`, {
+          variant: SUCCESS,
+        });
+        history.replace({ pathname: `/projects/${savedProjectId}/configure-dataset` });
+      })
+      .catch(() => {
+        enqueueSnackbar(`Error while saving Dashboard ${dashboardTitle}`, { variant: ERROR });
+        enqueueSnackbar(`Project ${projectTitle} is saved`, { variant: SUCCESS });
+      });
+  }
+
+  async function saveProject(projectTitle, dashboardTitle) {
+    executeFetch(api.saveProject, [{ name: projectTitle }])
+      .then(({ projectId: newProjectId }) =>
+        saveDashboard(newProjectId, projectTitle, dashboardTitle),
+      )
+      .catch(() => {
+        enqueueSnackbar(
+          `Error while saving Project ${projectTitle} and Dashboard ${dashboardTitle}`,
+          { variant: ERROR },
+        );
+      });
+  }
 
   async function onCreate(values) {
+    const { 'project-title': projectTitle, 'dashboard-title': dashboardTitle } = values;
     closeModal();
-    const { projectId } = await executeFetch(api.saveProject, [{ name: values['project-title'] }]);
-    await executeFetch(api.addNewDashboard, [{ name: values['dashboard-title'], projectId }]);
-    history.push(`/projects/${projectId}`);
+    await saveProject(projectTitle, dashboardTitle);
   }
 
   return (
-    <LoaderOrError loadingState={loadingState}>
+    <LoaderOrError loadingState={loadingState} snackbar>
       <Box>
         <ProjectHeader>{projectMetadata.name}</ProjectHeader>
         <Box py={14} px={32}>

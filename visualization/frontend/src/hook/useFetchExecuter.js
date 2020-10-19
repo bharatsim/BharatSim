@@ -12,8 +12,9 @@ function useFetchExecutor() {
         stopLoaderAfterSuccess();
         return data;
       })
-      .catch(() => {
+      .catch((error) => {
         stopLoaderAfterError(messages.error);
+        return Promise.reject(error);
       });
   }
 

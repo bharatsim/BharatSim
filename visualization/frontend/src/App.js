@@ -1,5 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { SnackbarProvider } from 'notistack';
 
 import AppRoute from './AppRoute';
 import withThemeProvider from './theme/withThemeProvider';
@@ -18,7 +19,9 @@ function App() {
   const classes = styles();
   return (
     <div className={classes.root}>
-      <AppRoute />
+      <SnackbarProvider maxSnack={3} anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}>
+        <AppRoute />
+      </SnackbarProvider>
     </div>
   );
 }

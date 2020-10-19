@@ -27,7 +27,7 @@ describe('Existing User Home Screen', () => {
 
     fireEvent.click(getByText('project1'));
 
-    expect(mockHistoryPush).toHaveBeenCalledWith('/projects/1');
+    expect(mockHistoryPush).toHaveBeenCalledWith('/projects/1/configure-dataset');
   });
   it('should create new project on click of add new button', () => {
     const { getByText } = render(
