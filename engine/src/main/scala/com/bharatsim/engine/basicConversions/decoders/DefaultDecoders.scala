@@ -24,6 +24,11 @@ object DefaultDecoders {
     case _ => throw new RuntimeException("Cannot convert to Double value, implement BasicDecoder to override default")
   }
 
+  implicit val basicLongDecoder: BasicDecoder[Long] = {
+    case LongValue(v) => v
+    case _ => throw new RuntimeException("Cannot convert to Long value, implement BasicDecoder to override default")
+  }
+
   implicit val basicBooleanDecoder: BasicDecoder[Boolean] = {
     case BooleanValue(v) => v
     case _ => throw new RuntimeException("Cannot convert to Boolean value, implement BasicDecoder to override default")

@@ -11,6 +11,8 @@ object DefaultEncoders {
 
   implicit val doubleEncoder: BasicEncoder[Double] = (o: Double) => DoubleValue(o)
 
+  implicit val longEncoder: BasicEncoder[Long] = (o: Long) => LongValue(o)
+
   implicit val booleanEncoder: BasicEncoder[Boolean] = (o: Boolean) => BooleanValue(o)
 
   implicit val byteEncoder: BasicEncoder[Byte] = (o: Byte) => ByteValue(o)
