@@ -15,6 +15,7 @@ jest.mock('../../../utils/api', () => ({
 
 const mockHistoryPush = jest.fn();
 const mockHistoryReplace = jest.fn();
+const mockAddDashboard = jest.fn();
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -53,6 +54,7 @@ describe('<ProjectHomeScreenComponent />', () => {
             selectedDashboardMetadata: {
               name: '',
             },
+            addDashboard: mockAddDashboard,
           }}
         >
           <ProjectHomeScreen />
@@ -85,7 +87,7 @@ describe('<ProjectHomeScreenComponent />', () => {
 
     openFillAndSubmitNewProjectForm(renderComponent);
 
-    await renderComponent.findByText('Project ProjectName and Dashboard DashboardName are saved');
+    await renderComponent.findByText('Project ProjectName is saved');
 
     expect(api.saveProject).toHaveBeenCalledWith({ name: 'ProjectName' });
   });
@@ -99,7 +101,7 @@ describe('<ProjectHomeScreenComponent />', () => {
 
     fireEvent.click(container.getByText('create'));
 
-    await findByText('Project Untitled Project and Dashboard Untitled Dashboard are saved');
+    await findByText('Project Untitled Project is saved');
 
     expect(api.saveProject).toHaveBeenCalledWith({ name: 'Untitled Project' });
     expect(api.addNewDashboard).toHaveBeenCalledWith({
@@ -113,11 +115,25 @@ describe('<ProjectHomeScreenComponent />', () => {
 
     openFillAndSubmitNewProjectForm(renderComponent);
 
-    await renderComponent.findByText('Project ProjectName and Dashboard DashboardName are saved');
+    await renderComponent.findByText('Dashboard DashboardName is saved');
 
     expect(api.addNewDashboard).toHaveBeenCalledWith({
       name: 'DashboardName',
       projectId: 'projectId',
+    });
+  });
+
+  it('should add new dashboard to state', async () => {
+    api.addNewDashboard.mockResolvedValue({dashboardId: '123' });
+    const renderComponent = render(<ProjectHomeScreenComponent />);
+
+    openFillAndSubmitNewProjectForm(renderComponent);
+
+    await renderComponent.findByText('Project ProjectName is saved');
+
+    expect(mockAddDashboard).toHaveBeenCalledWith({
+      "_id": '123',
+      "name": "DashboardName",
     });
   });
 
@@ -126,7 +142,7 @@ describe('<ProjectHomeScreenComponent />', () => {
 
     openFillAndSubmitNewProjectForm(renderComponent);
 
-    await renderComponent.findByText('Project ProjectName and Dashboard DashboardName are saved');
+    await renderComponent.findByText('Project ProjectName is saved');
 
     expect(mockHistoryReplace).toHaveBeenCalledWith({
       pathname: '/projects/projectId/configure-dataset',
@@ -138,11 +154,48 @@ describe('<ProjectHomeScreenComponent />', () => {
 
     openFillAndSubmitNewProjectForm(renderComponent);
 
-    const component = await renderComponent.findByText(
-      'Project ProjectName and Dashboard DashboardName are saved',
-    );
+    const component = await renderComponent.findByText('Project ProjectName is saved');
 
     expect(component).toBeInTheDocument();
+  });
+
+  it('should only call save dashboard api if project id is already present', async () => {
+    const Component = withThemeProvider(() => (
+      <SnackbarProvider>
+        <ProjectLayoutProvider
+          value={{
+            projectMetadata: {
+              name: 'Project 2',
+              id: '1231241243123',
+            },
+            selectedDashboardMetadata: {
+              name: '',
+            },
+            addDashboard: jest.fn(),
+          }}
+        >
+          <ProjectHomeScreen />
+        </ProjectLayoutProvider>
+      </SnackbarProvider>
+    ));
+    const { getByText, findByText } = render(<Component />);
+
+    fireEvent.click(getByText('Click here to create your first dashboard.'));
+
+    const container = within(document.querySelector('.MuiPaper-root'));
+
+    fireEvent.change(container.getByLabelText('Dashboard Title'), {
+      target: { value: 'DashboardName' },
+    });
+
+    fireEvent.click(getByText('create'));
+
+    await findByText('Dashboard DashboardName is saved');
+
+    expect(api.addNewDashboard).toHaveBeenCalledWith({
+      name: 'DashboardName',
+      projectId: '1231241243123',
+    });
   });
 
   it('should display snackbar for error message for dashboard creation failed', async () => {

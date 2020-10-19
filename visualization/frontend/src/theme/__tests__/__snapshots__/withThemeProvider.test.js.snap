@@ -161,9 +161,9 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
       "contrastText": "#fff"
     },
     "error": {
-      "light": "#C31E0E",
+      "dark": "#C31E0E",
       "main": "#FD583A",
-      "dark": "#FF8B66",
+      "light": "#FF8B66",
       "contrastText": "#fff"
     },
     "warning": {
@@ -179,9 +179,9 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
       "contrastText": "#fff"
     },
     "success": {
-      "light": "#579B21",
+      "light": "#9EED7E",
       "main": "#57C22D",
-      "dark": "#9EED7E",
+      "dark": "#579B21",
       "contrastText": "rgba(0, 0, 0, 0.87)"
     },
     "grey": {

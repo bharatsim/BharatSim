@@ -1,84 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Project should render child without any api call if project id is present 1`] = `
-<div>
-  <div
-    class="MuiBox-root MuiBox-root-23 makeStyles-layoutContainer-21"
-  >
-    <div
-      class="MuiBox-root MuiBox-root-24 makeStyles-sideBarLayout-22"
-    >
-      <div
-        class="MuiBox-root MuiBox-root-31"
-      >
-        <div
-          class="MuiTabs-root MuiTabs-vertical"
-        >
-          <div
-            class="MuiTabs-scroller MuiTabs-fixed"
-            style="overflow: hidden;"
-          >
-            <div
-              class="MuiTabs-flexContainer MuiTabs-flexContainerVertical"
-              role="tablist"
-            >
-              <button
-                aria-selected="true"
-                class="MuiButtonBase-root MuiTab-root makeStyles-root-25 MuiTab-textColorInherit makeStyles-textColorInherit-29 Mui-selected makeStyles-selected-28 MuiTab-labelIcon makeStyles-labelIcon-27 MuiTab-fullWidth"
-                data-testid="tab-d_name"
-                role="tab"
-                tabindex="0"
-                type="button"
-              >
-                <span
-                  class="MuiTab-wrapper makeStyles-wrapper-26"
-                >
-                  <div
-                    class="MuiBox-root MuiBox-root-40"
-                  >
-                    <img
-                      alt="dashboard-logo"
-                      src="dashboard-icon.svg"
-                    />
-                  </div>
-                  d_name
-                </span>
-                <span
-                  class="MuiTouchRipple-root"
-                />
-              </button>
-            </div>
-            <span
-              class="PrivateTabIndicator-root-35 PrivateTabIndicator-colorSecondary-37 MuiTabs-indicator makeStyles-indicator-30 PrivateTabIndicator-vertical-38"
-              style="top: 0px; height: 0px;"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="MuiBox-root MuiBox-root-32"
-    >
-      <div>
-        <div>
-          ProjectLayout Child
-        </div>
-        {
-  "projectMetadata": {
-    "id": 1,
-    "name": "project1"
-  },
-  "selectedDashboardMetadata": {
-    "name": "d_name",
-    "_id": "d_id"
-  }
-}
-      </div>
-    </div>
-  </div>
-</div>
-`;
-
 exports[`Project should render child without any api call if project id is undefined 1`] = `
 <div>
   <div
@@ -116,8 +37,12 @@ exports[`Project should render child without any api call if project id is undef
         <div>
           ProjectLayout Child
         </div>
+        <button>
+          add dashboard
+        </button>
         {
   "projectMetadata": {
+    "id": null,
     "name": "untitled project"
   },
   "selectedDashboardMetadata": {}

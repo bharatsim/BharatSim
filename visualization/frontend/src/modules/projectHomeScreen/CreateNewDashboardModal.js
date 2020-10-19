@@ -29,7 +29,7 @@ const inputFields = {
   },
 };
 
-function CreateNewDashboardModal({ isOpen, closeModal, onCreate }) {
+function CreateNewDashboardModal({ isOpen, closeModal, onCreate, onlyDashboardField }) {
   const classes = useStyles();
   const { values, errors, handleInputChange } = useForm(
     {
@@ -54,14 +54,16 @@ function CreateNewDashboardModal({ isOpen, closeModal, onCreate }) {
       actions={[{ name: 'create', handleClick: onFormSubmit, type: 'contained' }]}
     >
       <Box className={classes.addProjectModal}>
-        <InputTextField
-          label={inputFields.project.label}
-          id={inputFields.project.id}
-          value={values[inputFields.project.id]}
-          helperText={errors[inputFields.project.id] || inputFields.project.helperText}
-          error={errors[inputFields.project.id]}
-          onChange={onChangeInput}
-        />
+        {!onlyDashboardField && (
+          <InputTextField
+            label={inputFields.project.label}
+            id={inputFields.project.id}
+            value={values[inputFields.project.id]}
+            helperText={errors[inputFields.project.id] || inputFields.project.helperText}
+            error={errors[inputFields.project.id]}
+            onChange={onChangeInput}
+          />
+        )}
         <InputTextField
           label={inputFields.dashboard.label}
           id={inputFields.dashboard.id}
@@ -74,10 +76,16 @@ function CreateNewDashboardModal({ isOpen, closeModal, onCreate }) {
     </Modal>
   );
 }
+
+CreateNewDashboardModal.defaultProps = {
+  onlyDashboardField: false,
+};
+
 CreateNewDashboardModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   closeModal: PropTypes.func.isRequired,
   onCreate: PropTypes.func.isRequired,
+  onlyDashboardField: PropTypes.bool,
 };
 
 export default CreateNewDashboardModal;

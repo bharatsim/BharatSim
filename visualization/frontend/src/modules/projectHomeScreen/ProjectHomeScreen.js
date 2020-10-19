@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
+import { SnackbarProvider, useSnackbar } from 'notistack';
 import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import ClickableCard from '../../uiComponent/ClickableCard';
@@ -31,29 +31,32 @@ function ProjectHomeScreen() {
   const history = useHistory();
   const { executeFetch, loadingState } = useFetchExecutor();
   const { openModal, isOpen, closeModal } = useModal();
-  const { projectMetadata } = useContext(projectLayoutContext);
+  const { projectMetadata, addDashboard } = useContext(projectLayoutContext);
   const { enqueueSnackbar } = useSnackbar();
   const { SUCCESS, ERROR } = snackbarVariant;
 
   async function saveDashboard(savedProjectId, projectTitle, dashboardTitle) {
     executeFetch(api.addNewDashboard, [{ name: dashboardTitle, projectId: savedProjectId }])
-      .then(() => {
-        enqueueSnackbar(`Project ${projectTitle} and Dashboard ${dashboardTitle} are saved`, {
+      .then(({ dashboardId }) => {
+        enqueueSnackbar(`Dashboard ${dashboardTitle} is saved`, {
           variant: SUCCESS,
         });
+        addDashboard({ _id: dashboardId, name: dashboardTitle });
         history.replace({ pathname: `/projects/${savedProjectId}/configure-dataset` });
       })
       .catch(() => {
         enqueueSnackbar(`Error while saving Dashboard ${dashboardTitle}`, { variant: ERROR });
-        enqueueSnackbar(`Project ${projectTitle} is saved`, { variant: SUCCESS });
       });
   }
 
-  async function saveProject(projectTitle, dashboardTitle) {
+  async function saveProjectAndDashboard(projectTitle, dashboardTitle) {
     executeFetch(api.saveProject, [{ name: projectTitle }])
-      .then(({ projectId: newProjectId }) =>
-        saveDashboard(newProjectId, projectTitle, dashboardTitle),
-      )
+      .then(({ projectId: newProjectId }) => {
+        enqueueSnackbar(`Project ${projectTitle} is saved`, {
+          variant: SUCCESS,
+        });
+        return saveDashboard(newProjectId, projectTitle, dashboardTitle);
+      })
       .catch(() => {
         enqueueSnackbar(
           `Error while saving Project ${projectTitle} and Dashboard ${dashboardTitle}`,
@@ -65,7 +68,11 @@ function ProjectHomeScreen() {
   async function onCreate(values) {
     const { 'project-title': projectTitle, 'dashboard-title': dashboardTitle } = values;
     closeModal();
-    await saveProject(projectTitle, dashboardTitle);
+    if (projectMetadata.id) {
+      await saveDashboard(projectMetadata.id, projectTitle, dashboardTitle);
+      return;
+    }
+    await saveProjectAndDashboard(projectTitle, dashboardTitle);
   }
 
   return (
@@ -82,7 +89,12 @@ function ProjectHomeScreen() {
             </Box>
           </ClickableCard>
         </Box>
-        <CreateNewDashboardModal isOpen={isOpen} closeModal={closeModal} onCreate={onCreate} />
+        <CreateNewDashboardModal
+          isOpen={isOpen}
+          closeModal={closeModal}
+          onCreate={onCreate}
+          onlyDashboardField={!!projectMetadata.id}
+        />
       </Box>
     </LoaderOrError>
   );

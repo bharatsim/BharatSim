@@ -45,9 +45,9 @@ const muiColorPalette = {
     dark: '#A4A4A4',
   },
   error: {
-    light: '#C31E0E',
+    dark: '#C31E0E',
     main: '#FD583A',
-    dark: '#FF8B66',
+    light: '#FF8B66',
   },
   warning: {
     light: '#F37C22',
@@ -60,9 +60,9 @@ const muiColorPalette = {
     dark: '#70D2FF',
   },
   success: {
-    light: '#579B21',
+    light: '#9EED7E',
     main: '#57C22D',
-    dark: '#9EED7E',
+    dark: '#579B21',
   },
   text: {
     primary: '#343A40',

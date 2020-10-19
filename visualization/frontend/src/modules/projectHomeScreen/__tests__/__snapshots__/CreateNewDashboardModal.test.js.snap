@@ -171,3 +171,128 @@ exports[`<CreateNewDashboardModal /> should match snapshot 1`] = `
   </div>
 </div>
 `;
+
+exports[`<CreateNewDashboardModal /> should match snapshot only with dashboard text field 1`] = `
+<div
+  aria-labelledby="customized-dialog-title"
+  class="MuiPaper-root MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthSm MuiPaper-elevation24 MuiPaper-rounded"
+  role="dialog"
+>
+  <div
+    class="MuiDialogTitle-root Component-root-17"
+    id="customized-dialog-title"
+  >
+    <h6
+      class="MuiTypography-root MuiTypography-h6"
+    >
+      New Dashboard
+    </h6>
+    <button
+      aria-label="close"
+      class="MuiButtonBase-root MuiIconButton-root Component-closeButton-18"
+      data-testid="button-icon-close"
+      tabindex="0"
+      type="button"
+    >
+      <span
+        class="MuiIconButton-label"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+          />
+        </svg>
+      </span>
+      <span
+        class="MuiTouchRipple-root"
+      />
+    </button>
+  </div>
+  <div
+    class="MuiDialogContent-root WithStyles(ForwardRef(DialogContent))-root-19"
+  >
+    <div
+      class="MuiBox-root MuiBox-root-20 makeStyles-addProjectModal-16"
+    >
+      <div
+        class="MuiGrid-root MuiGrid-container MuiGrid-grid-xl-12"
+      >
+        <div
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3"
+        >
+          <div
+            class="MuiBox-root MuiBox-root-26 makeStyles-labelContainer-24"
+          >
+            <label
+              class="makeStyles-label-25"
+              for="dashboard-title"
+            >
+              Dashboard Title
+            </label>
+          </div>
+        </div>
+        <div
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1"
+        />
+        <div
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-7"
+        >
+          <div
+            class="MuiFormControl-root MuiTextField-root MuiFormControl-fullWidth"
+          >
+            <div
+              class="MuiInputBase-root MuiFilledInput-root MuiFilledInput-underline MuiInputBase-fullWidth MuiInputBase-formControl"
+            >
+              <input
+                aria-invalid="false"
+                class="MuiInputBase-input MuiFilledInput-input makeStyles-inputField-22"
+                id="dashboard-title"
+                type="text"
+                value="Untitled Dashboard"
+              />
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="MuiDialogActions-root WithStyles(ForwardRef(DialogActions))-root-27 MuiDialogActions-spacing"
+  >
+    <div
+      class="MuiBox-root MuiBox-root-29 makeStyles-buttonGroup-28"
+    >
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained Mui-focusVisible Mui-focusVisible"
+        data-testid="button-create"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiButton-label"
+        >
+          create
+        </span>
+        <span
+          class="MuiTouchRipple-root"
+        >
+          <span
+            class="MuiTouchRipple-ripple MuiTouchRipple-rippleVisible MuiTouchRipple-ripplePulsate"
+            style="width: 1px; height: 1px; top: -0.5px; left: -0.5px;"
+          >
+            <span
+              class="MuiTouchRipple-child MuiTouchRipple-childPulsate"
+            />
+          </span>
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+`;

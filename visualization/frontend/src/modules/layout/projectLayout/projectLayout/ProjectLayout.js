@@ -19,6 +19,7 @@ function ProjectLayout({ children }) {
   const history = useHistory();
 
   const [projectMetadata, setProjectMetadata] = useState({
+    id: null,
     name: 'untitled project',
   });
 
@@ -54,6 +55,10 @@ function ProjectLayout({ children }) {
     }
   }, useDeepCompareMemoize([fetchedDashboards, projectId]));
 
+  function addDashboard(dashboard){
+    setDashboards([...dashboards, dashboard]);
+  }
+
   return (
     <Box className={classes.layoutContainer}>
       <Box className={classes.sideBarLayout}>
@@ -69,6 +74,7 @@ function ProjectLayout({ children }) {
               value={{
                 projectMetadata,
                 selectedDashboardMetadata: dashboards[selectedDashboard] || {},
+                addDashboard,
               }}
             >
               {children}

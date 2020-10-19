@@ -8,9 +8,20 @@ describe('<CreateNewDashboardModal />', () => {
   const CreateNewDashboardModalComponent = withThemeProvider(CreateNewDashboardModal);
   it('should match snapshot', () => {
     render(<CreateNewDashboardModalComponent isOpen closeModal={jest.fn()} onCreate={jest.fn} />);
+
     const container = document.querySelector('.MuiPaper-root');
+
     expect(container).toMatchSnapshot();
   });
+
+  it('should match snapshot only with dashboard text field', () => {
+    render(<CreateNewDashboardModalComponent isOpen closeModal={jest.fn()} onCreate={jest.fn} onlyDashboardField />);
+
+    const container = document.querySelector('.MuiPaper-root');
+
+    expect(container).toMatchSnapshot();
+  });
+
   it('should change project name on change of input value', () => {
     const onCreateMock = jest.fn();
     render(
