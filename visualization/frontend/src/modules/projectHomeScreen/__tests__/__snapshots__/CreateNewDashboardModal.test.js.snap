@@ -89,7 +89,7 @@ exports[`<CreateNewDashboardModal /> should match snapshot 1`] = `
               class="MuiFormHelperText-root makeStyles-helperText-6 MuiFormHelperText-contained MuiFormHelperText-filled"
               id="project-title-helper-text"
             >
-              some text
+              Specify the name of the project
             </p>
           </div>
         </div>
@@ -124,6 +124,7 @@ exports[`<CreateNewDashboardModal /> should match snapshot 1`] = `
               class="MuiInputBase-root MuiFilledInput-root MuiFilledInput-underline MuiInputBase-fullWidth MuiInputBase-formControl"
             >
               <input
+                aria-describedby="dashboard-title-helper-text"
                 aria-invalid="false"
                 class="MuiInputBase-input MuiFilledInput-input makeStyles-inputField-7"
                 id="dashboard-title"
@@ -131,7 +132,12 @@ exports[`<CreateNewDashboardModal /> should match snapshot 1`] = `
                 value="Untitled Dashboard"
               />
             </div>
-            
+            <p
+              class="MuiFormHelperText-root makeStyles-helperText-6 MuiFormHelperText-contained MuiFormHelperText-filled"
+              id="dashboard-title-helper-text"
+            >
+              Specify the name of the dashboard
+            </p>
           </div>
         </div>
       </div>
@@ -249,6 +255,7 @@ exports[`<CreateNewDashboardModal /> should match snapshot only with dashboard t
               class="MuiInputBase-root MuiFilledInput-root MuiFilledInput-underline MuiInputBase-fullWidth MuiInputBase-formControl"
             >
               <input
+                aria-describedby="dashboard-title-helper-text"
                 aria-invalid="false"
                 class="MuiInputBase-input MuiFilledInput-input makeStyles-inputField-22"
                 id="dashboard-title"
@@ -256,7 +263,12 @@ exports[`<CreateNewDashboardModal /> should match snapshot only with dashboard t
                 value="Untitled Dashboard"
               />
             </div>
-            
+            <p
+              class="MuiFormHelperText-root makeStyles-helperText-21 MuiFormHelperText-contained MuiFormHelperText-filled"
+              id="dashboard-title-helper-text"
+            >
+              Specify the name of the dashboard
+            </p>
           </div>
         </div>
       </div>

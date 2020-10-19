@@ -46,7 +46,7 @@ function InputTextField({ label, id, value, helperText, error, onChange }) {
         <TextField
           id={id}
           value={value}
-          helperText={helperText || error}
+          helperText={error || helperText}
           error={!!error}
           variant="filled"
           fullWidth
