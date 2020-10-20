@@ -124,7 +124,7 @@ describe('<ProjectHomeScreenComponent />', () => {
   });
 
   it('should add new dashboard to state', async () => {
-    api.addNewDashboard.mockResolvedValue({dashboardId: '123' });
+    api.addNewDashboard.mockResolvedValue({ dashboardId: '123' });
     const renderComponent = render(<ProjectHomeScreenComponent />);
 
     openFillAndSubmitNewProjectForm(renderComponent);
@@ -132,8 +132,8 @@ describe('<ProjectHomeScreenComponent />', () => {
     await renderComponent.findByText('Project ProjectName is saved');
 
     expect(mockAddDashboard).toHaveBeenCalledWith({
-      "_id": '123',
-      "name": "DashboardName",
+      _id: '123',
+      name: 'DashboardName',
     });
   });
 
@@ -209,6 +209,18 @@ describe('<ProjectHomeScreenComponent />', () => {
     );
 
     expect(component).toBeInTheDocument();
+  });
+  it('should navigate to create-dashboard url for dashboard creation failure', async () => {
+    api.addNewDashboard.mockRejectedValue('error');
+    const renderComponent = render(<ProjectHomeScreenComponent />);
+
+    openFillAndSubmitNewProjectForm(renderComponent);
+
+    await renderComponent.findByText('Error while saving Dashboard DashboardName');
+
+    expect(mockHistoryReplace).toHaveBeenCalledWith({
+      pathname: '/projects/projectId/create-dashboard',
+    });
   });
 
   it('should display snackbar for success message of only successful project creation', async () => {

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
-import {  useSnackbar } from 'notistack';
+import { useSnackbar } from 'notistack';
 import { Box, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import ClickableCard from '../../uiComponent/ClickableCard';
@@ -45,6 +45,7 @@ function ProjectHomeScreen() {
         history.replace({ pathname: `/projects/${savedProjectId}/configure-dataset` });
       })
       .catch(() => {
+        history.replace({ pathname: `/projects/${savedProjectId}/create-dashboard` });
         enqueueSnackbar(`Error while saving Dashboard ${dashboardTitle}`, { variant: ERROR });
       });
   }
@@ -53,7 +54,7 @@ function ProjectHomeScreen() {
     executeFetch(api.saveProject, [{ name: projectTitle }])
       .then(({ projectId: newProjectId }) => {
         enqueueSnackbar(`Project ${projectTitle} is saved`, {
-          variant: SUCCESS
+          variant: SUCCESS,
         });
         return saveDashboard(newProjectId, projectTitle, dashboardTitle);
       })
