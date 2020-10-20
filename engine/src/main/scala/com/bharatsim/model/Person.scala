@@ -10,12 +10,14 @@ import scala.util.Random
 
 case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionDay: Int) extends Agent {
   final val numberOfHoursInADay: Int = 24
-  private val incrementInfectionDay: Context => Unit = (context: Context) => {
+
+  private def incrementInfectionDay(context: Context): Unit = {
     if ((isExposed || isInfected) && context.simulationContext.getCurrentStep % numberOfHoursInADay == 0) {
       updateParam("infectionDay", infectionDay + 1)
     }
   }
-  private val checkForExposure: Context => Unit = (context: Context) => {
+
+  private def checkForExposure(context: Context): Unit = {
     if (isSusceptible) {
       val infectionRate = context.dynamics.asInstanceOf[Disease.type].infectionRate
 
@@ -27,7 +29,8 @@ case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionD
       val houses = context.graphProvider.fetchNeighborsOf(internalId, getRelation(currentNodeType).get)
       if (houses.nonEmpty) {
         val house = houses.head.as[House]
-        val infectedNeighbourCount = context.graphProvider.fetchNeighborsOf(house.internalId, house.getRelation[Person]().get)
+        val infectedNeighbourCount = context.graphProvider
+          .fetchNeighborsOf(house.internalId, house.getRelation[Person]().get)
           .count(x => x.as[Person].isInfected)
         val shouldInfect = infectionRate * infectedNeighbourCount > 0
 
@@ -37,12 +40,14 @@ case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionD
       }
     }
   }
-  private val checkForInfection: Context => Unit = (context: Context) => {
+
+  private def checkForInfection(context: Context): Unit = {
     if (isExposed && infectionDay == context.dynamics.asInstanceOf[Disease.type].exposedDuration) {
       updateParam("infectionState", Infected)
     }
   }
-  private val checkForRecovery: Context => Unit = (context: Context) => {
+
+  private def checkForRecovery(context: Context): Unit = {
     if (
       isInfected && infectionDay == context.dynamics
         .asInstanceOf[Disease.type]
