@@ -21,7 +21,7 @@ object Main extends LazyLogging {
     logger.debug("Ingestion done")
     val beforeCount = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Infected")).size
 
-    context.registerAgent[Citizen]
+    context.registerAgent[Person]
 
     SimulationListenerRegistry.register(
       new CsvOutputGenerator("src/main/resources/output.csv", new SEIROutputSpec(context))
@@ -58,8 +58,8 @@ object Main extends LazyLogging {
       .add(studentScheduleOnWeekEnd, 5, 6)
 
     registerSchedules(
-      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Citizen].age >= 30),
-      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Citizen].age < 30)
+      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 30),
+      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 30)
     )
   }
 
@@ -67,7 +67,7 @@ object Main extends LazyLogging {
 
     val citizenId = map("id").toInt
     val age = map("age").toInt
-    val citizen: Citizen = Citizen(citizenId, age, InfectionStatus.withName(map("infectionState")), 0)
+    val citizen: Person = Person(citizenId, age, InfectionStatus.withName(map("infectionState")), 0)
 
     val homeId = map("house_id").toInt
     val officeId = map("office_id").toInt
@@ -77,13 +77,13 @@ object Main extends LazyLogging {
     val office = Office(officeId)
     val school = School(schoolId)
 
-    val staysAt = Relation[Citizen, House](citizenId, "STAYS_AT", homeId)
-    val worksAt = Relation[Citizen, Office](citizenId, "WORKS_AT", officeId)
-    val studiesAt = Relation[Citizen, School](citizenId, "STUDIES_AT", schoolId)
+    val staysAt = Relation[Person, House](citizenId, "STAYS_AT", homeId)
+    val worksAt = Relation[Person, Office](citizenId, "WORKS_AT", officeId)
+    val studiesAt = Relation[Person, School](citizenId, "STUDIES_AT", schoolId)
 
-    val memberOf = Relation[House, Citizen](homeId, "HOUSES", citizenId)
-    val employerOf = Relation[Office, Citizen](officeId, "EMPLOYER_OF", citizenId)
-    val studentOf = Relation[School, Citizen](schoolId, "STUDENT_OF", citizenId)
+    val memberOf = Relation[House, Person](homeId, "HOUSES", citizenId)
+    val employerOf = Relation[Office, Person](officeId, "EMPLOYER_OF", citizenId)
+    val studentOf = Relation[School, Person](schoolId, "STUDENT_OF", citizenId)
 
     val graphData = new GraphData()
     graphData.addNode(citizenId, citizen)
@@ -96,10 +96,10 @@ object Main extends LazyLogging {
   }
 
   private def printStats(beforeCount: Int)(implicit context: Context): Unit = {
-    val afterCountSusceptible = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Susceptible")).size
-    val afterCountInfected = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Infected")).size
-    val afterCountRecovered = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Recovered")).size
-    val afterCountDeceased = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Deceased")).size
+    val afterCountSusceptible = context.graphProvider.fetchNodes("Person", ("infectionState", "Susceptible")).size
+    val afterCountInfected = context.graphProvider.fetchNodes("Person", ("infectionState", "Infected")).size
+    val afterCountRecovered = context.graphProvider.fetchNodes("Person", ("infectionState", "Recovered")).size
+    val afterCountDeceased = context.graphProvider.fetchNodes("Person", ("infectionState", "Deceased")).size
 
     logger.info("Infected before: {}", beforeCount)
     logger.info("Infected after: {}", afterCountInfected)
