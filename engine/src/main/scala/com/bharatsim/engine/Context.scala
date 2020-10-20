@@ -11,7 +11,9 @@ class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simu
   private[engine] val agentTypes: mutable.ListBuffer[GraphProvider => Iterable[Agent]] = ListBuffer.empty
   private[engine] var currentStep = 0
 
-  def fetchSchedules: Schedules = schedules
+  def fetchScheduleFor(agent: Agent): Option[Schedule] = {
+    schedules.get(agent, this)
+  }
 
   def getCurrentStep: Int = currentStep
 
