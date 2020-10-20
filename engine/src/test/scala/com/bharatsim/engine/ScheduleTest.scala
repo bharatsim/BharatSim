@@ -21,9 +21,9 @@ class ScheduleTest extends AnyFunSuite with Matchers {
 
     val expectedScheduleFor10Hr =
       List(
-        "ScheduleTest$MockHouse", "ScheduleTest$MockHouse", "ScheduleTest$MockOffice", "ScheduleTest$MockOffice",
-        "ScheduleTest$MockHouse", "ScheduleTest$MockHouse", "ScheduleTest$MockHouse", "ScheduleTest$MockOffice",
-        "ScheduleTest$MockOffice", "ScheduleTest$MockHouse"
+        "MockHouse", "MockHouse", "MockOffice", "MockOffice",
+        "MockHouse", "MockHouse", "MockHouse", "MockOffice",
+        "MockOffice", "MockHouse"
       )
 
     val actualScheduleFor10Hr = (0 to 9).map(employeeSchedule.getForStep).toList
@@ -45,8 +45,8 @@ class ScheduleTest extends AnyFunSuite with Matchers {
       .add(employeeScheduleOnWeekEnd, 1, 1)
 
     val expectedScheduleFor2weeks = List(
-      "ScheduleTest$MockOffice", "ScheduleTest$MockOffice", "ScheduleTest$MockHouse", "ScheduleTest$MockHouse",
-      "ScheduleTest$MockOffice", "ScheduleTest$MockOffice", "ScheduleTest$MockHouse", "ScheduleTest$MockHouse"
+      "MockOffice", "MockOffice", "MockHouse", "MockHouse",
+      "MockOffice", "MockOffice", "MockHouse", "MockHouse"
     )
 
     val actualScheduleFor2weeks = (0 to 7).map(employeeSchedule.getForStep).toList
