@@ -1,6 +1,7 @@
 package com.bharatsim.engine.models
 
 import com.bharatsim.engine.basicConversions.encoders.BasicEncoder
+import com.bharatsim.engine.exception.MultipleRelationDefinitionsException
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider, GraphProviderFactory}
 import com.bharatsim.engine.utils.Utils
 
@@ -15,8 +16,14 @@ class Node()(implicit graphProvider: GraphProvider = GraphProviderFactory.get) e
     internalId = newId
   }
 
-  protected[engine] def addRelation[T <: Node: ClassTag](relation: String): Unit = {
-    relationSchema.addOne(Utils.fetchClassName[T], relation)
+  @throws(classOf[MultipleRelationDefinitionsException])
+  protected[engine] def addRelation[T <: Node : ClassTag](relation: String): Unit = {
+    val nodeName = Utils.fetchClassName[T]
+    relationSchema.get(nodeName) match {
+      case Some(_) => throw new MultipleRelationDefinitionsException("Multiple relations are not permitted between two node" +
+        " instances. Nodes " + nodeName + " and " + this.getClass.getSimpleName + " have multiple relations defined.")
+      case None => relationSchema.addOne(nodeName, relation)
+    }
   }
 
   def getRelation(toNode: String): Option[String] = {
