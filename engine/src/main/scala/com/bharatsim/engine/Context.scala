@@ -1,5 +1,6 @@
 package com.bharatsim.engine
 
+import com.bharatsim.engine.actions.ConditionalAction
 import com.bharatsim.engine.graph.{GraphProvider, GraphProviderFactory}
 import com.bharatsim.engine.models.Agent
 
@@ -10,6 +11,8 @@ class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simu
   private[engine] val schedules = new Schedules
   private[engine] val agentTypes: mutable.ListBuffer[GraphProvider => Iterable[Agent]] = ListBuffer.empty
   private[engine] var currentStep = 0
+  private[engine] val actions: ListBuffer[ConditionalAction] = ListBuffer.empty
+  private[engine] var stopSimulation = false
 
   def fetchScheduleFor(agent: Agent): Option[Schedule] = {
     schedules.get(agent, this)

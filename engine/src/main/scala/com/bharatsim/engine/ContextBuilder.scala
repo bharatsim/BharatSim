@@ -1,5 +1,6 @@
 package com.bharatsim.engine
 
+import com.bharatsim.engine.actions.{Action, ConditionalAction}
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.graph.{GraphData, GraphProvider}
 import com.bharatsim.engine.models.Agent
@@ -27,5 +28,9 @@ object ContextBuilder {
 
   def registerAgent[T <: Agent : ClassTag](implicit decoder: BasicMapDecoder[T], context: Context): Unit = {
     context.agentTypes.addOne((gp: GraphProvider) => gp.fetchNodes(Utils.fetchClassName[T]).map(_.as[T]))
+  }
+
+  def registerAction(action: Action, condition: Context => Boolean)(implicit context: Context): Unit = {
+    context.actions.addOne(ConditionalAction(action, condition))
   }
 }
