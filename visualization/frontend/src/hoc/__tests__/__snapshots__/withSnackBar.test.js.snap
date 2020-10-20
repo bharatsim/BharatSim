@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`withSnackBar should provide snackbar context to child component 1`] = `
+<div>
+  <div>
+    DummyController 
+  </div>
+  <div
+    class="makeStyles-root-6 makeStyles-bottom-10 makeStyles-center-16 makeStyles-bottom-10 makeStyles-center-16 makeStyles-reverseColumns-7"
+  >
+    <div
+      class="MuiCollapse-container SnackbarItem-collapseContainer-33 MuiCollapse-entered"
+      style="min-height: 0px;"
+    >
+      <div
+        class="MuiCollapse-wrapper SnackbarItem-collapseWrapper-34"
+      >
+        <div
+          class="MuiCollapse-wrapperInner"
+        >
+          <div
+            class="MuiSnackbar-root SnackbarItem-root-17 SnackbarItem-wrappedRoot-32 MuiSnackbar-anchorOriginBottomCenter SnackbarItem-anchorOriginBottomCenter-19"
+          >
+            <div
+              aria-describedby="client-snackbar"
+              class="ForwardRef-root-36 SnackbarItem-contentRoot-29 makeStyles-contentRoot-1"
+              role="alert"
+              style="webkit-transform: none; transform: none; webkit-transition: -webkit-transform 225ms cubic-bezier(0.0, 0, 0.2, 1) 0ms; transition: transform 225ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;"
+            >
+              <div
+                class="SnackbarItem-message-30 makeStyles-message-2"
+                id="client-snackbar"
+              >
+                test snack bar
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
