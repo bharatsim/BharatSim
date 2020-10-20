@@ -4,6 +4,7 @@ import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
 import com.bharatsim.engine.listners.{SimulationListener, SimulationListenerRegistry}
+import com.bharatsim.engine.models.Agent
 import org.mockito.{InOrder, Mockito, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funsuite.AnyFunSuite
@@ -20,7 +21,8 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
   }
 
   test("should execute empty simulation") {
-    noException should be thrownBy Simulation.run(getContext())
+    implicit val context: Context = getContext()
+    noException should be thrownBy Simulation.run()
   }
 
   test("should execute multiple behaviours of agent in order") {
@@ -29,9 +31,9 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
       when(gp.fetchNodes("Student")).thenReturn(List(graphNodeStudent))
       gp
     }
-    val context = getContext(graphProvider)
+    implicit val context: Context = getContext(graphProvider)
     context.registerAgent[Student]
-    Simulation.run(context)
+    Simulation.run()
 
     val order: InOrder = inOrder(behav1, behav2)
     order.verify(behav1)(context)
@@ -46,11 +48,11 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
       when(gp.fetchNodes("Employee")).thenReturn(List(graphNodeEmployee))
       gp
     }
-    val context = getContext(graphProvider)
+    implicit val context: Context = getContext(graphProvider)
     context.registerAgent[Student]
     context.registerAgent[Employee]
 
-    Simulation.run(context)
+    Simulation.run()
 
     val order: InOrder = inOrder(behav1, behav2, behav3)
     order.verify(behav1)(context)
@@ -59,12 +61,12 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
   }
 
   test("should set current step at the start of every simulation step and run all the steps") {
-    val context = getContext()
+    implicit val context: Context = getContext()
 
     val steps = 3
     context.simulationContext.setSteps(steps)
 
-    Simulation.run(context)
+    Simulation.run()
 
     context.simulationContext.getCurrentStep shouldBe 3
   }
@@ -77,7 +79,7 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
       )
       gp
     }
-    val context = getContext(graphProvider)
+    implicit val context: Context = getContext(graphProvider)
 
     val steps = 2
     context.simulationContext.setSteps(steps)
@@ -90,7 +92,7 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
       _playAGameForStep
     )
 
-    Simulation.run(context)
+    Simulation.run()
 
     order.verify(_goToSchoolForStep)(1)
     order.verify(_playAGameForStep)(1)
@@ -106,8 +108,8 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
   test("should notify simulation listeners") {
     val mockListener = mock[SimulationListener]
     SimulationListenerRegistry.register(mockListener)
-    val context = getContext()
-    Simulation.run(context)
+    implicit val context: Context = getContext()
+    Simulation.run()
     val order = inOrder(mockListener)
     order.verify(mockListener).onSimulationStart(context)
     order.verify(mockListener).onStepStart(context)

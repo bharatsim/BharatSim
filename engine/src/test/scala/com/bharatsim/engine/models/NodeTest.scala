@@ -1,4 +1,4 @@
-package com.bharatsim.engine
+package com.bharatsim.engine.models
 
 import com.bharatsim.engine.graph.GraphProvider
 import org.mockito.MockitoSugar

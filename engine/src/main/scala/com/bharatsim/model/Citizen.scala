@@ -1,8 +1,9 @@
 package com.bharatsim.model
 
+import com.bharatsim.engine.Context
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
-import com.bharatsim.engine.{Agent, Context}
+import com.bharatsim.engine.models.Agent
 import com.bharatsim.model.InfectionStatus._
 
 import scala.util.Random

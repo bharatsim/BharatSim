@@ -1,11 +1,11 @@
 package com.bharatsim.engine.graph
 
-import com.bharatsim.engine.Node
 import com.bharatsim.engine.basicConversions.BasicConversions
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.Relation.GenericRelation
+import com.bharatsim.engine.models.Node
 import com.bharatsim.engine.utils.Utils.fetchClassName
 
 import scala.collection.mutable.ListBuffer

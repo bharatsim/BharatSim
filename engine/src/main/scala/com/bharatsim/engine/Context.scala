@@ -2,6 +2,7 @@ package com.bharatsim.engine
 
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.graph.{GraphProvider, GraphProviderFactory}
+import com.bharatsim.engine.models.Agent
 import com.bharatsim.engine.utils.Utils
 
 import scala.collection.mutable

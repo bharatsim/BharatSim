@@ -1,6 +1,7 @@
 package com.bharatsim.engine
 
 import com.bharatsim.engine.exception.{CyclicScheduleException, ScheduleOutOfBoundsException}
+import com.bharatsim.engine.models.{Agent, Node}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

@@ -1,5 +1,6 @@
 package com.bharatsim.engine
 
+import com.bharatsim.engine.models.Agent
 import org.mockito.MockitoSugar
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers

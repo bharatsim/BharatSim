@@ -1,6 +1,5 @@
 package com.bharatsim.engine.graph.custom
 
-import com.bharatsim.engine.IdGenerator
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.{GraphData, GraphNode, GraphProvider}
 import com.github.tototoshi.csv.CSVReader

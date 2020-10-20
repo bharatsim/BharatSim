@@ -1,6 +1,7 @@
 package com.bharatsim.engine
 
 import com.bharatsim.engine.exception.{CyclicScheduleException, ScheduleOutOfBoundsException}
+import com.bharatsim.engine.models.Node
 import com.bharatsim.engine.utils.Utils
 
 import scala.collection.mutable

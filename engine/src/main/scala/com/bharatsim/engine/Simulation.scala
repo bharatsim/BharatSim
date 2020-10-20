@@ -1,10 +1,10 @@
 package com.bharatsim.engine
 
 import com.bharatsim.engine.listners.SimulationListenerRegistry
+import com.bharatsim.engine.models.Agent
 import com.typesafe.scalalogging.LazyLogging
 
-object Simulation extends LazyLogging {
-
+class Simulation extends LazyLogging {
   def run(context: Context): Unit = {
     SimulationListenerRegistry.notifySimulationStart(context)
     for (step <- 1 to context.simulationContext.simulationSteps) {
@@ -23,5 +23,12 @@ object Simulation extends LazyLogging {
       SimulationListenerRegistry.notifyStepEnd(context)
     }
     SimulationListenerRegistry.notifySimulationEnd(context)
+  }
+}
+
+object Simulation {
+  def run()(implicit context: Context): Unit = {
+    val simulation = new Simulation()
+    simulation.run(context)
   }
 }

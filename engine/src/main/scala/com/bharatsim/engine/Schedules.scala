@@ -1,9 +1,12 @@
 package com.bharatsim.engine
 
+import com.bharatsim.engine.models.Agent
+
 import scala.collection.mutable.ListBuffer
 
 class Schedules {
   type Matcher = (Agent, Context) => Boolean
+
   case class ScheduleMatcher(schedule: Schedule, matcher: Matcher)
 
   private val schedules: ListBuffer[ScheduleMatcher] = new ListBuffer[ScheduleMatcher]

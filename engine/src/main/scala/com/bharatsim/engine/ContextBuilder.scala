@@ -1,6 +1,7 @@
 package com.bharatsim.engine
 
 import com.bharatsim.engine.graph.GraphData
+import com.bharatsim.engine.models.Agent
 
 object ContextBuilder {
   def registerSchedules(s1: (Schedule, (Agent, Context) => Boolean), more: (Schedule, (Agent, Context) => Boolean)*)(implicit context: Context): Unit = {

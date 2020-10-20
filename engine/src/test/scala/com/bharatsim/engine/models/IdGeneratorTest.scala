@@ -1,5 +1,6 @@
-package com.bharatsim.engine
+package com.bharatsim.engine.models
 
+import com.bharatsim.engine.graph.custom.IdGenerator
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers._
 

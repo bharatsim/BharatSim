@@ -1,6 +1,8 @@
 package com.bharatsim.engine.dsl
 
-import com.bharatsim.engine.{Node, Schedule, ScheduleUnit}
+import com.bharatsim.engine.models.Node
+import com.bharatsim.engine.{Schedule, ScheduleUnit}
+
 import scala.reflect.ClassTag
 
 object SyntaxHelpers {
