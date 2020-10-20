@@ -26,12 +26,13 @@ case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionD
       val currentStep = context.getCurrentStep
       val currentNodeType: String = schedule.getForStep(currentStep)
 
-      val houses = context.graphProvider.fetchNeighborsOf(internalId, getRelation(currentNodeType).get)
+      val houses = getConnections(getRelation(currentNodeType).get).toList
       if (houses.nonEmpty) {
         val house = houses.head.as[House]
-        val infectedNeighbourCount = context.graphProvider
-          .fetchNeighborsOf(house.internalId, house.getRelation[Person]().get)
+        val infectedNeighbourCount = house
+          .getConnections(house.getRelation[Person]().get)
           .count(x => x.as[Person].isInfected)
+
         val shouldInfect = infectionRate * infectedNeighbourCount > 0
 
         if (shouldInfect) {
