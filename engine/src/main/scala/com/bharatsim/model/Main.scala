@@ -19,7 +19,7 @@ object Main extends LazyLogging {
 
     ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
     logger.debug("Ingestion done")
-    val beforeCount = context.graphProvider.fetchNodes("Citizen", ("infectionState", "Infected")).size
+    val beforeCount = context.graphProvider.fetchNodes("Person", ("infectionState", "Infected")).size
 
     context.registerAgent[Person]
 
