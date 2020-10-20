@@ -2,6 +2,7 @@ package com.bharatsim.model
 
 import com.bharatsim.engine.ContextBuilder._
 import com.bharatsim.engine._
+import com.bharatsim.engine.actions.StopSimulation
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.dsl.SyntaxHelpers._
@@ -12,14 +13,18 @@ import com.typesafe.scalalogging.LazyLogging
 
 object Main extends LazyLogging {
   def main(args: Array[String]): Unit = {
-    val config = SimulationConfig(1000)
+    val config = SimulationConfig(5000)
     implicit val context: Context = Context(Disease, config)
 
     createSchedules()
 
+    registerAction(StopSimulation, (c: Context) => {
+      getInfectedCount(c) == 0 && getSusceptibleCount(c) == 0
+    })
+
     ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
     logger.debug("Ingestion done")
-    val beforeCount = context.graphProvider.fetchNodes("Person", ("infectionState", "Infected")).size
+    val beforeCount = getInfectedCount(context)
 
     registerAgent[Person]
 
@@ -96,8 +101,8 @@ object Main extends LazyLogging {
   }
 
   private def printStats(beforeCount: Int)(implicit context: Context): Unit = {
-    val afterCountSusceptible = context.graphProvider.fetchNodes("Person", ("infectionState", "Susceptible")).size
-    val afterCountInfected = context.graphProvider.fetchNodes("Person", ("infectionState", "Infected")).size
+    val afterCountSusceptible = getSusceptibleCount(context)
+    val afterCountInfected = getInfectedCount(context)
     val afterCountRecovered = context.graphProvider.fetchNodes("Person", ("infectionState", "Recovered")).size
     val afterCountDeceased = context.graphProvider.fetchNodes("Person", ("infectionState", "Deceased")).size
 
@@ -106,5 +111,13 @@ object Main extends LazyLogging {
     logger.info("Recovered: {}", afterCountRecovered)
     logger.info("Deceased: {}", afterCountDeceased)
     logger.info("Susceptible: {}", afterCountSusceptible)
+  }
+
+  private def getSusceptibleCount(context: Context) = {
+    context.graphProvider.fetchNodes("Person", ("infectionState", "Susceptible")).size
+  }
+
+  private def getInfectedCount(context: Context): Int = {
+    context.graphProvider.fetchNodes("Person", ("infectionState", "Infected")).size
   }
 }
