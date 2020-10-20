@@ -18,11 +18,11 @@ class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simu
   }
 
   def addSchedule(schedule: Schedule, fn: (Agent, Context) => Boolean): Unit = {
-    schedules.addSchedule(schedule, fn)
+    schedules.add(schedule, fn)
   }
 
   def registerSchedules(s1: List[(Schedule, (Agent, Context) => Boolean)]): Unit = {
-    s1.foreach(sc => schedules.addSchedule(sc._1, sc._2))
+    s1.foreach(sc => schedules.add(sc._1, sc._2))
   }
 
   def fetchSchedules: Schedules = schedules

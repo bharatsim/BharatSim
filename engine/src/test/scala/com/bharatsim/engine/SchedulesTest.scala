@@ -16,11 +16,11 @@ class SchedulesTest extends AnyFunSuite with Matchers with MockitoSugar {
 
     val schedules = new Schedules()
 
-    schedules.addSchedule(employeeSchedule, (agent: Agent, _: Context) => { agent == employee })
-    schedules.addSchedule(studentSchedule, (agent: Agent, _: Context) => { agent == student })
+    schedules.add(employeeSchedule, (agent: Agent, _: Context) => { agent == employee })
+    schedules.add(studentSchedule, (agent: Agent, _: Context) => { agent == student })
 
-    schedules.getSchedule(employee, context).get shouldBe employeeSchedule
-    schedules.getSchedule(student, context).get shouldBe studentSchedule
+    schedules.get(employee, context).get shouldBe employeeSchedule
+    schedules.get(student, context).get shouldBe studentSchedule
   }
 
   test("should get None  when no schedule matches") {
@@ -29,7 +29,7 @@ class SchedulesTest extends AnyFunSuite with Matchers with MockitoSugar {
 
     val schedules = new Schedules()
 
-    schedules.getSchedule(employee, context) shouldBe None
+    schedules.get(employee, context) shouldBe None
   }
 
   test("should get first matching schedule when multiple schedules are matching") {
@@ -40,10 +40,10 @@ class SchedulesTest extends AnyFunSuite with Matchers with MockitoSugar {
     val schedules = new Schedules()
     val employeeMatcher = spyLambda((agent: Agent, _: Context) => { agent == employee })
 
-    schedules.addSchedule(employeeSchedule1, employeeMatcher)
-    schedules.addSchedule(employeeSchedule2, employeeMatcher)
+    schedules.add(employeeSchedule1, employeeMatcher)
+    schedules.add(employeeSchedule2, employeeMatcher)
 
-    schedules.getSchedule(employee, context).get shouldBe employeeSchedule1
+    schedules.get(employee, context).get shouldBe employeeSchedule1
     verify(employeeMatcher)(employee, context)
   }
 }

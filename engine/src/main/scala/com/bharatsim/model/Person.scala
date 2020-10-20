@@ -21,7 +21,7 @@ case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionD
     if (isSusceptible) {
       val infectionRate = context.dynamics.asInstanceOf[Disease.type].infectionRate
 
-      val schedule = context.fetchSchedules.getSchedule(this, context).get
+      val schedule = context.fetchSchedules.get(this, context).get
 
       val currentStep = context.simulationContext.getCurrentStep
       val currentNodeType: String = schedule.getForStep(currentStep)
