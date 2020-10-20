@@ -12,7 +12,7 @@ case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionD
   final val numberOfHoursInADay: Int = 24
 
   private def incrementInfectionDay(context: Context): Unit = {
-    if ((isExposed || isInfected) && context.simulationContext.getCurrentStep % numberOfHoursInADay == 0) {
+    if ((isExposed || isInfected) && context.getCurrentStep % numberOfHoursInADay == 0) {
       updateParam("infectionDay", infectionDay + 1)
     }
   }
@@ -23,7 +23,7 @@ case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionD
 
       val schedule = context.fetchSchedules.get(this, context).get
 
-      val currentStep = context.simulationContext.getCurrentStep
+      val currentStep = context.getCurrentStep
       val currentNodeType: String = schedule.getForStep(currentStep)
 
       val houses = context.graphProvider.fetchNeighborsOf(internalId, getRelation(currentNodeType).get)

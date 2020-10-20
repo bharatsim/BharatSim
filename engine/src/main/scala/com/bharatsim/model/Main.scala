@@ -12,8 +12,8 @@ import com.typesafe.scalalogging.LazyLogging
 
 object Main extends LazyLogging {
   def main(args: Array[String]): Unit = {
-    val simulationContext = new SimulationContext(1000)
-    implicit val context: Context = Context(Disease, simulationContext)
+    val config = SimulationConfig(1000)
+    implicit val context: Context = Context(Disease, config)
 
     createSchedules()
 
@@ -21,11 +21,11 @@ object Main extends LazyLogging {
     logger.debug("Ingestion done")
     val beforeCount = context.graphProvider.fetchNodes("Person", ("infectionState", "Infected")).size
 
-    context.registerAgent[Person]
+    registerAgent[Person]
 
     SimulationListenerRegistry.register(
       new CsvOutputGenerator("src/main/resources/output.csv", new SEIROutputSpec(context))
-    );
+    )
 
     Simulation.run()
 

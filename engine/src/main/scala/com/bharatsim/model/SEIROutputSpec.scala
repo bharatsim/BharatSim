@@ -7,7 +7,7 @@ class SEIROutputSpec(context: Context) extends CSVSpecs {
   override def getHeaders(): List[String] = List("Step", "Susceptible", "Exposed", "Infected", "Recovered", "Deceased")
   override def getValue(fieldName: String): Any = {
     fieldName match {
-      case "Step" => context.simulationContext.getCurrentStep
+      case "Step" => context.getCurrentStep
       case "Susceptible" => context.graphProvider.fetchNodes("Person", ("infectionState", "Susceptible")).size
       case "Exposed" => context.graphProvider.fetchNodes("Person", ("infectionState", "Exposed")).size
       case "Infected" => context.graphProvider.fetchNodes("Person", ("infectionState", "Infected")).size

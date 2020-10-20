@@ -4,12 +4,13 @@ import com.bharatsim.engine.listners.SimulationListenerRegistry
 import com.bharatsim.engine.models.Agent
 import com.typesafe.scalalogging.LazyLogging
 
-class Simulation extends LazyLogging {
-  def run(context: Context): Unit = {
+class Simulation(context: Context) extends LazyLogging {
+  def run(): Unit = {
+
     SimulationListenerRegistry.notifySimulationStart(context)
-    for (step <- 1 to context.simulationContext.simulationSteps) {
+    for (step <- 1 to context.simulationConfig.simulationSteps) {
       logger.info("Tick {}", step)
-      context.simulationContext.setCurrentStep(step)
+      context.setCurrentStep(step)
       SimulationListenerRegistry.notifyStepStart(context)
 
       val agentTypes = context.fetchAgentTypes
@@ -28,7 +29,7 @@ class Simulation extends LazyLogging {
 
 object Simulation {
   def run()(implicit context: Context): Unit = {
-    val simulation = new Simulation()
-    simulation.run(context)
+    val simulation = new Simulation(context)
+    simulation.run()
   }
 }

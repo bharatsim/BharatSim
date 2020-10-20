@@ -1,5 +1,6 @@
 package com.bharatsim.engine
 
+import com.bharatsim.engine.ContextBuilder.registerAgent
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
@@ -21,7 +22,7 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
   }
 
   test("should execute empty simulation") {
-    implicit val context: Context = getContext()
+    implicit val context: Context = getContext(1)
     noException should be thrownBy Simulation.run()
   }
 
@@ -31,8 +32,8 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
       when(gp.fetchNodes("Student")).thenReturn(List(graphNodeStudent))
       gp
     }
-    implicit val context: Context = getContext(graphProvider)
-    context.registerAgent[Student]
+    implicit val context: Context = getContext(1, graphProvider)
+    registerAgent[Student]
     Simulation.run()
 
     val order: InOrder = inOrder(behav1, behav2)
@@ -48,9 +49,9 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
       when(gp.fetchNodes("Employee")).thenReturn(List(graphNodeEmployee))
       gp
     }
-    implicit val context: Context = getContext(graphProvider)
-    context.registerAgent[Student]
-    context.registerAgent[Employee]
+    implicit val context: Context = getContext(1, graphProvider)
+    registerAgent[Student]
+    registerAgent[Employee]
 
     Simulation.run()
 
@@ -61,14 +62,12 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
   }
 
   test("should set current step at the start of every simulation step and run all the steps") {
-    implicit val context: Context = getContext()
-
     val steps = 3
-    context.simulationContext.setSteps(steps)
+    implicit val context: Context = getContext(steps)
 
     Simulation.run()
 
-    context.simulationContext.getCurrentStep shouldBe 3
+    context.getCurrentStep shouldBe 3
   }
 
   test("should execute all Behaviours of all agents for specified number of steps") {
@@ -79,11 +78,10 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
       )
       gp
     }
-    implicit val context: Context = getContext(graphProvider)
-
     val steps = 2
-    context.simulationContext.setSteps(steps)
-    context.registerAgent[Student]
+    implicit val context: Context = getContext(steps, graphProvider)
+
+    registerAgent[Student]
 
     val order: InOrder = inOrder(
       _goToSchoolForStep,
@@ -108,7 +106,7 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
   test("should notify simulation listeners") {
     val mockListener = mock[SimulationListener]
     SimulationListenerRegistry.register(mockListener)
-    implicit val context: Context = getContext()
+    implicit val context: Context = getContext(1)
     Simulation.run()
     val order = inOrder(mockListener)
     order.verify(mockListener).onSimulationStart(context)
@@ -117,8 +115,8 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
     order.verify(mockListener).onSimulationEnd(context)
   }
 
-  def getContext(mockGraphProvider: GraphProvider = mock[GraphProvider]) =
-    new Context(mockGraphProvider, new Dynamics, new SimulationContext())
+  def getContext(steps: Int, mockGraphProvider: GraphProvider = mock[GraphProvider]) =
+    new Context(mockGraphProvider, new Dynamics, SimulationConfig(steps))
 }
 
 case class Employee() extends Agent {
@@ -148,11 +146,11 @@ object SimulationTest {
   val _playAGameForStep: NodeId => Unit = spyLambda[NodeId => Unit]((_: Int) => {})
 
   val behav1: Context => Unit = spyLambda[Context => Unit]((context: Context) => {
-    _goToSchoolForStep(context.simulationContext.getCurrentStep)
+    _goToSchoolForStep(context.getCurrentStep)
   })
 
   val behav2: Context => Unit = spyLambda[Context => Unit]((context: Context) => {
-    _playAGameForStep(context.simulationContext.getCurrentStep)
+    _playAGameForStep(context.getCurrentStep)
   })
 
   val behav3: Context => Unit = spyLambda[Context => Unit]((_: Context) => {})
