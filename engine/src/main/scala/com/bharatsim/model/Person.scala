@@ -3,7 +3,8 @@ package com.bharatsim.model
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
-import com.bharatsim.engine.models.Agent
+import com.bharatsim.engine.graph.GraphNode
+import com.bharatsim.engine.models.{Agent, Node}
 import com.bharatsim.model.InfectionStatus._
 
 import scala.util.Random
@@ -24,13 +25,15 @@ case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionD
       val schedule = context.fetchScheduleFor(this).get
 
       val currentStep = context.getCurrentStep
-      val currentNodeType: String = schedule.getForStep(currentStep)
+      val placeType: String = schedule.getForStep(currentStep)
 
-      val houses = getConnections(getRelation(currentNodeType).get).toList
-      if (houses.nonEmpty) {
-        val house = houses.head.as[House]
-        val infectedNeighbourCount = house
-          .getConnections(house.getRelation[Person]().get)
+      val places = getConnections(getRelation(placeType).get).toList
+      if (places.nonEmpty) {
+        val place = places.head
+        val decodedPlace = decodeNode(placeType, place)
+
+        val infectedNeighbourCount = decodedPlace
+          .getConnections(decodedPlace.getRelation[Person]().get)
           .count(x => x.as[Person].isInfected)
 
         val shouldInfect = infectionRate * infectedNeighbourCount > 0
@@ -39,6 +42,14 @@ case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionD
           updateParam("infectionState", Infected)
         }
       }
+    }
+  }
+
+  private def decodeNode(classType: String, node: GraphNode): Node = {
+    classType match {
+      case "House" => node.as[House]
+      case "Office" => node.as[Office]
+      case "School" => node.as[School]
     }
   }
 
