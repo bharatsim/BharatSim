@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 const useConfigureDatasetStyles = makeStyles((theme) => {
   return {
     configureProjectDataBar: {
-      height: theme.spacing(16),
+      height: theme.spacing(12),
       width: '100%',
       display: 'flex',
       justifyContent: 'space-between',
@@ -38,6 +38,8 @@ const useConfigureDatasetStyles = makeStyles((theme) => {
       boxShadow: 'inset 0px -1px 0px rgba(0, 0, 0, 0.12)',
       height: theme.spacing(22),
       border: '1px solid rgba(0, 0, 0, 0.2)',
+      borderBottomRightRadius: theme.spacing(1),
+      borderBottomLeftRadius: theme.spacing(1),
     },
   };
 });

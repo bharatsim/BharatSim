@@ -82,6 +82,7 @@ const muiColorPalette = {
     focusOpacity: 0.12,
     activatedOpacity: 0.12,
   },
+  grey: colors.grayScale,
   divider: 'rgba(0, 0, 0, 0.12)',
   background: {
     paper: '#fff',

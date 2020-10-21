@@ -116,6 +116,11 @@ theme.overrides = {
       maxWidth: 'unset',
     },
   },
+  MuiDialogContent: {
+    dividers: {
+      padding: theme.spacing(4),
+    },
+  },
 };
 
 export default theme;

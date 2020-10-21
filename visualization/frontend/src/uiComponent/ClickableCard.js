@@ -12,6 +12,7 @@ const useStyles = makeStyles((theme) => {
       justifyContent: 'center',
       alignItems: 'center',
       border: '1px dashed',
+      borderRadius: theme.spacing(1),
       borderColor: theme.colors.primaryColorScale['200'],
       '&:hover': {
         backgroundColor: theme.colors.primaryColorScale['50'],

@@ -55,14 +55,16 @@ function CreateNewDashboardModal({ isOpen, closeModal, onCreate, onlyDashboardFi
     >
       <Box className={classes.addProjectModal}>
         {!onlyDashboardField && (
-          <InputTextField
-            label={inputFields.project.label}
-            id={inputFields.project.id}
-            value={values[inputFields.project.id]}
-            helperText={errors[inputFields.project.id] || inputFields.project.helperText}
-            error={errors[inputFields.project.id]}
-            onChange={onChangeInput}
-          />
+          <Box pb={4}>
+            <InputTextField
+              label={inputFields.project.label}
+              id={inputFields.project.id}
+              value={values[inputFields.project.id]}
+              helperText={errors[inputFields.project.id] || inputFields.project.helperText}
+              error={errors[inputFields.project.id]}
+              onChange={onChangeInput}
+            />
+          </Box>
         )}
         <InputTextField
           label={inputFields.dashboard.label}

@@ -10,45 +10,49 @@ exports[`DataTypeConfigModal should match a snapshot 1`] = `
     class="MuiDialogTitle-root Component-root-3"
     id="customized-dialog-title"
   >
-    <h6
-      class="MuiTypography-root MuiTypography-h6"
+    <div
+      class="MuiBox-root MuiBox-root-6 Component-titleContainer-5"
     >
-      Configure Datatype
-    </h6>
-    <button
-      aria-label="close"
-      class="MuiButtonBase-root MuiIconButton-root Component-closeButton-4"
-      data-testid="button-icon-close"
-      tabindex="0"
-      type="button"
-    >
-      <span
-        class="MuiIconButton-label"
+      <h5
+        class="MuiTypography-root MuiTypography-h5"
       >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root"
-          focusable="false"
-          viewBox="0 0 24 24"
+        Configure Datatype
+      </h5>
+      <button
+        aria-label="close"
+        class="MuiButtonBase-root MuiIconButton-root Component-closeButton-4"
+        data-testid="button-icon-close"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiIconButton-label"
         >
-          <path
-            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-          />
-        </svg>
-      </span>
-      <span
-        class="MuiTouchRipple-root"
-      />
-    </button>
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+            />
+          </svg>
+        </span>
+        <span
+          class="MuiTouchRipple-root"
+        />
+      </button>
+    </div>
   </div>
   <div
-    class="MuiDialogContent-root WithStyles(ForwardRef(DialogContent))-root-5"
+    class="MuiDialogContent-root WithStyles(ForwardRef(DialogContent))-root-7 MuiDialogContent-dividers"
   >
     <div
-      class="MuiBox-root MuiBox-root-6 makeStyles-configContainer-1"
+      class="MuiBox-root MuiBox-root-8 makeStyles-configContainer-1"
     >
       <div
-        class="MuiBox-root MuiBox-root-7 makeStyles-configDropdown-2"
+        class="MuiBox-root MuiBox-root-9 makeStyles-configDropdown-2"
       >
         <p
           class="MuiTypography-root MuiTypography-body1"
@@ -56,7 +60,7 @@ exports[`DataTypeConfigModal should match a snapshot 1`] = `
           col1
         </p>
         <div
-          class="MuiFormControl-root makeStyles-formControl-8"
+          class="MuiFormControl-root makeStyles-formControl-10"
         >
           <label
             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-filled"
@@ -97,10 +101,10 @@ exports[`DataTypeConfigModal should match a snapshot 1`] = `
             </svg>
             <fieldset
               aria-hidden="true"
-              class="PrivateNotchedOutline-root-10 MuiOutlinedInput-notchedOutline"
+              class="PrivateNotchedOutline-root-12 MuiOutlinedInput-notchedOutline"
             >
               <legend
-                class="PrivateNotchedOutline-legendLabelled-12 PrivateNotchedOutline-legendNotched-13"
+                class="PrivateNotchedOutline-legendLabelled-14 PrivateNotchedOutline-legendNotched-15"
               >
                 <span>
                   Select datatype
@@ -111,7 +115,7 @@ exports[`DataTypeConfigModal should match a snapshot 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-14 makeStyles-configDropdown-2"
+        class="MuiBox-root MuiBox-root-16 makeStyles-configDropdown-2"
       >
         <p
           class="MuiTypography-root MuiTypography-body1"
@@ -119,7 +123,7 @@ exports[`DataTypeConfigModal should match a snapshot 1`] = `
           col2
         </p>
         <div
-          class="MuiFormControl-root makeStyles-formControl-8"
+          class="MuiFormControl-root makeStyles-formControl-10"
         >
           <label
             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-filled"
@@ -160,10 +164,10 @@ exports[`DataTypeConfigModal should match a snapshot 1`] = `
             </svg>
             <fieldset
               aria-hidden="true"
-              class="PrivateNotchedOutline-root-10 MuiOutlinedInput-notchedOutline"
+              class="PrivateNotchedOutline-root-12 MuiOutlinedInput-notchedOutline"
             >
               <legend
-                class="PrivateNotchedOutline-legendLabelled-12 PrivateNotchedOutline-legendNotched-13"
+                class="PrivateNotchedOutline-legendLabelled-14 PrivateNotchedOutline-legendNotched-15"
               >
                 <span>
                   Select datatype
@@ -174,7 +178,7 @@ exports[`DataTypeConfigModal should match a snapshot 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-15 makeStyles-configDropdown-2"
+        class="MuiBox-root MuiBox-root-17 makeStyles-configDropdown-2"
       >
         <p
           class="MuiTypography-root MuiTypography-body1"
@@ -182,7 +186,7 @@ exports[`DataTypeConfigModal should match a snapshot 1`] = `
           col3
         </p>
         <div
-          class="MuiFormControl-root makeStyles-formControl-8"
+          class="MuiFormControl-root makeStyles-formControl-10"
         >
           <label
             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-filled"
@@ -223,10 +227,10 @@ exports[`DataTypeConfigModal should match a snapshot 1`] = `
             </svg>
             <fieldset
               aria-hidden="true"
-              class="PrivateNotchedOutline-root-10 MuiOutlinedInput-notchedOutline"
+              class="PrivateNotchedOutline-root-12 MuiOutlinedInput-notchedOutline"
             >
               <legend
-                class="PrivateNotchedOutline-legendLabelled-12 PrivateNotchedOutline-legendNotched-13"
+                class="PrivateNotchedOutline-legendLabelled-14 PrivateNotchedOutline-legendNotched-15"
               >
                 <span>
                   Select datatype
@@ -239,10 +243,10 @@ exports[`DataTypeConfigModal should match a snapshot 1`] = `
     </div>
   </div>
   <div
-    class="MuiDialogActions-root WithStyles(ForwardRef(DialogActions))-root-16 MuiDialogActions-spacing"
+    class="MuiDialogActions-root WithStyles(ForwardRef(DialogActions))-root-18 MuiDialogActions-spacing"
   >
     <div
-      class="MuiBox-root MuiBox-root-18 makeStyles-buttonGroup-17"
+      class="MuiBox-root MuiBox-root-20 makeStyles-buttonGroup-19"
     >
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-outlined Mui-focusVisible Mui-focusVisible"
