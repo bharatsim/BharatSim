@@ -9,7 +9,7 @@ import scala.reflect.ClassTag
 
 class Schedule(val period: ScheduleUnit, val unit: ScheduleUnit) {
 
-  val _schedule: mutable.HashMap[Integer, Any] = new mutable.HashMap[Integer, Any]()
+  val _schedule: mutable.HashMap[Integer, Either[String, Schedule]] = mutable.HashMap.empty
 
   private def checkOutOfBound(to: Int) = {
     val maxBound = (period.steps / unit.steps - 1)
@@ -23,24 +23,15 @@ class Schedule(val period: ScheduleUnit, val unit: ScheduleUnit) {
   def add[T <: Node : ClassTag](from: Int, to: Int): Schedule = {
     checkOutOfBound(to)
     for (i <- from to to) {
-      _schedule.put(i, Utils.fetchClassName[T])
+      _schedule.put(i, Left(Utils.fetchClassName[T]))
     }
     this
   }
 
-  private def isResolvable(schedule: Schedule): Boolean = {
-    if (schedule == this) return false
-    schedule._schedule.valuesIterator.toSet
-      .forall(_ match {
-        case _: String               => true
-        case childSchedule: Schedule => isResolvable(childSchedule);
-      })
-  };
-
   def add(schedule: Schedule, from: Int, to: Int): Schedule = {
     if (!isResolvable(schedule)) throw new CyclicScheduleException("The schedule is creating cyclic reference")
     for (i <- from to to) {
-      _schedule.put(i, schedule)
+      _schedule.put(i, Right(schedule))
     }
     this
   }
@@ -48,8 +39,17 @@ class Schedule(val period: ScheduleUnit, val unit: ScheduleUnit) {
   def getForStep(step: Int): String = {
     val scheduleValue = _schedule(getKey(step))
     scheduleValue match {
-      case place: String      => place
-      case schedule: Schedule => schedule.getForStep(step)
+      case Left(place) => place
+      case Right(schedule) => schedule.getForStep(step)
     }
+  }
+
+  private def isResolvable(schedule: Schedule): Boolean = {
+    if (schedule == this) return false
+    schedule._schedule.valuesIterator.toSet
+      .forall(_ match {
+        case Left(_) => true
+        case Right(childSchedule) => isResolvable(childSchedule)
+      })
   }
 }
