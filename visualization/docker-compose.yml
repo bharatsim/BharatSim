@@ -1,17 +1,17 @@
 version: '3.1'
 
 services:
-  mongo:
+  db:
     image: mongo
     restart: always
     ports:
       - 27017:27017
     env_file:
       - .env
-  visualisation:
-    depends_on:
-      - mongo
-    container_name: visualisation
+  app:
+    links:
+      - db
+    container_name: web
     build:
       context: .
     env_file:
