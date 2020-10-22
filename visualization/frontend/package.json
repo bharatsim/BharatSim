@@ -47,11 +47,6 @@
       "git add"
     ]
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged && yarn test --no-cache"
-    }
-  },
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}",
@@ -108,7 +103,6 @@
     "eslint-plugin-react": "7.x",
     "eslint-plugin-react-hooks": "2.x",
     "history": "^5.0.0",
-    "husky": "4.2.5",
     "jest-canvas-mock": "2.2.0",
     "jest-environment-jsdom-fifteen": "^1.0.2",
     "lint-staged": "10.2.11",
