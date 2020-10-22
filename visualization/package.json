@@ -1,0 +1,19 @@
+{
+  "name": "visualization",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev-frontend": "cd frontend && yarn start",
+    "dev-backend": "cd backend && yarn start",
+    "dev-db": "docker-compose up mongo",
+    "build": "cd frontend && yarn build && cp -a build/. ../backend/public/ ",
+    "start": "yarn build && cd backend && yarn start",
+    "test": "concurrently \"cd backend && yarn test\" \"cd frontend && yarn test\" "
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^5.3.0"
+  }
+}

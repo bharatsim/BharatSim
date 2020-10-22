@@ -1,0 +1,20 @@
+version: '3.1'
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    env_file:
+      - .env
+  visualisation:
+    container_name: visualisation
+    build:
+      context: .
+    env_file:
+      - .env
+    working_dir: /visualisation
+    ports:
+      - 3005:3005
+    command: npm start

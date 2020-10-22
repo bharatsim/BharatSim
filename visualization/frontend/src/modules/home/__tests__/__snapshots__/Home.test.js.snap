@@ -158,5 +158,3 @@ exports[`Home should match snapshot for new user 1`] = `
   </div>
 </div>
 `;
-
-exports[`Home should match snapshot for new user 2`] = `<div />`;
