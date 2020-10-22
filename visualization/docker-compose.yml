@@ -9,6 +9,8 @@ services:
     env_file:
       - .env
   visualisation:
+    depends_on:
+      - mongo
     container_name: visualisation
     build:
       context: .
