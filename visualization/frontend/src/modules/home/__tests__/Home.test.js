@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { waitFor } from '@testing-library/dom';
 import Home from '../Home';
 import { api } from '../../../utils/api';
 
@@ -16,7 +15,7 @@ describe('Home', () => {
     const { container, findByText } = render(<Home />);
 
     await findByText('Welcome to BharatSim');
-    await waitFor(() => expect(container).toMatchSnapshot());
+    expect(container).toMatchSnapshot();
   });
   it('should match snapshot for existing users', async () => {
     api.getProjects.mockResolvedValue({ projects: [{ name: 'project1', _id: '1' }] });
