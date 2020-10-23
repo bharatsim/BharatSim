@@ -1,6 +1,7 @@
 package com.bharatsim.engine
 
-import com.bharatsim.engine.ContextBuilder.registerAgent
+import com.bharatsim.engine.ContextBuilder.{registerAction, registerAgent}
+import com.bharatsim.engine.actions.StopSimulation
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
@@ -113,6 +114,18 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
     order.verify(mockListener).onStepStart(context)
     order.verify(mockListener).onStepEnd(context)
     order.verify(mockListener).onSimulationEnd(context)
+  }
+
+  test("should check for conditional actions and if condition is satisfied, perform the action") {
+    val graphProvider = mock[GraphProvider]
+    implicit val context: Context = getContext(2, graphProvider)
+
+    registerAction(StopSimulation, c => c.getCurrentStep == 1)
+
+    Simulation.run()
+
+    verifyZeroInteractions(graphProvider)
+    context.getCurrentStep shouldBe 1
   }
 
   def getContext(steps: Int, mockGraphProvider: GraphProvider = mock[GraphProvider]) =

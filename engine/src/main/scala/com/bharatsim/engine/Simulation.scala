@@ -12,6 +12,10 @@ class Simulation(context: Context) extends LazyLogging {
     SimulationListenerRegistry.notifySimulationStart(context)
     breakable {
       for (step <- 1 to context.simulationConfig.simulationSteps) {
+        logger.info("Tick {}", step)
+        context.setCurrentStep(step)
+        SimulationListenerRegistry.notifyStepStart(context)
+
         context.actions.foreach(conditionalAction => {
           if (conditionalAction.condition(context)) {
             conditionalAction.action.perform(context)
@@ -21,10 +25,6 @@ class Simulation(context: Context) extends LazyLogging {
         if (context.stopSimulation) {
           break
         }
-
-        logger.info("Tick {}", step)
-        context.setCurrentStep(step)
-        SimulationListenerRegistry.notifyStepStart(context)
 
         val agentTypes = context.fetchAgentTypes
         agentTypes.foreach(agentType => {
