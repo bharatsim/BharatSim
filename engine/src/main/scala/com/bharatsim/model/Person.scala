@@ -5,6 +5,7 @@ import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.models.{Agent, Node}
+import com.bharatsim.engine.utils.Probability.toss
 import com.bharatsim.model.InfectionStatus._
 
 import scala.util.Random
@@ -36,7 +37,7 @@ case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionD
           .getConnections(decodedPlace.getRelation[Person]().get)
           .count(x => x.as[Person].isInfected)
 
-        val shouldInfect = infectionRate * infectedNeighbourCount > 0
+        val shouldInfect = toss(infectionRate, infectedNeighbourCount)
 
         if (shouldInfect) {
           updateParam("infectionState", Infected)
