@@ -6,7 +6,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import fileImportIcon from '../../assets/images/importFileIcon.svg';
-import { parseCsv } from '../../utils/fileUploadUtils';
+import { createSchema, parseCsv } from '../../utils/fileUploadUtils';
 import LoaderOrError from '../../component/loaderOrError/LoaderOrError';
 import useLoader, { loaderStates } from '../../hook/useLoader';
 
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => {
   };
 });
 
-function ImportDataset({ setFile, handleNext, setPreviewData, setErrorStep }) {
+function ImportDataset({ setFile, handleNext, setPreviewData, setErrorStep, setSchema }) {
   const classes = useStyles();
   const { loadingState, stopLoaderAfterSuccess, stopLoaderAfterError, startLoader } = useLoader(
     loaderStates.SUCCESS,
@@ -35,12 +35,14 @@ function ImportDataset({ setFile, handleNext, setPreviewData, setErrorStep }) {
 
   function onParse(csvData) {
     const { data, errors } = csvData;
-    setPreviewData(data);
     if (errors.length > 0) {
       stopLoaderAfterError('unable to parse dataset');
       setErrorStep(0);
       return;
     }
+    setPreviewData(data);
+    const schema = createSchema(data[0]);
+    setSchema(schema);
     stopLoaderAfterSuccess();
     handleNext();
   }
@@ -80,6 +82,7 @@ ImportDataset.propTypes = {
   handleNext: PropTypes.func.isRequired,
   setPreviewData: PropTypes.func.isRequired,
   setErrorStep: PropTypes.func.isRequired,
+  setSchema: PropTypes.func.isRequired,
 };
 
 export default ImportDataset;

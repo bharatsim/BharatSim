@@ -32,4 +32,12 @@ function resetFileInput(fileInput) {
   fileInput.files = null;
 }
 
-export { getMessage, createSchema, parseCsv, resetFileInput };
+function createColumnForMTable(schema) {
+  return Object.keys(schema).map((fieldName) => ({
+    title: fieldName,
+    field: fieldName,
+    dataType: schema[fieldName],
+  }));
+}
+
+export { getMessage, createSchema, parseCsv, resetFileInput, createColumnForMTable };

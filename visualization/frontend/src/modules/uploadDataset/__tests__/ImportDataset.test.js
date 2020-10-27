@@ -16,11 +16,13 @@ describe('Upload Dataset', () => {
   let handleNextMock;
   let setPreviewDataMock;
   let setErrorStepMock;
+  let setSchemaMock;
   beforeEach(() => {
     setFileMock = jest.fn();
     handleNextMock = jest.fn();
     setPreviewDataMock = jest.fn();
     setErrorStepMock = jest.fn();
+    setSchemaMock = jest.fn();
   });
 
   it('should match snapshot for import dataset component', () => {
@@ -30,6 +32,7 @@ describe('Upload Dataset', () => {
         handleNext={handleNextMock}
         setPreviewData={setPreviewDataMock}
         setErrorStep={setErrorStepMock}
+        setSchema={setSchemaMock}
       />,
     );
 
@@ -43,6 +46,7 @@ describe('Upload Dataset', () => {
         handleNext={handleNextMock}
         setPreviewData={setPreviewDataMock}
         setErrorStep={setErrorStepMock}
+        setSchema={setSchemaMock}
       />,
     );
     const inputComponent = getByTestId('file-input');
@@ -58,6 +62,7 @@ describe('Upload Dataset', () => {
         handleNext={handleNextMock}
         setPreviewData={setPreviewDataMock}
         setErrorStep={setErrorStepMock}
+        setSchema={setSchemaMock}
       />,
     );
     const inputComponent = getByTestId('file-input');
@@ -69,6 +74,23 @@ describe('Upload Dataset', () => {
       expect.any(Function, () => {}),
     );
   });
+
+  it('should create and set schema', () => {
+    const { getByTestId } = render(
+      <Component
+        setFile={setFileMock}
+        handleNext={handleNextMock}
+        setPreviewData={setPreviewDataMock}
+        setErrorStep={setErrorStepMock}
+        setSchema={setSchemaMock}
+      />,
+    );
+    const inputComponent = getByTestId('file-input');
+
+    fireEvent.change(inputComponent, { target: { files: [{ name: 'csv', size: '10' }] } });
+
+    expect(setSchemaMock).toHaveBeenCalledWith({ col1: 'String', col2: 'Number' });
+  });
   it('should set preview data for given file', () => {
     const { getByTestId } = render(
       <Component
@@ -76,6 +98,7 @@ describe('Upload Dataset', () => {
         handleNext={handleNextMock}
         setPreviewData={setPreviewDataMock}
         setErrorStep={setErrorStepMock}
+        setSchema={setSchemaMock}
       />,
     );
     const inputComponent = getByTestId('file-input');
@@ -95,6 +118,7 @@ describe('Upload Dataset', () => {
         handleNext={handleNextMock}
         setPreviewData={setPreviewDataMock}
         setErrorStep={setErrorStepMock}
+        setSchema={setSchemaMock}
       />,
     );
     const inputComponent = getByTestId('file-input');

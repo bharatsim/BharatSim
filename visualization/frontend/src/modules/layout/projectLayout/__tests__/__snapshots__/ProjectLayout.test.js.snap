@@ -3,13 +3,13 @@
 exports[`Project should render child without any api call if project id is undefined 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-4 makeStyles-layoutContainer-2"
+    class="MuiBox-root MuiBox-root-5 makeStyles-layoutContainer-2"
   >
     <div
-      class="MuiBox-root MuiBox-root-5 makeStyles-sideBarLayout-3"
+      class="MuiBox-root MuiBox-root-6 makeStyles-sideBarLayout-3"
     >
       <div
-        class="MuiBox-root MuiBox-root-12"
+        class="MuiBox-root MuiBox-root-13"
       >
         <div
           class="MuiTabs-root MuiTabs-vertical"
@@ -23,7 +23,7 @@ exports[`Project should render child without any api call if project id is undef
               role="tablist"
             />
             <span
-              class="PrivateTabIndicator-root-16 PrivateTabIndicator-colorSecondary-18 MuiTabs-indicator makeStyles-indicator-11 PrivateTabIndicator-vertical-19"
+              class="PrivateTabIndicator-root-17 PrivateTabIndicator-colorSecondary-19 MuiTabs-indicator makeStyles-indicator-12 PrivateTabIndicator-vertical-20"
               style="top: 0px; height: 0px;"
             />
           </div>
@@ -31,7 +31,7 @@ exports[`Project should render child without any api call if project id is undef
       </div>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-13"
+      class="MuiBox-root MuiBox-root-14 makeStyles-viewContainer-4"
     >
       <div>
         <div>

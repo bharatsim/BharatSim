@@ -55,7 +55,7 @@ function ProjectLayout({ children }) {
     }
   }, useDeepCompareMemoize([fetchedDashboards, projectId]));
 
-  function addDashboard(dashboard){
+  function addDashboard(dashboard) {
     setDashboards([...dashboards, dashboard]);
   }
 
@@ -67,7 +67,7 @@ function ProjectLayout({ children }) {
           value={selectedDashboard}
         />
       </Box>
-      <Box display="flex" flex={1} flexDirection="column">
+      <Box className={classes.viewContainer}>
         <LoaderOrError loadingState={projectLoadingState}>
           <LoaderOrError loadingState={dashboardLoadingState}>
             <ProjectLayoutProvider

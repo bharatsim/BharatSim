@@ -31,6 +31,7 @@ const useStyles = makeStyles((theme) => {
   };
 });
 
+// eslint-disable-next-line consistent-return
 function getStepContent(
   stepIndex,
   setFile,
@@ -42,24 +43,28 @@ function getStepContent(
   setErrorStep,
   previewData,
 ) {
-  return {
-    0: (
+  if (stepIndex === 0) {
+    return (
       <ImportDataset
         setFile={setFile}
         handleNext={handleNext}
         setPreviewData={setPreviewData}
         setErrorStep={setErrorStep}
+        setSchema={setSchema}
       />
-    ),
-    1: (
+    );
+  }
+
+  if (stepIndex === 1) {
+    return (
       <ConfigureDatatype
-        onSchemaSelect={setSchema}
+        schema={schema}
         selectedFile={file}
         handleNext={handleNext}
         previewData={previewData}
       />
-    ),
-  }[stepIndex];
+    );
+  }
 }
 
 function UploadDataset() {
@@ -70,7 +75,7 @@ function UploadDataset() {
   const steps = ['Import Data', 'Configure Datatype', 'Upload to Dashboard'];
   const [file, setFile] = useState();
   const [schema, setSchema] = useState();
-  const [, setPreviewData] = useState();
+  const [previewData, setPreviewData] = useState();
 
   function handleNext() {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -102,6 +107,7 @@ function UploadDataset() {
             handleNext,
             setPreviewData,
             setErrorStep,
+            previewData,
           )}
         </Box>
       </Box>

@@ -121,6 +121,11 @@ theme.overrides = {
       padding: theme.spacing(4),
     },
   },
+  MuiToolbar: {
+    regular: {
+      minHeight: 'unset !important',
+    },
+  },
 };
 
 export default theme;

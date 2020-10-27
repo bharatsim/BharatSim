@@ -25,6 +25,12 @@ const useProjectLayoutStyle = makeStyles((theme) => {
       color: theme.colors.textLight.primary,
       paddingTop: theme.spacing(18),
     },
+    viewContainer: {
+      display: 'flex',
+      flexDirection: 'column',
+      flex: 1,
+      maxWidth: 'calc(100vw - 256px)',
+    },
   };
 });
 

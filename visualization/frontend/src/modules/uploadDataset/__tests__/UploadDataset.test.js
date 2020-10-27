@@ -40,10 +40,10 @@ describe('Upload Dataset', () => {
     const { getByText, getByTestId, findByText } = render(<ComponentWithProvider />);
     const inputComponent = getByTestId('file-input');
 
-    fireEvent.change(inputComponent, { target: { files: [{ name: 'csv', size: '10' }] } });
+    fireEvent.change(inputComponent, { target: { files: [new File([''], 'testFile.csv')] } });
 
-    await findByText('Configure Datatype Component');
+    await findByText('DataFile:');
 
-    expect(getByText('Configure Datatype Component')).toBeInTheDocument();
+    expect(getByText('testFile.csv')).toBeInTheDocument();
   });
 });
