@@ -1,14 +1,15 @@
-import Box from '@material-ui/core/Box';
-import { Typography } from '@material-ui/core';
 import React, { useContext, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Step from '@material-ui/core/Step';
-import StepLabel from '@material-ui/core/StepLabel';
-import Stepper from '@material-ui/core/Stepper';
-import ImportDataset from './ImportDataset';
-import ConfigureDatatype from './ConfigureDatatype';
+import { useHistory } from 'react-router-dom';
+
+import { Button, Typography, Box, makeStyles, Step, Stepper, StepLabel } from '@material-ui/core';
+
 import ProjectHeader from '../../uiComponent/ProjectHeader';
+import ButtonGroup from '../../uiComponent/ButtonGroup';
+
+import ConfigureDatatype from './ConfigureDatatype';
+import ImportDataset from './ImportDataset';
 import { projectLayoutContext } from '../../contexts/projectLayoutContext';
+import { api } from '../../utils/api';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -16,7 +17,7 @@ const useStyles = makeStyles((theme) => {
       width: '100%',
       display: 'flex',
       justifyContent: 'space-between',
-      backgroundColor: theme.colors.grayScale['100'],
+      backgroundColor: `${theme.colors.grayScale['100']}80`,
       alignItems: 'center',
       padding: theme.spacing(3, 8),
     },
@@ -65,11 +66,25 @@ function getStepContent(
       />
     );
   }
+
+  return (
+    <ConfigureDatatype
+      schema={schema}
+      selectedFile={file}
+      handleNext={handleNext}
+      previewData={previewData}
+    />
+  );
 }
 
 function UploadDataset() {
   const classes = useStyles();
-  const { projectMetadata } = useContext(projectLayoutContext);
+  const history = useHistory();
+  const {
+    projectMetadata,
+    selectedDashboardMetadata: { _id: selectedDashboardId },
+  } = useContext(projectLayoutContext);
+
   const [activeStep, setActiveStep] = useState(0);
   const [errorStep, setErrorStep] = useState(undefined);
   const steps = ['Import Data', 'Configure Datatype', 'Upload to Dashboard'];
@@ -81,11 +96,30 @@ function UploadDataset() {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   }
 
+  async function onClickUploadAndSave() {
+    handleNext();
+    await api.uploadFileAndSchema({ file, schema, dashboardId: selectedDashboardId }).then(() => {
+      history.push(`configure-dataset`);
+    });
+  }
+
+  function onCancel() {
+    history.push(`configure-dataset`);
+  }
+
   return (
     <Box>
       <ProjectHeader>{projectMetadata.name}</ProjectHeader>
       <Box className={classes.configureProjectDataBar}>
         <Typography variant="h6"> Configure Dashboard Data :: Upload Dataset</Typography>
+        <ButtonGroup>
+          <Button variant="text" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button variant="contained" disabled={activeStep !== 1} onClick={onClickUploadAndSave}>
+            Upload
+          </Button>
+        </ButtonGroup>
       </Box>
       <Box className={classes.contentWrapper}>
         <Box px={8} pb={8}>

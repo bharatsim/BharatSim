@@ -40,12 +40,13 @@ const api = {
 
   getAllDashBoard: async () => fetchData({ url: serviceURL.DASHBOARD_URL }),
 
-  uploadFileAndSchema: async ({ file, schema }) =>
+  uploadFileAndSchema: async ({ file, schema, dashboardId }) =>
     uploadData({
       url: serviceURL.DATA_SOURCES,
       data: formDataBuilder([
         { name: 'datafile', value: file },
         { name: 'schema', value: JSON.stringify(schema) },
+        { name: 'dashboardId', value: dashboardId },
       ]),
       headers: headerBuilder({ contentType: contentTypes.FILE }),
     }),
