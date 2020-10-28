@@ -18,9 +18,12 @@ object Main extends LazyLogging {
 
     createSchedules()
 
-    registerAction(StopSimulation, (c: Context) => {
-      getInfectedCount(c) == 0 && getSusceptibleCount(c) == 0
-    })
+    registerAction(
+      StopSimulation,
+      (c: Context) => {
+        getInfectedCount(c) == 0 && getSusceptibleCount(c) == 0
+      }
+    )
 
     ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
     logger.debug("Ingestion done")
@@ -51,6 +54,13 @@ object Main extends LazyLogging {
       .add(employeeScheduleOnWeekDays, 0, 4)
       .add(employeeScheduleOnWeekEnd, 5, 6)
 
+    val employeeScheduleWithPublicTransport = (Day, Hour)
+      .add[House](0, 8)
+      .add[Transport](9, 10)
+      .add[Office](11, 18)
+      .add[Transport](19, 20)
+      .add[House](21, 23)
+
     val studentScheduleOnWeekDay = (Day, Hour)
       .add[House](0, 8)
       .add[School](9, 15)
@@ -63,6 +73,11 @@ object Main extends LazyLogging {
       .add(studentScheduleOnWeekEnd, 5, 6)
 
     registerSchedules(
+      (
+        employeeScheduleWithPublicTransport,
+        (agent: Agent, _: Context) =>
+          agent.asInstanceOf[Person].takesPublicTransport && agent.asInstanceOf[Person].age >= 30
+      ),
       (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 30),
       (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 30)
     )
@@ -72,7 +87,10 @@ object Main extends LazyLogging {
 
     val citizenId = map("id").toInt
     val age = map("age").toInt
-    val citizen: Person = Person(citizenId, age, InfectionStatus.withName(map("infectionState")), 0)
+    val takesPublicTransport = map("public_transport").toBoolean
+
+    val citizen: Person =
+      Person(citizenId, age, InfectionStatus.withName(map("infectionState")), 0, takesPublicTransport)
 
     val homeId = map("house_id").toInt
     val officeId = map("office_id").toInt
@@ -97,6 +115,16 @@ object Main extends LazyLogging {
     graphData.addNode(schoolId, school)
 
     graphData.addRelations(List(staysAt, worksAt, studiesAt, memberOf, employerOf, studentOf))
+
+    if (takesPublicTransport) {
+      val transportId = 1;
+      val transport = Transport(transportId);
+      val takes = Relation[Person, Transport](citizenId, citizen.getRelation[Transport]().get, transportId)
+      val carries = Relation[Transport, Person](transportId, transport.getRelation[Person]().get, citizenId)
+      graphData.addNode(transportId, transport)
+      graphData.addRelations(List(takes, carries))
+    }
+
     graphData
   }
 

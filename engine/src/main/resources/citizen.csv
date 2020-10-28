@@ -1,6 +1,6 @@
-id,label,age,infectionState,house_id,office_id,school_id
-1,Citizen,25,Infected,101,000,501
-2,Citizen,35,Infected,102,201,000
-3,Citizen,45,Susceptible,101,201,000
-4,Citizen,25,Susceptible,102,000,502
-5,Citizen,25,Susceptible,103,000,501
+id,label,age,infectionState,house_id,office_id,school_id,public_transport
+1,Citizen,25,Infected,101,000,501,true
+2,Citizen,35,Infected,102,201,000,true
+3,Citizen,45,Susceptible,101,201,000,true
+4,Citizen,25,Susceptible,102,000,502,true
+5,Citizen,25,Susceptible,103,000,501,true

@@ -1,7 +1,9 @@
 package com.bharatsim.model
 
-import com.bharatsim.engine.models.Node
+import com.bharatsim.engine.models.Network
 
-case class School(id: Int) extends Node{
+case class School(id: Int) extends Network {
   addRelation[Person]("TEACHES")
+
+  override def getContactProbability(): Double = 1
 }

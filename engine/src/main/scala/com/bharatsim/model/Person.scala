@@ -4,13 +4,14 @@ import com.bharatsim.engine.Context
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.GraphNode
-import com.bharatsim.engine.models.{Agent, Node}
-import com.bharatsim.engine.utils.Probability.toss
+import com.bharatsim.engine.models.{Agent, Network}
+import com.bharatsim.engine.utils.Probability.{biasedCoinToss, toss}
 import com.bharatsim.model.InfectionStatus._
 
 import scala.util.Random
 
-case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionDay: Int) extends Agent {
+case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionDay: Int, takesPublicTransport: Boolean)
+    extends Agent {
   final val numberOfHoursInADay: Int = 24
 
   private def incrementInfectionDay(context: Context): Unit = {
@@ -36,21 +37,22 @@ case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionD
         val infectedNeighbourCount = decodedPlace
           .getConnections(decodedPlace.getRelation[Person]().get)
           .count(x => x.as[Person].isInfected)
-
-        val shouldInfect = toss(infectionRate, infectedNeighbourCount)
+        val shouldInfect =
+          biasedCoinToss(decodedPlace.getContactProbability()) && toss(infectionRate, infectedNeighbourCount)
 
         if (shouldInfect) {
-          updateParam("infectionState", Infected)
+          updateParam("infectionState", Exposed)
         }
       }
     }
   }
 
-  private def decodeNode(classType: String, node: GraphNode): Node = {
+  private def decodeNode(classType: String, node: GraphNode): Network = {
     classType match {
-      case "House" => node.as[House]
-      case "Office" => node.as[Office]
-      case "School" => node.as[School]
+      case "House"     => node.as[House]
+      case "Office"    => node.as[Office]
+      case "School"    => node.as[School]
+      case "Transport" => node.as[Transport]
     }
   }
 
@@ -93,4 +95,5 @@ case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionD
   addRelation[House]("STAYS_AT")
   addRelation[Office]("WORKS_AT")
   addRelation[School]("STUDIES_AT")
+  addRelation[Transport]("TAKES")
 }
