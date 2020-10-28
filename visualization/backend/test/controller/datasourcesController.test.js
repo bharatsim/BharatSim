@@ -21,8 +21,8 @@ jest.mock('../../src/services/uploadDatasourceService');
 multer.mockImplementation(() => ({
   single() {
     return (req, res, next) => {
-      req.body.title = req.query.title;
       req.body.schema = testSchema;
+      req.body.dashboardId = 'dashboardId';
       req.file = { originalname: 'sample.name', mimetype: 'sample.type', path: 'sample.path' };
       return next();
     };
@@ -186,7 +186,7 @@ describe('api', () => {
           originalname: 'sample.name',
           path: 'sample.path',
         },
-        testSchema,
+        { dashboardId: 'dashboardId', schema: '{ "col1": "String", "col2": "Number" }' },
       );
     });
 
@@ -229,7 +229,7 @@ describe('api', () => {
           originalname: 'sample.name',
           path: 'sample.path',
         },
-        testSchema,
+        { dashboardId: 'dashboardId', schema: '{ "col1": "String", "col2": "Number" }' },
       );
     });
 

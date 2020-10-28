@@ -12,6 +12,7 @@ const dataSourceMetadata = [
       hour: 'number',
       susceptible: 'number',
     },
+    dashboardId: '313233343536373839303137',
   },
   {
     name: 'model_2',
@@ -19,6 +20,7 @@ const dataSourceMetadata = [
       hour_: 'number',
       susceptible_: 'number',
     },
+    dashboardId: '313233343536373839303137',
   },
 ];
 
@@ -85,6 +87,7 @@ describe('get Datasource name ', () => {
         hour: 'number',
         susceptible: 'number',
       },
+      dashboardId: '313233343536373839303137',
     });
 
     const result = parseMongoDBResult(
@@ -97,6 +100,7 @@ describe('get Datasource name ', () => {
         hour: 'number',
         susceptible: 'number',
       },
+      dashboardId: '313233343536373839303137',
     });
   });
 
@@ -104,6 +108,7 @@ describe('get Datasource name ', () => {
     const { _id: collectionId } = await DataSourceMetaDataRepository.insert({
       name: dataSourceMetadata[0].name,
       dataSourceSchema: dataSourceMetadata[0].dataSourceSchema,
+      dashboardId: '313233343536373839303137',
     });
 
     await DataSourceMetaDataRepository.deleteDatasourceMetadata(collectionId);

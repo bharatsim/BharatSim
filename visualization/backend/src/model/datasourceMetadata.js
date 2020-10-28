@@ -8,6 +8,11 @@ const datasourceMetadata = new Schema(
       required: true,
     },
     dataSourceSchema: Object,
+    dashboardId: {
+      type: Schema.Types.ObjectId,
+      ref: 'dashboard',
+      required: true,
+    },
   },
   { collection: 'datasourceMetadata' },
 );

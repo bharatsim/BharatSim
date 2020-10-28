@@ -17,7 +17,7 @@ router.get('/', async function (req, res) {
 
 router.post('/', async function (req, res) {
   uploadDatasourceService
-    .uploadCsv(req.file, req.body.schema)
+    .uploadCsv(req.file, req.body)
     .then((data) => res.json(data))
     .catch((err) => {
       if (err instanceof InvalidInputException) {

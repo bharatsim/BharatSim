@@ -7,6 +7,7 @@ const dataSourceMetadata = [
       hour: 'number',
       susceptible: 'number',
     },
+    dashboardId: '313233343536373839303137',
   },
   {
     name: 'model_2',
@@ -14,6 +15,7 @@ const dataSourceMetadata = [
       hour_: 'number',
       susceptible_: 'number',
     },
+    dashboardId: '313233343536373839303137',
   },
 ];
 

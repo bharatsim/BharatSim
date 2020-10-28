@@ -7,8 +7,12 @@ const modelCreator = require('../utils/modelCreator');
 const InvalidInputException = require('../exceptions/InvalidInputException');
 const { fileTypes, MAX_FILE_SIZE } = require('../constants/fileTypes');
 
-async function insertMetadata(fileName, schema) {
-  return dataSourceMetadataRepository.insert({ name: fileName, dataSourceSchema: schema });
+async function insertMetadata(fileName, schema, dashboardId) {
+  return dataSourceMetadataRepository.insert({
+    name: fileName,
+    dataSourceSchema: schema,
+    dashboardId,
+  });
 }
 
 async function insertCSVData(metadataId, schema, data) {
@@ -36,12 +40,13 @@ function validateFileAndThrowException(fileType, fileSize) {
   }
 }
 
-async function uploadCsv(csvFile, schema) {
+async function uploadCsv(csvFile, requestBody) {
+  const { schema, dashboardId } = requestBody;
   const schemaJson = JSON.parse(schema);
   const { path, originalname: fileName, mimetype: fileType, size } = csvFile;
   validateFileAndThrowException(fileType, size);
   const data = validateAndParseCSV(path);
-  const { _id: metadataId } = await insertMetadata(fileName, schemaJson);
+  const { _id: metadataId } = await insertMetadata(fileName, schemaJson, dashboardId);
   await insertCSVData(metadataId.toString(), schemaJson, data);
   return { collectionId: metadataId };
 }

@@ -112,6 +112,7 @@ describe('Integration test', () => {
       const response = await request(app)
         .post('/datasources')
         .field('schema', JSON.stringify(testSchemaModal1))
+        .field('dashboardId', '313233343536373839303137')
         .field('name', 'datafile')
         .attach('datafile', 'test/data/simulation.csv')
         .expect(200);
@@ -142,6 +143,7 @@ describe('Integration test', () => {
       await request(app)
         .post('/datasources')
         .field('schema', JSON.stringify(testSchemaModal1))
+        .field('dashboardId', '313233343536373839303137')
         .field('name', 'datafile')
         .attach('datafile', 'test/data/test.png')
         .expect(400)
@@ -162,6 +164,7 @@ describe('Integration test', () => {
       await request(app)
         .post('/datasources')
         .field('schema', JSON.stringify(testSchemaModal1))
+        .field('dashboardId', '313233343536373839303137')
         .field('name', 'datafile')
         .attach('datafile', 'test/data/simulation.csv')
         .expect(400)

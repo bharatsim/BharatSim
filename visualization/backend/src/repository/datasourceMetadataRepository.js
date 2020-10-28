@@ -18,8 +18,8 @@ async function getDataSourceSchemaById(dataSourceId) {
     });
 }
 
-async function insert({ name, dataSourceSchema }) {
-  const dataSourceMetadata = new DataSourceMetadata({ name, dataSourceSchema });
+async function insert({ name, dataSourceSchema, dashboardId }) {
+  const dataSourceMetadata = new DataSourceMetadata({ name, dataSourceSchema, dashboardId });
   return dataSourceMetadata.save();
 }
 

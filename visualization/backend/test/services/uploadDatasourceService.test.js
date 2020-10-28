@@ -20,9 +20,9 @@ jest.mock('../../src/utils/csvParser', () => ({
   ]),
 }));
 
-describe('upload datasource  service', function () {
-  describe('Uploaddatasource', function () {
-    it('should insert schema and datasource name in dataSource metadata for uploaded csv', async function () {
+describe('upload datasource service', function () {
+  describe('Upload datasource metadata', function () {
+    it('should return id for uploaded dataSource metadata for uploaded csv', async () => {
       dataSourceMetadataRepository.insert.mockResolvedValue({ _id: 'collection' });
 
       const collectionId = await uploadDatasourceService.uploadCsv(
@@ -32,13 +32,13 @@ describe('upload datasource  service', function () {
           mimetype: 'text/csv',
           size: 12132,
         },
-        '{ "hour": "number", "susceptible": "number" }',
+        { schema: '{ "hour": "number", "susceptible": "number" }', dashboardId: 'dashboardId' },
       );
 
       expect(collectionId).toEqual({ collectionId: 'collection' });
     });
 
-    it('should insert schema and datasource name in dataSource metadata for uploaded csv', async function () {
+    it('should insert schema,fileName, dashboardId in dataSource metadata for uploaded csv', async () => {
       dataSourceMetadataRepository.insert.mockResolvedValue({
         _id: new mongoose.Types.ObjectId(123123),
       });
@@ -50,12 +50,13 @@ describe('upload datasource  service', function () {
           mimetype: 'text/csv',
           size: 12132,
         },
-        '{ "hour": "number", "susceptible": "number" }',
+        { schema: '{ "hour": "number", "susceptible": "number" }', dashboardId: 'dashboardId' },
       );
 
       expect(dataSourceMetadataRepository.insert).toHaveBeenCalledWith({
         dataSourceSchema: { hour: 'number', susceptible: 'number' },
         name: 'test.csv',
+        dashboardId: 'dashboardId',
       });
     });
 
@@ -70,7 +71,7 @@ describe('upload datasource  service', function () {
           mimetype: 'text/csv',
           size: 12132,
         },
-        '{ "hour": "number", "susceptible": "number" }',
+        { schema: '{ "hour": "number", "susceptible": "number" }', dashboardId: 'dashboardId' },
       );
 
       expect(dataSourceRepository.insert).toHaveBeenCalledWith('collectionId', [
@@ -95,7 +96,7 @@ describe('upload datasource  service', function () {
             mimetype: 'text/csv',
             size: 12132,
           },
-          '{ "hour": "number", "susceptible": "number" }',
+          { schema: '{ "hour": "number", "susceptible": "number" }', dashboardId: 'dashboardId' },
         );
       };
 
@@ -119,7 +120,7 @@ describe('upload datasource  service', function () {
             mimetype: 'text/csv',
             size: 12132,
           },
-          '{ "hour": "number", "susceptible": "number" }',
+          { schema: '{ "hour": "number", "susceptible": "number" }', dashboardId: 'dashboardId' },
         );
       } catch {
         expect(dataSourceMetadataRepository.deleteDatasourceMetadata).toHaveBeenCalledWith(
@@ -143,7 +144,7 @@ describe('upload datasource  service', function () {
             mimetype: 'text/csv',
             size: 10485761,
           },
-          '{ "hour": "number", "susceptible": "number" }',
+          { schema: '{ "hour": "number", "susceptible": "number" }', dashboardId: 'dashboardId' },
         );
       };
 
@@ -165,7 +166,7 @@ describe('upload datasource  service', function () {
             mimetype: 'img/png',
             size: 10485,
           },
-          '{ "hour": "number", "susceptible": "number" }',
+          { schema: '{ "hour": "number", "susceptible": "number" }', dashboardId: 'dashboardId' },
         );
       };
 

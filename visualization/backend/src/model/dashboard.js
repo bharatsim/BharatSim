@@ -20,6 +20,7 @@ const dashboard = new Schema(
     widgets: [widgetSchema],
     layout: [Object],
     count: { type: Number },
+    // TODO: Add Required in project id
     projectId: {
       type: Schema.Types.ObjectId,
       ref: 'project',
