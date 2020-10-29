@@ -120,18 +120,7 @@ exports[`<Table /> should match snapshot 1`] = `
                       role="button"
                       tabindex="0"
                     >
-                      <div
-                        aria-describedby="rbd-hidden-text-0-hidden-text-0"
-                        data-rbd-drag-handle-context-id="0"
-                        data-rbd-drag-handle-draggable-id="0"
-                        data-rbd-draggable-context-id="0"
-                        data-rbd-draggable-id="0"
-                        draggable="false"
-                        role="button"
-                        tabindex="0"
-                      >
-                        Adı
-                      </div>
+                      Adı
                       <svg
                         aria-hidden="true"
                         class="MuiSvgIcon-root MuiTableSortLabel-icon MuiTableSortLabel-iconDirectionAsc"
@@ -155,18 +144,7 @@ exports[`<Table /> should match snapshot 1`] = `
                       role="button"
                       tabindex="0"
                     >
-                      <div
-                        aria-describedby="rbd-hidden-text-0-hidden-text-0"
-                        data-rbd-drag-handle-context-id="0"
-                        data-rbd-drag-handle-draggable-id="1"
-                        data-rbd-draggable-context-id="0"
-                        data-rbd-draggable-id="1"
-                        draggable="false"
-                        role="button"
-                        tabindex="0"
-                      >
-                        Soyadı
-                      </div>
+                      Soyadı
                       <svg
                         aria-hidden="true"
                         class="MuiSvgIcon-root MuiTableSortLabel-icon MuiTableSortLabel-iconDirectionAsc"
@@ -190,18 +168,7 @@ exports[`<Table /> should match snapshot 1`] = `
                       role="button"
                       tabindex="0"
                     >
-                      <div
-                        aria-describedby="rbd-hidden-text-0-hidden-text-0"
-                        data-rbd-drag-handle-context-id="0"
-                        data-rbd-drag-handle-draggable-id="2"
-                        data-rbd-draggable-context-id="0"
-                        data-rbd-draggable-id="2"
-                        draggable="false"
-                        role="button"
-                        tabindex="0"
-                      >
-                        Doğum Yılı
-                      </div>
+                      Doğum Yılı
                       <svg
                         aria-hidden="true"
                         class="MuiSvgIcon-root MuiTableSortLabel-icon MuiTableSortLabel-iconDirectionAsc"
@@ -225,18 +192,7 @@ exports[`<Table /> should match snapshot 1`] = `
                       role="button"
                       tabindex="0"
                     >
-                      <div
-                        aria-describedby="rbd-hidden-text-0-hidden-text-0"
-                        data-rbd-drag-handle-context-id="0"
-                        data-rbd-drag-handle-draggable-id="3"
-                        data-rbd-draggable-context-id="0"
-                        data-rbd-draggable-id="3"
-                        draggable="false"
-                        role="button"
-                        tabindex="0"
-                      >
-                        Doğum Yeri
-                      </div>
+                      Doğum Yeri
                       <svg
                         aria-hidden="true"
                         class="MuiSvgIcon-root MuiTableSortLabel-icon MuiTableSortLabel-iconDirectionAsc"

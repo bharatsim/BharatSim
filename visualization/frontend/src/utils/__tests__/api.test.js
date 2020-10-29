@@ -64,7 +64,7 @@ describe('API', () => {
       headers: {
         'content-type': 'application/json',
       },
-      url: "/api/dashboard/create-new",
+      url: '/api/dashboard/create-new',
     };
 
     api.addNewDashboard({ name: 'dashbaord1', projectId: 'projectId' });
@@ -89,9 +89,12 @@ describe('API', () => {
   it('should call datasources api to get all datasources', () => {
     const expectedParameter = {
       url: '/api/dataSources',
+      query: {
+        dashboardId: 'dashboardId',
+      },
     };
 
-    api.getDatasources();
+    api.getDatasources('dashboardId');
 
     expect(fetchData).toHaveBeenCalledWith(expectedParameter);
   });

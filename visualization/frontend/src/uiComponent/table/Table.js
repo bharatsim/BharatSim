@@ -31,6 +31,7 @@ function Table({ columns, data, title, options, ...rest }) {
         emptyRowsWhenPaging: false,
         disableGutters: true,
         pageSize: 10,
+        draggable: false,
         ...options,
       }}
       style={{

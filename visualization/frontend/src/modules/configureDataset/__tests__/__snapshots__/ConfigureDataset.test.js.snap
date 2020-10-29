@@ -3,10 +3,10 @@
 exports[`Configure datasets should match snapshot for given dashboard data and project name  1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-5"
+    class="MuiBox-root MuiBox-root-9"
   >
     <div
-      class="MuiBox-root MuiBox-root-7 makeStyles-projectNameBar-6"
+      class="MuiBox-root MuiBox-root-11 makeStyles-projectNameBar-10"
     >
       <h5
         class="MuiTypography-root MuiTypography-h5"
@@ -15,7 +15,7 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
       </h5>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-8 makeStyles-configureProjectDataBar-1"
+      class="MuiBox-root MuiBox-root-12 makeStyles-configureProjectDataBar-1"
     >
       <h6
         class="MuiTypography-root MuiTypography-h6"
@@ -30,7 +30,8 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
         <span
           class="MuiButton-label"
         >
-           Back to recent projects
+           
+          Back to recent projects
         </span>
         <span
           class="MuiTouchRipple-root"
@@ -38,19 +39,41 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
       </button>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-9 makeStyles-dashboardDataContainer-3"
+      class="MuiBox-root MuiBox-root-13 makeStyles-dashboardDataContainer-3"
     >
       <div
-        class="MuiBox-root MuiBox-root-10"
+        class="MuiBox-root MuiBox-root-14 makeStyles-dashboardDataContainerTitle-4"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle2"
         >
            Manage Dashboard Dataset
         </h6>
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-text"
+          tabindex="0"
+          type="button"
+        >
+          <span
+            class="MuiButton-label"
+          >
+            <span
+              class="MuiButton-startIcon MuiButton-iconSizeMedium"
+            >
+              <img
+                alt="icon"
+                src="plus.svg"
+              />
+            </span>
+            Upload Data
+          </span>
+          <span
+            class="MuiTouchRipple-root"
+          />
+        </button>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-11 makeStyles-dashboardDataHeader-2"
+        class="MuiBox-root MuiBox-root-15 makeStyles-dashboardDataHeader-2"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle2"
@@ -59,28 +82,111 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
         </h6>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-12 makeStyles-dashboardDataBody-4"
+        class="MuiBox-root MuiBox-root-16 makeStyles-dashboardDataBody-5"
       >
-        <h6
-          class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-colorTextPrimary"
+        <div
+          style="width: 100%;"
         >
-          Before we can create any visualization, we ‘ll need some data.
-        </h6>
-        <p
-          class="MuiTypography-root MuiTypography-body2"
-        >
-          Use
-           
-          <a
-            class="MuiTypography-root MuiLink-root MuiLink-underlineHover MuiTypography-colorPrimary"
-            href="/projects/123/upload-dataset"
+          <div
+            class="MuiPaper-root MuiPaper-elevation2 MuiPaper-rounded"
+            style="position: relative; box-shadow: none; overflow: hidden;"
           >
-             
-            Upload dataset
-             
-          </a>
-          to add data files to your dashboard.
-        </p>
+            <div
+              class="Component-horizontalScrollContainer-21"
+              style="overflow-x: auto; position: relative;"
+            >
+              <div>
+                <div
+                  style="overflow-y: auto;"
+                >
+                  <div>
+                    <table
+                      class="MuiTable-root"
+                      style="table-layout: auto;"
+                    >
+                      <thead
+                        class="MuiTableHead-root"
+                      >
+                        <tr
+                          class="MuiTableRow-root MuiTableRow-head"
+                        >
+                          <th
+                            class="MuiTableCell-root MuiTableCell-head MTableHeader-header-22 MuiTableCell-alignLeft"
+                            scope="col"
+                            style="padding: 8px 12px; text-align: left; flex-direction: row; box-sizing: border-box;"
+                          >
+                            Name
+                          </th>
+                          <th
+                            class="MuiTableCell-root MuiTableCell-head MTableHeader-header-22 MuiTableCell-alignRight"
+                            scope="col"
+                            style="padding: 8px 12px; text-align: left; flex-direction: row; box-sizing: border-box;"
+                          >
+                            Size
+                          </th>
+                          <th
+                            class="MuiTableCell-root MuiTableCell-head MTableHeader-header-22 MuiTableCell-alignLeft"
+                            scope="col"
+                            style="padding: 8px 12px; text-align: left; flex-direction: row; box-sizing: border-box;"
+                          >
+                            Type
+                          </th>
+                          <th
+                            class="MuiTableCell-root MuiTableCell-head MTableHeader-header-22 MuiTableCell-alignLeft"
+                            scope="col"
+                            style="padding: 8px 12px; text-align: left; flex-direction: row; box-sizing: border-box;"
+                          >
+                            Date Added
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody
+                        class="MuiTableBody-root"
+                      >
+                        <tr
+                          class="MuiTableRow-root"
+                          index="0"
+                          level="0"
+                          path="0"
+                          style="transition: all ease 300ms; height: 32px; background-color: transparent;"
+                        >
+                          <td
+                            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
+                            style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                            value="csv-file-name"
+                          >
+                            csv-file-name
+                          </td>
+                          <td
+                            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight"
+                            style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                            value="125005"
+                          >
+                            0.12MB
+                          </td>
+                          <td
+                            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
+                            style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                            value="text/csv"
+                          >
+                            CSV
+                          </td>
+                          <td
+                            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
+                            style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                            value="2020-10-29T09:17:09.146Z"
+                          >
+                            29-Oct-2020 at 2:47 PM
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -25,9 +25,13 @@ const useConfigureDatasetStyles = makeStyles((theme) => {
       textTransform: 'capitalize',
     },
     dashboardDataContainer: {
-      width: 'calc(100% - 64px)',
-      maxWidth: theme.spacing(256),
       margin: theme.spacing(8, 8, 16, 8),
+    },
+    dashboardDataContainerTitle: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-end',
+      paddingBottom: theme.spacing(2),
     },
     dashboardDataBody: {
       display: 'flex',
@@ -36,10 +40,13 @@ const useConfigureDatasetStyles = makeStyles((theme) => {
       alignItems: 'center',
       boxSizing: 'border-box',
       boxShadow: 'inset 0px -1px 0px rgba(0, 0, 0, 0.12)',
-      height: theme.spacing(22),
       border: '1px solid rgba(0, 0, 0, 0.2)',
       borderBottomRightRadius: theme.spacing(1),
       borderBottomLeftRadius: theme.spacing(1),
+    },
+    noDataSourcesMessage: {
+      padding: theme.spacing(6),
+      textAlign: 'center',
     },
   };
 });

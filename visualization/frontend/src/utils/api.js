@@ -53,7 +53,8 @@ const api = {
 
   getCsvHeaders: async (dataSourceId) => fetchData({ url: serviceURL.getHeaderUrl(dataSourceId) }),
 
-  getDatasources: async () => fetchData({ url: serviceURL.DATA_SOURCES }),
+  getDatasources: async (dashboardId) =>
+    fetchData({ url: serviceURL.DATA_SOURCES, query: { dashboardId } }),
 
   getData: async (datasource, columns) =>
     fetchData({ url: serviceURL.getDataUrl(datasource), query: { columns } }),
