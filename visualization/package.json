@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev-frontend": "cd frontend && yarn start",
-    "dev-backend": "cd backend && yarn start",
-    "dev-db": "docker-compose up db",
-    "install": "concurrently \"cd backend && yarn install\" \"cd frontend && yarn install\" ",
+    "dev-backend": "docker-compose up -d db && cd backend && yarn start",
+    "dev": "concurrently \"yarn dev-backend\" \"yarn dev-frontend\"",
+    "install-deps": "concurrently \"cd backend && yarn install\" \"cd frontend && yarn install\" ",
     "build": "cd frontend && yarn build && cp -a build/. ../backend/public/ ",
     "start": "yarn build && cd backend && yarn start",
     "test": "concurrently \"cd backend && yarn test\" \"cd frontend && yarn test\" "
