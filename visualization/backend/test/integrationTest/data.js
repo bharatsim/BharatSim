@@ -7,6 +7,8 @@ const dataSourceMetadata = [
       hour: 'number',
       susceptible: 'number',
     },
+    fileSize: 123,
+    fileType: 'csv',
     dashboardId: '313233343536373839303137',
   },
   {
@@ -15,6 +17,8 @@ const dataSourceMetadata = [
       hour_: 'number',
       susceptible_: 'number',
     },
+    fileSize: 123,
+    fileType: 'csv',
     dashboardId: '313233343536373839303137',
   },
 ];

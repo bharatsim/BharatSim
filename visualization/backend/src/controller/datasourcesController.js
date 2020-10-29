@@ -9,8 +9,9 @@ const technicalErrorException = require('../exceptions/TechnicalErrorException')
 const InvalidInputException = require('../exceptions/InvalidInputException');
 
 router.get('/', async function (req, res) {
+  const { dashboardId } = req.query;
   dataSourceMetadataService
-    .getDataSources()
+    .getDataSourcesByDashboardId(dashboardId)
     .then((data) => res.json(data))
     .catch((err) => technicalErrorException(err, res));
 });

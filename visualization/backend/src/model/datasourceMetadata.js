@@ -7,14 +7,25 @@ const datasourceMetadata = new Schema(
       type: String,
       required: true,
     },
-    dataSourceSchema: Object,
+    dataSourceSchema: {
+      type: Object,
+      required: true,
+    },
     dashboardId: {
       type: Schema.Types.ObjectId,
       ref: 'dashboard',
       required: true,
     },
+    fileType: {
+      type: String,
+      required: true,
+    },
+    fileSize: {
+      type: Number,
+      required: true,
+    },
   },
-  { collection: 'datasourceMetadata' },
+  { collection: 'datasourceMetadata', timestamps: true },
 );
 
 const DatasourceMetadata = mongoose.model('datasourceMetadata', datasourceMetadata);

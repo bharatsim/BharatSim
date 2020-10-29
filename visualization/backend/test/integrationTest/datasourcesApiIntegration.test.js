@@ -1,7 +1,6 @@
 const express = require('express');
 const request = require('supertest');
 const multer = require('multer');
-const fs = require('fs');
 const mongoose = require('mongoose');
 
 const dbHandler = require('../db-handler');
@@ -31,19 +30,21 @@ describe('Integration test', () => {
   afterAll(async () => {
     await dbHandler.clearDatabase();
     await dbHandler.closeDatabase();
-    if (fs.existsSync(TEST_FILE_UPLOAD_PATH)) {
-      fs.rmdirSync(TEST_FILE_UPLOAD_PATH, { recursive: true });
-    }
   });
 
   describe('/datasources', () => {
-    it('should get data source names', async () => {
+    it('should get data sources filter by dashboard id', async () => {
       const expectedDataSource = insertedMetadata.map((metadata) => ({
         _id: metadata.id,
         name: metadata.name,
+        fileSize: metadata.fileSize,
+        fileType: metadata.fileType,
+        dashboardId: metadata.dashboardId.toString(),
+        createdAt: metadata.createdAt.toISOString(),
+        updatedAt: metadata.updatedAt.toISOString(),
       }));
       await request(app)
-        .get('/datasources')
+        .get('/datasources?dashboardId=313233343536373839303137')
         .expect(200)
         .expect({ dataSources: expectedDataSource });
     });

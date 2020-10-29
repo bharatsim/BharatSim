@@ -9,9 +9,11 @@ describe('dataSourceMetadataService', () => {
       { _id: 'id1', name: 'model_1' },
       { _id: 'id2', name: 'model_2' },
     ];
-    dataSourceMetadataRepository.getDataSourceNames.mockResolvedValue(mockResolvedValue);
+    dataSourceMetadataRepository.getDataSourcesMetadataByDashboardId.mockResolvedValue(
+      mockResolvedValue,
+    );
 
-    const data = await dataSourceMetadataService.getDataSources();
+    const data = await dataSourceMetadataService.getDataSourcesByDashboardId('dashboardId');
 
     expect(data).toEqual({
       dataSources: [
@@ -19,6 +21,30 @@ describe('dataSourceMetadataService', () => {
         { _id: 'id2', name: 'model_2' },
       ],
     });
+    expect(dataSourceMetadataRepository.getDataSourcesMetadataByDashboardId).toHaveBeenCalledWith(
+      'dashboardId',
+    );
+  });
+
+  it('should get data sources filter by dashboard id', async () => {
+    dataSourceMetadataRepository.getDataSourcesMetadataByDashboardId.mockResolvedValue([
+      { _id: 'id1', name: 'model_1' },
+      { _id: 'id2', name: 'model_2' },
+    ]);
+    const dashboardId = 'dashboardId';
+
+    const data = await dataSourceMetadataService.getDataSourcesByDashboardId(dashboardId);
+
+    expect(data).toEqual({
+      dataSources: [
+        { _id: 'id1', name: 'model_1' },
+        { _id: 'id2', name: 'model_2' },
+      ],
+    });
+
+    expect(dataSourceMetadataRepository.getDataSourcesMetadataByDashboardId).toHaveBeenCalledWith(
+      'dashboardId',
+    );
   });
 
   it('should get headers from datasource', async () => {
@@ -38,5 +64,6 @@ describe('dataSourceMetadataService', () => {
         { name: 'susceptible', type: 'number' },
       ],
     });
+    expect(dataSourceMetadataRepository.getDataSourceSchemaById).toHaveBeenCalledWith('model_1_id');
   });
 });

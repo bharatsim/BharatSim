@@ -10,12 +10,14 @@ async function getHeaders(dataSourceId) {
   return { headers };
 }
 
-async function getDataSources() {
-  const dataSources = await dataSourceMetadataRepository.getDataSourceNames();
+async function getDataSourcesByDashboardId(dashboardId) {
+  const dataSources = await dataSourceMetadataRepository.getDataSourcesMetadataByDashboardId(
+    dashboardId,
+  );
   return { dataSources };
 }
 
 module.exports = {
   getHeaders,
-  getDataSources,
+  getDataSourcesByDashboardId,
 };

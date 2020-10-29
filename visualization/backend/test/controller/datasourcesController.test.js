@@ -23,7 +23,12 @@ multer.mockImplementation(() => ({
     return (req, res, next) => {
       req.body.schema = testSchema;
       req.body.dashboardId = 'dashboardId';
-      req.file = { originalname: 'sample.name', mimetype: 'sample.type', path: 'sample.path' };
+      req.file = {
+        originalname: 'sample.name',
+        mimetype: 'sample.type',
+        path: 'sample.path',
+        size: 12312,
+      };
       return next();
     };
   },
@@ -44,10 +49,14 @@ describe('api', () => {
         { name: 'susceptible', type: 'number' },
       ],
     });
-    dataSourceMetadataService.getDataSources.mockResolvedValue({
+    dataSourceMetadataService.getDataSourcesByDashboardId.mockResolvedValue({
       dataSources: [{ name: 'model_1' }, { name: 'model_2' }],
     });
     uploadDatasourceService.uploadCsv.mockResolvedValue({ collectionId: 'id' });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   afterAll(() => {
@@ -152,22 +161,23 @@ describe('api', () => {
   describe('Get /datasources', () => {
     it('should get data source names', async () => {
       await request(app)
-        .get('/datasources')
+        .get('/datasources?dashboardId=123123')
         .expect(200)
         .expect({ dataSources: [{ name: 'model_1' }, { name: 'model_2' }] });
-      expect(dataSourceMetadataService.getDataSources).toHaveBeenCalled();
+      expect(dataSourceMetadataService.getDataSourcesByDashboardId).toHaveBeenCalledWith('123123');
     });
 
     it('should send error message for columns not found exception', async () => {
-      dataSourceMetadataService.getDataSources.mockRejectedValueOnce(new Error('error'));
+      dataSourceMetadataService.getDataSourcesByDashboardId.mockRejectedValueOnce(
+        new Error('error'),
+      );
 
       await request(app)
-        .get('/datasources')
-        .query({ columns: ['exposeed', 'hour'] })
+        .get('/datasources?dashboardId=123123')
         .expect(500)
         .expect({ errorMessage: 'Technical error error' });
 
-      expect(dataSourceMetadataService.getDataSources).toHaveBeenCalled();
+      expect(dataSourceMetadataService.getDataSourcesByDashboardId).toHaveBeenCalled();
     });
   });
 
@@ -185,6 +195,7 @@ describe('api', () => {
           mimetype: 'sample.type',
           originalname: 'sample.name',
           path: 'sample.path',
+          size: 12312,
         },
         { dashboardId: 'dashboardId', schema: '{ "col1": "String", "col2": "Number" }' },
       );
@@ -228,6 +239,7 @@ describe('api', () => {
           mimetype: 'sample.type',
           originalname: 'sample.name',
           path: 'sample.path',
+          size: 12312,
         },
         { dashboardId: 'dashboardId', schema: '{ "col1": "String", "col2": "Number" }' },
       );

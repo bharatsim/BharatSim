@@ -57,6 +57,8 @@ describe('upload datasource service', function () {
         dataSourceSchema: { hour: 'number', susceptible: 'number' },
         name: 'test.csv',
         dashboardId: 'dashboardId',
+        fileSize: 12132,
+        fileType: 'text/csv',
       });
     });
 

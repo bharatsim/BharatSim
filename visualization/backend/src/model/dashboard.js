@@ -19,7 +19,7 @@ const dashboard = new Schema(
     },
     widgets: [widgetSchema],
     layout: [Object],
-    count: { type: Number },
+    count: { type: Number, required: true },
     // TODO: Add Required in project id
     projectId: {
       type: Schema.Types.ObjectId,

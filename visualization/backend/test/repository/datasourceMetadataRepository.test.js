@@ -13,6 +13,8 @@ const dataSourceMetadata = [
       susceptible: 'number',
     },
     dashboardId: '313233343536373839303137',
+    fileSize: 123,
+    fileType: 'csv',
   },
   {
     name: 'model_2',
@@ -20,6 +22,8 @@ const dataSourceMetadata = [
       hour_: 'number',
       susceptible_: 'number',
     },
+    fileSize: 123,
+    fileType: 'csv',
     dashboardId: '313233343536373839303137',
   },
 ];
@@ -48,6 +52,29 @@ describe('get Datasource name ', () => {
       const names = parseMongoDBResult(await DataSourceMetaDataRepository.getDataSourceNames());
 
       expect(names).toEqual(expectedResult);
+    });
+  });
+
+  describe('get DataSource metadata by dashboard id', function () {
+    it('should return DataSource metadata for data sources filter by dashboard id', async () => {
+      const insertedMetadata = await DataSourceMetaData.insertMany(dataSourceMetadata);
+      const expectedResult = insertedMetadata.map((metadata) => ({
+        _id: metadata.id,
+        name: metadata.name,
+        fileSize: metadata.fileSize,
+        fileType: metadata.fileType,
+        dashboardId: metadata.dashboardId.toString(),
+        createdAt: metadata.createdAt.toISOString(),
+        updatedAt: metadata.updatedAt.toISOString(),
+      }));
+
+      const dataSources = parseMongoDBResult(
+        await DataSourceMetaDataRepository.getDataSourcesMetadataByDashboardId(
+          '313233343536373839303137',
+        ),
+      );
+
+      expect(dataSources).toEqual(expectedResult);
     });
   });
 
@@ -87,6 +114,8 @@ describe('get Datasource name ', () => {
         hour: 'number',
         susceptible: 'number',
       },
+      fileSize: 123,
+      fileType: 'csv',
       dashboardId: '313233343536373839303137',
     });
 
@@ -100,7 +129,11 @@ describe('get Datasource name ', () => {
         hour: 'number',
         susceptible: 'number',
       },
+      fileSize: 123,
+      fileType: 'csv',
       dashboardId: '313233343536373839303137',
+      createdAt: expect.anything(),
+      updatedAt: expect.anything(),
     });
   });
 
@@ -109,6 +142,8 @@ describe('get Datasource name ', () => {
       name: dataSourceMetadata[0].name,
       dataSourceSchema: dataSourceMetadata[0].dataSourceSchema,
       dashboardId: '313233343536373839303137',
+      fileSize: 123,
+      fileType: 'csv',
     });
 
     await DataSourceMetaDataRepository.deleteDatasourceMetadata(collectionId);
