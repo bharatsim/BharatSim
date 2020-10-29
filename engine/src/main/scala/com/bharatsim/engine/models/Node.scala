@@ -51,6 +51,10 @@ class Node()(implicit graphProvider: GraphProvider = GraphProviderFactory.get) e
     graphProvider.fetchNeighborsOf(internalId, relation).iterator
   }
 
+  def getConnectionCount(relation: String, matchCondition: (String, Any)): Int = {
+    graphProvider.neighborCount(internalId, relation, matchCondition)
+  }
+
   def updateParam[T](key: String, value: T)(implicit encoder: BasicEncoder[T]): Unit = {
     graphProvider.updateNode(internalId, (key, encoder.encode(value).get))
   }

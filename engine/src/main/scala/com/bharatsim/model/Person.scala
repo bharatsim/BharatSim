@@ -35,8 +35,8 @@ case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionD
         val decodedPlace = decodeNode(placeType, place)
 
         val infectedNeighbourCount = decodedPlace
-          .getConnections(decodedPlace.getRelation[Person]().get)
-          .count(x => x.as[Person].isInfected)
+          .getConnectionCount(decodedPlace.getRelation[Person]().get, ("infectionState", "Infected"))
+
         val shouldInfect =
           biasedCoinToss(decodedPlace.getContactProbability()) && toss(infectionRate, infectedNeighbourCount)
 

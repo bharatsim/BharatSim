@@ -135,6 +135,7 @@ object Main extends LazyLogging {
     logger.info("Infected after: {}", afterCountInfected)
     logger.info("Recovered: {}", afterCountRecovered)
     logger.info("Deceased: {}", afterCountDeceased)
+    logger.info("Exposed: {}", getExposedCount(context))
     logger.info("Susceptible: {}", afterCountSusceptible)
   }
 
