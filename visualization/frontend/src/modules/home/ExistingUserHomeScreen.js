@@ -40,7 +40,7 @@ function ExistingUserHomeScreen({ recentProjects }) {
           <Tab label="Recent Projects" />
         </Tabs>
         <ButtonGroup>
-          <Button variant="contained" size="small" onClick={createNewProject}>
+          <Button variant="contained" color="primary" size="small" onClick={createNewProject}>
             Add New
           </Button>
         </ButtonGroup>

@@ -43,8 +43,14 @@ function ChartConfigModal({ open, onCancel, onOk, chartType }) {
   }
 
   const modalActions = [
-    { name: 'Ok', handleClick: handleOk, type: 'contained', isDisable: !shouldEnableSubmit() },
-    { name: 'Cancel', handleClick: onCancel, type: 'outlined' },
+    {
+      name: 'Ok',
+      handleClick: handleOk,
+      variant: 'contained',
+      color: 'primary',
+      isDisable: !shouldEnableSubmit(),
+    },
+    { name: 'Cancel', handleClick: onCancel, variant: 'outlined' },
   ];
 
   return (

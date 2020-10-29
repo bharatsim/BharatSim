@@ -158,7 +158,7 @@ exports[`<CreateNewDashboardModal /> should match snapshot 1`] = `
       class="MuiBox-root MuiBox-root-18 makeStyles-buttonGroup-17"
     >
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained Mui-focusVisible Mui-focusVisible"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary Mui-focusVisible Mui-focusVisible"
         data-testid="button-create"
         tabindex="0"
         type="button"
@@ -293,7 +293,7 @@ exports[`<CreateNewDashboardModal /> should match snapshot only with dashboard t
       class="MuiBox-root MuiBox-root-34 makeStyles-buttonGroup-33"
     >
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained Mui-focusVisible Mui-focusVisible"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary Mui-focusVisible Mui-focusVisible"
         data-testid="button-create"
         tabindex="0"
         type="button"

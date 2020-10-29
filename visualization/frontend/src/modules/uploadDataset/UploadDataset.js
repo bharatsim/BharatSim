@@ -113,10 +113,16 @@ function UploadDataset() {
       <Box className={classes.configureProjectDataBar}>
         <Typography variant="h6"> Configure Dashboard Data :: Upload Dataset</Typography>
         <ButtonGroup>
-          <Button variant="text" onClick={onCancel}>
+          <Button variant="text" onClick={onCancel} size="small">
             Cancel
           </Button>
-          <Button variant="contained" disabled={activeStep !== 1} onClick={onClickUploadAndSave}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            disabled={activeStep !== 1}
+            onClick={onClickUploadAndSave}
+          >
             Upload
           </Button>
         </ButtonGroup>

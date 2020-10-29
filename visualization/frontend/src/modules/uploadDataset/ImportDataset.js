@@ -61,7 +61,7 @@ function ImportDataset({ setFile, handleNext, setPreviewData, setErrorStep, setS
         <Box className={classes.textContainer}>
           <Typography>Drag your file here or </Typography>
           <Box ml={3}>
-            <Button variant="outlined" component="label">
+            <Button variant="outlined" component="label" size="small">
               Browse
               <input
                 data-testid="file-input"

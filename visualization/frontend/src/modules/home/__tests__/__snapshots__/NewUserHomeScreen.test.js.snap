@@ -39,7 +39,7 @@ exports[`NewUserHomeScreen should match snapshot 1`] = `
         class="MuiBox-root MuiBox-root-10 makeStyles-buttonGroup-9"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSizeLarge MuiButton-sizeLarge"
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-containedSizeLarge MuiButton-sizeLarge"
           tabindex="0"
           type="button"
         >

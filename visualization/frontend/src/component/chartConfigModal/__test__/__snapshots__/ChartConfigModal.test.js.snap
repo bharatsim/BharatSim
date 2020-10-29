@@ -116,7 +116,7 @@ exports[`<ChartConfigModal /> should match a snapshot for <ChartConfigModal /> 1
       class="MuiBox-root MuiBox-root-12 makeStyles-buttonGroup-11"
     >
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained Mui-disabled Mui-disabled"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary Mui-disabled Mui-disabled"
         data-testid="button-Ok"
         disabled=""
         tabindex="-1"

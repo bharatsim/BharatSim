@@ -273,7 +273,7 @@ exports[`DataTypeConfigModal should match a snapshot 1`] = `
         </span>
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained Mui-focusVisible Mui-focusVisible"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary Mui-focusVisible Mui-focusVisible"
         data-testid="button-apply and upload"
         tabindex="0"
         type="button"

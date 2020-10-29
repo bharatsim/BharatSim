@@ -52,7 +52,7 @@ function NewUserHomeScreen() {
       </Box>
       <Box mt={5} className={classes.itemsCentered}>
         <ButtonGroup>
-          <Button variant="contained" size="large" onClick={createNewProject}>
+          <Button variant="contained" color="primary" size="large" onClick={createNewProject}>
             Create new Project
           </Button>
         </ButtonGroup>

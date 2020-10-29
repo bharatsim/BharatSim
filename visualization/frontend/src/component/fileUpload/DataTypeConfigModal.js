@@ -56,8 +56,13 @@ function DataTypeConfigModal({ dataRow, isOpen, closeModal, onApply, onCancel })
       open={isOpen}
       title="Configure Datatype"
       actions={[
-        { name: 'cancel', handleClick: onCancel, type: 'outlined' },
-        { name: 'apply and upload', handleClick: () => onApply(values), type: 'contained' },
+        { name: 'cancel', handleClick: onCancel, variant: 'outlined' },
+        {
+          name: 'apply and upload',
+          handleClick: () => onApply(values),
+          variant: 'contained',
+          color: 'primary',
+        },
       ]}
     >
       <Box className={classes.configContainer}>

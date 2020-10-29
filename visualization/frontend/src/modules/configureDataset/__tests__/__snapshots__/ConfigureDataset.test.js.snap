@@ -23,14 +23,13 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
          Configure Dashboard Data
       </h6>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSizeSmall MuiButton-sizeSmall"
         tabindex="0"
         type="button"
       >
         <span
           class="MuiButton-label"
         >
-           
           Back to recent projects
         </span>
         <span
@@ -50,7 +49,7 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
            Manage Dashboard Dataset
         </h6>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text"
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-containedSizeSmall MuiButton-sizeSmall"
           tabindex="0"
           type="button"
         >
@@ -58,7 +57,7 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
             class="MuiButton-label"
           >
             <span
-              class="MuiButton-startIcon MuiButton-iconSizeMedium"
+              class="MuiButton-startIcon MuiButton-iconSizeSmall"
             >
               <img
                 alt="icon"

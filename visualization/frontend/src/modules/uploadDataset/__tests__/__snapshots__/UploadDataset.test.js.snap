@@ -26,7 +26,7 @@ exports[`Upload Dataset should match snapshot for upload dataset component 1`] =
         class="MuiBox-root MuiBox-root-8 makeStyles-buttonGroup-7"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSizeSmall MuiButton-sizeSmall"
           tabindex="0"
           type="button"
         >
@@ -40,7 +40,7 @@ exports[`Upload Dataset should match snapshot for upload dataset component 1`] =
           />
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-contained Mui-disabled Mui-disabled"
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-containedSizeSmall MuiButton-sizeSmall Mui-disabled Mui-disabled"
           disabled=""
           tabindex="-1"
           type="button"
@@ -224,7 +224,7 @@ exports[`Upload Dataset should match snapshot for upload dataset component 1`] =
             >
               <label
                 aria-disabled="false"
-                class="MuiButtonBase-root MuiButton-root MuiButton-outlined"
+                class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedSizeSmall MuiButton-sizeSmall"
                 role="button"
                 tabindex="0"
               >

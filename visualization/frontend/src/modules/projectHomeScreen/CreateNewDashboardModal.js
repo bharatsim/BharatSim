@@ -51,7 +51,9 @@ function CreateNewDashboardModal({ isOpen, closeModal, onCreate, onlyDashboardFi
       open={isOpen}
       title="New Dashboard"
       handleClose={closeModal}
-      actions={[{ name: 'create', handleClick: onFormSubmit, type: 'contained' }]}
+      actions={[
+        { name: 'create', handleClick: onFormSubmit, variant: 'contained', color: 'primary' },
+      ]}
     >
       <Box className={classes.addProjectModal}>
         {!onlyDashboardField && (

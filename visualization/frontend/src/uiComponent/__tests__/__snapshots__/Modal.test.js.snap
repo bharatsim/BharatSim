@@ -57,7 +57,7 @@ exports[`<Modal /> should match snapshot 1`] = `
       class="MuiBox-root MuiBox-root-8 makeStyles-buttonGroup-7"
     >
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained Mui-focusVisible Mui-focusVisible"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary Mui-focusVisible Mui-focusVisible"
         data-testid="button-Apply"
         tabindex="0"
         type="button"

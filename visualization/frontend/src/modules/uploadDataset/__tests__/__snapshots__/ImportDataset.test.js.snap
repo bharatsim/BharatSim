@@ -22,7 +22,7 @@ exports[`Upload Dataset should match snapshot for import dataset component 1`] =
       >
         <label
           aria-disabled="false"
-          class="MuiButtonBase-root MuiButton-root MuiButton-outlined"
+          class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedSizeSmall MuiButton-sizeSmall"
           role="button"
           tabindex="0"
         >

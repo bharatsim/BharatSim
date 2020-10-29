@@ -49,15 +49,20 @@ function ConfigureDataset() {
         <ProjectHeader>{projectMetadata.name}</ProjectHeader>
         <Box className={classes.configureProjectDataBar}>
           <Typography variant="h6"> Configure Dashboard Data</Typography>
-          <Button onClick={openRecentProjects} variant="text">
-            {' '}
+          <Button onClick={openRecentProjects} variant="text" size="small">
             Back to recent projects
           </Button>
         </Box>
         <Box className={classes.dashboardDataContainer}>
           <Box className={classes.dashboardDataContainerTitle}>
             <Typography variant="subtitle2"> Manage Dashboard Dataset</Typography>
-            <Button startIcon={<img src={plusIcon} alt="icon" />} onClick={openUploadDatasets}>
+            <Button
+              color="secondary"
+              variant="contained"
+              size="small"
+              startIcon={<img src={plusIcon} alt="icon" />}
+              onClick={openUploadDatasets}
+            >
               Upload Data
             </Button>
           </Box>

@@ -73,13 +73,14 @@ function Modal({ open, handleClose, title, children, actions }) {
       {actions.length !== 0 && (
         <DialogActions>
           <ButtonGroup>
-            {actions.map(({ name, handleClick, type, isDisable }) => (
+            {actions.map(({ name, handleClick, variant, isDisable, color }) => (
               <Button
                 key={name}
                 data-testid={`button-${name}`}
                 autoFocus
                 onClick={handleClick}
-                variant={type}
+                variant={variant}
+                color={color}
                 disabled={isDisable}
               >
                 {name}
@@ -105,7 +106,8 @@ Modal.propTypes = {
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       handleClick: PropTypes.func.isRequired,
-      type: PropTypes.string.isRequired,
+      variant: PropTypes.string.isRequired,
+      color: PropTypes.string,
       isDisable: PropTypes.bool,
     }),
   ),

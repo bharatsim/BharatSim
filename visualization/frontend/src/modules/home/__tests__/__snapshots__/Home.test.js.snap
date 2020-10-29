@@ -50,7 +50,7 @@ exports[`Home should match snapshot for existing users 1`] = `
           class="MuiBox-root MuiBox-root-27 makeStyles-buttonGroup-26"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSizeSmall MuiButton-sizeSmall"
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-containedSizeSmall MuiButton-sizeSmall"
             tabindex="0"
             type="button"
           >
@@ -139,7 +139,7 @@ exports[`Home should match snapshot for new user 1`] = `
           class="MuiBox-root MuiBox-root-14 makeStyles-buttonGroup-13"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSizeLarge MuiButton-sizeLarge"
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-containedSizeLarge MuiButton-sizeLarge"
             tabindex="0"
             type="button"
           >

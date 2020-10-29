@@ -16,20 +16,33 @@ theme.overrides = {
   MuiButton: {
     root: {
       padding: theme.spacing(2, 4),
-      height: theme.spacing(8),
-      color: theme.colors.primaryColorScale['500'],
-    },
-    sizeLarge: {
-      padding: theme.spacing(2, 4),
-      height: theme.spacing(9),
+      height: theme.spacing(10),
+      boxShadow: 'unset',
     },
     sizeSmall: {
       padding: theme.spacing(2, 4),
       height: theme.spacing(8),
     },
-    contained: {
+    text: {
+      boxShadow: 'unset',
+      color: theme.colors.primaryColorScale['500'],
+      '&:hover': {
+        backgroundColor: fade(theme.colors.grayScale['100'], 0.5),
+      },
+      '&:focus': {
+        backgroundColor: fade(theme.colors.grayScale['100'], 0.7),
+      },
+      '&$disabled': {
+        color: theme.palette.text.disabled,
+      },
+    },
+    containedPrimary: {
+      boxShadow: 'unset',
       color: theme.colors.button.color,
       backgroundColor: theme.colors.primaryColorScale['500'],
+      '&:focus': {
+        backgroundColor: fade(theme.colors.primaryColorScale['500'], 0.5),
+      },
       '&:hover': {
         backgroundColor: fade(theme.colors.primaryColorScale['500'], 0.8),
       },
@@ -38,7 +51,23 @@ theme.overrides = {
         backgroundColor: theme.colors.grayScale['100'],
       },
     },
+    containedSecondary: {
+      boxShadow: 'unset',
+      color: theme.colors.primaryColorScale['500'],
+      backgroundColor: theme.colors.primaryColorScale['50'],
+      '&:focus': {
+        backgroundColor: fade(theme.colors.primaryColorScale['500'], 0.2),
+      },
+      '&:hover': {
+        backgroundColor: theme.colors.primaryColorScale[50],
+      },
+      '&$disabled': {
+        color: theme.palette.text.disabled,
+        backgroundColor: theme.colors.grayScale['100'],
+      },
+    },
     outlined: {
+      boxShadow: 'unset',
       border: '1px solid',
       color: theme.colors.primaryColorScale['500'],
       borderColor: theme.colors.button.borderColor,

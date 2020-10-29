@@ -47,7 +47,7 @@ exports[`Existing User Home Screen should match snapshot for given projects 1`] 
         class="MuiBox-root MuiBox-root-9 makeStyles-buttonGroup-8"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSizeSmall MuiButton-sizeSmall"
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-containedSizeSmall MuiButton-sizeSmall"
           tabindex="0"
           type="button"
         >

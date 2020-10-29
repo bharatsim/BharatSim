@@ -38,20 +38,33 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
     "MuiButton": {
       "root": {
         "padding": "8px 16px",
-        "height": 32,
-        "color": "#594ab7"
-      },
-      "sizeLarge": {
-        "padding": "8px 16px",
-        "height": 36
+        "height": 40,
+        "boxShadow": "unset"
       },
       "sizeSmall": {
         "padding": "8px 16px",
         "height": 32
       },
-      "contained": {
+      "text": {
+        "boxShadow": "unset",
+        "color": "#594ab7",
+        "&:hover": {
+          "backgroundColor": "rgba(224, 225, 228, 0.5)"
+        },
+        "&:focus": {
+          "backgroundColor": "rgba(224, 225, 228, 0.7)"
+        },
+        "&$disabled": {
+          "color": "rgba(52, 58, 64, 0.38)"
+        }
+      },
+      "containedPrimary": {
+        "boxShadow": "unset",
         "color": "#FFFFFF",
         "backgroundColor": "#594ab7",
+        "&:focus": {
+          "backgroundColor": "rgba(89, 74, 183, 0.5)"
+        },
         "&:hover": {
           "backgroundColor": "rgba(89, 74, 183, 0.8)"
         },
@@ -60,7 +73,23 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
           "backgroundColor": "#e0e1e4"
         }
       },
+      "containedSecondary": {
+        "boxShadow": "unset",
+        "color": "#594ab7",
+        "backgroundColor": "#F0EEF9",
+        "&:focus": {
+          "backgroundColor": "rgba(89, 74, 183, 0.2)"
+        },
+        "&:hover": {
+          "backgroundColor": "#F0EEF9"
+        },
+        "&$disabled": {
+          "color": "rgba(52, 58, 64, 0.38)",
+          "backgroundColor": "#e0e1e4"
+        }
+      },
       "outlined": {
+        "boxShadow": "unset",
         "border": "1px solid",
         "color": "#594ab7",
         "borderColor": "#694ED6",
