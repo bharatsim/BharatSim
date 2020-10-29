@@ -89,6 +89,8 @@ trait GraphProvider {
 
   def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode]
 
+  def neighborCount(nodeId: NodeId, label: String, matchCondition: (String, Any)): Int
+
   // U
   def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit
 

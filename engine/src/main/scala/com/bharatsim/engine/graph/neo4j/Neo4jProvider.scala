@@ -203,6 +203,26 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
     retValue.asScala
   }
 
+  override def neighborCount(nodeId: NodeId, label: String, matchCondition: (String, Any)): Int = {
+    val session = neo4jConnection.session()
+
+    val retValue = session
+      .readTransaction((tx: Transaction) => {
+        val result = tx.run(
+          s"""MATCH (n) where id(n) = $$nodeId with n
+             |MATCH (n)-[:$label]->(o) where o.${matchCondition._1} = ${matchCondition._2}
+             |RETURN count(n) as matchingCount
+             |""".stripMargin,
+          parameters("nodeId", nodeId)
+        )
+
+        result.single().get("matchingCount").asInt()
+      })
+
+    session.close()
+    retValue
+  }
+
   override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = {
     val session = neo4jConnection.session()
     val expandedProps = toMatchCriteria("n", props, ",")

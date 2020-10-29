@@ -124,6 +124,20 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
     }
   }
 
+  override def neighborCount(nodeId: NodeId, label: String, matchCondition: (String, Any)): Int = {
+    if (indexedNodes.contains(nodeId)) {
+      val node = indexedNodes(nodeId)
+      node.fetchNeighborsWithLabel(label)
+        .map(indexedNodes(_))
+        .count(in => {
+          in.params.get(matchCondition._1) match {
+            case None => false
+            case Some(v) => v == matchCondition._2
+          }
+        })
+    } else 0
+  }
+
   override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = {
     if (indexedNodes.contains(nodeId)) {
       val node = indexedNodes(nodeId)
