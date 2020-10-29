@@ -18,12 +18,9 @@ object Main extends LazyLogging {
 
     createSchedules()
 
-    registerAction(
-      StopSimulation,
-      (c: Context) => {
-        getInfectedCount(c) == 0 && getSusceptibleCount(c) == 0
-      }
-    )
+    registerAction(StopSimulation, (c: Context) => {
+      getInfectedCount(c) == 0 && getExposedCount(c) == 0
+    })
 
     ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
     logger.debug("Ingestion done")
@@ -143,6 +140,10 @@ object Main extends LazyLogging {
 
   private def getSusceptibleCount(context: Context) = {
     context.graphProvider.fetchNodes("Person", ("infectionState", "Susceptible")).size
+  }
+
+  private def getExposedCount(context: Context) = {
+    context.graphProvider.fetchNodes("Person", ("infectionState", "Exposed")).size
   }
 
   private def getInfectedCount(context: Context): Int = {
