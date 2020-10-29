@@ -6,7 +6,7 @@ exports[`withSnackBar should provide snackbar context to child component 1`] = `
     DummyController 
   </div>
   <div
-    class="makeStyles-root-6 makeStyles-bottom-10 makeStyles-center-16 makeStyles-bottom-10 makeStyles-center-16 makeStyles-reverseColumns-7"
+    class="makeStyles-root-6 makeStyles-bottom-10 makeStyles-right-14 makeStyles-bottom-10 makeStyles-right-14 makeStyles-reverseColumns-7"
   >
     <div
       class="MuiCollapse-container SnackbarItem-collapseContainer-33 MuiCollapse-entered"
@@ -19,7 +19,7 @@ exports[`withSnackBar should provide snackbar context to child component 1`] = `
           class="MuiCollapse-wrapperInner"
         >
           <div
-            class="MuiSnackbar-root SnackbarItem-root-17 SnackbarItem-wrappedRoot-32 MuiSnackbar-anchorOriginBottomCenter SnackbarItem-anchorOriginBottomCenter-19"
+            class="MuiSnackbar-root SnackbarItem-root-17 SnackbarItem-wrappedRoot-32 MuiSnackbar-anchorOriginBottomRight SnackbarItem-anchorOriginBottomRight-21"
           >
             <div
               aria-describedby="client-snackbar"

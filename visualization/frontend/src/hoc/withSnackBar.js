@@ -43,7 +43,6 @@ const useIconStyles = makeStyles((theme) => ({
   },
 }));
 
-
 function withSnackBar(WrappedComponent) {
   return (props) => {
     const snackBarClasses = useSnackBarStyles();
@@ -51,7 +50,7 @@ function withSnackBar(WrappedComponent) {
     return (
       <SnackbarProvider
         maxSnack={3}
-        anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         classes={snackBarClasses}
         iconVariant={{
           error: <img src={failureIcon} alt="error" className={iconClasses.iconRoot} />,

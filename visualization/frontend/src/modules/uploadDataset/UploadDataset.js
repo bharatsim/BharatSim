@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 
 import { Button, Typography, Box, makeStyles, Step, Stepper, StepLabel } from '@material-ui/core';
 
@@ -10,6 +11,8 @@ import ConfigureDatatype from './ConfigureDatatype';
 import ImportDataset from './ImportDataset';
 import { projectLayoutContext } from '../../contexts/projectLayoutContext';
 import { api } from '../../utils/api';
+import useFetchExecutor from '../../hook/useFetchExecuter';
+import LoaderOrError from '../../component/loaderOrError/LoaderOrError';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -32,7 +35,6 @@ const useStyles = makeStyles((theme) => {
   };
 });
 
-// eslint-disable-next-line consistent-return
 function getStepContent(
   stepIndex,
   setFile,
@@ -82,7 +84,7 @@ function UploadDataset() {
   const history = useHistory();
   const {
     projectMetadata,
-    selectedDashboardMetadata: { _id: selectedDashboardId },
+    selectedDashboardMetadata: { _id: selectedDashboardId, name: selectedDashboardName },
   } = useContext(projectLayoutContext);
 
   const [activeStep, setActiveStep] = useState(0);
@@ -91,6 +93,8 @@ function UploadDataset() {
   const [file, setFile] = useState();
   const [schema, setSchema] = useState();
   const [previewData, setPreviewData] = useState();
+  const { executeFetch, loadingState } = useFetchExecutor();
+  const { enqueueSnackbar } = useSnackbar();
 
   function handleNext() {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -98,8 +102,13 @@ function UploadDataset() {
 
   async function onClickUploadAndSave() {
     handleNext();
-    await api.uploadFileAndSchema({ file, schema, dashboardId: selectedDashboardId }).then(() => {
+    await executeFetch(api.uploadFileAndSchema, [
+      { file, schema, dashboardId: selectedDashboardId },
+    ]).then(() => {
       history.push(`configure-dataset`);
+      enqueueSnackbar(`uploaded ${file.name} to dashboard ${selectedDashboardName}`, {
+        variant: 'success',
+      });
     });
   }
 
@@ -138,17 +147,19 @@ function UploadDataset() {
           </Stepper>
         </Box>
         <Box>
-          {getStepContent(
-            activeStep,
-            setFile,
-            setSchema,
-            file,
-            schema,
-            handleNext,
-            setPreviewData,
-            setErrorStep,
-            previewData,
-          )}
+          <LoaderOrError loadingState={loadingState}>
+            {getStepContent(
+              activeStep,
+              setFile,
+              setSchema,
+              file,
+              schema,
+              handleNext,
+              setPreviewData,
+              setErrorStep,
+              previewData,
+            )}
+          </LoaderOrError>
         </Box>
       </Box>
     </Box>

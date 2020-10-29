@@ -7,6 +7,7 @@ import withThemeProvider from '../../../theme/withThemeProvider';
 import { ProjectLayoutProvider } from '../../../contexts/projectLayoutContext';
 import UploadDataset from '../UploadDataset';
 import { api } from '../../../utils/api';
+import withSnackBar from '../../../hoc/withSnackBar';
 
 jest.spyOn(fileUtils, 'parseCsv').mockImplementation((csvFile, onComplete) => {
   const data = { data: [{ col1: 'row1', col2: 1 }], errors: [] };
@@ -28,16 +29,18 @@ jest.mock('../../../utils/api', () => ({
   },
 }));
 
-const ComponentWithProvider = withThemeProvider(() => (
-  <ProjectLayoutProvider
-    value={{
-      projectMetadata: { name: 'project1', id: '123' },
-      selectedDashboardMetadata: { name: 'dashboard1', _id: 'dashboardId' },
-    }}
-  >
-    <UploadDataset />
-  </ProjectLayoutProvider>
-));
+const ComponentWithProvider = withThemeProvider(
+  withSnackBar(() => (
+    <ProjectLayoutProvider
+      value={{
+        projectMetadata: { name: 'project1', id: '123' },
+        selectedDashboardMetadata: { name: 'dashboard1', _id: 'dashboardId' },
+      }}
+    >
+      <UploadDataset />
+    </ProjectLayoutProvider>
+  )),
+);
 
 describe('Upload Dataset', () => {
   it('should match snapshot for upload dataset component', () => {
@@ -103,5 +106,20 @@ describe('Upload Dataset', () => {
     await findByText('DataFile:');
 
     expect(mockHistoryPush).toHaveBeenCalledWith('configure-dataset');
+  });
+
+  it('should show snackbar for successfully upload data file ', async () => {
+    const { getByText, getByTestId, findByText } = render(<ComponentWithProvider />);
+    const inputComponent = getByTestId('file-input');
+
+    fireEvent.change(inputComponent, { target: { files: [new File([''], 'testFile.csv')] } });
+
+    await findByText('DataFile:');
+
+    fireEvent.click(getByText('Upload'));
+
+    await findByText('uploaded testFile.csv to dashboard dashboard1');
+
+    expect(getByText('uploaded testFile.csv to dashboard dashboard1')).toBeInTheDocument();
   });
 });
