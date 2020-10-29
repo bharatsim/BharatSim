@@ -27,7 +27,7 @@ theme.overrides = {
       boxShadow: 'unset',
       color: theme.colors.primaryColorScale['500'],
       '&:hover': {
-        backgroundColor: fade(theme.colors.grayScale['100'], 0.5),
+        backgroundColor: fade(theme.colors.grayScale['100'], 0.7),
       },
       '&:focus': {
         backgroundColor: fade(theme.colors.grayScale['100'], 0.7),
@@ -41,7 +41,7 @@ theme.overrides = {
       color: theme.colors.button.color,
       backgroundColor: theme.colors.primaryColorScale['500'],
       '&:focus': {
-        backgroundColor: fade(theme.colors.primaryColorScale['500'], 0.5),
+        backgroundColor: fade(theme.colors.primaryColorScale['500'], 0.8),
       },
       '&:hover': {
         backgroundColor: fade(theme.colors.primaryColorScale['500'], 0.8),
@@ -56,7 +56,7 @@ theme.overrides = {
       color: theme.colors.primaryColorScale['500'],
       backgroundColor: theme.colors.primaryColorScale['50'],
       '&:focus': {
-        backgroundColor: fade(theme.colors.primaryColorScale['500'], 0.2),
+        backgroundColor: theme.colors.primaryColorScale[50],
       },
       '&:hover': {
         backgroundColor: theme.colors.primaryColorScale[50],
@@ -72,7 +72,7 @@ theme.overrides = {
       color: theme.colors.primaryColorScale['500'],
       borderColor: theme.colors.button.borderColor,
       '&: focus': {
-        backgroundColor: fade(theme.colors.primaryColorScale['500'], 0.2),
+        backgroundColor: fade(theme.colors.primaryColorScale['500'], 0.8),
       },
       '&: hover': {
         backgroundColor: fade(theme.colors.primaryColorScale['500'], 0.8),
