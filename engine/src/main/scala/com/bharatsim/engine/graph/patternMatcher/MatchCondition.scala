@@ -27,7 +27,7 @@ object MatchCondition {
 
 case class Equals[B <: BasicValue](b: B, key: String) extends MatchCondition {
   override def eval(m: Map[String, Any]): Boolean = {
-    val a: BasicValue = BasicValue.fromAnyValue(m.getOrElse(key, NoValue))
+    val a: BasicValue = BasicValue.fromAnyValue(m.getOrElse(key, null))
     a.get == b.get
   }
 }
