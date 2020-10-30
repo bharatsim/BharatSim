@@ -23,16 +23,6 @@ object MatchCondition {
 
     def gte(b: BasicValue): MatchCondition = GreaterThanEquals(b, a)
   }
-
-  def toString(mc: MatchCondition, variable: String): String = {
-    mc match {
-      case Equals(b, key) => s"$variable.$key = ${b.get}"
-      case LessThan(b, key) => s"$variable.$key < ${b.get}"
-      case GreaterThan(b, key) => s"$variable.$key > ${b.get}"
-      case LessThanEquals(b, key) => s"$variable.$key <= ${b.get}"
-      case GreaterThanEquals(b, key) => s"$variable.$key >= ${b.get}"
-    }
-  }
 }
 
 case class Equals[B <: BasicValue](b: B, key: String) extends MatchCondition {

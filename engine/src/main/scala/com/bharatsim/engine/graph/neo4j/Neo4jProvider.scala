@@ -207,7 +207,7 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
   override def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int = {
     val session = neo4jConnection.session()
 
-    val patternString = MatchPattern.toString(matchCondition, "o")
+    val patternString = PatternMaker.from(matchCondition, "o")
     val retValue = session
       .readTransaction((tx: Transaction) => {
         val result = tx.run(
