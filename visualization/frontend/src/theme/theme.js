@@ -155,6 +155,11 @@ theme.overrides = {
       minHeight: 'unset !important',
     },
   },
+  MuiChip: {
+    outlinedSecondary: {
+      border: `1px solid ${theme.colors.primaryColorScale['600']}`,
+    },
+  },
 };
 
 export default theme;

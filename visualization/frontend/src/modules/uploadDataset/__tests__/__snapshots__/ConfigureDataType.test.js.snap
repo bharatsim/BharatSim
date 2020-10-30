@@ -35,12 +35,13 @@ exports[`<ConfigureDatatype /> should match snapshot 1`] = `
   "options": {
     "paging": true,
     "showTitle": false,
+    "search": false,
     "headerStyle": {
       "padding": "4px 8px 4px 8px",
       "fontFamily": "\\"Rubik\\", sans-serif",
       "fontWeight": 400,
       "fontSize": "1rem",
-      "lineHeight": 1.75,
+      "lineHeight": 1.25,
       "letterSpacing": "0.00938em",
       "textAlign": "left",
       "flexDirection": "row",

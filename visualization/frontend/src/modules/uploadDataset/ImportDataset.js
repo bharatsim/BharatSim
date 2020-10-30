@@ -17,6 +17,9 @@ const useStyles = makeStyles((theme) => {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
+      border: '1px dashed',
+      borderRadius: theme.spacing(1),
+      borderColor: theme.colors.primaryColorScale['200'],
     },
     textContainer: {
       display: 'flex',

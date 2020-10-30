@@ -6,16 +6,30 @@ exports[`Upload Dataset should match snapshot for upload dataset component 1`] =
     class="MuiBox-root MuiBox-root-8"
   >
     <div
-      class="MuiBox-root MuiBox-root-10 makeStyles-projectNameBar-9"
+      class="MuiBox-root MuiBox-root-11 makeStyles-projectNameBar-9"
     >
       <h5
         class="MuiTypography-root MuiTypography-h5"
       >
         project1
       </h5>
+      <button
+        class="MuiButtonBase-root MuiButton-root makeStyles-buttonRoot-10 MuiButton-text MuiButton-textSizeSmall MuiButton-sizeSmall"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiButton-label"
+        >
+          Back to recent projects
+        </span>
+        <span
+          class="MuiTouchRipple-root"
+        />
+      </button>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-11 makeStyles-configureProjectDataBar-6"
+      class="MuiBox-root MuiBox-root-12 makeStyles-configureProjectDataBar-6"
     >
       <h6
         class="MuiTypography-root MuiTypography-h6"
@@ -23,7 +37,7 @@ exports[`Upload Dataset should match snapshot for upload dataset component 1`] =
          Configure Dashboard Data :: Upload Dataset
       </h6>
       <div
-        class="MuiBox-root MuiBox-root-13 makeStyles-buttonGroup-12"
+        class="MuiBox-root MuiBox-root-14 makeStyles-buttonGroup-13"
       >
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSizeSmall MuiButton-sizeSmall"
@@ -54,10 +68,10 @@ exports[`Upload Dataset should match snapshot for upload dataset component 1`] =
       </div>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-14 makeStyles-contentWrapper-7"
+      class="MuiBox-root MuiBox-root-15 makeStyles-contentWrapper-7"
     >
       <div
-        class="MuiBox-root MuiBox-root-15"
+        class="MuiBox-root MuiBox-root-16"
       >
         <div
           class="MuiPaper-root MuiStepper-root MuiStepper-horizontal MuiPaper-elevation0"
@@ -202,17 +216,17 @@ exports[`Upload Dataset should match snapshot for upload dataset component 1`] =
         </div>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-16"
+        class="MuiBox-root MuiBox-root-17"
       >
         <div
-          class="MuiBox-root MuiBox-root-19 makeStyles-importDataContainer-17"
+          class="MuiBox-root MuiBox-root-20 makeStyles-importDataContainer-18"
         >
           <img
             alt="Import File"
             src="importFileIcon.svg"
           />
           <div
-            class="MuiBox-root MuiBox-root-20 makeStyles-textContainer-18"
+            class="MuiBox-root MuiBox-root-21 makeStyles-textContainer-19"
           >
             <p
               class="MuiTypography-root MuiTypography-body1"
@@ -220,7 +234,7 @@ exports[`Upload Dataset should match snapshot for upload dataset component 1`] =
               Drag your file here or 
             </p>
             <div
-              class="MuiBox-root MuiBox-root-21"
+              class="MuiBox-root MuiBox-root-22"
             >
               <label
                 aria-disabled="false"

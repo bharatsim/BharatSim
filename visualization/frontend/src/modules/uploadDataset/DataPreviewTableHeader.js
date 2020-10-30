@@ -12,8 +12,15 @@ const useTableCellStyles = makeStyles((theme) => ({
   },
 }));
 
+const useTypographyStyles = makeStyles(() => ({
+  subtitle1: {
+    lineHeight: 1.25,
+  },
+}));
+
 function DataPreviewTableHeader(props) {
   const tableCellClasses = useTableCellStyles();
+  const typographyClasses = useTypographyStyles();
   const { columns } = props;
   return (
     <>
@@ -23,7 +30,9 @@ function DataPreviewTableHeader(props) {
           {columns.map((column) => (
             <TableCell classes={tableCellClasses} key={column.title}>
               <Typography variant="caption">Datatype</Typography>
-              <Typography variant="subtitle1">{column.dataType}</Typography>
+              <Typography variant="subtitle1" classes={typographyClasses}>
+                {column.dataType}
+              </Typography>
             </TableCell>
           ))}
         </TableRow>

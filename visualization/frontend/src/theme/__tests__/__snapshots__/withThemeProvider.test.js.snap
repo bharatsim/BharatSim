@@ -179,6 +179,11 @@ exports[`withThemeProvider HOC should match snapshot 1`] = `
       "regular": {
         "minHeight": "unset !important"
       }
+    },
+    "MuiChip": {
+      "outlinedSecondary": {
+        "border": "1px solid #493C97"
+      }
     }
   },
   "palette": {

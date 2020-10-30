@@ -112,7 +112,7 @@ exports[`<Table /> should match snapshot 1`] = `
                   <th
                     class="MuiTableCell-root MuiTableCell-head MTableHeader-header-13 MuiTableCell-alignLeft"
                     scope="col"
-                    style="padding: 8px 12px; text-align: left; flex-direction: row; box-sizing: border-box;"
+                    style="padding: 8px 12px; text-align: left; flex-direction: row; font-family: \\"Rubik\\", sans-serif; font-weight: 400; font-size: 1rem; line-height: 1.5; letter-spacing: 0.00938em; box-sizing: border-box;"
                   >
                     <span
                       aria-disabled="false"
@@ -136,7 +136,7 @@ exports[`<Table /> should match snapshot 1`] = `
                   <th
                     class="MuiTableCell-root MuiTableCell-head MTableHeader-header-13 MuiTableCell-alignLeft"
                     scope="col"
-                    style="padding: 8px 12px; text-align: left; flex-direction: row; box-sizing: border-box;"
+                    style="padding: 8px 12px; text-align: left; flex-direction: row; font-family: \\"Rubik\\", sans-serif; font-weight: 400; font-size: 1rem; line-height: 1.5; letter-spacing: 0.00938em; box-sizing: border-box;"
                   >
                     <span
                       aria-disabled="false"
@@ -160,7 +160,7 @@ exports[`<Table /> should match snapshot 1`] = `
                   <th
                     class="MuiTableCell-root MuiTableCell-head MTableHeader-header-13 MuiTableCell-alignRight"
                     scope="col"
-                    style="padding: 8px 12px; text-align: left; flex-direction: row; box-sizing: border-box;"
+                    style="padding: 8px 12px; text-align: left; flex-direction: row; font-family: \\"Rubik\\", sans-serif; font-weight: 400; font-size: 1rem; line-height: 1.5; letter-spacing: 0.00938em; box-sizing: border-box;"
                   >
                     <span
                       aria-disabled="false"
@@ -184,7 +184,7 @@ exports[`<Table /> should match snapshot 1`] = `
                   <th
                     class="MuiTableCell-root MuiTableCell-head MTableHeader-header-13 MuiTableCell-alignLeft"
                     scope="col"
-                    style="padding: 8px 12px; text-align: left; flex-direction: row; box-sizing: border-box;"
+                    style="padding: 8px 12px; text-align: left; flex-direction: row; font-family: \\"Rubik\\", sans-serif; font-weight: 400; font-size: 1rem; line-height: 1.5; letter-spacing: 0.00938em; box-sizing: border-box;"
                   >
                     <span
                       aria-disabled="false"
@@ -219,28 +219,28 @@ exports[`<Table /> should match snapshot 1`] = `
                 >
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
-                    style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                    style="box-sizing: border-box; font-size: 0.875rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1; letter-spacing: 0.01071em;"
                     value="Mehmet"
                   >
                     Mehmet
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
-                    style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                    style="box-sizing: border-box; font-size: 0.875rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1; letter-spacing: 0.01071em;"
                     value="Baran"
                   >
                     Baran
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight"
-                    style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                    style="box-sizing: border-box; font-size: 0.875rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1; letter-spacing: 0.01071em;"
                     value="1987"
                   >
                     1987
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
-                    style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                    style="box-sizing: border-box; font-size: 0.875rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1; letter-spacing: 0.01071em;"
                     value="63"
                   >
                     63
@@ -255,28 +255,28 @@ exports[`<Table /> should match snapshot 1`] = `
                 >
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
-                    style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                    style="box-sizing: border-box; font-size: 0.875rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1; letter-spacing: 0.01071em;"
                     value="Mehmet"
                   >
                     Mehmet
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
-                    style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                    style="box-sizing: border-box; font-size: 0.875rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1; letter-spacing: 0.01071em;"
                     value="Baran"
                   >
                     Baran
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight"
-                    style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                    style="box-sizing: border-box; font-size: 0.875rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1; letter-spacing: 0.01071em;"
                     value="1987"
                   >
                     1987
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
-                    style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                    style="box-sizing: border-box; font-size: 0.875rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1; letter-spacing: 0.01071em;"
                     value="63"
                   >
                     63

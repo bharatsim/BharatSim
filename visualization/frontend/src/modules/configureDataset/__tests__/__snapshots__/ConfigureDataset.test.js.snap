@@ -6,24 +6,15 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
     class="MuiBox-root MuiBox-root-9"
   >
     <div
-      class="MuiBox-root MuiBox-root-11 makeStyles-projectNameBar-10"
+      class="MuiBox-root MuiBox-root-12 makeStyles-projectNameBar-10"
     >
       <h5
         class="MuiTypography-root MuiTypography-h5"
       >
         project1
       </h5>
-    </div>
-    <div
-      class="MuiBox-root MuiBox-root-12 makeStyles-configureProjectDataBar-1"
-    >
-      <h6
-        class="MuiTypography-root MuiTypography-h6"
-      >
-         Configure Dashboard Data
-      </h6>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSizeSmall MuiButton-sizeSmall"
+        class="MuiButtonBase-root MuiButton-root makeStyles-buttonRoot-11 MuiButton-text MuiButton-textSizeSmall MuiButton-sizeSmall"
         tabindex="0"
         type="button"
       >
@@ -38,10 +29,19 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
       </button>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-13 makeStyles-dashboardDataContainer-3"
+      class="MuiBox-root MuiBox-root-13 makeStyles-configureProjectDataBar-1"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6"
+      >
+         Configure Dashboard Data
+      </h6>
+    </div>
+    <div
+      class="MuiBox-root MuiBox-root-14 makeStyles-dashboardDataContainer-3"
     >
       <div
-        class="MuiBox-root MuiBox-root-14 makeStyles-dashboardDataContainerTitle-4"
+        class="MuiBox-root MuiBox-root-15 makeStyles-dashboardDataContainerTitle-4"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle2"
@@ -72,7 +72,7 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
         </button>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-15 makeStyles-dashboardDataHeader-2"
+        class="MuiBox-root MuiBox-root-16 makeStyles-dashboardDataHeader-2"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle2"
@@ -81,7 +81,7 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
         </h6>
       </div>
       <div
-        class="MuiBox-root MuiBox-root-16 makeStyles-dashboardDataBody-5"
+        class="MuiBox-root MuiBox-root-17 makeStyles-dashboardDataBody-5"
       >
         <div
           style="width: 100%;"
@@ -91,7 +91,7 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
             style="position: relative; box-shadow: none; overflow: hidden;"
           >
             <div
-              class="Component-horizontalScrollContainer-21"
+              class="Component-horizontalScrollContainer-22"
               style="overflow-x: auto; position: relative;"
             >
               <div>
@@ -110,30 +110,30 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
                           class="MuiTableRow-root MuiTableRow-head"
                         >
                           <th
-                            class="MuiTableCell-root MuiTableCell-head MTableHeader-header-22 MuiTableCell-alignLeft"
+                            class="MuiTableCell-root MuiTableCell-head MTableHeader-header-23 MuiTableCell-alignLeft"
                             scope="col"
-                            style="padding: 8px 12px; text-align: left; flex-direction: row; box-sizing: border-box;"
+                            style="color: rgba(52, 58, 64, 0.38); padding: 8px 12px; text-align: left; flex-direction: row; font-family: \\"Rubik\\", sans-serif; font-weight: 400; font-size: 1rem; line-height: 1.5; letter-spacing: 0.00938em; box-sizing: border-box;"
                           >
                             Name
                           </th>
                           <th
-                            class="MuiTableCell-root MuiTableCell-head MTableHeader-header-22 MuiTableCell-alignRight"
+                            class="MuiTableCell-root MuiTableCell-head MTableHeader-header-23 MuiTableCell-alignRight"
                             scope="col"
-                            style="padding: 8px 12px; text-align: left; flex-direction: row; box-sizing: border-box;"
+                            style="color: rgba(52, 58, 64, 0.38); padding: 8px 12px; text-align: left; flex-direction: row; font-family: \\"Rubik\\", sans-serif; font-weight: 400; font-size: 1rem; line-height: 1.5; letter-spacing: 0.00938em; box-sizing: border-box;"
                           >
                             Size
                           </th>
                           <th
-                            class="MuiTableCell-root MuiTableCell-head MTableHeader-header-22 MuiTableCell-alignLeft"
+                            class="MuiTableCell-root MuiTableCell-head MTableHeader-header-23 MuiTableCell-alignLeft"
                             scope="col"
-                            style="padding: 8px 12px; text-align: left; flex-direction: row; box-sizing: border-box;"
+                            style="color: rgba(52, 58, 64, 0.38); padding: 8px 12px; text-align: left; flex-direction: row; font-family: \\"Rubik\\", sans-serif; font-weight: 400; font-size: 1rem; line-height: 1.5; letter-spacing: 0.00938em; box-sizing: border-box;"
                           >
                             Type
                           </th>
                           <th
-                            class="MuiTableCell-root MuiTableCell-head MTableHeader-header-22 MuiTableCell-alignLeft"
+                            class="MuiTableCell-root MuiTableCell-head MTableHeader-header-23 MuiTableCell-alignLeft"
                             scope="col"
-                            style="padding: 8px 12px; text-align: left; flex-direction: row; box-sizing: border-box;"
+                            style="color: rgba(52, 58, 64, 0.38); padding: 8px 12px; text-align: left; flex-direction: row; font-family: \\"Rubik\\", sans-serif; font-weight: 400; font-size: 1rem; line-height: 1.5; letter-spacing: 0.00938em; box-sizing: border-box;"
                           >
                             Date Added
                           </th>
@@ -151,28 +151,28 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
                         >
                           <td
                             class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
-                            style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                            style="box-sizing: border-box; font-size: 0.875rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1; letter-spacing: 0.01071em;"
                             value="csv-file-name"
                           >
                             csv-file-name
                           </td>
                           <td
                             class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight"
-                            style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                            style="box-sizing: border-box; font-size: 0.875rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1; letter-spacing: 0.01071em;"
                             value="125005"
                           >
                             0.12MB
                           </td>
                           <td
                             class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
-                            style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                            style="box-sizing: border-box; font-size: 0.875rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1; letter-spacing: 0.01071em;"
                             value="text/csv"
                           >
                             CSV
                           </td>
                           <td
                             class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
-                            style="box-sizing: border-box; font-size: 0.75rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1.66; letter-spacing: 0.03333em;"
+                            style="box-sizing: border-box; font-size: 0.875rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1; letter-spacing: 0.01071em;"
                             value="2020-10-29T09:17:09.146Z"
                           >
                             29-Oct-2020 at 2:47 PM

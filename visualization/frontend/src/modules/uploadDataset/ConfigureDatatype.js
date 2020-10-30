@@ -18,12 +18,14 @@ function ConfigureDatatype({ selectedFile, previewData, schema }) {
         options={{
           paging: true,
           showTitle: false,
+          search: false,
           headerStyle: {
             padding: theme.spacing(1, 2, 1, 2),
             ...theme.typography.subtitle1,
             textAlign: 'left',
             flexDirection: 'row',
             borderBottom: 'unset',
+            lineHeight: 1.25,
           },
         }}
         components={{

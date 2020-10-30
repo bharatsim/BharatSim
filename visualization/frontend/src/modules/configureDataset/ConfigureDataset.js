@@ -35,10 +35,6 @@ function ConfigureDataset() {
     }
   }, [fetchedDataSources]);
 
-  function openRecentProjects() {
-    history.push('/');
-  }
-
   function openUploadDatasets() {
     history.push(uploadFilePage);
   }
@@ -49,9 +45,6 @@ function ConfigureDataset() {
         <ProjectHeader>{projectMetadata.name}</ProjectHeader>
         <Box className={classes.configureProjectDataBar}>
           <Typography variant="h6"> Configure Dashboard Data</Typography>
-          <Button onClick={openRecentProjects} variant="text" size="small">
-            Back to recent projects
-          </Button>
         </Box>
         <Box className={classes.dashboardDataContainer}>
           <Box className={classes.dashboardDataContainerTitle}>

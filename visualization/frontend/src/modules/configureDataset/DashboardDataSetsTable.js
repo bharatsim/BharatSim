@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useTheme } from '@material-ui/core';
 import Table from '../../uiComponent/table/Table';
 import fileTypes from '../../constants/fileTypes';
 import { formatDate } from '../../utils/dateUtils';
@@ -11,6 +12,8 @@ function convertFileSizeToMB(fileSize) {
 }
 
 function DashboardDataSetsTable({ dataSources }) {
+  const theme = useTheme();
+
   return (
     <div style={{ width: '100%' }}>
       <Table
@@ -36,6 +39,14 @@ function DashboardDataSetsTable({ dataSources }) {
           toolbar: false,
           paging: false,
           sorting: false,
+          headerStyle: {
+            color: theme.palette.text.disabled,
+            padding: theme.spacing(2, 3),
+            textAlign: 'left',
+            flexDirection: 'row',
+            ...theme.typography.subtitle1,
+            lineHeight: 1.5,
+          },
         }}
         style={{
           boxShadow: 'none',

@@ -6,23 +6,37 @@ exports[`<ProjectHomeScreenComponent /> should match snapshot 1`] = `
     class="MuiBox-root MuiBox-root-2"
   >
     <div
-      class="MuiBox-root MuiBox-root-4 makeStyles-projectNameBar-3"
+      class="MuiBox-root MuiBox-root-5 makeStyles-projectNameBar-3"
     >
       <h5
         class="MuiTypography-root MuiTypography-h5"
       />
+      <button
+        class="MuiButtonBase-root MuiButton-root makeStyles-buttonRoot-4 MuiButton-text MuiButton-textSizeSmall MuiButton-sizeSmall"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiButton-label"
+        >
+          Back to recent projects
+        </span>
+        <span
+          class="MuiTouchRipple-root"
+        />
+      </button>
     </div>
     <div
-      class="MuiBox-root MuiBox-root-5"
+      class="MuiBox-root MuiBox-root-6"
     >
       <div
-        class="MuiBox-root MuiBox-root-7 makeStyles-ClickableCardContainer-6"
+        class="MuiBox-root MuiBox-root-8 makeStyles-ClickableCardContainer-7"
       >
         <div
-          class="MuiBox-root MuiBox-root-8 makeStyles-addProjectContainer-1"
+          class="MuiBox-root MuiBox-root-9 makeStyles-addProjectContainer-1"
         >
           <div
-            class="MuiBox-root MuiBox-root-9"
+            class="MuiBox-root MuiBox-root-10"
           >
             <h6
               class="MuiTypography-root MuiTypography-h6"
