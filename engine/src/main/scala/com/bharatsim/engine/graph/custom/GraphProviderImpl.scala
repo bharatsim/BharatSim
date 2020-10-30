@@ -1,6 +1,7 @@
 package com.bharatsim.engine.graph.custom
 
 import com.bharatsim.engine.graph.GraphProvider.NodeId
+import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.bharatsim.engine.graph.{GraphData, GraphNode, GraphProvider}
 import com.github.tototoshi.csv.CSVReader
 import com.typesafe.scalalogging.LazyLogging
@@ -124,17 +125,14 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
     }
   }
 
-  override def neighborCount(nodeId: NodeId, label: String, matchCondition: (String, Any)): Int = {
+  override def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int = {
     if (indexedNodes.contains(nodeId)) {
       val node = indexedNodes(nodeId)
       var count = 0
       node.fetchNeighborsWithLabel(label)
         .foreach(nodeId => {
           val n = indexedNodes(nodeId)
-          n.params.get(matchCondition._1) match {
-            case Some(v) => if (v == matchCondition._2) count += 1
-            case _ =>
-          }
+          if (matchCondition.eval(n.params.toMap)) count += 1
         })
       count
     } else 0

@@ -5,6 +5,7 @@ import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.Relation.GenericRelation
+import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.bharatsim.engine.models.Node
 import com.bharatsim.engine.utils.Utils.fetchClassName
 
@@ -89,7 +90,7 @@ trait GraphProvider {
 
   def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode]
 
-  def neighborCount(nodeId: NodeId, label: String, matchCondition: (String, Any)): Int
+  def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int
 
   // U
   def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit

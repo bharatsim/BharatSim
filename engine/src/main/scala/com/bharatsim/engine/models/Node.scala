@@ -2,6 +2,7 @@ package com.bharatsim.engine.models
 
 import com.bharatsim.engine.basicConversions.encoders.BasicEncoder
 import com.bharatsim.engine.exception.MultipleRelationDefinitionsException
+import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider, GraphProviderFactory}
 import com.bharatsim.engine.utils.Utils
 
@@ -51,8 +52,8 @@ class Node()(implicit graphProvider: GraphProvider = GraphProviderFactory.get) e
     graphProvider.fetchNeighborsOf(internalId, relation).iterator
   }
 
-  def getConnectionCount(relation: String, matchCondition: (String, Any)): Int = {
-    graphProvider.neighborCount(internalId, relation, matchCondition)
+  def getConnectionCount(relation: String, matchPattern: MatchPattern): Int = {
+    graphProvider.neighborCount(internalId, relation, matchPattern)
   }
 
   def updateParam[T](key: String, value: T)(implicit encoder: BasicEncoder[T]): Unit = {

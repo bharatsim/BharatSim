@@ -62,7 +62,7 @@ case class NoValue() extends BasicValue {
   override def get: Any = null
 }
 
-private[basicConversions] object BasicValue {
+private[engine] object BasicValue {
   def toSimplifiedValue(value: BasicValue): Any = {
     value match {
       case IntValue(v) => v
@@ -95,7 +95,7 @@ private[basicConversions] object BasicValue {
     list.map(x => fromAnyValue(x))
   }
 
-  private def fromAnyValue(value: Any): BasicValue = {
+  def fromAnyValue(value: Any): BasicValue = {
     value match {
       case x: Int => IntValue(x)
       case x: Float => FloatValue(x)

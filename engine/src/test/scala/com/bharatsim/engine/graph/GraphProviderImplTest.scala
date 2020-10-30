@@ -2,6 +2,7 @@ package com.bharatsim.engine.graph
 
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.custom.GraphProviderImpl
+import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.testModels.{TestCitizen, TestHome}
 import org.mockito.MockitoSugar
 import org.scalatest.matchers.should.Matchers
@@ -177,7 +178,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
         graphProvider.createRelationship(home, "HOUSES", person2)
         graphProvider.createRelationship(home, "HOUSES", person3)
 
-        graphProvider.neighborCount(home, "HOUSES", ("age", 23)) shouldBe 2
+        graphProvider.neighborCount(home, "HOUSES", "age" lt 23) shouldBe 1
       }
     }
   }

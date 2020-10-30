@@ -4,6 +4,7 @@ import com.bharatsim.engine.Context
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.GraphNode
+import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.models.{Agent, Network}
 import com.bharatsim.engine.utils.Probability.{biasedCoinToss, toss}
 import com.bharatsim.model.InfectionStatus._
@@ -35,7 +36,7 @@ case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionD
         val decodedPlace = decodeNode(placeType, place)
 
         val infectedNeighbourCount = decodedPlace
-          .getConnectionCount(decodedPlace.getRelation[Person]().get, ("infectionState", "Infected"))
+          .getConnectionCount(decodedPlace.getRelation[Person]().get, "infectionState" equ Infected)
 
         val shouldInfect =
           biasedCoinToss(decodedPlace.getContactProbability()) && toss(infectionRate, infectedNeighbourCount)

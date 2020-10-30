@@ -5,6 +5,7 @@ import java.util
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.Relation.GenericRelation
 import com.bharatsim.engine.graph._
+import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.github.tototoshi.csv.CSVReader
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Values.{parameters, value}
@@ -203,14 +204,15 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
     retValue.asScala
   }
 
-  override def neighborCount(nodeId: NodeId, label: String, matchCondition: (String, Any)): Int = {
+  override def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int = {
     val session = neo4jConnection.session()
 
+    val patternString = MatchPattern.toString(matchCondition, "o")
     val retValue = session
       .readTransaction((tx: Transaction) => {
         val result = tx.run(
           s"""MATCH (n) where id(n) = $$nodeId with n
-             |MATCH (n)-[:$label]->(o) where o.${matchCondition._1} = ${matchCondition._2}
+             |MATCH (n)-[:$label]->(o) where $patternString
              |RETURN count(n) as matchingCount
              |""".stripMargin,
           parameters("nodeId", nodeId)
