@@ -64,7 +64,7 @@ describe('<FileUpload />', () => {
       },
     });
 
-    const errorText = getByText('Please upload valid csv file');
+    const errorText = getByText('Failed to Import file, the format is not supported');
     expect(errorText).toBeInTheDocument();
   });
 

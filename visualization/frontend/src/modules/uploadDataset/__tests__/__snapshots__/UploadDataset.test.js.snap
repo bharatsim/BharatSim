@@ -219,43 +219,60 @@ exports[`Upload Dataset should match snapshot for upload dataset component 1`] =
         class="MuiBox-root MuiBox-root-17"
       >
         <div
-          class="MuiBox-root MuiBox-root-20 makeStyles-importDataContainer-18"
+          class="MuiBox-root MuiBox-root-20"
         >
-          <img
-            alt="Import File"
-            src="importFileIcon.svg"
-          />
           <div
-            class="MuiBox-root MuiBox-root-21 makeStyles-textContainer-19"
+            class="MuiBox-root MuiBox-root-25 makeStyles-hidden-23"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1"
+              class="MuiTypography-root MuiTypography-body2 makeStyles-errorTitle-21 MuiTypography-colorError"
             >
-              Drag your file here or 
+              Error:  
             </p>
+            <p
+              class="MuiTypography-root MuiTypography-body2 makeStyles-errorMessage-22 MuiTypography-colorError"
+            />
+          </div>
+          <div
+            class="MuiBox-root MuiBox-root-26 makeStyles-importDataContainer-18"
+          >
+            <img
+              alt="Import File"
+              src="importFileIcon.svg"
+            />
             <div
-              class="MuiBox-root MuiBox-root-22"
+              class="MuiBox-root MuiBox-root-27 makeStyles-textContainer-19"
             >
-              <label
-                aria-disabled="false"
-                class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedSizeSmall MuiButton-sizeSmall"
-                role="button"
-                tabindex="0"
+              <p
+                class="MuiTypography-root MuiTypography-body1"
               >
-                <span
-                  class="MuiButton-label"
+                Drag your file here or 
+              </p>
+              <div
+                class="MuiBox-root MuiBox-root-28"
+              >
+                <label
+                  aria-disabled="false"
+                  class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedSizeSmall MuiButton-sizeSmall"
+                  role="button"
+                  tabindex="0"
                 >
-                  Browse
-                  <input
-                    data-testid="file-input"
-                    style="display: none;"
-                    type="file"
+                  <span
+                    class="MuiButton-label"
+                  >
+                    Browse
+                    <input
+                      accept=".csv"
+                      data-testid="file-input"
+                      style="display: none;"
+                      type="file"
+                    />
+                  </span>
+                  <span
+                    class="MuiTouchRipple-root"
                   />
-                </span>
-                <span
-                  class="MuiTouchRipple-root"
-                />
-              </label>
+                </label>
+              </div>
             </div>
           </div>
         </div>

@@ -173,9 +173,9 @@ exports[`Configure datasets should match snapshot for given dashboard data and p
                           <td
                             class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft"
                             style="box-sizing: border-box; font-size: 0.875rem; font-family: \\"Roboto\\", sans-serif; font-weight: 400; height: 32px; padding: 8px 12px; text-align: left; line-height: 1; letter-spacing: 0.01071em;"
-                            value="2020-10-29T09:17:09.146Z"
+                            value="Fri Oct 20 2020 15:45:07 GMT+0530"
                           >
-                            29-Oct-2020 at 2:47 PM
+                            20-Oct-2020 at 10:15 AM
                           </td>
                         </tr>
                       </tbody>

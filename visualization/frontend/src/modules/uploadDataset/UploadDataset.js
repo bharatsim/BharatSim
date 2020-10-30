@@ -137,7 +137,7 @@ function UploadDataset() {
         </ButtonGroup>
       </Box>
       <Box className={classes.contentWrapper}>
-        <Box px={8} pb={8}>
+        <Box px={8} pb={4}>
           <Stepper activeStep={activeStep}>
             {steps.map((label, index) => (
               <Step key={label}>

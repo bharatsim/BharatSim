@@ -48,10 +48,10 @@ function validateFile(file) {
     return 'Please upload valid csv file';
   }
   if (!VALID_FILE_TYPES.includes(file.type)) {
-    return 'Please upload valid csv file';
+    return 'Failed to Import file, the format is not supported';
   }
   if (file.size > MAX_FILE_SIZE) {
-    return 'Please upload valid csv file with size less than 10MB';
+    return 'Failed to Import file, size exceeds the limit of 10MB';
   }
   return '';
 }

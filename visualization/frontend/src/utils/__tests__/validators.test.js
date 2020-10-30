@@ -60,13 +60,13 @@ describe('Validators', () => {
 
     it('should provide message if uploaded file is not type of csv', () => {
       expect(validateFile({ type: 'image/png', size: 10000 })).toEqual(
-        'Please upload valid csv file',
+        'Failed to Import file, the format is not supported',
       );
     });
 
     it('should provide message if uploaded file size exceed limit of 10MB', () => {
       expect(validateFile({ type: 'text/csv', size: 10485761 })).toEqual(
-        'Please upload valid csv file with size less than 10MB',
+        'Failed to Import file, size exceeds the limit of 10MB',
       );
     });
 

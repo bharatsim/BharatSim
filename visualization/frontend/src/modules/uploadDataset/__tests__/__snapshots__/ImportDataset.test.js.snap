@@ -1,45 +1,62 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Upload Dataset should match snapshot for import dataset component 1`] = `
+exports[`Import Dataset should match snapshot for import dataset component 1`] = `
 <div>
   <div
-    class="MuiBox-root MuiBox-root-3 makeStyles-importDataContainer-1"
+    class="MuiBox-root MuiBox-root-3"
   >
-    <img
-      alt="Import File"
-      src="importFileIcon.svg"
-    />
     <div
-      class="MuiBox-root MuiBox-root-4 makeStyles-textContainer-2"
+      class="MuiBox-root MuiBox-root-8 makeStyles-hidden-6"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1"
+        class="MuiTypography-root MuiTypography-body2 makeStyles-errorTitle-4 MuiTypography-colorError"
       >
-        Drag your file here or 
+        Error:  
       </p>
+      <p
+        class="MuiTypography-root MuiTypography-body2 makeStyles-errorMessage-5 MuiTypography-colorError"
+      />
+    </div>
+    <div
+      class="MuiBox-root MuiBox-root-9 makeStyles-importDataContainer-1"
+    >
+      <img
+        alt="Import File"
+        src="importFileIcon.svg"
+      />
       <div
-        class="MuiBox-root MuiBox-root-5"
+        class="MuiBox-root MuiBox-root-10 makeStyles-textContainer-2"
       >
-        <label
-          aria-disabled="false"
-          class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedSizeSmall MuiButton-sizeSmall"
-          role="button"
-          tabindex="0"
+        <p
+          class="MuiTypography-root MuiTypography-body1"
         >
-          <span
-            class="MuiButton-label"
+          Drag your file here or 
+        </p>
+        <div
+          class="MuiBox-root MuiBox-root-11"
+        >
+          <label
+            aria-disabled="false"
+            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedSizeSmall MuiButton-sizeSmall"
+            role="button"
+            tabindex="0"
           >
-            Browse
-            <input
-              data-testid="file-input"
-              style="display: none;"
-              type="file"
+            <span
+              class="MuiButton-label"
+            >
+              Browse
+              <input
+                accept=".csv"
+                data-testid="file-input"
+                style="display: none;"
+                type="file"
+              />
+            </span>
+            <span
+              class="MuiTouchRipple-root"
             />
-          </span>
-          <span
-            class="MuiTouchRipple-root"
-          />
-        </label>
+          </label>
+        </div>
       </div>
     </div>
   </div>

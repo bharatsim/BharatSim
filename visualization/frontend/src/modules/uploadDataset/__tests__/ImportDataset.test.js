@@ -10,7 +10,7 @@ jest.spyOn(fileUtils, 'parseCsv').mockImplementation((csvFile, onComplete) => {
   onComplete(data);
 });
 
-describe('Upload Dataset', () => {
+describe('Import Dataset', () => {
   const Component = withThemeProvider(ImportDataset);
   let setFileMock;
   let handleNextMock;
@@ -51,9 +51,11 @@ describe('Upload Dataset', () => {
     );
     const inputComponent = getByTestId('file-input');
 
-    fireEvent.change(inputComponent, { target: { files: [{ name: 'csv', size: '10' }] } });
+    fireEvent.change(inputComponent, {
+      target: { files: [{ name: 'csv', size: '10', type: 'text/csv' }] },
+    });
 
-    expect(setFileMock).toHaveBeenCalledWith({ name: 'csv', size: '10' });
+    expect(setFileMock).toHaveBeenCalledWith({ name: 'csv', size: '10', type: 'text/csv' });
   });
   it('should import and parse csv file ', () => {
     const { getByTestId } = render(
@@ -67,10 +69,12 @@ describe('Upload Dataset', () => {
     );
     const inputComponent = getByTestId('file-input');
 
-    fireEvent.change(inputComponent, { target: { files: [{ name: 'csv', size: '10' }] } });
+    fireEvent.change(inputComponent, {
+      target: { files: [{ name: 'csv', size: '10', type: 'text/csv' }] },
+    });
 
     expect(fileUtils.parseCsv).toHaveBeenCalledWith(
-      { name: 'csv', size: '10' },
+      { name: 'csv', size: '10', type: 'text/csv' },
       expect.any(Function, () => {}),
     );
   });
@@ -87,9 +91,14 @@ describe('Upload Dataset', () => {
     );
     const inputComponent = getByTestId('file-input');
 
-    fireEvent.change(inputComponent, { target: { files: [{ name: 'csv', size: '10' }] } });
+    fireEvent.change(inputComponent, {
+      target: { files: [{ name: 'csv', size: '10', type: 'text/csv' }] },
+    });
 
-    expect(setSchemaMock).toHaveBeenCalledWith({ col1: 'String', col2: 'Number' });
+    expect(setSchemaMock).toHaveBeenCalledWith({
+      col1: 'String',
+      col2: 'Number',
+    });
   });
   it('should set preview data for given file', () => {
     const { getByTestId } = render(
@@ -103,7 +112,9 @@ describe('Upload Dataset', () => {
     );
     const inputComponent = getByTestId('file-input');
 
-    fireEvent.change(inputComponent, { target: { files: [{ name: 'csv', size: '10' }] } });
+    fireEvent.change(inputComponent, {
+      target: { files: [{ name: 'csv', size: '10', type: 'text/csv' }] },
+    });
 
     expect(setPreviewDataMock).toHaveBeenCalledWith([{ col1: 'row1', col2: 1 }]);
   });
@@ -112,7 +123,7 @@ describe('Upload Dataset', () => {
       const data = { data: [{ col1: 'row1', col2: 1 }], errors: ['error'] };
       onComplete(data);
     });
-    const { getByTestId } = render(
+    const { getByTestId, queryByText } = render(
       <Component
         setFile={setFileMock}
         handleNext={handleNextMock}
@@ -123,8 +134,63 @@ describe('Upload Dataset', () => {
     );
     const inputComponent = getByTestId('file-input');
 
-    fireEvent.change(inputComponent, { target: { files: [{ name: 'csv', size: '10' }] } });
+    fireEvent.change(inputComponent, {
+      target: { files: [{ name: 'csv', size: '10', type: 'text/csv' }] },
+    });
 
+    expect(
+      queryByText(
+        'Failed to Import file due to parsing error. Please review the file and ensure that its a valid CSV file.',
+      ),
+    ).toBeInTheDocument();
+    expect(setErrorStepMock).toHaveBeenCalledWith(0);
+  });
+  it('should set validation error for given file if size exceed limit of 10mb', () => {
+    jest.spyOn(fileUtils, 'parseCsv').mockImplementation((csvFile, onComplete) => {
+      const data = { data: [{ col1: 'row1', col2: 1 }], errors: [] };
+      onComplete(data);
+    });
+    const { getByTestId, queryByText } = render(
+      <Component
+        setFile={setFileMock}
+        handleNext={handleNextMock}
+        setPreviewData={setPreviewDataMock}
+        setErrorStep={setErrorStepMock}
+        setSchema={setSchemaMock}
+      />,
+    );
+    const inputComponent = getByTestId('file-input');
+
+    fireEvent.change(inputComponent, {
+      target: { files: [{ name: 'csv', size: '120843092842123', type: 'text/csv' }] },
+    });
+
+    expect(
+      queryByText('Failed to Import file, size exceeds the limit of 10MB'),
+    ).toBeInTheDocument();
+    expect(setErrorStepMock).toHaveBeenCalledWith(0);
+  });
+  it('should set validation error for given file if type if not supported', () => {
+    jest.spyOn(fileUtils, 'parseCsv').mockImplementation((csvFile, onComplete) => {
+      const data = { data: [{ col1: 'row1', col2: 1 }], errors: [] };
+      onComplete(data);
+    });
+    const { getByTestId, queryByText } = render(
+      <Component
+        setFile={setFileMock}
+        handleNext={handleNextMock}
+        setPreviewData={setPreviewDataMock}
+        setErrorStep={setErrorStepMock}
+        setSchema={setSchemaMock}
+      />,
+    );
+    const inputComponent = getByTestId('file-input');
+
+    fireEvent.change(inputComponent, {
+      target: { files: [{ name: 'csv', size: '120843092842123', type: 'text/badtype' }] },
+    });
+
+    expect(queryByText('Failed to Import file, the format is not supported')).toBeInTheDocument();
     expect(setErrorStepMock).toHaveBeenCalledWith(0);
   });
 });

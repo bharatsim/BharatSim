@@ -26,12 +26,12 @@ jest.mock('../../../utils/api', () => ({
     getDatasources: jest.fn().mockResolvedValue({
       dataSources: [
         {
-          createdAt: '2020-10-29T09:17:09.146Z',
+          createdAt: 'Fri Oct 20 2020 15:45:07 GMT+0530',
           dashboardId: '5f9952ede93dbd234a39d82f',
           fileSize: 125005,
           fileType: 'text/csv',
           name: 'csv-file-name',
-          updatedAt: '2020-10-29T09:17:09.146Z',
+          updatedAt: 'Fri Oct 20 2020 15:45:07 GMT+0530',
           _id: '5f9a88952629222105e180df',
         },
       ],

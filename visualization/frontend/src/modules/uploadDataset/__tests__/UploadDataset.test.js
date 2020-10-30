@@ -59,7 +59,9 @@ describe('Upload Dataset', () => {
     const { getByText, getByTestId, findByText } = render(<ComponentWithProvider />);
     const inputComponent = getByTestId('file-input');
 
-    fireEvent.change(inputComponent, { target: { files: [new File([''], 'testFile.csv')] } });
+    fireEvent.change(inputComponent, {
+      target: { files: [new File([''], 'testFile.csv', { type: 'text/csv' })] },
+    });
 
     await findByText('DataFile:');
 
@@ -70,7 +72,9 @@ describe('Upload Dataset', () => {
     const { getByText, getByTestId, findByText } = render(<ComponentWithProvider />);
     const inputComponent = getByTestId('file-input');
 
-    fireEvent.change(inputComponent, { target: { files: [new File([''], 'testFile.csv')] } });
+    fireEvent.change(inputComponent, {
+      target: { files: [new File([''], 'testFile.csv', { type: 'text/csv' })] },
+    });
 
     await findByText('DataFile:');
 
@@ -97,7 +101,9 @@ describe('Upload Dataset', () => {
     const { getByText, getByTestId, findByText } = render(<ComponentWithProvider />);
     const inputComponent = getByTestId('file-input');
 
-    fireEvent.change(inputComponent, { target: { files: [new File([''], 'testFile.csv')] } });
+    fireEvent.change(inputComponent, {
+      target: { files: [new File([''], 'testFile.csv', { type: 'text/csv' })] },
+    });
 
     await findByText('DataFile:');
 
@@ -112,7 +118,9 @@ describe('Upload Dataset', () => {
     const { getByText, getByTestId, findByText } = render(<ComponentWithProvider />);
     const inputComponent = getByTestId('file-input');
 
-    fireEvent.change(inputComponent, { target: { files: [new File([''], 'testFile.csv')] } });
+    fireEvent.change(inputComponent, {
+      target: { files: [new File([''], 'testFile.csv', { type: 'text/csv' })] },
+    });
 
     await findByText('DataFile:');
 

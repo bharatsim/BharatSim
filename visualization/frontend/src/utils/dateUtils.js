@@ -13,7 +13,7 @@ function formatDate(dateString) {
   const HH = date.getHours();
   const mm = date.getMinutes();
 
-  return `${DD}-${months[MM]}-${YYYY} at ${HH % 12}:${mm} ${getPeriod(HH)}`;
+  return `${DD}-${months[MM]}-${YYYY} at ${HH % 12}:${mm < 10 ? `0${mm}` : mm} ${getPeriod(HH)}`;
 }
 
 export { formatDate };

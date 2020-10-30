@@ -49,6 +49,7 @@
     ]
   },
   "jest": {
+    "globalSetup": "./src/globalSetup.js",
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}",
       "!src/constants/*.js",
