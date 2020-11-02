@@ -303,8 +303,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
       graphProvider.ingestFromCsv(filePath, mapper)
       val nodes = graphProvider.fetchNodes("TestCitizen").toList
       nodes should have length 2
-      nodes.head.getParams("age") shouldBe 25
-      nodes.tail.head.getParams("age") shouldBe 35
+      nodes.map(_.getParams("age")) should contain theSameElementsAs List(25, 35)
     }
 
     "create relations from CSV file" in {
