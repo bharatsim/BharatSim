@@ -88,6 +88,8 @@ trait GraphProvider {
 
   def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode]
 
+  def fetchCount(label: String, matchPattern: MatchPattern): Int
+
   def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode]
 
   def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int

@@ -182,6 +182,20 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
 
   override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
+  override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
+    val patternString = PatternMaker.from(matchPattern, "a")
+
+    val session = neo4jConnection.session()
+
+    val count = session.readTransaction((tx: Transaction) => {
+      val result = tx.run(s"""MATCH (a:$label) where $patternString return count(a) as matchingCount""")
+
+      result.single().get("matchingCount").asInt()
+    })
+    session.close()
+    count
+  }
+
   override def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode] = {
     val session = neo4jConnection.session()
     val allLabels = label :: labels.toList

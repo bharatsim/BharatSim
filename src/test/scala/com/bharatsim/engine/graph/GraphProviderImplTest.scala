@@ -110,6 +110,34 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
     }
   }
 
+  "fetchCount" when {
+    "label exists in store" should {
+      "return count of nodes matching the condition" in {
+        val graphProvider = new GraphProviderImpl()
+
+        graphProvider.createNode("Person", ("age", 34))
+        graphProvider.createNode("Person", ("age", 24))
+        graphProvider.createNode("Person", ("age", 12))
+        graphProvider.createNode("Person", ("age", 67))
+        graphProvider.createNode("Person", ("age", 34))
+
+        graphProvider.fetchCount("Person", "age" equ 34) shouldBe 2
+        graphProvider.fetchCount("Person", "age" lt 100) shouldBe 5
+        graphProvider.fetchCount("Person", "age" lte 34) shouldBe 4
+        graphProvider.fetchCount("Person", "age" gt 50) shouldBe 1
+      }
+    }
+
+    "label does not exists" should {
+      "return 0" in {
+        val graphProvider = new GraphProviderImpl()
+
+        graphProvider.createNode("Person", ("name", "Suresh"))
+        graphProvider.fetchCount("Vector", "spreadProbability" equ 0.34) shouldBe 0
+      }
+    }
+  }
+
   "fetchNeighboursOf" when {
     "node exists" should {
       "return nodes with provided labels" in {

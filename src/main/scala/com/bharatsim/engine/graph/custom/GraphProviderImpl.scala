@@ -109,6 +109,11 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
 
   override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
+  override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
+    nodes.getOrElse(label, List.empty)
+      .count(nodes => matchPattern.eval(nodes._2.params.toMap))
+  }
+
   override def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode] = {
     val allLabels = label :: labels.toList
 
