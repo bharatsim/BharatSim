@@ -6,9 +6,11 @@ import com.bharatsim.engine.actions.StopSimulation
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.dsl.SyntaxHelpers._
+import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.graph.{GraphData, Relation}
 import com.bharatsim.engine.listners.{CsvOutputGenerator, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
+import com.bharatsim.model.InfectionStatus._
 import com.typesafe.scalalogging.LazyLogging
 
 object Main extends LazyLogging {
@@ -128,8 +130,8 @@ object Main extends LazyLogging {
   private def printStats(beforeCount: Int)(implicit context: Context): Unit = {
     val afterCountSusceptible = getSusceptibleCount(context)
     val afterCountInfected = getInfectedCount(context)
-    val afterCountRecovered = context.graphProvider.fetchNodes("Person", ("infectionState", "Recovered")).size
-    val afterCountDeceased = context.graphProvider.fetchNodes("Person", ("infectionState", "Deceased")).size
+    val afterCountRecovered = context.graphProvider.fetchCount("Person", "infectionState" equ Recovered)
+    val afterCountDeceased = context.graphProvider.fetchCount("Person", "infectionState" equ Deceased)
 
     logger.info("Infected before: {}", beforeCount)
     logger.info("Infected after: {}", afterCountInfected)
@@ -140,14 +142,14 @@ object Main extends LazyLogging {
   }
 
   private def getSusceptibleCount(context: Context) = {
-    context.graphProvider.fetchNodes("Person", ("infectionState", "Susceptible")).size
+    context.graphProvider.fetchCount("Person", "infectionState" equ Susceptible)
   }
 
   private def getExposedCount(context: Context) = {
-    context.graphProvider.fetchNodes("Person", ("infectionState", "Exposed")).size
+    context.graphProvider.fetchCount("Person", "infectionState" equ Exposed)
   }
 
   private def getInfectedCount(context: Context): Int = {
-    context.graphProvider.fetchNodes("Person", ("infectionState", "Infected")).size
+    context.graphProvider.fetchCount("Person", "infectionState" equ Infected)
   }
 }
