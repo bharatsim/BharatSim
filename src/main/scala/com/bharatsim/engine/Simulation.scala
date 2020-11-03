@@ -35,8 +35,8 @@ class Simulation(context: Context) extends LazyLogging {
 
         SimulationListenerRegistry.notifyStepEnd(context)
       }
-      SimulationListenerRegistry.notifySimulationEnd(context)
     }
+    SimulationListenerRegistry.notifySimulationEnd(context)
   }
 }
 
