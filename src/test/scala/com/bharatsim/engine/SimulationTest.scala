@@ -1,10 +1,11 @@
 package com.bharatsim.engine
 
-import com.bharatsim.engine.ContextBuilder.{registerAction, registerAgent}
+import com.bharatsim.engine.ContextBuilder.{registerAction, registerAgent, registerIntervention}
 import com.bharatsim.engine.actions.StopSimulation
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
+import com.bharatsim.engine.intervention.Intervention
 import com.bharatsim.engine.listners.{SimulationListener, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
 import org.mockito.{InOrder, Mockito, MockitoSugar}
@@ -126,6 +127,67 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
 
     verifyZeroInteractions(graphProvider)
     context.getCurrentStep shouldBe 1
+  }
+
+  def getIntervention: Intervention = {
+    val mockIntervention = mock[Intervention]
+    when(mockIntervention.name).thenReturn("DummyIntervention")
+    mockIntervention
+  }
+
+  test("simulation should mark interventions active when they satisfy the condition") {
+    implicit val context: Context = getContext(3)
+    val simulation = new Simulation(context)
+    val dummyIntervention: Intervention = getIntervention
+    when(dummyIntervention.shouldActivate(context)).thenAnswer((context: Context) => context.getCurrentStep == 1)
+    when(dummyIntervention.shouldDeactivate(context)).thenReturn(false)
+
+    registerIntervention(dummyIntervention)
+    simulation.run()
+
+    val interventionNames = context.activeInterventionNames
+    interventionNames.size shouldBe 1
+    interventionNames.head shouldBe "DummyIntervention"
+  }
+
+  test("simulation should mark interventions inactive when they satisfy the deactivate condition") {
+    implicit val context: Context = getContext(3)
+    val simulation = new Simulation(context)
+    val dummyIntervention: Intervention = getIntervention
+    when(dummyIntervention.shouldActivate(context)).thenAnswer((context: Context) => context.getCurrentStep == 1)
+    when(dummyIntervention.shouldDeactivate(context)).thenAnswer((context: Context) => context.getCurrentStep == 2)
+
+    registerIntervention(dummyIntervention)
+    simulation.run()
+
+    context.interventions.inactive.size shouldBe 1
+    context.interventions.inactive.head.name shouldBe "DummyIntervention"
+  }
+
+  test("simulation should execute start-time action for every activated simulation") {
+    implicit val context: Context = getContext(3)
+    val simulation = new Simulation(context)
+    val dummyIntervention: Intervention = getIntervention
+    when(dummyIntervention.shouldActivate(context)).thenAnswer((context: Context) => context.getCurrentStep == 1)
+    when(dummyIntervention.shouldDeactivate(context)).thenReturn(false)
+
+    registerIntervention(dummyIntervention)
+    simulation.run()
+
+    verify(dummyIntervention, times(1)).firstTimeAction(context)
+  }
+
+  test("simulation should execute active-action for every active simulation per tick") {
+    implicit val context: Context = getContext(3)
+    val simulation = new Simulation(context)
+    val dummyIntervention: Intervention = getIntervention
+    when(dummyIntervention.shouldActivate(context)).thenAnswer((context: Context) => context.getCurrentStep == 1)
+    when(dummyIntervention.shouldDeactivate(context)).thenReturn(false)
+
+    registerIntervention(dummyIntervention)
+    simulation.run()
+
+    verify(dummyIntervention, times(3)).whenActiveAction(context)
   }
 
   def getContext(steps: Int, mockGraphProvider: GraphProvider = mock[GraphProvider]) =

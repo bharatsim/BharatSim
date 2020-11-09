@@ -10,21 +10,20 @@ class Simulation(context: Context) extends LazyLogging {
   def run(): Unit = {
 
     SimulationListenerRegistry.notifySimulationStart(context)
+
     breakable {
       for (step <- 1 to context.simulationConfig.simulationSteps) {
         logger.info("Tick {}", step)
         context.setCurrentStep(step)
         SimulationListenerRegistry.notifyStepStart(context)
 
-        context.actions.foreach(conditionalAction => {
-          if (conditionalAction.condition(context)) {
-            conditionalAction.action.perform(context)
-          }
-        })
+        invokeActions()
 
         if (context.stopSimulation) {
           break
         }
+
+        invokeInterventionActions()
 
         val agentTypes = context.fetchAgentTypes
         agentTypes.foreach(agentType => {
@@ -36,7 +35,31 @@ class Simulation(context: Context) extends LazyLogging {
         SimulationListenerRegistry.notifyStepEnd(context)
       }
     }
+
     SimulationListenerRegistry.notifySimulationEnd(context)
+  }
+
+  private def invokeActions(): Unit = {
+    context.actions.foreach(conditionalAction => {
+      if (conditionalAction.condition(context)) {
+        conditionalAction.action.perform(context)
+      }
+    })
+  }
+
+  private def invokeInterventionActions(): Unit = {
+    context.interventions.inactive
+      .foreach(i => {
+        if (i.shouldActivate(context)) {
+          i.firstTimeAction(context)
+          context.interventions.markActive(i)
+        }
+      })
+
+    context.interventions.active
+      .foreach(i => if (i.shouldDeactivate(context)) context.interventions.markInactive(i))
+
+    context.interventions.active.foreach(i => i.whenActiveAction(context))
   }
 }
 

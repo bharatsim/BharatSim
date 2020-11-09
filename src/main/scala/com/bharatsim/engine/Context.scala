@@ -2,6 +2,7 @@ package com.bharatsim.engine
 
 import com.bharatsim.engine.actions.ConditionalAction
 import com.bharatsim.engine.graph.{GraphProvider, GraphProviderFactory}
+import com.bharatsim.engine.intervention.{Intervention, Interventions}
 import com.bharatsim.engine.models.Agent
 
 import scala.collection.mutable
@@ -13,6 +14,7 @@ class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simu
   private[engine] var currentStep = 0
   private[engine] val actions: ListBuffer[ConditionalAction] = ListBuffer.empty
   private[engine] var stopSimulation = false
+  private[engine] val interventions = new Interventions()
 
   def fetchScheduleFor(agent: Agent): Option[Schedule] = {
     schedules.get(agent, this)
@@ -25,6 +27,8 @@ class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simu
   }
 
   private[engine] def fetchAgentTypes: ListBuffer[GraphProvider => Iterable[Agent]] = agentTypes
+
+  def activeInterventionNames: Set[String] = interventions.activeNames
 }
 
 object Context {

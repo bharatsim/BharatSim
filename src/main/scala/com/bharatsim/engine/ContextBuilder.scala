@@ -3,6 +3,7 @@ package com.bharatsim.engine
 import com.bharatsim.engine.actions.{Action, ConditionalAction}
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.graph.{GraphData, GraphProvider}
+import com.bharatsim.engine.intervention.Intervention
 import com.bharatsim.engine.models.Agent
 import com.bharatsim.engine.utils.Utils
 
@@ -33,4 +34,6 @@ object ContextBuilder {
   def registerAction(action: Action, condition: Context => Boolean)(implicit context: Context): Unit = {
     context.actions.addOne(ConditionalAction(action, condition))
   }
+
+  def registerIntervention(i: Intervention)(implicit context: Context): Unit = context.interventions.add(i)
 }
