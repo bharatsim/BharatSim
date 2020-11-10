@@ -2,7 +2,7 @@ package com.bharatsim.engine.intervention
 import com.bharatsim.engine.Context
 
 private[engine] trait SingleInvocationIntervention extends Intervention {
-  var invokedOnce = false
+  private[engine] var invokedOnce = false
 }
 
 object SingleInvocationIntervention {
