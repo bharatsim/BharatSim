@@ -20,9 +20,12 @@ object Main extends LazyLogging {
 
     createSchedules()
 
-    registerAction(StopSimulation, (c: Context) => {
-      getInfectedCount(c) == 0 && getExposedCount(c) == 0
-    })
+    registerAction(
+      StopSimulation,
+      (c: Context) => {
+        getInfectedCount(c) == 0 && getExposedCount(c) == 0
+      }
+    )
 
     ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
     logger.debug("Ingestion done")

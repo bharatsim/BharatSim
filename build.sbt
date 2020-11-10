@@ -14,3 +14,5 @@ libraryDependencies += "org.scalatest" %% "scalatest-funsuite" % "3.2.0" % Test
 libraryDependencies += "org.mockito" %% "mockito-scala" % "1.15.0" % Test
 libraryDependencies += "org.neo4j.test" % "neo4j-harness" % "4.0.0" % Test
 libraryDependencies += "com.github.tototoshi" %% "scala-csv" % "1.3.6"
+
+Compile / doc / scalacOptions := Seq("-skip-packages", "com.bharatsim.model")
