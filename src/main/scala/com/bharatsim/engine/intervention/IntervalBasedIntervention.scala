@@ -3,7 +3,24 @@ import com.bharatsim.engine.Context
 
 private[engine] trait IntervalBasedIntervention extends Intervention
 
+/**`IntervalBasedIntervention` can be used to create intervention which starts and ends at the specific ticks
+ *
+ *
+ * @example
+ * {{{
+ * val intervention = OffsetBasedIntervention("sampleIntervention", 10, 15)
+ * }}}
+ */
 object IntervalBasedIntervention {
+  /**Creator method
+   *
+   * @param interventionName unique intervention name
+   * @param startTick integer specifying start tick for intervention (inclusive), should not be greater than endTick
+   * @param endTick integer specifying end tick for the intervention (exclusive, intervention will not be active at `endTick`)
+   * @param firstTimeActionFunc optional function which gets executed when simulation starts
+   * @param whenActiveActionFunc optional function which gets executed per tick when simulation is active
+   * @return Intervention instance
+   */
   def apply(
       interventionName: String,
       startTick: Int,
