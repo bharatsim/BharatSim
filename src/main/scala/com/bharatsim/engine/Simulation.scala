@@ -1,6 +1,6 @@
 package com.bharatsim.engine
 
-import com.bharatsim.engine.listners.SimulationListenerRegistry
+import com.bharatsim.engine.listeners.SimulationListenerRegistry
 import com.bharatsim.engine.models.Agent
 import com.typesafe.scalalogging.LazyLogging
 

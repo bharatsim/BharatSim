@@ -2,7 +2,7 @@ package com.bharatsim.model
 
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
-import com.bharatsim.engine.listners.CSVSpecs
+import com.bharatsim.engine.listeners.CSVSpecs
 import com.bharatsim.model.InfectionStatus.{Deceased, Exposed, Infected, Recovered, Susceptible}
 
 class SEIROutputSpec(context: Context) extends CSVSpecs {

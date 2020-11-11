@@ -8,7 +8,7 @@ import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.dsl.SyntaxHelpers._
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.graph.{GraphData, Relation}
-import com.bharatsim.engine.listners.{CsvOutputGenerator, SimulationListenerRegistry}
+import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
 import com.bharatsim.model.InfectionStatus._
 import com.typesafe.scalalogging.LazyLogging

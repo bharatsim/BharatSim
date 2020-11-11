@@ -1,4 +1,4 @@
-package com.bharatsim.engine.listners
+package com.bharatsim.engine.listeners
 
 import com.bharatsim.engine.Context
 import com.github.tototoshi.csv.CSVWriter
@@ -6,8 +6,9 @@ import com.github.tototoshi.csv.CSVWriter
 import scala.collection.mutable.ListBuffer
 
 /**
-  * CsvOutputGenerator is [[com.bharatsim.engine.listners.SimulationListener SimulationListener]].
+  * CsvOutputGenerator is [[com.bharatsim.engine.listeners.SimulationListener SimulationListener]].
   * it collects the value for CSV at the start of every step and writes it to CSV at the end of simulation.
+  *
   * @param path is the path where CSV is to be created.
   * @param csvSpecs is specification of csv headers and values.
   * @param openCsvWriter [Optional] is function that allows to customise CSVWriter.

@@ -6,7 +6,7 @@ import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
 import com.bharatsim.engine.intervention.Intervention
-import com.bharatsim.engine.listners.{SimulationListener, SimulationListenerRegistry}
+import com.bharatsim.engine.listeners.{SimulationListener, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
 import org.mockito.{InOrder, Mockito, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
