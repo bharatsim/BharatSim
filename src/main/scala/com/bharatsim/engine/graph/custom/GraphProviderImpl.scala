@@ -8,7 +8,7 @@ import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.mutable
 
-class GraphProviderImpl extends GraphProvider with LazyLogging {
+private[engine] class GraphProviderImpl extends GraphProvider with LazyLogging {
 
   import GraphProviderImpl.idGenerator
 
@@ -23,27 +23,36 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
 
     if (mapper.isDefined) {
       records.foreach(record => {
-        mapper.get(record).nodes.foreach(node => {
-          if (!referenceAlreadyEncountered(node.uniqueRef, refToIdMappingBucket.get(node.label))) {
-            val nodeId = createNode(node.label, node.params)
-            if (!refToIdMappingBucket.contains(node.label))
-              refToIdMappingBucket.put(node.label, new mutable.HashMap[Int, NodeId]())
-            refToIdMappingBucket(node.label).put(node.uniqueRef, nodeId)
-          }
-        })
+        mapper
+          .get(record)
+          ._nodes
+          .foreach(node => {
+            if (!referenceAlreadyEncountered(node.uniqueRef, refToIdMappingBucket.get(node.label))) {
+              val nodeId = createNode(node.label, node.params)
+              if (!refToIdMappingBucket.contains(node.label))
+                refToIdMappingBucket.put(node.label, new mutable.HashMap[Int, NodeId]())
+              refToIdMappingBucket(node.label).put(node.uniqueRef, nodeId)
+            }
+          })
 
-        mapper.get(record).relations.foreach(relation => {
-          val fromLabel = relation.fromLabel
-          val toLabel = relation.toLabel
-          val fromId: NodeId = refToIdMappingBucket(fromLabel)(relation.refFrom)
-          val toId: NodeId = refToIdMappingBucket(toLabel)(relation.refTo)
-          createRelationship(fromId, relation.relation, toId)
-        })
+        mapper
+          .get(record)
+          ._relations
+          .foreach(relation => {
+            val fromLabel = relation.fromLabel
+            val toLabel = relation.toLabel
+            val fromId: NodeId = refToIdMappingBucket(fromLabel)(relation.refFrom)
+            val toId: NodeId = refToIdMappingBucket(toLabel)(relation.refTo)
+            createRelationship(fromId, relation.relation, toId)
+          })
       })
     }
   }
 
-  private def referenceAlreadyEncountered(uniqueRef: NodeId, refToIdMapping: Option[mutable.HashMap[NodeId, NodeId]]): Boolean = {
+  private def referenceAlreadyEncountered(
+      uniqueRef: NodeId,
+      refToIdMapping: Option[mutable.HashMap[NodeId, NodeId]]
+  ): Boolean = {
     if (refToIdMapping.isEmpty) false
     else {
       if (refToIdMapping.get.contains(uniqueRef)) true
@@ -59,8 +68,8 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
 
     (nodeFrom, nodeTo) match {
       case (Some(from), Some(to)) => from.addRelation(label, to.id)
-      case (None, _) => logger.debug(s"Create relationship failed, node with id $node1 not found")
-      case (_, None) => logger.debug(s"Create relationship failed, node with id $node2 not found")
+      case (None, _)              => logger.debug(s"Create relationship failed, node with id $node1 not found")
+      case (_, None)              => logger.debug(s"Create relationship failed, node with id $node2 not found")
     }
   }
 
@@ -110,7 +119,8 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
   override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
   override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
-    nodes.getOrElse(label, List.empty)
+    nodes
+      .getOrElse(label, List.empty)
       .count(nodes => matchPattern.eval(nodes._2.params.toMap))
   }
 
@@ -134,7 +144,8 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
     if (indexedNodes.contains(nodeId)) {
       val node = indexedNodes(nodeId)
       var count = 0
-      node.fetchNeighborsWithLabel(label)
+      node
+        .fetchNeighborsWithLabel(label)
         .foreach(nodeId => {
           val n = indexedNodes(nodeId)
           if (matchCondition.eval(n.params.toMap)) count += 1
@@ -200,6 +211,6 @@ class GraphProviderImpl extends GraphProvider with LazyLogging {
   override def shutdown(): Unit = {}
 }
 
-object GraphProviderImpl {
+private[engine] object GraphProviderImpl {
   private val idGenerator = new IdGenerator
 }

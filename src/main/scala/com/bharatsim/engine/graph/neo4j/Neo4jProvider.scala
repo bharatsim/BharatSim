@@ -15,10 +15,10 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters.{IterableHasAsJava, ListHasAsScala, MapHasAsJava, MapHasAsScala, SeqHasAsJava}
 
-class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging {
+private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging {
   private val neo4jConnection = config.username match {
     case Some(_) => GraphDatabase.driver(config.uri, AuthTokens.basic(config.username.get, config.password.get))
-    case None => GraphDatabase.driver(config.uri)
+    case None    => GraphDatabase.driver(config.uri)
   }
 
   private[engine] override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
@@ -115,9 +115,9 @@ class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging 
   }
 
   private def bulkCreateRelationships(
-                                       refToIdMappingBuckets: Map[String, Map[Int, NodeId]],
-                                       relations: Iterator[(String, ListBuffer[GenericRelation])]
-                                     ): Unit = {
+      refToIdMappingBuckets: Map[String, Map[Int, NodeId]],
+      relations: Iterator[(String, ListBuffer[GenericRelation])]
+  ): Unit = {
     val session = neo4jConnection.session()
 
     relations.foreach({

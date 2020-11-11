@@ -4,9 +4,16 @@ import com.bharatsim.engine.Context
 
 import scala.collection.mutable.ListBuffer
 
+/**
+  * SimulationListenerRegistry is object where all the [[SimulationListener]] instances need to be registered.
+  */
 object SimulationListenerRegistry {
   private val listeners = new ListBuffer[SimulationListener]
 
+  /**
+    * register a simulation listener.
+    * @param listener is [[SimulationListener]] to be registered.
+    */
   def register(listener: SimulationListener): Unit = {
     listeners.addOne(listener)
   }

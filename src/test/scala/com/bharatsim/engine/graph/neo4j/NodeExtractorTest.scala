@@ -51,7 +51,7 @@ private[neo4j] object NodeExtractorTest {
     val citizenId = row("id").toInt
     val officeId = row("officeId").toInt
 
-    data.nodes.addOne(new CsvNode {
+    data._nodes.addOne(new CsvNode {
       override def label: String = "Person"
 
       override def uniqueRef: Int = citizenId
@@ -59,7 +59,7 @@ private[neo4j] object NodeExtractorTest {
       override def params: Map[String, Any] = row.removedAll(List("id", "officeId"))
     })
 
-    data.nodes.addOne(new CsvNode {
+    data._nodes.addOne(new CsvNode {
       override def label: String = "Office"
 
       override def uniqueRef: Int = officeId

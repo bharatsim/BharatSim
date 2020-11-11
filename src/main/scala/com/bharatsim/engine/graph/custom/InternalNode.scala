@@ -5,8 +5,7 @@ import com.bharatsim.engine.graph.{GraphNode, GraphNodeImpl}
 
 import scala.collection.mutable
 
-
-case class InternalNode(label: String, id: NodeId, params: mutable.HashMap[String, Any]) {
+private[engine] case class InternalNode(label: String, id: NodeId, params: mutable.HashMap[String, Any]) {
   private val relationships: mutable.HashMap[String, mutable.HashSet[NodeId]] = mutable.HashMap.empty
 
   def toGraphNode: GraphNode = new GraphNodeImpl(label, id, params.toMap)

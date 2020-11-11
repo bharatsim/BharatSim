@@ -26,10 +26,12 @@ class Schedule(val period: ScheduleUnit, val unit: ScheduleUnit) {
 
   /**
     * Add entry to a schedule for a [[com.bharatsim.engine.models.Node Node]]
+    *
     * @param from start of the entry in schedule. This is zero based i.e. the very first entry will start with zero.
     * @param to  end of the entry in schedule.
     * @tparam T is type of the Node the entry is associated with
     * @return the same instance of Schedule for chaining purposes.
+    * @throws com.bharatsim.engine.exception.ScheduleOutOfBoundsException  when a schedule is exceeding its period bound.
     */
   def add[T <: Node: ClassTag](from: Int, to: Int): Schedule = {
     checkOutOfBound(to)
@@ -41,10 +43,13 @@ class Schedule(val period: ScheduleUnit, val unit: ScheduleUnit) {
 
   /**
     * Add entry to a schedule for another [[com.bharatsim.engine.Schedule Schedule]]
+    *
     * @param schedule is sub-schedule that entry is associated with
     * @param from start of the entry in schedule. This is zero based i.e. the very first entry will start with zero.
     * @param to  end of the entry in schedule.
     * @return the same instance of Schedule for chaining purposes.
+    * @throws com.bharatsim.engine.exception.CyclicScheduleException  when a schedule is creating cyclic reference.
+    * @throws com.bharatsim.engine.exception.ScheduleOutOfBoundsException  when a schedule is exceeding its period bound.
     */
   def add(schedule: Schedule, from: Int, to: Int): Schedule = {
     if (!isResolvable(schedule)) throw new CyclicScheduleException("The schedule is creating cyclic reference")
