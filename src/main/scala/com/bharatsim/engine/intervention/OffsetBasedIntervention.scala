@@ -2,7 +2,7 @@ package com.bharatsim.engine.intervention
 
 import com.bharatsim.engine.Context
 
-trait OffsetBasedIntervention extends Intervention {
+private[engine] trait OffsetBasedIntervention extends Intervention {
   private[engine] var startedAt = 0
 }
 
