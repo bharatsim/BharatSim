@@ -9,10 +9,10 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 /**
-  * Context holds all the configurations and data about current state of simulation.
-  * @param graphProvider [Optional] instance of [[graph.GraphProvider GraphProvider]]
+  * Context holds all the configurations and state of the simulation.
+  * @param graphProvider instance of [[graph.GraphProvider GraphProvider]]
   * @param dynamics    instance of [[Dynamics]] for current simulation
-  * @param simulationConfig instance of [[simulationConfig]] for the simulation
+  * @param simulationConfig instance of [[SimulationConfig]] for the simulation
   */
 class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simulationConfig: SimulationConfig) {
   private[engine] val schedules = new Schedules
@@ -37,10 +37,10 @@ class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simu
     */
   def getCurrentStep: Int = currentStep
 
-  /**Retrieves list of active interventions at the current tick
-   *
-   * @return Set of intervention names that are active at the current tick
-   */
+  /** Retrieves list of active interventions at the current tick
+    *
+    * @return Set of intervention names that are active at the current tick
+    */
   def activeInterventionNames: Set[String] = interventions.activeNames
 
   private[engine] def setCurrentStep(step: Int): Unit = {
@@ -51,6 +51,12 @@ class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simu
 }
 
 object Context {
+
+  /** Creator method for Context
+    *
+    * @param dynamics    instance of [[Dynamics]] for current simulation
+    * @param simulationConfig instance of [[SimulationConfig]] for the simulation
+    */
   def apply(dynamics: Dynamics, simulationConfig: SimulationConfig): Context =
     new Context(GraphProviderFactory.get, dynamics, simulationConfig)
 }
