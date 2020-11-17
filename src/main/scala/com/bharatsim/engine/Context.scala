@@ -37,13 +37,17 @@ class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simu
     */
   def getCurrentStep: Int = currentStep
 
+  /**Retrieves list of active interventions at the current tick
+   *
+   * @return Set of intervention names that are active at the current tick
+   */
+  def activeInterventionNames: Set[String] = interventions.activeNames
+
   private[engine] def setCurrentStep(step: Int): Unit = {
     currentStep = step
   }
 
   private[engine] def fetchAgentTypes: ListBuffer[GraphProvider => Iterable[Agent]] = agentTypes
-
-  def activeInterventionNames: Set[String] = interventions.activeNames
 }
 
 object Context {

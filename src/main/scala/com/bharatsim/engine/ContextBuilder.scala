@@ -67,5 +67,10 @@ object ContextBuilder {
     context.actions.addOne(ConditionalAction(action, condition))
   }
 
-  def registerIntervention(i: Intervention)(implicit context: Context): Unit = context.interventions.add(i)
+  /**Register an intervention with engine
+   *
+   * @param intervention instance of [[com.bharatsim.engine.intervention.Intervention Intervention]]
+   * @param context instance of [[Context]] for the simulation
+   */
+  def registerIntervention(intervention: Intervention)(implicit context: Context): Unit = context.interventions.add(intervention)
 }
