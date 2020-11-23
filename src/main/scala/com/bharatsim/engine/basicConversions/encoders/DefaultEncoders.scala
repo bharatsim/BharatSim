@@ -4,6 +4,10 @@ import com.bharatsim.engine.basicConversions._
 import shapeless.labelled.FieldType
 import shapeless.{::, HList, HNil, Lazy, Witness}
 
+/**
+ * DefaultEncoders contains all the encoders for the basic data-types
+ * Importing this will help in building the MapEncoder where basic encoders are expected implicitly
+ */
 object DefaultEncoders {
   implicit val intEncoder: BasicEncoder[Int] = (o: Int) => IntValue(o)
 

@@ -4,7 +4,9 @@ import com.bharatsim.engine.basicConversions._
 import shapeless.labelled.{FieldBuilder, FieldType}
 import shapeless.{::, HList, HNil, LabelledGeneric, Lazy, Witness}
 
-
+/**DefaultDecoders contains all the decoders for basic data-types
+ * Importing this in the context where MapDecoders are being expected implicitly will help to build the expected decoder
+ */
 object DefaultDecoders {
   implicit val hnilMapConverter: MapConverter[HNil] = (_: Map[String, BasicValue]) => HNil
 
