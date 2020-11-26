@@ -1,7 +1,7 @@
 package com.bharatsim.engine
 
 import com.bharatsim.engine.listeners.SimulationListenerRegistry
-import com.bharatsim.engine.models.Agent
+import com.bharatsim.engine.models.{Agent, StatefulAgent}
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.control.Breaks.{break, breakable}
@@ -29,6 +29,11 @@ class Simulation(context: Context) extends LazyLogging {
         agentTypes.foreach(agentType => {
           agentType(context.graphProvider).foreach((agent: Agent) => {
             agent.behaviours.foreach(b => b(context))
+            agent match {
+              case statefulAgent: StatefulAgent =>
+                handleStateControl(statefulAgent)
+              case _ =>
+            }
           })
         })
 
@@ -37,6 +42,29 @@ class Simulation(context: Context) extends LazyLogging {
     }
 
     SimulationListenerRegistry.notifySimulationEnd(context)
+  }
+
+  private def handleStateControl(statefulAgent: StatefulAgent): Unit = {
+    if (statefulAgent.hasInitialState) {
+      val currentState = statefulAgent.activeState
+
+      val maybeTransition = currentState.transitions.find(_.when(context))
+      if(maybeTransition.isDefined) {
+        val transition = maybeTransition.get
+        val state = transition.state(context)
+
+        context.graphProvider.deleteNode(currentState.internalId)
+        val nodeId = context.graphProvider.createNode(transition.label, transition.serializedState(state))
+        context.graphProvider.createRelationship(statefulAgent.internalId, StatefulAgent.STATE_RELATIONSHIP, nodeId)
+
+        state.enterAction(context)
+        state.perTickAction(context)
+      } else {
+        currentState.perTickAction(context)
+      }
+    } else {
+      throw new RuntimeException("Stateful agent does not have initial state")
+    }
   }
 
   private def invokeActions(): Unit = {

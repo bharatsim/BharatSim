@@ -13,7 +13,7 @@ import scala.reflect.ClassTag
   * Node represents the unit of underling graph.
   */
 
-class Node()(implicit graphProvider: GraphProvider = GraphProviderFactory.get) extends Identity {
+class Node(private[engine] val graphProvider: GraphProvider = GraphProviderFactory.get) extends Identity {
   override var internalId: Int = 0
   private[engine] val relationSchema: mutable.HashMap[String, String] = mutable.HashMap.empty
 
