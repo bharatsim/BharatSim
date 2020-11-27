@@ -11,8 +11,15 @@ import com.bharatsim.model.InfectionStatus._
 
 import scala.util.Random
 
-case class Person(id: Int, age: Int, infectionState: InfectionStatus, infectionDay: Int, takesPublicTransport: Boolean)
-    extends Agent {
+case class Person(
+    id: Int,
+    age: Int,
+    infectionState: InfectionStatus,
+    infectionDay: Int,
+    takesPublicTransport: Boolean,
+    isEssentialWorker: Boolean,
+    violateLockdown: Boolean
+) extends Agent {
   final val numberOfHoursInADay: Int = 24
 
   private def incrementInfectionDay(context: Context): Unit = {

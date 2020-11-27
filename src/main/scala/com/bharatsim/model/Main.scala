@@ -8,6 +8,7 @@ import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.dsl.SyntaxHelpers._
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.graph.{GraphData, Relation}
+import com.bharatsim.engine.intervention.IntervalBasedIntervention
 import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
 import com.bharatsim.model.InfectionStatus._
@@ -17,6 +18,8 @@ object Main extends LazyLogging {
   def main(args: Array[String]): Unit = {
     val config = SimulationConfig(5000)
     implicit val context: Context = Context(Disease, config)
+
+    addLockdown
 
     createSchedules()
 
@@ -42,6 +45,27 @@ object Main extends LazyLogging {
     printStats(beforeCount)
 
     teardown()
+  }
+
+  private def addLockdown(implicit context: Context): Unit = {
+
+    val interventionName = "lockdown"
+    val intervention = IntervalBasedIntervention(interventionName, 20, 50);
+
+    val lockdownSchedule = (Day, Hour).add[House](0, 23);
+
+    registerIntervention(intervention)
+    registerSchedules(
+      (
+        lockdownSchedule,
+        (agent: Agent, context: Context) => {
+          val isEssentialWorker = agent.asInstanceOf[Person].isEssentialWorker
+          val violateLockdown = agent.asInstanceOf[Person].violateLockdown
+          val isLockdown = context.activeInterventionNames.contains(interventionName)
+          isLockdown && !(isEssentialWorker || violateLockdown)
+        }
+      )
+    )
   }
 
   private def createSchedules()(implicit context: Context): Unit = {
@@ -89,13 +113,21 @@ object Main extends LazyLogging {
 
     val citizenId = map("id").toInt
     val age = map("age").toInt
+    val officeId = map("office_id").toInt
     val takesPublicTransport = map("public_transport").toBoolean
-
-    val citizen: Person =
-      Person(citizenId, age, InfectionStatus.withName(map("infectionState")), 0, takesPublicTransport)
+    val isEssentialWorker = map("is_essential_worker").toBoolean
+    val violateLockdown = map("violate_lockdown").toBoolean
+    val citizen: Person = Person(
+      citizenId,
+      age,
+      InfectionStatus.withName(map("infectionState")),
+      0,
+      takesPublicTransport,
+      isEssentialWorker,
+      violateLockdown
+    )
 
     val homeId = map("house_id").toInt
-    val officeId = map("office_id").toInt
     val schoolId = map("school_id").toInt
 
     val home = House(homeId)

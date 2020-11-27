@@ -1,6 +1,6 @@
-id,label,age,infectionState,house_id,office_id,school_id,public_transport
-1,Citizen,25,Infected,101,000,501,true
-2,Citizen,35,Infected,102,201,000,true
-3,Citizen,45,Susceptible,101,201,000,true
-4,Citizen,25,Susceptible,102,000,502,true
-5,Citizen,25,Susceptible,103,000,501,true
+id,label,age,infectionState,house_id,office_id,school_id,public_transport,is_essential_worker,violate_lockdown
+1,Citizen,25,Infected,101,000,501,true,false,true
+2,Citizen,35,Infected,102,201,000,true,false,false
+3,Citizen,45,Susceptible,101,201,000,true,true,false
+4,Citizen,25,Susceptible,102,000,502,true,false,false
+5,Citizen,25,Susceptible,103,000,501,true,false,false
