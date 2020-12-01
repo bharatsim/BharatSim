@@ -41,7 +41,12 @@ object ContextBuilder {
     context.graphProvider.ingestFromCsv(path, None)
   }
 
+  /**
+    * Clean the data and close the connection with database
+    * @param context instance of [[Context]] for the simulation
+    */
   def teardown()(implicit context: Context): Unit = {
+    context.graphProvider.deleteAll()
     context.graphProvider.shutdown()
   }
 
@@ -67,10 +72,11 @@ object ContextBuilder {
     context.actions.addOne(ConditionalAction(action, condition))
   }
 
-  /**Register an intervention with engine
-   *
-   * @param intervention instance of [[com.bharatsim.engine.intervention.Intervention Intervention]]
-   * @param context instance of [[Context]] for the simulation
-   */
-  def registerIntervention(intervention: Intervention)(implicit context: Context): Unit = context.interventions.add(intervention)
+  /** Register an intervention with engine
+    *
+    * @param intervention instance of [[com.bharatsim.engine.intervention.Intervention Intervention]]
+    * @param context instance of [[Context]] for the simulation
+    */
+  def registerIntervention(intervention: Intervention)(implicit context: Context): Unit =
+    context.interventions.add(intervention)
 }
