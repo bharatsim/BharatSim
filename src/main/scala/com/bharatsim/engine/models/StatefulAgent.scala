@@ -31,7 +31,7 @@ trait StatefulAgent extends Agent {
     }
   }
 
-  protected def setInitialState[T <: State: ClassTag](
+  def setInitialState[T <: State: ClassTag](
       s: T
   )(implicit serializer: BasicMapEncoder[T], deserializer: BasicMapDecoder[T]): Unit = {
     val className = Utils.fetchClassName[T]

@@ -48,7 +48,7 @@ class Simulation(context: Context) extends LazyLogging {
     if (statefulAgent.hasInitialState) {
       val currentState = statefulAgent.activeState
 
-      val maybeTransition = currentState.transitions.find(_.when(context))
+      val maybeTransition = currentState.transitions.find(_.when(context, statefulAgent))
       if(maybeTransition.isDefined) {
         val transition = maybeTransition.get
         val state = transition.state(context)
@@ -57,10 +57,10 @@ class Simulation(context: Context) extends LazyLogging {
         val nodeId = context.graphProvider.createNode(transition.label, transition.serializedState(state))
         context.graphProvider.createRelationship(statefulAgent.internalId, StatefulAgent.STATE_RELATIONSHIP, nodeId)
 
-        state.enterAction(context)
-        state.perTickAction(context)
+        state.enterAction(context, statefulAgent)
+        state.perTickAction(context, statefulAgent)
       } else {
-        currentState.perTickAction(context)
+        currentState.perTickAction(context, statefulAgent)
       }
     } else {
       throw new RuntimeException("Stateful agent does not have initial state")

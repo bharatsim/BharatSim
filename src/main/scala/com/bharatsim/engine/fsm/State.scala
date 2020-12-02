@@ -6,7 +6,7 @@ import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
 import com.bharatsim.engine.fsm.State.deSerializers
 import com.bharatsim.engine.graph.GraphNode
-import com.bharatsim.engine.models.Node
+import com.bharatsim.engine.models.{Node, StatefulAgent}
 import com.bharatsim.engine.utils.Utils
 
 import scala.collection.mutable
@@ -16,11 +16,11 @@ import scala.reflect.ClassTag
 trait State extends Node {
   private[engine] val transitions = ListBuffer.empty[Transition[_]]
 
-  def enterAction(context: Context): Unit = {}
+  def enterAction(context: Context, agent: StatefulAgent): Unit = {}
 
-  def perTickAction(context: Context): Unit = {}
+  def perTickAction(context: Context, agent: StatefulAgent): Unit = {}
 
-  def addTransition[T <: State: ClassTag](when: Context => Boolean, to: T)(implicit
+  def addTransition[T <: State: ClassTag](when: (Context, StatefulAgent) => Boolean, to: T)(implicit
       serializer: BasicMapEncoder[T],
       deserializer: BasicMapDecoder[T]
   ): Unit = {
@@ -31,7 +31,7 @@ trait State extends Node {
     transitions.addOne(transition)
   }
 
-  def addTransition[T <: State: ClassTag](when: Context => Boolean, to: Context => T)(implicit
+  def addTransition[T <: State: ClassTag](when: (Context, StatefulAgent) => Boolean, to: Context => T)(implicit
                                                                            serializer: BasicMapEncoder[T],
                                                                            deserializer: BasicMapDecoder[T]
   ): Unit = {
