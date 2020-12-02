@@ -3,8 +3,9 @@ package com.bharatsim.engine.graph.neo4j
 import java.util
 
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.Relation.GenericRelation
+import com.bharatsim.engine.graph.ingestion.Relation.GenericRelation
 import com.bharatsim.engine.graph._
+import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.github.tototoshi.csv.CSVReader
 import com.typesafe.scalalogging.LazyLogging

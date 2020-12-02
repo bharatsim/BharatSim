@@ -1,8 +1,9 @@
 package com.bharatsim.engine.graph.custom
 
 import com.bharatsim.engine.graph.GraphProvider.NodeId
+import com.bharatsim.engine.graph.ingestion.GraphData
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
-import com.bharatsim.engine.graph.{GraphData, GraphNode, GraphProvider}
+import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
 import com.github.tototoshi.csv.CSVReader
 import com.typesafe.scalalogging.LazyLogging
 

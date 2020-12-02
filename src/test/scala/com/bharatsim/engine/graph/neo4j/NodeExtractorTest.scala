@@ -1,7 +1,7 @@
 package com.bharatsim.engine.graph.neo4j
 
+import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, Relation}
 import com.bharatsim.engine.graph.neo4j.NodeExtractorTest.{data, extractor}
-import com.bharatsim.engine.graph.{CsvNode, GraphData, Relation}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

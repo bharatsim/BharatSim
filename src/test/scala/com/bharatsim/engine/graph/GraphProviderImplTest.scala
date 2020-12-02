@@ -2,6 +2,7 @@ package com.bharatsim.engine.graph
 
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.custom.GraphProviderImpl
+import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.testModels.{TestCitizen, TestHome}
 import org.mockito.MockitoSugar

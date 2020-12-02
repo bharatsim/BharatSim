@@ -2,7 +2,8 @@ package com.bharatsim.engine
 
 import com.bharatsim.engine.actions.{Action, ConditionalAction}
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
-import com.bharatsim.engine.graph.{GraphData, GraphProvider}
+import com.bharatsim.engine.graph.GraphProvider
+import com.bharatsim.engine.graph.ingestion.GraphData
 import com.bharatsim.engine.intervention.Intervention
 import com.bharatsim.engine.models.Agent
 import com.bharatsim.engine.utils.Utils

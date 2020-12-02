@@ -1,7 +1,7 @@
 package com.bharatsim.engine.graph.neo4j
 
-import com.bharatsim.engine.graph.Relation.GenericRelation
-import com.bharatsim.engine.graph.{CsvNode, GraphData}
+import com.bharatsim.engine.graph.ingestion.Relation.GenericRelation
+import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
