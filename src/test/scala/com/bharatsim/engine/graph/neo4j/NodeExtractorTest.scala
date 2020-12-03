@@ -51,23 +51,10 @@ private[neo4j] object NodeExtractorTest {
     val citizenId = row("id").toInt
     val officeId = row("officeId").toInt
 
-    data._nodes.addOne(new CsvNode {
-      override def label: String = "Person"
+    data._nodes.addOne(CsvNode("Person", citizenId, row.removedAll(List("id", "officeId"))))
+    data._nodes.addOne(CsvNode("Office", officeId, Map("id" -> officeId)))
 
-      override def uniqueRef: Int = citizenId
-
-      override def params: Map[String, Any] = row.removedAll(List("id", "officeId"))
-    })
-
-    data._nodes.addOne(new CsvNode {
-      override def label: String = "Office"
-
-      override def uniqueRef: Int = officeId
-
-      override def params: Map[String, Any] = Map("id" -> officeId)
-    })
-
-    data.addRelations(List(Relation(citizenId, "WORKS_AT", officeId)))
+    data.addRelations(Relation(citizenId, "WORKS_AT", officeId))
     data
   }
 }

@@ -42,8 +42,8 @@ private[engine] class GraphProviderImpl extends GraphProvider with LazyLogging {
           .foreach(relation => {
             val fromLabel = relation.fromLabel
             val toLabel = relation.toLabel
-            val fromId: NodeId = refToIdMappingBucket(fromLabel)(relation.refFrom)
-            val toId: NodeId = refToIdMappingBucket(toLabel)(relation.refTo)
+            val fromId: NodeId = refToIdMappingBucket(fromLabel)(relation.fromRef)
+            val toId: NodeId = refToIdMappingBucket(toLabel)(relation.toRef)
             createRelationship(fromId, relation.relation, toId)
           })
       })

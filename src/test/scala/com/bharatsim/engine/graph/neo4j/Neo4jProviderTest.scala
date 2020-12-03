@@ -4,8 +4,8 @@ import java.net.URI
 import java.util
 
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
+import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
-import com.bharatsim.engine.graph.{GraphData, Relation}
 import com.bharatsim.engine.testModels.{TestCitizen, TestHome}
 import com.dimafeng.testcontainers.{ForAllTestContainer, Neo4jContainer}
 import org.neo4j.driver.Values.parameters
@@ -77,7 +77,7 @@ class Neo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Matcher
             parameters("nodeId", rameshId)
           )
           result.next().get("nodeId").asInt()
-        });
+        })
 
       result shouldBe sureshId
     }
@@ -225,7 +225,7 @@ class Neo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Matcher
         val staysAt = Relation[TestCitizen, TestHome](nodeId, "STAYS_AT", homeId)
         val memberOf = Relation[TestHome, TestCitizen](homeId, "HOUSES", nodeId)
         val graphData = new GraphData()
-        graphData.addRelations(List(staysAt, memberOf))
+        graphData.addRelations(staysAt, memberOf)
         graphData.addNode(nodeId, citizenNode)
         graphData.addNode(homeId, home)
         graphData

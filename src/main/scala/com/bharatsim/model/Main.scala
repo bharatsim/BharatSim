@@ -150,15 +150,15 @@ object Main extends LazyLogging {
     graphData.addNode(officeId, office)
     graphData.addNode(schoolId, school)
 
-    graphData.addRelations(List(staysAt, worksAt, studiesAt, memberOf, employerOf, studentOf))
+    graphData.addRelations(staysAt, worksAt, studiesAt, memberOf, employerOf, studentOf)
 
     if (takesPublicTransport) {
-      val transportId = 1;
+      val transportId = 1
       val transport = Transport(transportId);
       val takes = Relation[Person, Transport](citizenId, citizen.getRelation[Transport]().get, transportId)
       val carries = Relation[Transport, Person](transportId, transport.getRelation[Person]().get, citizenId)
       graphData.addNode(transportId, transport)
-      graphData.addRelations(List(takes, carries))
+      graphData.addRelations(takes, carries)
     }
 
     graphData

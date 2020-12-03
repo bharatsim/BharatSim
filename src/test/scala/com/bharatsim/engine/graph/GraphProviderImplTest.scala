@@ -319,7 +319,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
         val staysAt = Relation[TestCitizen, TestHome](nodeId, "STAYS_AT", homeId)
         val memberOf = Relation[TestHome, TestCitizen](homeId, "HOUSES", nodeId)
         val graphData = new GraphData()
-        graphData.addRelations(List(staysAt, memberOf))
+        graphData.addRelations(staysAt, memberOf)
         graphData.addNode(nodeId, citizenNode)
         graphData.addNode(homeId, home)
         graphData

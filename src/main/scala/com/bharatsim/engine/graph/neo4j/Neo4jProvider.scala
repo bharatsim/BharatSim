@@ -3,9 +3,8 @@ package com.bharatsim.engine.graph.neo4j
 import java.util
 
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.ingestion.Relation.GenericRelation
 import com.bharatsim.engine.graph._
-import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData}
+import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.github.tototoshi.csv.CSVReader
 import com.typesafe.scalalogging.LazyLogging
@@ -117,7 +116,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
 
   private def bulkCreateRelationships(
       refToIdMappingBuckets: Map[String, Map[Int, NodeId]],
-      relations: Iterator[(String, ListBuffer[GenericRelation])]
+      relations: Iterator[(String, ListBuffer[Relation])]
   ): Unit = {
     val session = neo4jConnection.session()
 
@@ -128,8 +127,8 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
           val fromLabel = r.fromLabel
           val toLabel = r.toLabel
 
-          mp.put("fromId", refToIdMappingBuckets(fromLabel)(r.refFrom))
-          mp.put("toId", refToIdMappingBuckets(toLabel)(r.refTo))
+          mp.put("fromId", refToIdMappingBuckets(fromLabel)(r.fromRef))
+          mp.put("toId", refToIdMappingBuckets(toLabel)(r.toRef))
           mp
         })
         session.writeTransaction(tx => {

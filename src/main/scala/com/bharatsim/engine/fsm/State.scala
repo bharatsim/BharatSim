@@ -6,6 +6,7 @@ import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
 import com.bharatsim.engine.fsm.State.deSerializers
 import com.bharatsim.engine.graph.GraphNode
+import com.bharatsim.engine.graph.custom.IdGenerator
 import com.bharatsim.engine.models.{Node, StatefulAgent}
 import com.bharatsim.engine.utils.Utils
 
@@ -50,4 +51,6 @@ private[engine] object State {
   }
   val deSerializers: mutable.HashMap[String, GraphNode => State] = mutable.HashMap.empty
   val serializers: mutable.HashMap[String, State => Map[String, Any]] = mutable.HashMap.empty
+
+  val idGenerator = new IdGenerator()
 }
