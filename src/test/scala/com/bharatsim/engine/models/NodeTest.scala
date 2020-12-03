@@ -14,10 +14,10 @@ class NodeTest extends AnyFunSuite with MockitoSugar {
   }
 
   test("Should connect nodes to each other with unidirectional connection") {
-    implicit val graphProvider: GraphProvider = mock[GraphProvider]
-    val node1 = new Node
+    val graphProvider: GraphProvider = mock[GraphProvider]
+    val node1 = new Node(graphProvider)
     node1.setId(1)
-    val node2 = new Node
+    val node2 = new Node(graphProvider)
     node2.setId(2)
 
     node1.unidirectionalConnect("uniConnect", node2)
@@ -26,11 +26,11 @@ class NodeTest extends AnyFunSuite with MockitoSugar {
   }
 
   test("Should connect nodes to each other with bidirectional connection") {
-    implicit val graphProvider: GraphProvider = mock[GraphProvider]
+    val graphProvider: GraphProvider = mock[GraphProvider]
 
-    val node1 = new Node
+    val node1 = new Node(graphProvider)
     node1.setId(1)
-    val node2 = new Node
+    val node2 = new Node(graphProvider)
     node2.setId(2)
 
     node1.bidirectionalConnect("connects", node2)
@@ -40,11 +40,11 @@ class NodeTest extends AnyFunSuite with MockitoSugar {
   }
 
   test("Should be able to disconnect unidirectional connect") {
-    implicit val graphProvider: GraphProvider = mock[GraphProvider]
+    val graphProvider: GraphProvider = mock[GraphProvider]
 
-    val node1 = new Node
+    val node1 = new Node(graphProvider)
     node1.setId(1)
-    val node2 = new Node
+    val node2 = new Node(graphProvider)
     node2.setId(2)
 
     node1.disconnect("connects", node2)
