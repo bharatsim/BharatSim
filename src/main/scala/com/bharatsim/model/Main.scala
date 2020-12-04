@@ -19,32 +19,34 @@ object Main extends LazyLogging {
     val config = SimulationConfig(5000)
     implicit val context: Context = Context(Disease, config)
 
-    addLockdown
+    try {
+      addLockdown
 
-    createSchedules()
+      createSchedules()
 
-    registerAction(
-      StopSimulation,
-      (c: Context) => {
-        getInfectedCount(c) == 0 && getExposedCount(c) == 0
-      }
-    )
+      registerAction(
+        StopSimulation,
+        (c: Context) => {
+          getInfectedCount(c) == 0 && getExposedCount(c) == 0
+        }
+      )
 
-    ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
-    logger.debug("Ingestion done")
-    val beforeCount = getInfectedCount(context)
+      ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
+      logger.debug("Ingestion done")
+      val beforeCount = getInfectedCount(context)
 
-    registerAgent[Person]
+      registerAgent[Person]
 
-    SimulationListenerRegistry.register(
-      new CsvOutputGenerator("src/main/resources/output.csv", new SEIROutputSpec(context))
-    )
+      SimulationListenerRegistry.register(
+        new CsvOutputGenerator("src/main/resources/output.csv", new SEIROutputSpec(context))
+      )
 
-    Simulation.run()
+      Simulation.run()
 
-    printStats(beforeCount)
-
-    teardown()
+      printStats(beforeCount)
+    } finally {
+      teardown()
+    }
   }
 
   private def addLockdown(implicit context: Context): Unit = {
