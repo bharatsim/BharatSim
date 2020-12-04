@@ -47,7 +47,7 @@ private[neo4j] object NodeExtractorTest {
   )
 
   def extractor(row: Map[String, String]): GraphData = {
-    val data = new GraphData()
+    val data = GraphData()
     val citizenId = row("id").toInt
     val officeId = row("officeId").toInt
 

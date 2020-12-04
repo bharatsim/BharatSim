@@ -224,7 +224,7 @@ class Neo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Matcher
         val home = TestHome()
         val staysAt = Relation[TestCitizen, TestHome](nodeId, "STAYS_AT", homeId)
         val memberOf = Relation[TestHome, TestCitizen](homeId, "HOUSES", nodeId)
-        val graphData = new GraphData()
+        val graphData = GraphData()
         graphData.addRelations(staysAt, memberOf)
         graphData.addNode(nodeId, citizenNode)
         graphData.addNode(homeId, home)

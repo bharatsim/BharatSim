@@ -13,7 +13,7 @@ class NodeExpander {
         val label = fetchClassName[T]
 
         val initialState = statefulAgent.maybeInitialState.get
-        val graphData = new GraphData()
+        val graphData = GraphData()
         val stateLabel = initialState.label
         val stateRef = State.idGenerator.generateId
         val csvNode = CsvNode(stateLabel, stateRef, initialState.serialize)
@@ -22,6 +22,7 @@ class NodeExpander {
         val relation = Relation(label, nodeRef, StatefulAgent.STATE_RELATIONSHIP, stateLabel, stateRef)
         graphData.addRelations(relation)
         graphData
+      case _ => GraphData()
     }
   }
 }

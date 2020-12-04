@@ -144,7 +144,7 @@ object Main extends LazyLogging {
     val employerOf = Relation[Office, Person](officeId, "EMPLOYER_OF", citizenId)
     val studentOf = Relation[School, Person](schoolId, "STUDENT_OF", citizenId)
 
-    val graphData = new GraphData()
+    val graphData = GraphData()
     graphData.addNode(citizenId, citizen)
     graphData.addNode(homeId, home)
     graphData.addNode(officeId, office)

@@ -295,7 +295,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
       val filePath = "src/test/scala/com/bharatsim/engine/graph/sample.csv"
       val mapper = Some((map: Map[String, String]) => {
         val age = map("age").toInt
-        val graphData = new GraphData()
+        val graphData = GraphData()
         graphData.addNode(map("id").toInt, TestCitizen(age))
         graphData
       })
@@ -318,7 +318,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
         val home = TestHome()
         val staysAt = Relation[TestCitizen, TestHome](nodeId, "STAYS_AT", homeId)
         val memberOf = Relation[TestHome, TestCitizen](homeId, "HOUSES", nodeId)
-        val graphData = new GraphData()
+        val graphData = GraphData()
         graphData.addRelations(staysAt, memberOf)
         graphData.addNode(nodeId, citizenNode)
         graphData.addNode(homeId, home)
