@@ -1,7 +1,7 @@
 package com.bharatsim.engine.graph.custom
 
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.ingestion.GraphData
+import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
 import com.github.tototoshi.csv.CSVReader
@@ -20,44 +20,18 @@ private[engine] class GraphProviderImpl extends GraphProvider with LazyLogging {
   override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
     val reader = CSVReader.open(csvPath)
     val records = reader.allWithHeaders()
-    val refToIdMappingBucket = mutable.HashMap[String, mutable.HashMap[Int, NodeId]]().empty
 
     if (mapper.isDefined) {
-      records.foreach(record => {
-        mapper
-          .get(record)
-          ._nodes
-          .foreach(node => {
-            if (!referenceAlreadyEncountered(node.uniqueRef, refToIdMappingBucket.get(node.label))) {
-              val nodeId = createNode(node.label, node.params)
-              if (!refToIdMappingBucket.contains(node.label))
-                refToIdMappingBucket.put(node.label, new mutable.HashMap[Int, NodeId]())
-              refToIdMappingBucket(node.label).put(node.uniqueRef, nodeId)
-            }
-          })
-
-        mapper
-          .get(record)
-          ._relations
-          .foreach(relation => {
-            val fromLabel = relation.fromLabel
-            val toLabel = relation.toLabel
-            val fromId: NodeId = refToIdMappingBucket(fromLabel)(relation.fromRef)
-            val toId: NodeId = refToIdMappingBucket(toLabel)(relation.toRef)
-            createRelationship(fromId, relation.relation, toId)
-          })
+      val batchOfNodes = mutable.ListBuffer.empty[CsvNode]
+      val batchOfRelations = mutable.ListBuffer.empty[Relation]
+      records.foreach(row => {
+        val graphData = mapper.get.apply(row)
+        batchOfNodes.addAll(graphData._nodes)
+        batchOfRelations.addAll(graphData._relations)
       })
-    }
-  }
 
-  private def referenceAlreadyEncountered(
-      uniqueRef: NodeId,
-      refToIdMapping: Option[mutable.HashMap[NodeId, NodeId]]
-  ): Boolean = {
-    if (refToIdMapping.isEmpty) false
-    else {
-      if (refToIdMapping.get.contains(uniqueRef)) true
-      else false
+      val refToIdMapping = batchImportNodes(batchOfNodes)
+      batchImportRelations(batchOfRelations, refToIdMapping)
     }
   }
 
@@ -210,6 +184,33 @@ private[engine] class GraphProviderImpl extends GraphProvider with LazyLogging {
   }
 
   override def shutdown(): Unit = {}
+
+  override private[engine] def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
+    val refToIdMapping = new RefToIdMapping
+    batchOfNodes.iterator
+      .foreach(node => {
+        if (!refToIdMapping.hasReference(node.uniqueRef, node.label)) {
+          val nodeId = createNode(node.label, node.params)
+          refToIdMapping.addMapping(node.label, node.uniqueRef, nodeId)
+        }
+      })
+
+    refToIdMapping
+  }
+
+  override private[engine] def batchImportRelations(
+                                                     relations: IterableOnce[Relation],
+                                                     refToIdMapping: RefToIdMapping
+                                                   ): Unit = {
+    relations.iterator
+      .foreach(relation => {
+        val fromLabel = relation.fromLabel
+        val toLabel = relation.toLabel
+        val fromId: NodeId = refToIdMapping.getFor(fromLabel, relation.fromRef).get
+        val toId: NodeId = refToIdMapping.getFor(toLabel, relation.toRef).get
+        createRelationship(fromId, relation.relation, toId)
+      })
+  }
 }
 
 private[engine] object GraphProviderImpl {

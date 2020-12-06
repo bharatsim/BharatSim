@@ -4,7 +4,7 @@ import com.bharatsim.engine.basicConversions.BasicConversions
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.ingestion.GraphData
+import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.bharatsim.engine.models.Node
 
@@ -87,25 +87,32 @@ trait GraphProvider {
 
   /**
     * Crate one way relation or connection between node
-    * @param node1 is a "from" node
+   *
+   * @param node1 is a "from" node
     * @param label is a name of relation
-    * @param node2 is a "to" node
-    */
+   * @param node2 is a "to" node
+   */
   def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit
 
   /**
-    * ingest data from csv
-    * @param csvPath is path to the CSV
-    * @param mapper is function that map a csv row to Nodes and Relations
-    */
+   * ingest data from csv
+   *
+   * @param csvPath is path to the CSV
+   * @param mapper  is function that map a csv row to Nodes and Relations
+   */
   def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit
 
+  private[engine] def batchImportNodes(node: IterableOnce[CsvNode]): RefToIdMapping
+
+  private[engine] def batchImportRelations(relations: IterableOnce[Relation], refToIdMapping: RefToIdMapping)
+
   /**
-    * Fetch a node with matching label and parameters
-    * @param label is label of node to find
-    * @param params is data parameter of node to find
-    * @return a matching node when match is found
-    */
+   * Fetch a node with matching label and parameters
+   *
+   * @param label  is label of node to find
+   * @param params is data parameter of node to find
+   * @return a matching node when match is found
+   */
   // R
   def fetchNode(label: String, params: Map[String, Any]): Option[GraphNode]
 

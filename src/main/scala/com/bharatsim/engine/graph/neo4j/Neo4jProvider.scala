@@ -4,7 +4,7 @@ import java.util
 
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph._
-import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, Relation}
+import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.github.tototoshi.csv.CSVReader
 import com.typesafe.scalalogging.LazyLogging
@@ -65,85 +65,18 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     val records = reader.allWithHeaders()
 
     if (mapper.isDefined) {
-      val nodeExtractor = new NodeExtractor(records, mapper.get)
+      val relations = mutable.ListBuffer.empty[Relation]
+      val nodes = mutable.HashMap.empty[Int, CsvNode]
 
-      val nodes = nodeExtractor.fetchNodes
-      val refToIdMapping = bulkCreateNodes(nodes)
-      bulkCreateRelationships(refToIdMapping, nodeExtractor.fetchRelations)
+      records.foreach(row => {
+        val data = mapper.get.apply(row)
+        data._nodes.foreach(node => nodes.put(node.uniqueRef, node))
+        relations.addAll(data._relations)
+      })
+
+      val refToIdMapping = batchImportNodes(nodes.values)
+      batchImportRelations(relations, refToIdMapping)
     }
-  }
-
-  private def bulkCreateNodes(nodes: Iterator[(String, Iterable[CsvNode])]): Map[String, Map[Int, NodeId]] = {
-    val refToIdMappingBuckets = new mutable.HashMap[String, Map[Int, NodeId]]()
-    val session = neo4jConnection.session()
-
-    nodes.foreach({
-      case (label, nodes) =>
-        val transaction: List[(NodeId, Int)] = session.writeTransaction((tx: Transaction) => {
-          val properties = nodes.map(n => {
-            val nodeData = new util.HashMap[String, Any]()
-            nodeData.put("ref", n.uniqueRef)
-            nodeData.put("data", n.params.asJava)
-            nodeData
-          })
-          val result = tx.run(
-            s"""UNWIND $$properties as props
-               |CREATE (n:$label) set n=props.data
-               |RETURN {nodeId: id(n), ref: props.ref} as n""".stripMargin,
-            parameters("properties", properties.asJava)
-          )
-
-          val ret = result
-            .list(record => {
-              val mp = record.get("n").asMap()
-              val nodeId = mp.get("nodeId").asInstanceOf[Long].toInt
-              val ref = mp.get("ref").asInstanceOf[Long].toInt
-              (nodeId, ref)
-            })
-            .asScala
-            .toList
-          tx.commit()
-
-          ret
-        })
-        val refToIdMap = transaction.map({ case (nodeId, ref) => (ref, nodeId) }).toMap
-        refToIdMappingBuckets.addOne(label, refToIdMap)
-    })
-
-    session.close()
-    refToIdMappingBuckets.toMap
-  }
-
-  private def bulkCreateRelationships(
-      refToIdMappingBuckets: Map[String, Map[Int, NodeId]],
-      relations: Iterator[(String, ListBuffer[Relation])]
-  ): Unit = {
-    val session = neo4jConnection.session()
-
-    relations.foreach({
-      case (relType, rels) =>
-        val relData = rels.map(r => {
-          val mp = new util.HashMap[String, Any]()
-          val fromLabel = r.fromLabel
-          val toLabel = r.toLabel
-
-          mp.put("fromId", refToIdMappingBuckets(fromLabel)(r.fromRef))
-          mp.put("toId", refToIdMappingBuckets(toLabel)(r.toRef))
-          mp
-        })
-        session.writeTransaction(tx => {
-          tx.run(
-            s"""UNWIND $$rels as rel
-               |MATCH (n1) where id(n1) = rel.fromId
-               |MATCH (n2) where id(n2) = rel.toId
-               |CREATE (n1)-[:$relType]->(n2)""".stripMargin,
-            parameters("rels", relData.asJava)
-          )
-          tx.commit()
-        })
-    })
-
-    session.close()
   }
 
   override def fetchNode(label: String, params: Map[String, Any]): Option[GraphNode] = {
@@ -342,4 +275,98 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   }
 
   override def shutdown(): Unit = neo4jConnection.close()
+
+  override private[engine] def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
+    val session = neo4jConnection.session()
+    val refToIdMapping = new RefToIdMapping()
+
+    val processedNodes = aggregateNodesByLabel(batchOfNodes)
+    processedNodes.foreach({
+      case (label, nodes) =>
+        val transaction: List[(NodeId, Int)] = session.writeTransaction((tx: Transaction) => {
+          val properties = nodes.map(n => {
+            val nodeData = new util.HashMap[String, Any]()
+            nodeData.put("ref", n.uniqueRef)
+            nodeData.put("data", n.params.asJava)
+            nodeData
+          })
+          val result = tx.run(
+            s"""UNWIND $$properties as props
+               |CREATE (n:$label) set n=props.data
+               |RETURN {nodeId: id(n), ref: props.ref} as n""".stripMargin,
+            parameters("properties", properties.asJava)
+          )
+
+          val ret = result
+            .list(record => {
+              val mp = record.get("n").asMap()
+              val nodeId = mp.get("nodeId").asInstanceOf[Long].toInt
+              val ref = mp.get("ref").asInstanceOf[Long].toInt
+              (nodeId, ref)
+            })
+            .asScala
+            .toList
+          tx.commit()
+
+          ret
+        })
+        val refToIdMap = transaction.map({ case (nodeId, ref) => (ref, nodeId) })
+        refToIdMapping.addMappings(label, refToIdMap)
+    })
+
+    session.close()
+    refToIdMapping
+  }
+
+  private def aggregateNodesByLabel(batchOfNodes: IterableOnce[CsvNode]): Iterator[(String, Iterable[CsvNode])] = {
+    batchOfNodes.iterator
+      .foldLeft(new mutable.HashMap[String, ListBuffer[CsvNode]]())((acc, node) => {
+        if (!acc.contains(node.label)) acc.put(node.label, ListBuffer[CsvNode]().empty)
+        acc(node.label).addOne(node)
+        acc
+      })
+      .iterator
+  }
+
+  override private[engine] def batchImportRelations(
+                                                     relations: IterableOnce[Relation],
+                                                     refToIdMapping: RefToIdMapping
+                                                   ): Unit = {
+    val session = neo4jConnection.session()
+    val batchedRelations = aggregateRelationsByLabel(relations)
+
+    batchedRelations.foreach({
+      case (relType, rels) =>
+        val relData = rels.map(r => {
+          val mp = new util.HashMap[String, Any]()
+          val fromLabel = r.fromLabel
+          val toLabel = r.toLabel
+
+          mp.put("fromId", refToIdMapping.getFor(fromLabel, r.fromRef).get)
+          mp.put("toId", refToIdMapping.getFor(toLabel, r.toRef).get)
+          mp
+        })
+        session.writeTransaction(tx => {
+          tx.run(
+            s"""UNWIND $$rels as rel
+               |MATCH (n1) where id(n1) = rel.fromId
+               |MATCH (n2) where id(n2) = rel.toId
+               |CREATE (n1)-[:$relType]->(n2)""".stripMargin,
+            parameters("rels", relData.asJava)
+          )
+          tx.commit()
+        })
+    })
+
+    session.close()
+  }
+
+  private def aggregateRelationsByLabel(relations: IterableOnce[Relation]): Iterator[(String, ListBuffer[Relation])] =
+    relations.iterator
+      .foldLeft(new mutable.HashMap[String, ListBuffer[Relation]]())((acc, rel) => {
+        if (!acc.contains(rel.relation)) acc.put(rel.relation, ListBuffer[Relation]().empty)
+        acc(rel.relation).addOne(rel)
+        acc
+      })
+      .iterator
 }
