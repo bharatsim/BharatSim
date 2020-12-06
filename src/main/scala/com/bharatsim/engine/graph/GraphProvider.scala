@@ -4,7 +4,7 @@ import com.bharatsim.engine.basicConversions.BasicConversions
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
+import com.bharatsim.engine.graph.ingestion._
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.bharatsim.engine.models.Node
 
@@ -54,17 +54,25 @@ trait GraphProvider {
   /* CRUD */
 
   /**
-    * Create a node from Instance
-    *
-    * @param label label of a node
-    * @param x       is instance from which a node is created
-    * @param encoder is basic serializer for value of type T.
-    *             import default basic encoder from com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
-    * @tparam T is type of Node to be created
-    * @return a node id of newly created Node.
-    */
-  def createNodeFromInstance[T <: Product](label: String, x: T)(implicit encoder: BasicMapEncoder[T]): NodeId = {
-    createNode(label, BasicConversions.encode(x))
+   * Create a node from Instance
+   *
+   * @param label   label of a node
+   * @param x       is instance from which a node is created
+   * @param encoder is basic serializer for value of type T.
+   *                import default basic encoder from com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
+   * @tparam T is type of Node to be created
+   * @return a node id of newly created Node.
+   */
+  def createNodeFromInstance[T <: Node](label: String, x: T)(implicit encoder: BasicMapEncoder[T]): NodeId = {
+    val id = createNode(label, BasicConversions.encode(x))
+
+    val nodeExpander = new NodeExpander
+    val data = nodeExpander.expand[T](label, id, x)
+    val refToIdMapping = batchImportNodes(data._nodes)
+    refToIdMapping.addMapping(label, id, id)
+    batchImportRelations(data._relations, refToIdMapping)
+
+    id
   }
 
   /**

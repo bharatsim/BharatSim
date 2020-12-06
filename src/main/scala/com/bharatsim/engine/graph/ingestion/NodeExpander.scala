@@ -7,10 +7,14 @@ import com.bharatsim.engine.utils.Utils.fetchClassName
 import scala.reflect.ClassTag
 
 class NodeExpander {
-  def expand[T <: Node: ClassTag](nodeRef: Int, node: T): GraphData = {
+  def expand[T <: Node : ClassTag](nodeRef: Int, node: T): GraphData = {
+    val label = fetchClassName[T]
+    expand(label, nodeRef, node)
+  }
+
+  def expand[T <: Node](label: String, nodeRef: Int, node: T): GraphData = {
     node match {
       case statefulAgent: StatefulAgent =>
-        val label = fetchClassName[T]
 
         val initialState = statefulAgent.maybeInitialState.get
         val graphData = GraphData()
