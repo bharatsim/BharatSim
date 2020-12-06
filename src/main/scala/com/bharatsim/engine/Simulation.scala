@@ -45,25 +45,21 @@ class Simulation(context: Context) extends LazyLogging {
   }
 
   private def handleStateControl(statefulAgent: StatefulAgent): Unit = {
-    if (statefulAgent.hasInitialState) {
-      val currentState = statefulAgent.activeState
+    val currentState = statefulAgent.activeState
 
-      val maybeTransition = currentState.transitions.find(_.when(context, statefulAgent))
-      if(maybeTransition.isDefined) {
-        val transition = maybeTransition.get
-        val state = transition.state(context)
+    val maybeTransition = currentState.transitions.find(_.when(context, statefulAgent))
+    if (maybeTransition.isDefined) {
+      val transition = maybeTransition.get
+      val state = transition.state(context)
 
-        context.graphProvider.deleteNode(currentState.internalId)
-        val nodeId = context.graphProvider.createNode(transition.label, transition.serializedState(state))
-        context.graphProvider.createRelationship(statefulAgent.internalId, StatefulAgent.STATE_RELATIONSHIP, nodeId)
+      context.graphProvider.deleteNode(currentState.internalId)
+      val nodeId = context.graphProvider.createNode(transition.label, transition.serializedState(state))
+      context.graphProvider.createRelationship(statefulAgent.internalId, StatefulAgent.STATE_RELATIONSHIP, nodeId)
 
-        state.enterAction(context, statefulAgent)
-        state.perTickAction(context, statefulAgent)
-      } else {
-        currentState.perTickAction(context, statefulAgent)
-      }
+      state.enterAction(context, statefulAgent)
+      state.perTickAction(context, statefulAgent)
     } else {
-      throw new RuntimeException("Stateful agent does not have initial state")
+      currentState.perTickAction(context, statefulAgent)
     }
   }
 

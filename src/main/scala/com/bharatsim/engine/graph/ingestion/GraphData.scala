@@ -7,7 +7,9 @@ import com.bharatsim.engine.utils.Utils.fetchClassName
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 
-private[engine] case class CsvNode(label: String, uniqueRef: Int, params: Map[String, Any])
+private[engine] case class CsvNode(label: String, uniqueRef: Int, params: Map[String, Any]) {
+  override def hashCode(): Int = uniqueRef.hashCode()
+}
 
 class GraphData(nodeExpander: NodeExpander) {
   private[engine] val _relations: ListBuffer[Relation] = ListBuffer.empty

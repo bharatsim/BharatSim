@@ -66,15 +66,15 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
 
     if (mapper.isDefined) {
       val relations = mutable.ListBuffer.empty[Relation]
-      val nodes = mutable.HashMap.empty[Int, CsvNode]
+      val nodes = mutable.ListBuffer.empty[CsvNode]
 
       records.foreach(row => {
         val data = mapper.get.apply(row)
-        data._nodes.foreach(node => nodes.put(node.uniqueRef, node))
+        nodes.addAll(data._nodes)
         relations.addAll(data._relations)
       })
 
-      val refToIdMapping = batchImportNodes(nodes.values)
+      val refToIdMapping = batchImportNodes(nodes)
       batchImportRelations(relations, refToIdMapping)
     }
   }
@@ -278,10 +278,9 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
 
   override private[engine] def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
     val session = neo4jConnection.session()
-    val refToIdMapping = new RefToIdMapping()
 
     val processedNodes = aggregateNodesByLabel(batchOfNodes)
-    processedNodes.foreach({
+    val refToIdMapping = processedNodes.map({
       case (label, nodes) =>
         val transaction: List[(NodeId, Int)] = session.writeTransaction((tx: Transaction) => {
           val properties = nodes.map(n => {
@@ -311,7 +310,9 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
           ret
         })
         val refToIdMap = transaction.map({ case (nodeId, ref) => (ref, nodeId) })
-        refToIdMapping.addMappings(label, refToIdMap)
+        (label, refToIdMap)
+    }).foldLeft(new RefToIdMapping())((acc, mapping) => {
+      acc.addMappings(mapping._1, mapping._2); acc;
     })
 
     session.close()
@@ -320,8 +321,8 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
 
   private def aggregateNodesByLabel(batchOfNodes: IterableOnce[CsvNode]): Iterator[(String, Iterable[CsvNode])] = {
     batchOfNodes.iterator
-      .foldLeft(new mutable.HashMap[String, ListBuffer[CsvNode]]())((acc, node) => {
-        if (!acc.contains(node.label)) acc.put(node.label, ListBuffer[CsvNode]().empty)
+      .foldLeft(new mutable.HashMap[String, mutable.HashSet[CsvNode]]())((acc, node) => {
+        if (!acc.contains(node.label)) acc.put(node.label, mutable.HashSet[CsvNode]().empty)
         acc(node.label).addOne(node)
         acc
       })
