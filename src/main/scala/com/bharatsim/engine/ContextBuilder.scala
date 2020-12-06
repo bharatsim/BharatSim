@@ -43,11 +43,13 @@ object ContextBuilder {
   }
 
   /**
-    * Clean the data and close the connection with database
-    * @param context instance of [[Context]] for the simulation
-    */
-  def teardown()(implicit context: Context): Unit = {
-    context.graphProvider.deleteAll()
+   * Clean the data and close the connection with database
+   *
+   * @param cleanData Defaults to true, can be overridden if data cleaning needs to be avoided
+   * @param context   instance of [[Context]] for the simulation
+   */
+  def teardown(cleanData: Boolean = true)(implicit context: Context): Unit = {
+    if (cleanData) context.graphProvider.deleteAll()
     context.graphProvider.shutdown()
   }
 
