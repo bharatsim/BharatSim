@@ -14,16 +14,40 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 
+/** State representing a state of Finite State Machine
+ * One needs to extend this trait in order to implement a State
+ */
 trait State extends Node {
   private[engine] val transitions = ListBuffer.empty[Transition[_]]
 
+  /**
+   * Optional action which is acted upon by engine when Agent enters this state
+   *
+   * @param context simulation context
+   * @param agent   agent for which this is the current state
+   */
   def enterAction(context: Context, agent: StatefulAgent): Unit = {}
 
+  /**
+   * Optional action which is acted upon by engine per tick for which current state is active
+   *
+   * @param context simulation context
+   * @param agent   agent for which this is the current state
+   */
   def perTickAction(context: Context, agent: StatefulAgent): Unit = {}
 
-  def addTransition[T <: State: ClassTag](when: (Context, StatefulAgent) => Boolean, to: T)(implicit
-      serializer: BasicMapEncoder[T],
-      deserializer: BasicMapDecoder[T]
+  /**
+   * defines a transition from this state to `to` state
+   *
+   * @param when         condition for transition
+   * @param to           state to transition to
+   * @param serializer   is a basic encoder for the State of type T
+   * @param deserializer is a basic decoder for the State of type T
+   * @tparam T type of State
+   */
+  def addTransition[T <: State : ClassTag](when: (Context, StatefulAgent) => Boolean, to: T)(implicit
+                                                                                             serializer: BasicMapEncoder[T],
+                                                                                             deserializer: BasicMapDecoder[T]
   ): Unit = {
     val className = Utils.fetchClassName[T]
     deSerializers.put(className, graphNode => decode(graphNode.getParams))
@@ -32,9 +56,18 @@ trait State extends Node {
     transitions.addOne(transition)
   }
 
-  def addTransition[T <: State: ClassTag](when: (Context, StatefulAgent) => Boolean, to: Context => T)(implicit
-                                                                           serializer: BasicMapEncoder[T],
-                                                                           deserializer: BasicMapDecoder[T]
+  /**
+   * defines a transition from this state to `to` state
+   *
+   * @param when         condition for transition
+   * @param to           function that creates state to transition to
+   * @param serializer   is a basic encoder for the State of type T
+   * @param deserializer is a basic decoder for the State of type T
+   * @tparam T type of State
+   */
+  def addTransition[T <: State : ClassTag](when: (Context, StatefulAgent) => Boolean, to: Context => T)(implicit
+                                                                                                        serializer: BasicMapEncoder[T],
+                                                                                                        deserializer: BasicMapDecoder[T]
   ): Unit = {
     val className = Utils.fetchClassName[T]
     deSerializers.put(className, graphNode => decode(graphNode.getParams))
