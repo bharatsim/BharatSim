@@ -11,6 +11,8 @@ if [ ! -f "$FILE" ]; then
     exit 1
 fi
 
+source ./src/perfTest/parameters.sh
+
 java -jar $FILE &
 startTime=$(date +%s)
 
@@ -18,47 +20,26 @@ AppPID=$!
 ps -p $AppPID >> /dev/null
 psExist=$?
 
-inputCPU=$1
-inputMemory=$2
-inputTime=$3
-
-maxCpu=0
 maxMem=0
-bound=0.2
 
 while [ $psExist -eq 0 ]; do
 
-read cpu mem<<< $(ps -p $AppPID -o %cpu -o vsz | tail -n1)
+read mem<<< $(ps -p $AppPID -o vsz | tail -n1)
 
-if ! [ $cpu \> 0 ]; then
+check=`echo "$mem" | grep -E ^\-?[0-9]*\.?[0-9]+$`
+if [ "$check" = '' ]; then
   break
 fi
-
-if ! [ $mem \> 0 ]; then
-  break
-fi
-
-if (( $(echo "$cpu > $maxCpu" | bc -l) )); then
-    maxCpu=$cpu
-fi
-
 
 if (( $(echo "$mem > $maxMem" | bc -l) )); then
   maxMem=$mem
 fi
-
 
 ps -p $AppPID >> /dev/null
 psExist=$?
 done
 
 timeDiff=$(( $(date +%s) - $startTime ))
-
-cpuThreshold=$inputCPU+$inputCPU*$bound
-if  (( $(echo "$maxCpu > $cpuThreshold" | bc -l) )); then
-    echo "CPU usage exceeds the threshold"
-    exit 2
-fi
 
 memoryThreshold=$inputMemory+$inputMemory*$bound
 if  (( $(echo "$maxMem > $memoryThreshold" | bc -l) )); then
@@ -72,5 +53,5 @@ if  (( $(echo "$timeDiff > $timeThreshold" | bc -l) )); then
     exit 4
 fi
 
-echo "max CPU: $maxCpu Memory: $maxMem ExecutionTime: $timeDiff"
+echo "max Memory: $maxMem ExecutionTime: $timeDiff"
 exit 0
