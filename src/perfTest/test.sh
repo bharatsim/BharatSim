@@ -43,14 +43,14 @@ timeDiff=$(( $(date +%s) - $startTime ))
 
 memoryThreshold=$inputMemory+$inputMemory*$bound
 if  (( $(echo "$maxMem > $memoryThreshold" | bc -l) )); then
-    echo "Memory usage exceeds the threshold"
-    exit 3
+	echo "Memory usage $(echo $maxMem|bc)  exceeds the threshold $(echo $memoryThreshold|bc)"
+    exit 2
 fi
 
 timeThreshold=$inputTime+$inputTime*$bound
 if  (( $(echo "$timeDiff > $timeThreshold" | bc -l) )); then
-    echo "Execution time exceeds the threshold"
-    exit 4
+	echo "Execution time $(echo $timeDiff|bc) exceeds the threshold $(echo $timeThreshold|bc)"
+    exit 3
 fi
 
 echo "max Memory: $maxMem ExecutionTime: $timeDiff"
