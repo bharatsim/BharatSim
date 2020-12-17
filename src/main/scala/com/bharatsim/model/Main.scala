@@ -6,12 +6,14 @@ import com.bharatsim.engine.actions.StopSimulation
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.dsl.SyntaxHelpers._
+import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.intervention.IntervalBasedIntervention
 import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
 import com.bharatsim.model.InfectionStatus._
+import com.bharatsim.model.diseaseState._
 import com.typesafe.scalalogging.LazyLogging
 
 
@@ -152,6 +154,7 @@ object Main extends LazyLogging {
     val hosts = Relation[PublicPlace, Person](publicPlaceId, "HOSTS", citizenId)
 
     val graphData = GraphData()
+    setCitizenInitialState(citizen, map("infectionState"))
     graphData.addNode(citizenId, citizen)
     graphData.addNode(homeId, home)
     graphData.addNode(publicPlaceId, PublicPlace(publicPlaceId))
@@ -190,6 +193,19 @@ object Main extends LazyLogging {
   def generatePublicPlaceId(): Int = {
     lastPublicPlaceId = (lastPublicPlaceId % TOTAL_PUBLIC_PLACES) + 1
     lastPublicPlaceId
+  }
+
+  private def setCitizenInitialState(citizen: Person, initialState: String): Unit = {
+    initialState match {
+      case "Susceptible" => citizen.setInitialState(SusceptibleState())
+      case "Exposed" => citizen.setInitialState(ExposedState())
+      case "PreSymptomatic" => citizen.setInitialState(PreSymptomaticState())
+      case "InfectedMild" => citizen.setInitialState(InfectedState(Mild))
+      case "InfectedSevere" => citizen.setInitialState(InfectedState(Severe))
+      case "Recovered" => citizen.setInitialState(RecoveredState())
+      case "Deceased" => citizen.setInitialState(DeceasedState())
+      case _ => throw new Exception(s"Unsupported infection status: $initialState")
+    }
   }
 
   private def printStats(beforeCount: Int)(implicit context: Context): Unit = {
