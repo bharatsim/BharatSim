@@ -131,26 +131,34 @@ object Main extends LazyLogging {
 
     val homeId = map("house_id").toInt
     val schoolId = map("school_id").toInt
+    val officeId = map("office_id").toInt
 
     val home = House(homeId)
-    val office = Office(officeId)
-    val school = School(schoolId)
-
     val staysAt = Relation[Person, House](citizenId, "STAYS_AT", homeId)
-    val worksAt = Relation[Person, Office](citizenId, "WORKS_AT", officeId)
-    val studiesAt = Relation[Person, School](citizenId, "STUDIES_AT", schoolId)
-
     val memberOf = Relation[House, Person](homeId, "HOUSES", citizenId)
-    val employerOf = Relation[Office, Person](officeId, "EMPLOYER_OF", citizenId)
-    val studentOf = Relation[School, Person](schoolId, "STUDENT_OF", citizenId)
 
     val graphData = GraphData()
     graphData.addNode(citizenId, citizen)
     graphData.addNode(homeId, home)
-    graphData.addNode(officeId, office)
-    graphData.addNode(schoolId, school)
 
-    graphData.addRelations(staysAt, worksAt, studiesAt, memberOf, employerOf, studentOf)
+    graphData.addRelations(staysAt, memberOf)
+
+    val isEmployee = officeId > 0
+    if (isEmployee) {
+      val office = Office(officeId)
+      val worksAt = Relation[Person, Office](citizenId, "WORKS_AT", officeId)
+      val employerOf = Relation[Office, Person](officeId, "EMPLOYER_OF", citizenId)
+
+      graphData.addNode(officeId, office)
+      graphData.addRelations(worksAt, employerOf)
+    } else {
+      val school = School(schoolId)
+      val studiesAt = Relation[Person, School](citizenId, "STUDIES_AT", schoolId)
+      val studentOf = Relation[School, Person](schoolId, "STUDENT_OF", citizenId)
+
+      graphData.addNode(schoolId, school)
+      graphData.addRelations(studiesAt, studentOf)
+    }
 
     if (takesPublicTransport) {
       val transportId = 1
