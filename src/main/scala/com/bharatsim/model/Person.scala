@@ -57,10 +57,11 @@ case class Person(
 
   private def decodeNode(classType: String, node: GraphNode): Network = {
     classType match {
-      case "House"     => node.as[House]
-      case "Office"    => node.as[Office]
-      case "School"    => node.as[School]
+      case "House" => node.as[House]
+      case "Office" => node.as[Office]
+      case "School" => node.as[School]
       case "Transport" => node.as[Transport]
+      case "PublicPlace" => node.as[PublicPlace]
     }
   }
 
@@ -104,4 +105,5 @@ case class Person(
   addRelation[Office]("WORKS_AT")
   addRelation[School]("STUDIES_AT")
   addRelation[Transport]("TAKES")
+  addRelation[PublicPlace]("VISITS")
 }

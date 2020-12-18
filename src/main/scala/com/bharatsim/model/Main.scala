@@ -14,7 +14,11 @@ import com.bharatsim.engine.models.Agent
 import com.bharatsim.model.InfectionStatus._
 import com.typesafe.scalalogging.LazyLogging
 
+import scala.util.Random
+
 object Main extends LazyLogging {
+  val TOTAL_PUBLIC_PLACES = 10
+
   def main(args: Array[String]): Unit = {
     val config = SimulationConfig(5000)
     implicit val context: Context = Context(Disease, config)
@@ -76,7 +80,10 @@ object Main extends LazyLogging {
       .add[Office](9, 18)
       .add[House](19, 23)
 
-    val employeeScheduleOnWeekEnd = (Day, Hour).add[House](0, 23)
+    val employeeScheduleOnWeekEnd = (Day, Hour)
+      .add[House](0, 16)
+      .add[PublicPlace](17, 18)
+      .add[House](19, 23)
 
     val employeeSchedule = (Week, Day)
       .add(employeeScheduleOnWeekDays, 0, 4)
@@ -92,9 +99,14 @@ object Main extends LazyLogging {
     val studentScheduleOnWeekDay = (Day, Hour)
       .add[House](0, 8)
       .add[School](9, 15)
-      .add[House](16, 23)
+      .add[House](16, 16)
+      .add[PublicPlace](17, 18)
+      .add[House](19, 23)
 
-    val studentScheduleOnWeekEnd = (Day, Hour).add[House](0, 23)
+    val studentScheduleOnWeekEnd = (Day, Hour)
+      .add[House](0, 16)
+      .add[PublicPlace](17, 18)
+      .add[House](19, 23)
 
     val studentSchedule = (Week, Day)
       .add(studentScheduleOnWeekDay, 0, 4)
@@ -115,7 +127,6 @@ object Main extends LazyLogging {
 
     val citizenId = map("id").toInt
     val age = map("age").toInt
-    val officeId = map("office_id").toInt
     val takesPublicTransport = map("public_transport").toBoolean
     val isEssentialWorker = map("is_essential_worker").toBoolean
     val violateLockdown = map("violate_lockdown").toBoolean
@@ -132,16 +143,19 @@ object Main extends LazyLogging {
     val homeId = map("house_id").toInt
     val schoolId = map("school_id").toInt
     val officeId = map("office_id").toInt
+    val publicPlaceId = Random.between(1, TOTAL_PUBLIC_PLACES + 1)
 
     val home = House(homeId)
     val staysAt = Relation[Person, House](citizenId, "STAYS_AT", homeId)
     val memberOf = Relation[House, Person](homeId, "HOUSES", citizenId)
+    val visits = Relation[Person, PublicPlace](citizenId, "VISITS", publicPlaceId)
+    val hosts = Relation[PublicPlace, Person](publicPlaceId, "HOSTS", citizenId)
 
     val graphData = GraphData()
     graphData.addNode(citizenId, citizen)
     graphData.addNode(homeId, home)
-
-    graphData.addRelations(staysAt, memberOf)
+    graphData.addNode(publicPlaceId, PublicPlace(publicPlaceId))
+    graphData.addRelations(staysAt, memberOf, visits, hosts)
 
     val isEmployee = officeId > 0
     if (isEmployee) {
@@ -162,9 +176,10 @@ object Main extends LazyLogging {
 
     if (takesPublicTransport) {
       val transportId = 1
-      val transport = Transport(transportId);
+      val transport = Transport(transportId)
       val takes = Relation[Person, Transport](citizenId, citizen.getRelation[Transport]().get, transportId)
       val carries = Relation[Transport, Person](transportId, transport.getRelation[Person]().get, citizenId)
+
       graphData.addNode(transportId, transport)
       graphData.addRelations(takes, carries)
     }
