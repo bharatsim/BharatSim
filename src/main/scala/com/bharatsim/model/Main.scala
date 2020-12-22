@@ -35,7 +35,7 @@ object Main extends LazyLogging {
         }
       )
 
-      ingestCSVData("src/main/resources/citizen10k.csv", csvDataExtractor)
+      ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
       logger.debug("Ingestion done")
       val beforeCount = getInfectedCount(context)
 
