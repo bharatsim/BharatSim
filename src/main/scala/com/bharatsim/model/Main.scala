@@ -14,10 +14,10 @@ import com.bharatsim.engine.models.Agent
 import com.bharatsim.model.InfectionStatus._
 import com.typesafe.scalalogging.LazyLogging
 
-import scala.util.Random
 
 object Main extends LazyLogging {
-  val TOTAL_PUBLIC_PLACES = 10
+  private val TOTAL_PUBLIC_PLACES = 10
+  private var lastPublicPlaceId = 1
 
   def main(args: Array[String]): Unit = {
     val config = SimulationConfig(5000)
@@ -35,7 +35,7 @@ object Main extends LazyLogging {
         }
       )
 
-      ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
+      ingestCSVData("src/main/resources/citizen10k.csv", csvDataExtractor)
       logger.debug("Ingestion done")
       val beforeCount = getInfectedCount(context)
 
@@ -143,7 +143,7 @@ object Main extends LazyLogging {
     val homeId = map("house_id").toInt
     val schoolId = map("school_id").toInt
     val officeId = map("office_id").toInt
-    val publicPlaceId = Random.between(1, TOTAL_PUBLIC_PLACES + 1)
+    val publicPlaceId = generatePublicPlaceId()
 
     val home = House(homeId)
     val staysAt = Relation[Person, House](citizenId, "STAYS_AT", homeId)
@@ -185,6 +185,11 @@ object Main extends LazyLogging {
     }
 
     graphData
+  }
+
+  def generatePublicPlaceId(): Int = {
+    lastPublicPlaceId = (lastPublicPlaceId % TOTAL_PUBLIC_PLACES) + 1
+    lastPublicPlaceId
   }
 
   private def printStats(beforeCount: Int)(implicit context: Context): Unit = {
