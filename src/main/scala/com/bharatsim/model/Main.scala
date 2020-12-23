@@ -6,12 +6,12 @@ import com.bharatsim.engine.actions.StopSimulation
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.dsl.SyntaxHelpers._
-import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.intervention.IntervalBasedIntervention
 import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
+import com.bharatsim.model.InfectionSeverity.{Mild, Severe}
 import com.bharatsim.model.InfectionStatus._
 import com.bharatsim.model.diseaseState._
 import com.typesafe.scalalogging.LazyLogging
@@ -142,6 +142,8 @@ object Main extends LazyLogging {
       violateLockdown
     )
 
+    setCitizenInitialState(citizen, map("infectionState"))
+
     val homeId = map("house_id").toInt
     val schoolId = map("school_id").toInt
     val officeId = map("office_id").toInt
@@ -154,7 +156,6 @@ object Main extends LazyLogging {
     val hosts = Relation[PublicPlace, Person](publicPlaceId, "HOSTS", citizenId)
 
     val graphData = GraphData()
-    setCitizenInitialState(citizen, map("infectionState"))
     graphData.addNode(citizenId, citizen)
     graphData.addNode(homeId, home)
     graphData.addNode(publicPlaceId, PublicPlace(publicPlaceId))
@@ -210,15 +211,16 @@ object Main extends LazyLogging {
 
   private def printStats(beforeCount: Int)(implicit context: Context): Unit = {
     val afterCountSusceptible = getSusceptibleCount(context)
+    val afterExposedCount = getExposedCount(context)
     val afterCountInfected = getInfectedCount(context)
     val afterCountRecovered = context.graphProvider.fetchCount("Person", "infectionState" equ Recovered)
     val afterCountDeceased = context.graphProvider.fetchCount("Person", "infectionState" equ Deceased)
 
     logger.info("Infected before: {}", beforeCount)
+    logger.info("Exposed: {}", afterExposedCount)
     logger.info("Infected after: {}", afterCountInfected)
     logger.info("Recovered: {}", afterCountRecovered)
     logger.info("Deceased: {}", afterCountDeceased)
-    logger.info("Exposed: {}", getExposedCount(context))
     logger.info("Susceptible: {}", afterCountSusceptible)
   }
 
@@ -231,6 +233,7 @@ object Main extends LazyLogging {
   }
 
   private def getInfectedCount(context: Context): Int = {
-    context.graphProvider.fetchCount("Person", "infectionState" equ Infected)
+    val condition = ("infectionState" equ Exposed) or ("infectionState" equ PreSymptomatic) or ("infectionState" equ InfectedMild) or ("infectionState" equ InfectedSevere) or ("infectionState" equ Asymptomatic)
+    context.graphProvider.fetchCount("Person", condition)
   }
 }

@@ -1,0 +1,35 @@
+package com.bharatsim.model.diseaseState
+
+import com.bharatsim.engine.Context
+import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
+import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
+import com.bharatsim.engine.fsm.State
+import com.bharatsim.engine.models.StatefulAgent
+import com.bharatsim.engine.utils.Probability.biasedCoinToss
+import com.bharatsim.model.InfectionSeverity.{Mild, Severe}
+import com.bharatsim.model.InfectionStatus.PreSymptomatic
+import com.bharatsim.model.{Disease, Person}
+
+case class PreSymptomaticState() extends State {
+  private var infectionSeverity = Mild
+
+  override def enterAction(context: Context, agent: StatefulAgent): Unit = {
+      agent.updateParam("infectionState", PreSymptomatic)
+      if (biasedCoinToss(context.dynamics.asInstanceOf[Disease.type].severeInfectedPopulationPercentage)) {
+        infectionSeverity = Severe
+      }
+  }
+
+  def checkForInfectionSeverity(context: Context, agent: StatefulAgent): Boolean = {
+    if (agent.activeState == PreSymptomaticState() &&
+      agent.asInstanceOf[Person].infectionDay == context.dynamics.asInstanceOf[Disease.type].preSymptomaticDuration) {
+      return true
+    }
+    false
+  }
+
+  addTransition(
+    when = checkForInfectionSeverity,
+    to = context => InfectedState(infectionSeverity)
+  )
+}

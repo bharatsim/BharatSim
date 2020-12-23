@@ -5,6 +5,7 @@ import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.models.{Network, StatefulAgent}
+import com.bharatsim.model.InfectionSeverity.{Mild, Severe}
 import com.bharatsim.model.InfectionStatus._
 import com.bharatsim.model.diseaseState._
 
@@ -20,7 +21,7 @@ case class Person(
   final val numberOfHoursInADay: Int = 24
 
   private def incrementInfectionDay(context: Context): Unit = {
-    if ((isExposed || isInfected) && context.getCurrentStep % numberOfHoursInADay == 0) {
+    if ((!isSusceptible && !isRecovered && !isDeceased) && context.getCurrentStep % numberOfHoursInADay == 0) {
       updateParam("infectionDay", infectionDay + 1)
     }
   }
@@ -39,7 +40,13 @@ case class Person(
 
   def isExposed: Boolean = activeState == ExposedState()
 
-  def isInfected: Boolean = activeState == InfectedState()
+  def isPreSymptomatic: Boolean = activeState == PreSymptomaticState()
+
+  def isMildInfected: Boolean = activeState == InfectedState(Mild)
+
+  def isSevereInfected: Boolean = activeState == InfectedState(Severe)
+
+  def isAsymptomatic: Boolean = activeState == AsymptomaticState()
 
   def isRecovered: Boolean = activeState == RecoveredState()
 

@@ -4,17 +4,16 @@ import com.bharatsim.engine.Context
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.fsm.State
-import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
-import com.bharatsim.engine.models.{Network, StatefulAgent}
+import com.bharatsim.engine.models.StatefulAgent
 import com.bharatsim.engine.utils.Probability.{biasedCoinToss, toss}
-import com.bharatsim.model.{Disease, House, Office, Person, School, Transport}
 import com.bharatsim.model.InfectionStatus._
+import com.bharatsim.model.{Disease, Person}
 
-case class SusceptibleState() extends State{
+case class SusceptibleState() extends State {
 
   def shouldInfect(context: Context, agent: StatefulAgent): Boolean = {
-    if (agent.asInstanceOf[Person].isSusceptible) {
+    if (agent.activeState == SusceptibleState()) {
       val infectionRate = context.dynamics.asInstanceOf[Disease.type].infectionRate
 
       val schedule = context.fetchScheduleFor(agent).get
@@ -28,13 +27,9 @@ case class SusceptibleState() extends State{
         val decodedPlace = agent.asInstanceOf[Person].decodeNode(placeType, place)
 
         val infectedNeighbourCount = decodedPlace
-          .getConnectionCount(decodedPlace.getRelation[Person]().get, "infectionState" equ Infected)
+          .getConnectionCount(decodedPlace.getRelation[Person]().get, ("infectionState" equ InfectedMild) or ("infectionState" equ InfectedSevere))
 
-        val shouldInfect = biasedCoinToss(decodedPlace.getContactProbability()) && toss(infectionRate, infectedNeighbourCount)
-        if (shouldInfect) {
-          agent.updateParam("infectionState", Exposed)
-        }
-        return shouldInfect
+        return biasedCoinToss(decodedPlace.getContactProbability()) && toss(infectionRate, infectedNeighbourCount)
       }
     }
     false
