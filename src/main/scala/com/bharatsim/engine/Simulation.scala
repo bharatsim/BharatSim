@@ -12,36 +12,38 @@ class Simulation(context: Context) extends LazyLogging {
     SimulationListenerRegistry.notifySimulationStart(context)
 
     breakable {
-      for (step <- 1 to context.simulationConfig.simulationSteps) {
-        logger.info("Tick {}", step)
-        context.setCurrentStep(step)
-        SimulationListenerRegistry.notifyStepStart(context)
+      try {
+        for (step <- 1 to context.simulationConfig.simulationSteps) {
+          logger.info("Tick {}", step)
+          context.setCurrentStep(step)
+          SimulationListenerRegistry.notifyStepStart(context)
 
-        invokeActions()
+          invokeActions()
 
-        if (context.stopSimulation) {
-          break
-        }
+          if (context.stopSimulation) {
+            break
+          }
 
-        invokeInterventionActions()
+          invokeInterventionActions()
 
-        val agentTypes = context.fetchAgentTypes
-        agentTypes.foreach(agentType => {
-          agentType(context.graphProvider).foreach((agent: Agent) => {
-            agent.behaviours.foreach(b => b(context))
-            agent match {
-              case statefulAgent: StatefulAgent =>
-                handleStateControl(statefulAgent)
-              case _ =>
-            }
+          val agentTypes = context.fetchAgentTypes
+          agentTypes.foreach(agentType => {
+            agentType(context.graphProvider).foreach((agent: Agent) => {
+              agent.behaviours.foreach(b => b(context))
+              agent match {
+                case statefulAgent: StatefulAgent =>
+                  handleStateControl(statefulAgent)
+                case _ =>
+              }
+            })
           })
-        })
 
-        SimulationListenerRegistry.notifyStepEnd(context)
+          SimulationListenerRegistry.notifyStepEnd(context)
+        }
+      } finally {
+        SimulationListenerRegistry.notifySimulationEnd(context)
       }
     }
-
-    SimulationListenerRegistry.notifySimulationEnd(context)
   }
 
   private def handleStateControl(statefulAgent: StatefulAgent): Unit = {
