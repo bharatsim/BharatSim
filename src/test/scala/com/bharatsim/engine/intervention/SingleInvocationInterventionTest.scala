@@ -1,5 +1,6 @@
 package com.bharatsim.engine.intervention
 
+import com.bharatsim.engine.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.graph.GraphProvider
 import com.bharatsim.engine.{Context, Dynamics, Simulation, SimulationConfig}
 import org.mockito.MockitoSugar.mock
@@ -16,7 +17,7 @@ class SingleInvocationInterventionTest extends AnyWordSpec with Matchers {
       val intervention: Intervention = SingleInvocationIntervention("testIntervention", shouldActivate, shouldDeactivate, oneTimeAction)
 
       val context = new Context(mock[GraphProvider], mock[Dynamics], SimulationConfig(10))
-      val simulation = new Simulation(context)
+      val simulation = new Simulation(context, new BehaviourControl(context), new StateControl(context))
 
       context.interventions.add(intervention)
       simulation.run()

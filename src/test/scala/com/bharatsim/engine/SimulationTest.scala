@@ -3,6 +3,7 @@ package com.bharatsim.engine
 import com.bharatsim.engine.ContextBuilder.{registerAction, registerAgent, registerIntervention}
 import com.bharatsim.engine.actions.StopSimulation
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
+import com.bharatsim.engine.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
 import com.bharatsim.engine.intervention.Intervention
@@ -137,7 +138,8 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
 
   test("simulation should mark interventions active when they satisfy the condition") {
     implicit val context: Context = getContext(3)
-    val simulation = new Simulation(context)
+    val simulation: Simulation = newSimulation(context)
+
     val dummyIntervention: Intervention = getIntervention
     when(dummyIntervention.shouldActivate(context)).thenAnswer((context: Context) => context.getCurrentStep == 1)
     when(dummyIntervention.shouldDeactivate(context)).thenReturn(false)
@@ -152,7 +154,7 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
 
   test("simulation should mark interventions inactive when they satisfy the deactivate condition") {
     implicit val context: Context = getContext(3)
-    val simulation = new Simulation(context)
+    val simulation: Simulation = newSimulation(context)
     val dummyIntervention: Intervention = getIntervention
     when(dummyIntervention.shouldActivate(context)).thenAnswer((context: Context) => context.getCurrentStep == 1)
     when(dummyIntervention.shouldDeactivate(context)).thenAnswer((context: Context) => context.getCurrentStep == 2)
@@ -166,7 +168,7 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
 
   test("simulation should execute start-time action for every activated simulation") {
     implicit val context: Context = getContext(3)
-    val simulation = new Simulation(context)
+    val simulation: Simulation = newSimulation(context)
     val dummyIntervention: Intervention = getIntervention
     when(dummyIntervention.shouldActivate(context)).thenAnswer((context: Context) => context.getCurrentStep == 1)
     when(dummyIntervention.shouldDeactivate(context)).thenReturn(false)
@@ -179,7 +181,7 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
 
   test("simulation should execute active-action for every active simulation per tick") {
     implicit val context: Context = getContext(3)
-    val simulation = new Simulation(context)
+    val simulation = newSimulation(context)
     val dummyIntervention: Intervention = getIntervention
     when(dummyIntervention.shouldActivate(context)).thenAnswer((context: Context) => context.getCurrentStep == 1)
     when(dummyIntervention.shouldDeactivate(context)).thenReturn(false)
@@ -190,8 +192,16 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
     verify(dummyIntervention, times(3)).whenActiveAction(context)
   }
 
-  def getContext(steps: Int, mockGraphProvider: GraphProvider = mock[GraphProvider]) =
+  private def getContext(steps: Int, mockGraphProvider: GraphProvider = mock[GraphProvider]) =
     new Context(mockGraphProvider, new Dynamics, SimulationConfig(steps))
+
+
+  private def newSimulation(context: Context) = {
+    val behaviourControl = new BehaviourControl(context)
+    val stateControl = new StateControl(context)
+    val simulation = new Simulation(context, behaviourControl, stateControl)
+    simulation
+  }
 }
 
 case class Employee() extends Agent {

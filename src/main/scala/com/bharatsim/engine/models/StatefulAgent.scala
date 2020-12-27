@@ -14,6 +14,8 @@ trait StatefulAgent extends Agent {
 
   private[engine] def hasInitialState: Boolean = maybeInitialState.isDefined
 
+  private var maybeActiveState: Option[State] = None
+
   /**
    * Fetches current state of the agent
    *
@@ -23,14 +25,12 @@ trait StatefulAgent extends Agent {
    *
    * @throws RuntimeException if the initial state is not set for the Agent
    */
-  lazy val activeState: State = {
-    val states = getConnections(STATE_RELATIONSHIP).toList
-    if (states.nonEmpty) {
-      val state: GraphNode = states.head
-      val deserializer = State.deSerializers(state.label)
-      deserializer(state)
-    } else {
-      throw new Exception("Something went wrong, each StatefulAgent must have one active state all the times")
+  def activeState: State = {
+    maybeActiveState match {
+      case Some(value) => value
+      case _ =>
+        maybeActiveState = Some(fetchActiveState)
+        maybeActiveState.get
     }
   }
 
@@ -50,12 +50,23 @@ trait StatefulAgent extends Agent {
 
     maybeInitialState = Some(NodeWithSerializer(s, serializer))
   }
+
+  private[engine] def forceUpdateActiveState(): Unit = {
+    maybeActiveState = Some(fetchActiveState)
+  }
+
+  private def fetchActiveState: State = {
+    val states = getConnections(STATE_RELATIONSHIP).toList
+    if (states.nonEmpty) {
+      val state: GraphNode = states.head
+      val deserializer = State.fetchDeserializer(state.label)
+      deserializer(state)
+    } else {
+      throw new Exception("Something went wrong, each StatefulAgent must have one active state all the times")
+    }
+  }
 }
 
 private[engine] object StatefulAgent {
   val STATE_RELATIONSHIP = "FSM_STATE"
 }
-
-
-
-

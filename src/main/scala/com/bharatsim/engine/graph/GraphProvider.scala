@@ -7,15 +7,18 @@ import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion._
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.bharatsim.engine.models.Node
+import com.bharatsim.engine.utils.Utils.fetchClassName
+
+import scala.reflect.ClassTag
 
 /**
-  * Representation of node data from the data store
-  */
+ * Representation of node data from the data store
+ */
 trait GraphNode {
 
   /**
-    *  label of the node
-    */
+   * label of the node
+   */
   def label: String
 
   /** Id of the node */
@@ -56,14 +59,14 @@ trait GraphProvider {
   /**
    * Create a node from Instance
    *
-   * @param label   label of a node
    * @param x       is instance from which a node is created
    * @param encoder is basic serializer for value of type T.
    *                import default basic encoder from com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
    * @tparam T is type of Node to be created
    * @return a node id of newly created Node.
    */
-  def createNodeFromInstance[T <: Node](label: String, x: T)(implicit encoder: BasicMapEncoder[T]): NodeId = {
+  def createNodeFromInstance[T <: Node : ClassTag](x: T)(implicit encoder: BasicMapEncoder[T]): NodeId = {
+    val label = fetchClassName[T]
     val id = createNode(label, BasicConversions.encode(x))
 
     val nodeExpander = new NodeExpander
@@ -124,17 +127,24 @@ trait GraphProvider {
   // R
   def fetchNode(label: String, params: Map[String, Any]): Option[GraphNode]
 
+  def fetchNode[T <: Node : ClassTag](params: Map[String, Any]): Option[GraphNode] = {
+    val label = fetchClassName[T]
+    fetchNode(label, params)
+  }
+
   /**
-    * Fetch all the nodes with matching label and parameters
-    * @param label is label of node to find
-    * @param params is data parameter of node to find
-    * @return all the matching nodes
-    */
+   * Fetch all the nodes with matching label and parameters
+   *
+   * @param label  is label of node to find
+   * @param params is data parameter of node to find
+   * @return all the matching nodes
+   */
   def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode]
 
   /**
-    * Fetch all the nodes with matching label and parameters
-    * @param label is label of node to find
+   * Fetch all the nodes with matching label and parameters
+   *
+   * @param label is label of node to find
     * @param params is data parameter of node to find
     * @return all the matching nodes
     */

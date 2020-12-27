@@ -1,10 +1,10 @@
 package com.bharatsim.engine.fsm
 
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.basicConversions.BasicConversions.{decode, encode}
+import com.bharatsim.engine.basicConversions.BasicConversions.encode
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
-import com.bharatsim.engine.fsm.State.deSerializers
+import com.bharatsim.engine.fsm.State.addDeserializerFor
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.custom.IdGenerator
 import com.bharatsim.engine.models.{Node, StatefulAgent}
@@ -50,7 +50,7 @@ trait State extends Node {
                                                                                              deserializer: BasicMapDecoder[T]
   ): Unit = {
     val className = Utils.fetchClassName[T]
-    deSerializers.put(className, graphNode => decode(graphNode.getParams))
+    addDeserializerFor(className)
 
     val transition = Transition(when, Left(to))
     transitions.addOne(transition)
@@ -70,7 +70,7 @@ trait State extends Node {
                                                                                                         deserializer: BasicMapDecoder[T]
   ): Unit = {
     val className = Utils.fetchClassName[T]
-    deSerializers.put(className, graphNode => decode(graphNode.getParams))
+    addDeserializerFor(className)
 
     val transition = Transition(when, Right(to))
     transitions.addOne(transition)
@@ -78,12 +78,19 @@ trait State extends Node {
 }
 
 private[engine] object State {
+  private val deSerializers: mutable.HashMap[String, GraphNode => State] = mutable.HashMap.empty
+  private val serializers: mutable.HashMap[String, State => Map[String, Any]] = mutable.HashMap.empty
+
   def saveSerde[T <: State](className: String)(implicit serializer: BasicMapEncoder[T], deserializer: BasicMapDecoder[T]): Option[State => Map[String, Any]] = {
-    deSerializers.put(className, graphNode => decode(graphNode.getParams))
+    deSerializers.put(className, graphNode => graphNode.as[T])
     serializers.put(className, v => encode(v.asInstanceOf[T]))
   }
-  val deSerializers: mutable.HashMap[String, GraphNode => State] = mutable.HashMap.empty
-  val serializers: mutable.HashMap[String, State => Map[String, Any]] = mutable.HashMap.empty
+
+  def fetchDeserializer(label: String): GraphNode => State = deSerializers(label)
+
+  def addDeserializerFor[T <: State](label: String)(implicit deserializer: BasicMapDecoder[T]): Unit = {
+    deSerializers.put(label, graphNode => graphNode.as[T])
+  }
 
   val idGenerator = new IdGenerator()
 }

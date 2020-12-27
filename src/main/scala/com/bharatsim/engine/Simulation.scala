@@ -1,12 +1,13 @@
 package com.bharatsim.engine
 
+import com.bharatsim.engine.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.listeners.SimulationListenerRegistry
 import com.bharatsim.engine.models.{Agent, StatefulAgent}
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.control.Breaks.{break, breakable}
 
-class Simulation(context: Context) extends LazyLogging {
+class Simulation(context: Context, behaviourControl: BehaviourControl, stateControl: StateControl) extends LazyLogging {
   def run(): Unit = {
 
     SimulationListenerRegistry.notifySimulationStart(context)
@@ -29,10 +30,10 @@ class Simulation(context: Context) extends LazyLogging {
           val agentTypes = context.fetchAgentTypes
           agentTypes.foreach(agentType => {
             agentType(context.graphProvider).foreach((agent: Agent) => {
-              agent.behaviours.foreach(b => b(context))
+              behaviourControl.executeFor(agent)
+
               agent match {
-                case statefulAgent: StatefulAgent =>
-                  handleStateControl(statefulAgent)
+                case statefulAgent: StatefulAgent => stateControl.executeFor(statefulAgent)
                 case _ =>
               }
             })
@@ -43,25 +44,6 @@ class Simulation(context: Context) extends LazyLogging {
       } finally {
         SimulationListenerRegistry.notifySimulationEnd(context)
       }
-    }
-  }
-
-  private def handleStateControl(statefulAgent: StatefulAgent): Unit = {
-    val currentState = statefulAgent.activeState
-
-    val maybeTransition = currentState.transitions.find(_.when(context, statefulAgent))
-    if (maybeTransition.isDefined) {
-      val transition = maybeTransition.get
-      val state = transition.state(context)
-
-      context.graphProvider.deleteNode(currentState.internalId)
-      val nodeId = context.graphProvider.createNode(transition.label, transition.serializedState(state))
-      context.graphProvider.createRelationship(statefulAgent.internalId, StatefulAgent.STATE_RELATIONSHIP, nodeId)
-
-      state.enterAction(context, statefulAgent)
-      state.perTickAction(context, statefulAgent)
-    } else {
-      currentState.perTickAction(context, statefulAgent)
     }
   }
 
@@ -91,7 +73,10 @@ class Simulation(context: Context) extends LazyLogging {
 
 object Simulation {
   def run()(implicit context: Context): Unit = {
-    val simulation = new Simulation(context)
+    val behaviourControl = new BehaviourControl(context)
+    val stateControl = new StateControl(context)
+    val simulation = new Simulation(context, behaviourControl, stateControl)
+
     simulation.run()
   }
 }
