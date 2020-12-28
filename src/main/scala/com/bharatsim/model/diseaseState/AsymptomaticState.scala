@@ -10,12 +10,8 @@ import com.bharatsim.model.{Disease, Person}
 
 case class AsymptomaticState() extends State {
 
-  override def enterAction(context: Context, agent: StatefulAgent): Unit = {
-
-    if(agent.activeState == ExposedState()) {
+  override def enterAction(context: Context, agent: StatefulAgent): Unit =
       agent.updateParam("infectionState", Asymptomatic)
-    }
-  }
 
   def checkForRecovery(context: Context, agent: StatefulAgent): Boolean = {
     if (agent.activeState == AsymptomaticState() &&

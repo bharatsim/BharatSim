@@ -37,6 +37,6 @@ case class SusceptibleState() extends State {
 
   addTransition(
     when = shouldInfect,
-    to = context => ExposedState()
+    to = context => ExposedState(context.dynamics.asInstanceOf[Disease.type].severeInfectedPopulationPercentage, biasedCoinToss(context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage))
   )
 }

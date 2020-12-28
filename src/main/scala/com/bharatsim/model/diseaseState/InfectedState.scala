@@ -5,11 +5,10 @@ import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.models.StatefulAgent
+import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import com.bharatsim.model.InfectionSeverity.{Mild, Severe}
 import com.bharatsim.model.InfectionStatus.{InfectedMild, InfectedSevere}
 import com.bharatsim.model.{Disease, Person}
-
-import scala.util.Random
 
 case class InfectedState[T](severity: T) extends State {
 
@@ -22,7 +21,7 @@ case class InfectedState[T](severity: T) extends State {
   }
 
   private def checkInfectionLastDay(context: Context, agent: StatefulAgent): Boolean = {
-    (agent.activeState == InfectedState(Mild) || agent.activeState == InfectedState(Severe)) && agent.asInstanceOf[Person].infectionDay == context.dynamics
+    agent.asInstanceOf[Person].infectionDay == context.dynamics
       .asInstanceOf[Disease.type]
       .lastDay
   }
@@ -36,8 +35,7 @@ case class InfectedState[T](severity: T) extends State {
 
   def checkForDeceased(context: Context, agent: StatefulAgent): Boolean = {
     if (agent.activeState == InfectedState(Severe) && checkInfectionLastDay(context, agent)) {
-      //      TODO: Improve the logic to evaluate based on a distribution - Jayanta
-      if (Random.nextDouble() < context.dynamics.asInstanceOf[Disease.type].deathRate) {
+      if (biasedCoinToss(context.dynamics.asInstanceOf[Disease.type].deathRate)) {
         return true
       }
     }

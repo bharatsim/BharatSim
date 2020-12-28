@@ -11,6 +11,7 @@ import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.intervention.IntervalBasedIntervention
 import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
+import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import com.bharatsim.model.InfectionSeverity.{Mild, Severe}
 import com.bharatsim.model.InfectionStatus._
 import com.bharatsim.model.diseaseState._
@@ -125,7 +126,7 @@ object Main extends LazyLogging {
     )
   }
 
-  private def csvDataExtractor(map: Map[String, String]): GraphData = {
+  private def csvDataExtractor(map: Map[String, String])(implicit context: Context): GraphData = {
 
     val citizenId = map("id").toInt
     val age = map("age").toInt
@@ -142,7 +143,7 @@ object Main extends LazyLogging {
       violateLockdown
     )
 
-    setCitizenInitialState(citizen, map("infectionState"))
+    setCitizenInitialState(context, citizen, map("infectionState"))
 
     val homeId = map("house_id").toInt
     val schoolId = map("school_id").toInt
@@ -196,11 +197,13 @@ object Main extends LazyLogging {
     lastPublicPlaceId
   }
 
-  private def setCitizenInitialState(citizen: Person, initialState: String): Unit = {
+  private def setCitizenInitialState(context: Context, citizen: Person, initialState: String): Unit = {
+    val isAsymptomatic: Boolean = biasedCoinToss(context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage)
+    val severeInfectionPercentage = context.dynamics.asInstanceOf[Disease.type].severeInfectedPopulationPercentage
     initialState match {
       case "Susceptible" => citizen.setInitialState(SusceptibleState())
-      case "Exposed" => citizen.setInitialState(ExposedState())
-      case "PreSymptomatic" => citizen.setInitialState(PreSymptomaticState())
+      case "Exposed" => citizen.setInitialState(ExposedState(severeInfectionPercentage, isAsymptomatic))
+      case "PreSymptomatic" => citizen.setInitialState(PreSymptomaticState(Mild))
       case "InfectedMild" => citizen.setInitialState(InfectedState(Mild))
       case "InfectedSevere" => citizen.setInitialState(InfectedState(Severe))
       case "Recovered" => citizen.setInitialState(RecoveredState())

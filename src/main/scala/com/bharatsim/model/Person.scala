@@ -36,21 +36,21 @@ case class Person(
     }
   }
 
-  def isSusceptible: Boolean = activeState == SusceptibleState()
+  def isSusceptible: Boolean = activeState.isInstanceOf[SusceptibleState]
 
-  def isExposed: Boolean = activeState == ExposedState()
+  def isExposed: Boolean = activeState.isInstanceOf[ExposedState]
 
-  def isPreSymptomatic: Boolean = activeState == PreSymptomaticState()
+  def isPreSymptomatic: Boolean = activeState.isInstanceOf[PreSymptomaticState]
 
   def isMildInfected: Boolean = activeState == InfectedState(Mild)
 
   def isSevereInfected: Boolean = activeState == InfectedState(Severe)
 
-  def isAsymptomatic: Boolean = activeState == AsymptomaticState()
+  def isAsymptomatic: Boolean = activeState.isInstanceOf[AsymptomaticState]
 
-  def isRecovered: Boolean = activeState == RecoveredState()
+  def isRecovered: Boolean = activeState.isInstanceOf[RecoveredState]
 
-  def isDeceased: Boolean = activeState == DeceasedState()
+  def isDeceased: Boolean = activeState.isInstanceOf[DeceasedState]
 
   addBehaviour(incrementInfectionDay)
 

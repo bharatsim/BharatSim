@@ -6,22 +6,26 @@ import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.models.StatefulAgent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
+import com.bharatsim.model.InfectionSeverity.{InfectionSeverity, Mild, Severe}
 import com.bharatsim.model.InfectionStatus.Exposed
 import com.bharatsim.model.{Disease, Person}
 
-case class ExposedState() extends State{
+case class ExposedState(severeInfectionPercentage: Double, isAsymptomatic: Boolean) extends State{
 
-  private var isAsymptomatic: Boolean = false
+  private val infectionSeverity = getInfectionSeverity(severeInfectionPercentage)
+
+  private def getInfectionSeverity(severeInfectionPercentage: Double): InfectionSeverity = {
+    if (biasedCoinToss(severeInfectionPercentage)){
+      return Severe
+    }
+    Mild
+  }
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
-    if(agent.activeState == SusceptibleState()) {
-      isAsymptomatic = biasedCoinToss(context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage)
       agent.updateParam("infectionState", Exposed)
-    }
   }
 
   private def checkForExposure(context: Context, agent: StatefulAgent) = {
-    agent.activeState == ExposedState() &&
       agent.asInstanceOf[Person].infectionDay == context.dynamics.asInstanceOf[Disease.type].exposedDuration
   }
 
@@ -40,12 +44,12 @@ case class ExposedState() extends State{
   }
 
   addTransition(
-    when = checkForAsymptomatic,
-    to = context => AsymptomaticState()
+    when = checkForPreSymptomatic,
+    to = context => PreSymptomaticState(infectionSeverity)
   )
 
   addTransition(
-    when = checkForPreSymptomatic,
-    to = context => PreSymptomaticState()
+    when = checkForAsymptomatic,
+    to = context => AsymptomaticState()
   )
 }
