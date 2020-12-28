@@ -42,9 +42,11 @@ private[engine] class GraphProviderImpl extends GraphProvider with LazyLogging {
     val nodeTo = indexedNodes.get(node2)
 
     (nodeFrom, nodeTo) match {
-      case (Some(from), Some(to)) => from.addRelation(label, to.id)
-      case (None, _)              => logger.debug(s"Create relationship failed, node with id $node1 not found")
-      case (_, None)              => logger.debug(s"Create relationship failed, node with id $node2 not found")
+      case (Some(from), Some(to)) =>
+        from.addRelation(label, to.id)
+        to.addIncoming(label, from.id)
+      case (None, _) => logger.debug(s"Create relationship failed, node with id $node1 not found")
+      case (_, None) => logger.debug(s"Create relationship failed, node with id $node2 not found")
     }
   }
 
@@ -142,6 +144,15 @@ private[engine] class GraphProviderImpl extends GraphProvider with LazyLogging {
   override def deleteNode(nodeId: NodeId): Unit = {
     if (indexedNodes.contains(nodeId)) {
       val node = indexedNodes(nodeId)
+
+      val relationsToDelete = node.fetchIncoming
+      relationsToDelete.foreach(kv => {
+        val label = kv._1
+        val nodes = kv._2
+
+        nodes.map(indexedNodes(_)).foreach(node => node.removeRelation(label, nodeId))
+      })
+
       nodes(node.label).remove(node.id)
       indexedNodes.remove(nodeId)
     }

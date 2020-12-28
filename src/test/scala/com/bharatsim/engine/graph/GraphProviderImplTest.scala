@@ -239,6 +239,19 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
 
       graphProvider.fetchNodes("Person").size shouldBe 0
     }
+
+    "delete all the associations of node from other nodes" in {
+      val graphProvider = new GraphProviderImpl
+      val nodeId1 = graphProvider.createNode("Person", ("name", "Ramesh"))
+      val nodeId2 = graphProvider.createNode("Person", ("name", "Suresh"))
+      graphProvider.createRelationship(nodeId1, "KNOWS", nodeId2)
+
+      graphProvider.deleteNode(nodeId2)
+
+      val people = graphProvider.fetchNodes("Person").toList
+      people.size shouldBe 1
+      graphProvider.fetchNeighborsOf(nodeId1, "KNOWS").toList.size shouldBe 0
+    }
   }
 
   "deleteNodes" should {
