@@ -59,7 +59,7 @@ object Main extends LazyLogging {
   private def addLockdown(implicit context: Context): Unit = {
 
     val interventionName = "lockdown"
-    val intervention = IntervalBasedIntervention(interventionName, 20, 50);
+    val intervention = IntervalBasedIntervention(interventionName, 20, 530);
 
     val lockdownSchedule = (Day, Hour).add[House](0, 23);
 
