@@ -7,7 +7,7 @@ object Disease extends Dynamics {
   final val severeInfectedPopulationPercentage = 0.3
 
   final val preSymptomaticDuration = 4
-  final val infectionRate: Double = 0.5
+  final val infectionRate: Double = 0.08
   final val exposedDuration: Int = 2
   final val lastDay: Int = 17
   final val deathRate = 0.02
