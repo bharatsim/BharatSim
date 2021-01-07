@@ -4,6 +4,7 @@ import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
+import com.bharatsim.engine.cache.PerTickCache
 import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.graph.GraphProviderFactory
 import com.bharatsim.engine.graph.custom.GraphProviderImpl
@@ -30,7 +31,7 @@ class StateControlTest extends AnyWordSpec with BeforeAndAfterEach with Matchers
   private def initializeStateAgent[T <: State : ClassTag](
                                                            withState: T
                                                          )(implicit encoder: BasicMapEncoder[T], decoder: BasicMapDecoder[T]): (StatefulAgent, Context) = {
-    val context = new Context(graph, mock[Dynamics], mock[SimulationConfig])
+    val context = new Context(graph, mock[Dynamics], mock[SimulationConfig], mock[PerTickCache])
     val agentToIngest = StatefulPerson("Shraddha", 33)
     agentToIngest.setInitialState(withState)
     context.graphProvider.createNodeFromInstance(agentToIngest)

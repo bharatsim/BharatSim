@@ -3,6 +3,7 @@ package com.bharatsim.engine
 import com.bharatsim.engine.ContextBuilder.{registerAction, registerAgent, registerIntervention}
 import com.bharatsim.engine.actions.StopSimulation
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
+import com.bharatsim.engine.cache.PerTickCache
 import com.bharatsim.engine.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
@@ -130,12 +131,6 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
     context.getCurrentStep shouldBe 1
   }
 
-  def getIntervention: Intervention = {
-    val mockIntervention = mock[Intervention]
-    when(mockIntervention.name).thenReturn("DummyIntervention")
-    mockIntervention
-  }
-
   test("simulation should mark interventions active when they satisfy the condition") {
     implicit val context: Context = getContext(3)
     val simulation: Simulation = newSimulation(context)
@@ -192,15 +187,31 @@ class SimulationTest extends AnyFunSuite with MockitoSugar with BeforeAndAfterEa
     verify(dummyIntervention, times(3)).whenActiveAction(context)
   }
 
-  private def getContext(steps: Int, mockGraphProvider: GraphProvider = mock[GraphProvider]) =
-    new Context(mockGraphProvider, new Dynamics, SimulationConfig(steps))
+  test("simulation should clear the cache before every tick") {
+    val mockCache = mock[PerTickCache]
+    val context = getContext(2, perTickCache = mockCache)
+    val simulation = newSimulation(context)
 
+    simulation.run()
+
+    verify(mockCache, times(2)).clear()
+  }
+
+  private def getContext(steps: Int, mockGraphProvider: GraphProvider = mock[GraphProvider], perTickCache: PerTickCache = mock[PerTickCache]) = {
+    new Context(mockGraphProvider, new Dynamics, SimulationConfig(steps), perTickCache)
+  }
 
   private def newSimulation(context: Context) = {
     val behaviourControl = new BehaviourControl(context)
     val stateControl = new StateControl(context)
     val simulation = new Simulation(context, behaviourControl, stateControl)
     simulation
+  }
+
+  private def getIntervention: Intervention = {
+    val mockIntervention = mock[Intervention]
+    when(mockIntervention.name).thenReturn("DummyIntervention")
+    mockIntervention
   }
 }
 

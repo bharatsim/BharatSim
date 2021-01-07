@@ -1,20 +1,22 @@
 package com.bharatsim.engine
 
 import com.bharatsim.engine.actions.ConditionalAction
+import com.bharatsim.engine.cache.PerTickCache
 import com.bharatsim.engine.graph.{GraphProvider, GraphProviderFactory}
-import com.bharatsim.engine.intervention.{Intervention, Interventions}
+import com.bharatsim.engine.intervention.Interventions
 import com.bharatsim.engine.models.Agent
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 /**
-  * Context holds all the configurations and state of the simulation.
-  * @param graphProvider instance of [[graph.GraphProvider GraphProvider]]
-  * @param dynamics    instance of [[Dynamics]] for current simulation
-  * @param simulationConfig instance of [[SimulationConfig]] for the simulation
-  */
-class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simulationConfig: SimulationConfig) {
+ * Context holds all the configurations and state of the simulation.
+ *
+ * @param graphProvider    instance of [[graph.GraphProvider GraphProvider]]
+ * @param dynamics         instance of [[Dynamics]] for current simulation
+ * @param simulationConfig instance of [[SimulationConfig]] for the simulation
+ */
+class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simulationConfig: SimulationConfig, val perTickCache: PerTickCache) {
   private[engine] val schedules = new Schedules
   private[engine] val agentTypes: mutable.ListBuffer[GraphProvider => Iterable[Agent]] = ListBuffer.empty
   private[engine] var currentStep = 0
@@ -23,8 +25,9 @@ class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simu
   private[engine] val interventions = new Interventions()
 
   /**
-    * Gets a matching schedule from all the registered schedules
-    * @param agent instance of [[models.Agent Agent]] for which schedule is to be fetched
+   * Gets a matching schedule from all the registered schedules
+   *
+   * @param agent instance of [[models.Agent Agent]] for which schedule is to be fetched
     * @return a [[Schedule]] when match is found
     */
   def fetchScheduleFor(agent: Agent): Option[Schedule] = {
@@ -53,10 +56,12 @@ class Context(val graphProvider: GraphProvider, val dynamics: Dynamics, val simu
 object Context {
 
   /** Creator method for Context
-    *
-    * @param dynamics    instance of [[Dynamics]] for current simulation
-    * @param simulationConfig instance of [[SimulationConfig]] for the simulation
-    */
-  def apply(dynamics: Dynamics, simulationConfig: SimulationConfig): Context =
-    new Context(GraphProviderFactory.get, dynamics, simulationConfig)
+   *
+   * @param dynamics         instance of [[Dynamics]] for current simulation
+   * @param simulationConfig instance of [[SimulationConfig]] for the simulation
+   */
+  def apply(dynamics: Dynamics, simulationConfig: SimulationConfig): Context = {
+    val perTickCache = new PerTickCache()
+    new Context(GraphProviderFactory.get, dynamics, simulationConfig, perTickCache)
+  }
 }

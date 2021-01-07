@@ -27,6 +27,8 @@ class Simulation(context: Context, behaviourControl: BehaviourControl, stateCont
 
           invokeInterventionActions()
 
+          context.perTickCache.clear()
+
           val agentTypes = context.fetchAgentTypes
           agentTypes.foreach(agentType => {
             agentType(context.graphProvider).foreach((agent: Agent) => {
