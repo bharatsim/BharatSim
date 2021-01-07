@@ -2,16 +2,16 @@ package com.bharatsim.engine.cache
 
 import scala.collection.mutable
 
-class PerTickCache(store: mutable.HashMap[String, Any] = mutable.HashMap.empty[String, Any]) {
-  def put(key: String, value: Any): Unit = {
+class PerTickCache(store: mutable.HashMap[Any, Any] = mutable.HashMap.empty) {
+  def put(key: Any, value: Any): Unit = {
     store.put(key, value)
   }
 
-  def get(key: String): Option[Any] = {
+  def get(key: Any): Option[Any] = {
     store.get(key)
   }
 
-  def erase(key: String): Unit = {
+  def erase(key: Any): Unit = {
     store.remove(key)
   }
 

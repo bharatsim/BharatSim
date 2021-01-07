@@ -8,7 +8,7 @@ import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.models.{Network, StatefulAgent}
 import com.bharatsim.engine.utils.Probability.{biasedCoinToss, toss}
 import com.bharatsim.model.InfectionStatus._
-import com.bharatsim.model.{Disease, NeighborCache, Person}
+import com.bharatsim.model.{Disease, Person}
 
 case class SusceptibleState() extends State {
 
@@ -26,7 +26,7 @@ case class SusceptibleState() extends State {
         val place = places.head
         val decodedPlace = agent.asInstanceOf[Person].decodeNode(placeType, place)
 
-        val infectedNeighbourCount = infectedNeighborsCount(decodedPlace, placeType, context.getCurrentStep)
+        val infectedNeighbourCount = fetchInfectedNeighborsCount(decodedPlace, placeType, context)
 
         return biasedCoinToss(decodedPlace.getContactProbability()) && toss(infectionRate, infectedNeighbourCount)
       }
@@ -34,16 +34,18 @@ case class SusceptibleState() extends State {
     false
   }
 
-  private def infectedNeighborsCount(decodedPlace: Network, place: String, step: Int) = {
-    NeighborCache.countFor(place, decodedPlace.internalId, step) match {
-      case Some(count) => count
+  private def fetchInfectedNeighborsCount(decodedPlace: Network, place: String, context: Context): Int = {
+    val cache = context.perTickCache
+
+    cache.get((place, decodedPlace.internalId)) match {
+      case Some(count: Int) => count
       case _ =>
         val count = decodedPlace
           .getConnectionCount(
             decodedPlace.getRelation[Person]().get,
             ("infectionState" equ InfectedMild) or ("infectionState" equ InfectedSevere)
           )
-        NeighborCache.put(place, decodedPlace.internalId, count, step)
+        cache.put((place, decodedPlace.internalId), count)
         count
     }
   }
