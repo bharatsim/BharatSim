@@ -28,9 +28,9 @@ class StateControlTest extends AnyWordSpec with BeforeAndAfterEach with Matchers
     GraphProviderFactory.testOverride(graph)
   }
 
-  private def initializeStateAgent[T <: State : ClassTag](
-                                                           withState: T
-                                                         )(implicit encoder: BasicMapEncoder[T], decoder: BasicMapDecoder[T]): (StatefulAgent, Context) = {
+  private def initializeStateAgent[T <: State: ClassTag](
+      withState: T
+  )(implicit encoder: BasicMapEncoder[T], decoder: BasicMapDecoder[T]): (StatefulAgent, Context) = {
     val context = new Context(graph, mock[Dynamics], mock[SimulationConfig], mock[PerTickCache])
     val agentToIngest = StatefulPerson("Shraddha", 33)
     agentToIngest.setInitialState(withState)
@@ -88,14 +88,12 @@ class StateControlTest extends AnyWordSpec with BeforeAndAfterEach with Matchers
         maybeNode.get.as[StatefulPerson].name shouldBe "Santosh"
       }
 
-      "perform per tick action for new state" in {
+      "perform per tick action for old state" in {
         val (testAgent, context) = initializeStateAgent(StateWithTransition())
+        val oldState = testAgent.activeState.asInstanceOf[StateWithTransition]
         val stateControl = new StateControl(context)
-
         stateControl.executeFor(testAgent)
-
-        val updatedState = testAgent.getConnections(STATE_RELATIONSHIP).toList.head.as[IdleState]
-        updatedState.idleFor shouldBe 1
+        oldState.perTickActionInvokedTimes shouldBe 1
       }
     }
   }

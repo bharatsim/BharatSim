@@ -6,6 +6,7 @@ import com.bharatsim.engine.models.StatefulAgent
 class StateControl(context: Context) {
   def executeFor(statefulAgent: StatefulAgent): Unit = {
     val currentState = statefulAgent.activeState
+    currentState.perTickAction(context, statefulAgent)
 
     val maybeTransition = currentState.transitions.find(_.when(context, statefulAgent))
     if (maybeTransition.isDefined) {
@@ -17,12 +18,8 @@ class StateControl(context: Context) {
       context.graphProvider.createRelationship(statefulAgent.internalId, StatefulAgent.STATE_RELATIONSHIP, nodeId)
 
       statefulAgent.forceUpdateActiveState()
-      val updatedState = statefulAgent.activeState
-
-      updatedState.enterAction(context, statefulAgent)
-      updatedState.perTickAction(context, statefulAgent)
-    } else {
-      currentState.perTickAction(context, statefulAgent)
+      state.setId(nodeId)
+      state.enterAction(context, statefulAgent)
     }
   }
 }

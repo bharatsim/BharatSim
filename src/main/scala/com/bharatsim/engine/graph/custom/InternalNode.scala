@@ -4,59 +4,77 @@ import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.{GraphNode, GraphNodeImpl}
 import com.typesafe.scalalogging.LazyLogging
 
-import scala.collection.mutable
+import scala.collection.immutable._
 
-private[engine] case class InternalNode(label: String, id: NodeId, params: mutable.HashMap[String, Any]) extends LazyLogging {
-  private val relationships: mutable.HashMap[String, mutable.HashSet[NodeId]] = mutable.HashMap.empty
+private[engine] case class InternalNode(label: String, id: NodeId, params: HashMap[String, Any]) extends LazyLogging {
+  private var relationships: HashMap[String, HashSet[NodeId]] = HashMap.empty
 
-  private val incoming = mutable.HashMap.empty[String, mutable.HashSet[NodeId]]
+  private var incoming = HashMap.empty[String, HashSet[NodeId]]
 
-  def fetchIncoming: mutable.Map[String, mutable.HashSet[NodeId]] = incoming
+  def fetchIncoming: Map[String, HashSet[NodeId]] = incoming
 
   def toGraphNode: GraphNode = new GraphNodeImpl(label, id, params.toMap)
 
   def fetchParam(key: String): Option[Any] = params.get(key)
 
-  def addRelation(label: String, to: NodeId): Unit = {
+  def addRelation(label: String, to: NodeId): InternalNode = {
+
     if (relationships.contains(label)) {
-      relationships(label).add(to)
+      val relation = relationships(label)
+      val toNodes = relation.incl(to)
+
+      return createNew(newRelationships = relationships.updated(label, toNodes))
     } else {
-      val hs = new mutable.HashSet[NodeId]()
-      hs.add(to)
-      relationships.put(label, hs)
+      val hs = new HashSet[NodeId]().incl(to)
+      return createNew(newRelationships = relationships.updated(label, hs))
+
     }
   }
 
-  def removeRelation(label: String, idToDelete: NodeId): Unit = {
-    relationships.get(label) match {
-      case Some(value) => value.remove(idToDelete)
-      case _ => logger.debug("Node {} does not have any relationship with label {}", id, label)
+  def removeRelation(label: String, idToDelete: NodeId): InternalNode = {
+    if (relationships.contains(label)) {
+      val value = relationships(label).excl(idToDelete)
+      return createNew(newRelationships = relationships.updated(label, value))
     }
+    logger.debug("Node {} does not have any relationship with label {}", id, label)
+    this
   }
 
-  def addIncoming(label: String, from: NodeId): Unit = {
+  def addIncoming(label: String, from: NodeId): InternalNode = {
     if (incoming.contains(label)) {
-      incoming(label).add(from)
+      return createNew(newIncoming = incoming.updated(label, incoming(label).incl(from)));
     } else {
-      val hs = new mutable.HashSet[NodeId]()
-      hs.add(from)
-      incoming.put(label, hs)
+      val hs = new HashSet[NodeId]().incl(from)
+      return createNew(newIncoming = incoming.updated(label, hs));
+
     }
   }
 
-  def fetchNeighborsWithLabel(label: String): mutable.HashSet[NodeId] = {
+  def fetchNeighborsWithLabel(label: String): HashSet[NodeId] = {
     if (relationships.contains(label)) {
       relationships(label)
-    } else mutable.HashSet.empty
+    } else HashSet.empty
   }
 
-  def updateProps(props: Map[String, Any]): Unit = {
-    props.foreach(kv => params.put(kv._1, kv._2))
+  def updateProps(props: Map[String, Any]): InternalNode = {
+    return createNew(newParams = params.concat(props))
   }
 
-  def deleteRelationship(label: String, to: NodeId): Unit = {
+  def deleteRelationship(label: String, to: NodeId): InternalNode = {
     if (relationships.contains(label)) {
-      relationships(label).remove(to)
+      return createNew(newRelationships = relationships.updated(label, relationships(label).excl(to)));
     }
+    this
+  }
+
+  private def createNew(
+      newParams: HashMap[String, Any] = params,
+      newRelationships: HashMap[String, HashSet[NodeId]] = relationships,
+      newIncoming: HashMap[String, HashSet[NodeId]] = incoming
+  ): InternalNode = {
+    val node = new InternalNode(label, id, newParams)
+    node.relationships = newRelationships
+    node.incoming = newIncoming
+    node
   }
 }

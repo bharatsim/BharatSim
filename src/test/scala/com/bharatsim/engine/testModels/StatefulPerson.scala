@@ -6,9 +6,7 @@ import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.models.StatefulAgent
 
-case class StatefulPerson(name: String, age: Int) extends StatefulAgent {
-
-}
+case class StatefulPerson(name: String, age: Int) extends StatefulAgent {}
 
 object TestFSM {
 
@@ -32,7 +30,12 @@ object TestFSM {
   }
 
   case class StateWithTransition() extends State {
+    var perTickActionInvokedTimes = 0
     addTransition((_, _) => true, IdleState(0))
+
+    override def perTickAction(context: Context, agent: StatefulAgent): Unit = {
+      perTickActionInvokedTimes += 1
+    }
   }
 
 }
