@@ -33,6 +33,7 @@ case class Person(
       case "School" => node.as[School]
       case "Transport" => node.as[Transport]
       case "PublicPlace" => node.as[PublicPlace]
+      case "Hospital" => node.as[Hospital]
     }
   }
 
@@ -59,4 +60,5 @@ case class Person(
   addRelation[School]("STUDIES_AT")
   addRelation[Transport]("TAKES")
   addRelation[PublicPlace]("VISITS")
+  addRelation[Hospital]("ADMITTED_AT")
 }

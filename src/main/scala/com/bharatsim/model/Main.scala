@@ -71,7 +71,8 @@ object Main extends LazyLogging {
           val isEssentialWorker = agent.asInstanceOf[Person].isEssentialWorker
           val violateLockdown = agent.asInstanceOf[Person].violateLockdown
           val isLockdown = context.activeInterventionNames.contains(interventionName)
-          isLockdown && !(isEssentialWorker || violateLockdown)
+          val isSeverelyInfected = agent.asInstanceOf[Person].activeState == InfectedState(Severe)
+          isLockdown && !(isEssentialWorker || violateLockdown || isSeverelyInfected)
         }
       )
     )
@@ -115,8 +116,15 @@ object Main extends LazyLogging {
       .add(studentScheduleOnWeekDay, 0, 4)
       .add(studentScheduleOnWeekEnd, 5, 6)
 
+    val hospitalizedScheduleForDay = (Day, Hour)
+      .add[Hospital](0, 23)
+
+    val hospitalizedSchedule = (Week, Day)
+      .add(hospitalizedScheduleForDay, 0, 6)
+
     registerSchedules(
-      (
+      (hospitalizedSchedule, (agent: Agent, _:Context) => agent.asInstanceOf[Person].activeState == InfectedState(Severe)),
+        (
         employeeScheduleWithPublicTransport,
         (agent: Agent, _: Context) =>
           agent.asInstanceOf[Person].takesPublicTransport && agent.asInstanceOf[Person].age >= 30
@@ -133,10 +141,12 @@ object Main extends LazyLogging {
     val takesPublicTransport = map("public_transport").toBoolean
     val isEssentialWorker = map("is_essential_worker").toBoolean
     val violateLockdown = map("violate_lockdown").toBoolean
+    val initialInfectionState = map("infectionState")
+
     val citizen: Person = Person(
       citizenId,
       age,
-      InfectionStatus.withName(map("infectionState")),
+      InfectionStatus.withName(initialInfectionState),
       0,
       takesPublicTransport,
       isEssentialWorker,
@@ -187,6 +197,16 @@ object Main extends LazyLogging {
 
       graphData.addNode(transportId, transport)
       graphData.addRelations(takes, carries)
+    }
+
+    if(initialInfectionState == InfectedSevere.toString){
+      val hospitalId = 1
+      val hospital = Hospital(1)
+      val admittedAt = Relation[Person, Hospital](citizenId, "ADMITTED_AT", hospitalId)
+      val admits = Relation[Hospital, Person](hospitalId, "ADMITS", citizenId)
+
+      graphData.addNode(hospitalId, hospital)
+      graphData.addRelations(admittedAt, admits)
     }
 
     graphData
