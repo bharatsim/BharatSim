@@ -37,17 +37,15 @@ case class SusceptibleState() extends State {
   private def fetchInfectedNeighborsCount(decodedPlace: Network, place: String, context: Context): Int = {
     val cache = context.perTickCache
 
-    cache.get((place, decodedPlace.internalId)) match {
-      case Some(count: Int) => count
-      case _ =>
-        val count = decodedPlace
-          .getConnectionCount(
-            decodedPlace.getRelation[Person]().get,
-            ("infectionState" equ InfectedMild) or ("infectionState" equ InfectedSevere)
-          )
-        cache.put((place, decodedPlace.internalId), count)
-        count
-    }
+    cache.getOrUpdate((place, decodedPlace.internalId), () => fetchFromStore(decodedPlace)).asInstanceOf[Int]
+  }
+
+  private def fetchFromStore(decodedPlace: Network) = {
+    decodedPlace
+      .getConnectionCount(
+        decodedPlace.getRelation[Person]().get,
+        ("infectionState" equ InfectedMild) or ("infectionState" equ InfectedSevere)
+      )
   }
 
   addTransition(
