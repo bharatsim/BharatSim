@@ -6,9 +6,9 @@ package com.bharatsim.engine.listeners
 trait CSVSpecs {
 
   /**
-    * @return A list of Headers for CSV
-    */
-  def getHeaders(): List[String]
+   * @return A list of Headers for CSV
+   */
+  def getHeaders: List[String]
 
   /**
     * Gets the value for header

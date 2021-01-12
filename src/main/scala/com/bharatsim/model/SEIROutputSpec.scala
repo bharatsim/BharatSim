@@ -6,7 +6,7 @@ import com.bharatsim.engine.listeners.CSVSpecs
 import com.bharatsim.model.InfectionStatus.{Asymptomatic, Deceased, Exposed, InfectedMild, InfectedSevere, PreSymptomatic, Recovered, Susceptible}
 
 class SEIROutputSpec(context: Context) extends CSVSpecs {
-  override def getHeaders(): List[String] = List("Step", "Susceptible", "Exposed", "PreSymptomatic", "InfectedMild", "InfectedSevere", "Asymptomatic", "Recovered", "Deceased")
+  override def getHeaders: List[String] = List("Step", "Susceptible", "Exposed", "PreSymptomatic", "InfectedMild", "InfectedSevere", "Asymptomatic", "Recovered", "Deceased")
 
   override def getValue(fieldName: String): Any = {
     val graphProvider = context.graphProvider

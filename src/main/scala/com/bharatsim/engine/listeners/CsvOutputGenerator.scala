@@ -3,8 +3,6 @@ package com.bharatsim.engine.listeners
 import com.bharatsim.engine.Context
 import com.github.tototoshi.csv.CSVWriter
 
-import scala.collection.mutable.ListBuffer
-
 /**
   * CsvOutputGenerator is [[com.bharatsim.engine.listeners.SimulationListener SimulationListener]].
   * it collects the value for CSV at the start of every step and writes it to CSV at the end of simulation.
@@ -14,25 +12,24 @@ import scala.collection.mutable.ListBuffer
   * @param openCsvWriter [Optional] is function that allows to customise CSVWriter.
   */
 class CsvOutputGenerator(
-    path: String,
-    csvSpecs: CSVSpecs,
-    private val openCsvWriter: (String) => CSVWriter = CSVWriter.open
+                          path: String,
+                          csvSpecs: CSVSpecs,
+                          private val openCsvWriter: String => CSVWriter = CSVWriter.open
 ) extends SimulationListener {
+  private val writer = openCsvWriter(path)
 
-  private val rows = new ListBuffer[List[Any]]
-
-  override def onSimulationStart(context: Context): Unit = {}
+  override def onSimulationStart(context: Context): Unit = {
+    writer.writeRow(csvSpecs.getHeaders)
+  }
 
   override def onStepStart(context: Context): Unit = {
-    val row = csvSpecs.getHeaders().map(csvSpecs.getValue)
-    rows.addOne(row);
+    val row = csvSpecs.getHeaders.map(csvSpecs.getValue)
+    writer.writeRow(row)
   }
+
   override def onStepEnd(context: Context): Unit = {}
 
   override def onSimulationEnd(context: Context): Unit = {
-    val writer = openCsvWriter(path)
-    writer.writeRow(csvSpecs.getHeaders())
-    writer.writeAll(rows.toList)
     writer.close()
   }
 

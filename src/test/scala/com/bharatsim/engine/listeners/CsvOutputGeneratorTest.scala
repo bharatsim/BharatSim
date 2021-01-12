@@ -1,40 +1,66 @@
 package com.bharatsim.engine.listeners
 
-import java.io.FileOutputStream
-
 import com.bharatsim.engine.Context
 import com.github.tototoshi.csv.CSVWriter
-import org.mockito.MockitoSugar
-import org.scalatest.funsuite.AnyFunSuite
+import org.mockito.MockitoSugar.{mock, spyLambda, verify, when}
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class CsvOutputGeneratorTest extends AnyFunSuite with Matchers with MockitoSugar {
+class CsvOutputGeneratorTest extends AnyWordSpec with Matchers {
+  "it" should {
+    "open csv writer on simulation start" in {
+      val mockSpecs = mock[CSVSpecs]
+      val csvWriterMock = mock[CSVWriter]
+      val openCsvMock = spyLambda((filePath: String) => csvWriterMock)
 
-  test("should write to csv on simulation end") {
-    val path = "output.csv"
-    val csvSpecsMock = mock[CSVSpecs]
-    val header = "foo"
-    val rowValue = "bar"
+      new CsvOutputGenerator("path", mockSpecs, openCsvMock)
 
-    when(csvSpecsMock.getHeaders()).thenReturn(List(header))
-    when(csvSpecsMock.getValue(header)).thenReturn(rowValue)
-
-    val contextMock = mock[Context]
-    val csvWriterMock = mock[CSVWriter]
-    val openCsvMock = spyLambda((filePath: String) => csvWriterMock)
-
-    val csvOutputGenerator = new CsvOutputGenerator(path, csvSpecsMock, openCsvMock)
-
-    csvOutputGenerator.onStepStart(contextMock)
-    verify(csvSpecsMock).getHeaders()
-    verify(csvSpecsMock).getValue(header)
-
-    csvOutputGenerator.onSimulationEnd(contextMock)
-
-    verify(openCsvMock)(path)
-    verify(csvWriterMock).writeRow(List(header))
-    verify(csvWriterMock).writeAll(List(List(rowValue)))
-    verify(csvWriterMock).close()
+      verify(openCsvMock).apply("path")
+    }
   }
 
+  "onSimulationStart" should {
+    "write csv headers" in {
+      val mockSpecs = mock[CSVSpecs]
+      val testHeaders = List("header1", "header2")
+      when(mockSpecs.getHeaders).thenReturn(testHeaders)
+      val csvWriterMock = mock[CSVWriter]
+      val openCsvMock = spyLambda((filePath: String) => csvWriterMock)
+      val mockContext = mock[Context]
+
+      new CsvOutputGenerator("path", mockSpecs, openCsvMock).onSimulationStart(mockContext)
+
+      verify(csvWriterMock).writeRow(testHeaders)
+    }
+  }
+
+  "onStepStart" should {
+    "write values to csv" in {
+      val mockSpecs = mock[CSVSpecs]
+      val testHeaders = List("header1", "header2")
+      when(mockSpecs.getHeaders).thenReturn(testHeaders)
+      when(mockSpecs.getValue("header1")).thenReturn("value1")
+      when(mockSpecs.getValue("header2")).thenReturn("value2")
+      val csvWriterMock = mock[CSVWriter]
+      val openCsvMock = spyLambda((filePath: String) => csvWriterMock)
+      val mockContext = mock[Context]
+
+      new CsvOutputGenerator("path", mockSpecs, openCsvMock).onStepStart(mockContext)
+
+      verify(csvWriterMock).writeRow(List("value1", "value2"))
+    }
+  }
+
+  "onSimulationEnd" should {
+    "close the csvWriter" in {
+      val mockSpecs = mock[CSVSpecs]
+      val csvWriterMock = mock[CSVWriter]
+      val openCsvMock = spyLambda((filePath: String) => csvWriterMock)
+      val mockContext = mock[Context]
+
+      new CsvOutputGenerator("path", mockSpecs, openCsvMock).onSimulationEnd(mockContext)
+
+      verify(csvWriterMock).close()
+    }
+  }
 }
