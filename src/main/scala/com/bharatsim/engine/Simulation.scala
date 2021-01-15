@@ -14,6 +14,9 @@ class Simulation(context: Context, behaviourControl: BehaviourControl, stateCont
 
     breakable {
       try {
+
+        executeStateEnterActions()
+
         for (step <- 1 to context.simulationConfig.simulationSteps) {
           logger.info("Tick {}", step)
           context.setCurrentStep(step)
@@ -47,6 +50,19 @@ class Simulation(context: Context, behaviourControl: BehaviourControl, stateCont
         SimulationListenerRegistry.notifySimulationEnd(context)
       }
     }
+  }
+
+  private def executeStateEnterActions():Unit = {
+    val agentTypes = context.fetchAgentTypes
+    agentTypes.foreach(agentType => {
+      agentType(context.graphProvider).foreach((agent: Agent) => {
+        agent match {
+          case statefulAgent: StatefulAgent =>
+            statefulAgent.activeState.enterAction(context, statefulAgent)
+          case _ =>
+        }
+      })
+    })
   }
 
   private def invokeActions(): Unit = {
