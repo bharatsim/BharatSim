@@ -26,6 +26,10 @@ object Probability {
     * @return result of the toss
     */
   def biasedCoinToss(prob: Double): Boolean = {
-    Random.nextDouble() < prob
+    prob match{
+      case 0.0 => false
+      case 1.0 => true
+      case _ => Random.nextDouble() < prob
+    }
   }
 }
