@@ -12,9 +12,9 @@ import com.github.tototoshi.csv.CSVWriter
   * @param openCsvWriter [Optional] is function that allows to customise CSVWriter.
   */
 class CsvOutputGenerator(
-                          path: String,
-                          csvSpecs: CSVSpecs,
-                          private val openCsvWriter: String => CSVWriter = CSVWriter.open
+    path: String,
+    csvSpecs: CSVSpecs,
+    private val openCsvWriter: String => CSVWriter = CSVWriter.open
 ) extends SimulationListener {
   private val writer = openCsvWriter(path)
 
@@ -23,8 +23,8 @@ class CsvOutputGenerator(
   }
 
   override def onStepStart(context: Context): Unit = {
-    val row = csvSpecs.getHeaders.map(csvSpecs.getValue)
-    writer.writeRow(row)
+    val rows = csvSpecs.getRows()
+    rows.foreach(writer.writeRow(_))
   }
 
   override def onStepEnd(context: Context): Unit = {}

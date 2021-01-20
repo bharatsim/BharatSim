@@ -58,6 +58,10 @@ private[engine] class GraphProviderImpl extends GraphProvider with LazyLogging {
 
   override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
+  override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
+    GraphOperations.fetchNodes(nodes.asInstanceOf[GraphOperations.NodesType], label, matchPattern)
+  }
+
   override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
     GraphOperations.fetchCount(nodes.asInstanceOf[GraphOperations.NodesType], label, matchPattern)
   }

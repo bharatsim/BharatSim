@@ -35,12 +35,11 @@ class CsvOutputGeneratorTest extends AnyWordSpec with Matchers {
   }
 
   "onStepStart" should {
-    "write values to csv" in {
+    "write multiple rows value to csv" in {
       val mockSpecs = mock[CSVSpecs]
       val testHeaders = List("header1", "header2")
       when(mockSpecs.getHeaders).thenReturn(testHeaders)
-      when(mockSpecs.getValue("header1")).thenReturn("value1")
-      when(mockSpecs.getValue("header2")).thenReturn("value2")
+      when(mockSpecs.getRows()).thenReturn(List(List("value1", "value2"), List("value3", "value4")))
       val csvWriterMock = mock[CSVWriter]
       val openCsvMock = spyLambda((filePath: String) => csvWriterMock)
       val mockContext = mock[Context]
@@ -48,6 +47,7 @@ class CsvOutputGeneratorTest extends AnyWordSpec with Matchers {
       new CsvOutputGenerator("path", mockSpecs, openCsvMock).onStepStart(mockContext)
 
       verify(csvWriterMock).writeRow(List("value1", "value2"))
+      verify(csvWriterMock).writeRow(List("value3", "value4"))
     }
   }
 

@@ -108,10 +108,16 @@ private[custom] object GraphOperations extends LazyLogging {
     }
   }
 
+  def fetchNodes(nodes: NodesType, label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
+    if (nodes.contains(label) && nodes(label).nonEmpty) {
+      nodes(label).values.filter(node => matchPattern.eval(node.params.toMap)).map(_.toGraphNode)
+    } else List.empty
+  }
+
   def fetchCount(nodes: NodesType, label: String, matchPattern: MatchPattern): Int = {
     nodes
       .getOrElse(label, List.empty)
-      .count(nodes => matchPattern.eval(nodes._2.params.toMap))
+      .count(nodesForLable => matchPattern.eval(nodesForLable._2.params.toMap))
   }
 
   def fetchNeighborsOf(

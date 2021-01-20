@@ -6,14 +6,14 @@ package com.bharatsim.engine.listeners
 trait CSVSpecs {
 
   /**
-   * @return A list of Headers for CSV
-   */
+    * @return A list of Headers for CSV
+    */
   def getHeaders: List[String]
 
   /**
-    * Gets the value for header
-    * @param fieldName is one of the header from `getHeaders`
-    * @return is value associated with header
+    * Gets list of rows value. each row has value in same order as headers.
+    *
+    * @return list of rows
     */
-  def getValue(fieldName: String): Any
+  def getRows(): List[List[Any]]
 }

@@ -12,13 +12,13 @@ import com.bharatsim.engine.utils.Utils.fetchClassName
 import scala.reflect.ClassTag
 
 /**
- * Representation of node data from the data store
- */
+  * Representation of node data from the data store
+  */
 trait GraphNode {
 
   /**
-   * label of the node
-   */
+    * label of the node
+    */
   def label: String
 
   /** Id of the node */
@@ -57,15 +57,15 @@ trait GraphProvider {
   /* CRUD */
 
   /**
-   * Create a node from Instance
-   *
-   * @param x       is instance from which a node is created
-   * @param encoder is basic serializer for value of type T.
-   *                import default basic encoder from com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
-   * @tparam T is type of Node to be created
-   * @return a node id of newly created Node.
-   */
-  def createNodeFromInstance[T <: Node : ClassTag](x: T)(implicit encoder: BasicMapEncoder[T]): NodeId = {
+    * Create a node from Instance
+    *
+    * @param x       is instance from which a node is created
+    * @param encoder is basic serializer for value of type T.
+    *                import default basic encoder from com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
+    * @tparam T is type of Node to be created
+    * @return a node id of newly created Node.
+    */
+  def createNodeFromInstance[T <: Node: ClassTag](x: T)(implicit encoder: BasicMapEncoder[T]): NodeId = {
     val label = fetchClassName[T]
     val id = createNode(label, BasicConversions.encode(x))
 
@@ -98,19 +98,19 @@ trait GraphProvider {
 
   /**
     * Crate one way relation or connection between node
-   *
-   * @param node1 is a "from" node
+    *
+    * @param node1 is a "from" node
     * @param label is a name of relation
-   * @param node2 is a "to" node
-   */
+    * @param node2 is a "to" node
+    */
   def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit
 
   /**
-   * ingest data from csv
-   *
-   * @param csvPath is path to the CSV
-   * @param mapper  is function that map a csv row to Nodes and Relations
-   */
+    * ingest data from csv
+    *
+    * @param csvPath is path to the CSV
+    * @param mapper  is function that map a csv row to Nodes and Relations
+    */
   def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit
 
   private[engine] def batchImportNodes(node: IterableOnce[CsvNode]): RefToIdMapping
@@ -118,37 +118,45 @@ trait GraphProvider {
   private[engine] def batchImportRelations(relations: IterableOnce[Relation], refToIdMapping: RefToIdMapping)
 
   /**
-   * Fetch a node with matching label and parameters
-   *
-   * @param label  is label of node to find
-   * @param params is data parameter of node to find
-   * @return a matching node when match is found
-   */
+    * Fetch a node with matching label and parameters
+    *
+    * @param label  is label of node to find
+    * @param params is data parameter of node to find
+    * @return a matching node when match is found
+    */
   // R
   def fetchNode(label: String, params: Map[String, Any]): Option[GraphNode]
 
-  def fetchNode[T <: Node : ClassTag](params: Map[String, Any]): Option[GraphNode] = {
+  def fetchNode[T <: Node: ClassTag](params: Map[String, Any]): Option[GraphNode] = {
     val label = fetchClassName[T]
     fetchNode(label, params)
   }
 
   /**
-   * Fetch all the nodes with matching label and parameters
-   *
-   * @param label  is label of node to find
-   * @param params is data parameter of node to find
-   * @return all the matching nodes
-   */
+    * Fetch all the nodes with matching label and parameters
+    *
+    * @param label  is label of node to find
+    * @param params is data parameter of node to find
+    * @return all the matching nodes
+    */
   def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode]
 
   /**
-   * Fetch all the nodes with matching label and parameters
-   *
-   * @param label is label of node to find
+    * Fetch all the nodes with matching label and parameters
+    *
+    * @param label is label of node to find
     * @param params is data parameter of node to find
     * @return all the matching nodes
     */
   def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode]
+
+  /**
+    * Gets all the nodes that matches the criteria
+    * @param label is label of node to find
+    * @param matchPattern is matching criteria for node
+    * @return all the matching nodes
+    */
+  def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode]
 
   /**
     * Gets count of all the nodes that matches the criteria

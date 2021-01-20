@@ -65,6 +65,10 @@ private[engine] class GraphProviderWithBufferImpl extends GraphProvider with Sim
 
   override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
+  override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
+    GraphOperations.fetchNodes(nodesReadBuffer.asInstanceOf[GraphOperations.NodesType], label, matchPattern)
+  }
+
   override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
     GraphOperations.fetchCount(nodesReadBuffer.asInstanceOf[GraphOperations.NodesType], label, matchPattern)
   }

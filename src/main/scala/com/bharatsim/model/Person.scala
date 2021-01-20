@@ -5,6 +5,7 @@ import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.models.{Network, StatefulAgent}
+import com.bharatsim.model.DayUtil.isEOD
 import com.bharatsim.model.InfectionSeverity.{Mild, Severe}
 import com.bharatsim.model.InfectionStatus._
 import com.bharatsim.model.diseaseState._
@@ -16,24 +17,26 @@ case class Person(
     infectionDay: Int,
     takesPublicTransport: Boolean,
     isEssentialWorker: Boolean,
-    violateLockdown: Boolean
+    violateLockdown: Boolean,
+    village_town: String,
+    lat: String,
+    long: String
 ) extends StatefulAgent {
-  final val numberOfHoursInADay: Int = 24
 
   private def incrementInfectionDay(context: Context): Unit = {
-    if ((!isSusceptible && !isRecovered && !isDeceased) && context.getCurrentStep % numberOfHoursInADay == 0) {
+    if ((!isSusceptible && !isRecovered && !isDeceased) && isEOD(context.getCurrentStep)) {
       updateParam("infectionDay", infectionDay + 1)
     }
   }
 
   def decodeNode(classType: String, node: GraphNode): Network = {
     classType match {
-      case "House" => node.as[House]
-      case "Office" => node.as[Office]
-      case "School" => node.as[School]
-      case "Transport" => node.as[Transport]
+      case "House"       => node.as[House]
+      case "Office"      => node.as[Office]
+      case "School"      => node.as[School]
+      case "Transport"   => node.as[Transport]
       case "PublicPlace" => node.as[PublicPlace]
-      case "Hospital" => node.as[Hospital]
+      case "Hospital"    => node.as[Hospital]
     }
   }
 

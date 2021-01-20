@@ -122,6 +122,31 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
         nodes.size shouldBe 0
       }
     }
+
+    "provided with label and matcher" should {
+      "return any node matching with label and conditions" in {
+        val graphProvider = new GraphProviderWithBufferImpl()
+
+        graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
+        graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
+        graphProvider.syncBuffers()
+
+        val nodes = graphProvider.fetchNodes("Person", "name" equ "Ramesh")
+        nodes.size shouldBe 1
+        nodes.head.apply("age").get shouldBe 23
+      }
+
+      "return no node if label and conditions does not match with any node" in {
+        val graphProvider = new GraphProviderWithBufferImpl()
+
+        graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
+        graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
+        graphProvider.syncBuffers()
+
+        val nodes = graphProvider.fetchNodes("Person", "name" equ "Aadesh")
+        nodes.size shouldBe 0
+      }
+    }
   }
 
   "fetchCount" when {

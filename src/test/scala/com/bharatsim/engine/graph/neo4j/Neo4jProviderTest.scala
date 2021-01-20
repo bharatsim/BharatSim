@@ -98,7 +98,11 @@ class Neo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Matcher
       result1.map(_.getParams("name")) should contain theSameElementsAs List("Ramesh", "Suresh")
       result2.map(_.getParams("name")) should contain theSameElementsAs List("Ramesh", "Suresh")
     }
-
+    "fetch multiple node with pattern match" in {
+      createPerson()
+      val result = graphProvider.fetchNodes(label, "city" equ "pune");
+      result.map(_.getParams("name")) should contain theSameElementsAs List("Ramesh", "Suresh")
+    }
     "fetch node count" in {
       createPerson()
       val count = graphProvider.fetchCount(label, "city" equ "pune");

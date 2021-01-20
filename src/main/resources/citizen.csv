@@ -1,6 +1,6 @@
-id,label,age,infectionState,house_id,office_id,school_id,public_transport,is_essential_worker,violate_lockdown
-1,Citizen,25,InfectedMild,101,000,501,true,false,true
-2,Citizen,35,InfectedSevere,102,201,000,true,false,false
-3,Citizen,45,Susceptible,101,201,000,true,true,false
-4,Citizen,25,Susceptible,102,000,502,true,false,false
-5,Citizen,25,Susceptible,103,000,501,true,false,false
+id,label,age,infectionState,house_id,office_id,school_id,public_transport,is_essential_worker,violate_lockdown, village_town,lattitude,longitude
+1,Citizen,25,InfectedMild,101,000,501,true,false,true, Baraj-Kalan,26.2436418,77.8224332
+2,Citizen,35,InfectedSevere,102,201,000,true,false,false,Samedi,26.2133806,77.84244559999998
+3,Citizen,45,Susceptible,101,201,000,true,true,false,Khitera,26.211426100000004,77.81957390000002
+4,Citizen,25,Susceptible,102,000,502,true,false,false,Samedi,26.2133806,77.84244559999998
+5,Citizen,25,Susceptible,103,000,501,true,false,false,Basota,26.1460061,77.802417

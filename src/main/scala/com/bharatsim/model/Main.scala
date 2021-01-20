@@ -17,7 +17,6 @@ import com.bharatsim.model.InfectionStatus._
 import com.bharatsim.model.diseaseState._
 import com.typesafe.scalalogging.LazyLogging
 
-
 object Main extends LazyLogging {
   private val TOTAL_PUBLIC_PLACES = 10
   private var lastPublicPlaceId = 1
@@ -46,6 +45,9 @@ object Main extends LazyLogging {
 
       SimulationListenerRegistry.register(
         new CsvOutputGenerator("src/main/resources/output.csv", new SEIROutputSpec(context))
+      )
+      SimulationListenerRegistry.register(
+        new CsvOutputGenerator("src/main/resources/GIS_output.csv", new GISOutputSpec(context))
       )
 
       Simulation.run()
@@ -123,8 +125,11 @@ object Main extends LazyLogging {
       .add(hospitalizedScheduleForDay, 0, 6)
 
     registerSchedules(
-      (hospitalizedSchedule, (agent: Agent, _:Context) => agent.asInstanceOf[Person].activeState == InfectedState(Severe)),
-        (
+      (
+        hospitalizedSchedule,
+        (agent: Agent, _: Context) => agent.asInstanceOf[Person].activeState == InfectedState(Severe)
+      ),
+      (
         employeeScheduleWithPublicTransport,
         (agent: Agent, _: Context) =>
           agent.asInstanceOf[Person].takesPublicTransport && agent.asInstanceOf[Person].age >= 30
@@ -142,6 +147,9 @@ object Main extends LazyLogging {
     val isEssentialWorker = map("is_essential_worker").toBoolean
     val violateLockdown = map("violate_lockdown").toBoolean
     val initialInfectionState = map("infectionState")
+    val villageTown = map("village_town")
+    val lat = map("lattitude")
+    val long = map("longitude")
 
     val citizen: Person = Person(
       citizenId,
@@ -150,7 +158,10 @@ object Main extends LazyLogging {
       0,
       takesPublicTransport,
       isEssentialWorker,
-      violateLockdown
+      violateLockdown,
+      villageTown,
+      lat,
+      long
     )
 
     setCitizenInitialState(context, citizen, map("infectionState"))
@@ -199,7 +210,7 @@ object Main extends LazyLogging {
       graphData.addRelations(takes, carries)
     }
 
-    if(initialInfectionState == InfectedSevere.toString){
+    if (initialInfectionState == InfectedSevere.toString) {
       val hospitalId = 1
       val hospital = Hospital(1)
       val admittedAt = Relation[Person, Hospital](citizenId, "ADMITTED_AT", hospitalId)
@@ -218,17 +229,19 @@ object Main extends LazyLogging {
   }
 
   private def setCitizenInitialState(context: Context, citizen: Person, initialState: String): Unit = {
-    val isAsymptomatic: Boolean = biasedCoinToss(context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage)
+    val isAsymptomatic: Boolean = biasedCoinToss(
+      context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage
+    )
     val severeInfectionPercentage = context.dynamics.asInstanceOf[Disease.type].severeInfectedPopulationPercentage
     initialState match {
-      case "Susceptible" => citizen.setInitialState(SusceptibleState())
-      case "Exposed" => citizen.setInitialState(ExposedState(severeInfectionPercentage, isAsymptomatic))
+      case "Susceptible"    => citizen.setInitialState(SusceptibleState())
+      case "Exposed"        => citizen.setInitialState(ExposedState(severeInfectionPercentage, isAsymptomatic))
       case "PreSymptomatic" => citizen.setInitialState(PreSymptomaticState(Mild))
-      case "InfectedMild" => citizen.setInitialState(InfectedState(Mild))
+      case "InfectedMild"   => citizen.setInitialState(InfectedState(Mild))
       case "InfectedSevere" => citizen.setInitialState(InfectedState(Severe))
-      case "Recovered" => citizen.setInitialState(RecoveredState())
-      case "Deceased" => citizen.setInitialState(DeceasedState())
-      case _ => throw new Exception(s"Unsupported infection status: $initialState")
+      case "Recovered"      => citizen.setInitialState(RecoveredState())
+      case "Deceased"       => citizen.setInitialState(DeceasedState())
+      case _                => throw new Exception(s"Unsupported infection status: $initialState")
     }
   }
 
@@ -256,7 +269,8 @@ object Main extends LazyLogging {
   }
 
   private def getInfectedCount(context: Context): Int = {
-    val condition = ("infectionState" equ Exposed) or ("infectionState" equ PreSymptomatic) or ("infectionState" equ InfectedMild) or ("infectionState" equ InfectedSevere) or ("infectionState" equ Asymptomatic)
+    val condition =
+      ("infectionState" equ Exposed) or ("infectionState" equ PreSymptomatic) or ("infectionState" equ InfectedMild) or ("infectionState" equ InfectedSevere) or ("infectionState" equ Asymptomatic)
     context.graphProvider.fetchCount("Person", condition)
   }
 }

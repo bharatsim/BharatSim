@@ -113,6 +113,20 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     nodes.asScala
   }
 
+  override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
+    val session = neo4jConnection.session()
+    val patternString = PatternMaker.from(matchPattern, "n")
+
+    val nodes: util.List[GraphNode] = session.readTransaction((tx: Transaction) => {
+
+      val result = tx.run(s"""MATCH (n:$label) where $patternString return properties(n) AS node, id(n) AS nodeId""")
+
+      result.list[GraphNode](record => extractGraphNode(label, record))
+    })
+    session.close()
+    nodes.asScala
+  }
+
   override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
   override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
@@ -280,40 +294,42 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     val session = neo4jConnection.session()
 
     val processedNodes = aggregateNodesByLabel(batchOfNodes)
-    val refToIdMapping = processedNodes.map({
-      case (label, nodes) =>
-        val transaction: List[(NodeId, Int)] = session.writeTransaction((tx: Transaction) => {
-          val properties = nodes.map(n => {
-            val nodeData = new util.HashMap[String, Any]()
-            nodeData.put("ref", n.uniqueRef)
-            nodeData.put("data", n.params.asJava)
-            nodeData
-          })
-          val result = tx.run(
-            s"""UNWIND $$properties as props
+    val refToIdMapping = processedNodes
+      .map({
+        case (label, nodes) =>
+          val transaction: List[(NodeId, Int)] = session.writeTransaction((tx: Transaction) => {
+            val properties = nodes.map(n => {
+              val nodeData = new util.HashMap[String, Any]()
+              nodeData.put("ref", n.uniqueRef)
+              nodeData.put("data", n.params.asJava)
+              nodeData
+            })
+            val result = tx.run(
+              s"""UNWIND $$properties as props
                |CREATE (n:$label) set n=props.data
                |RETURN {nodeId: id(n), ref: props.ref} as n""".stripMargin,
-            parameters("properties", properties.asJava)
-          )
+              parameters("properties", properties.asJava)
+            )
 
-          val ret = result
-            .list(record => {
-              val mp = record.get("n").asMap()
-              val nodeId = mp.get("nodeId").asInstanceOf[Long].toInt
-              val ref = mp.get("ref").asInstanceOf[Long].toInt
-              (nodeId, ref)
-            })
-            .asScala
-            .toList
-          tx.commit()
+            val ret = result
+              .list(record => {
+                val mp = record.get("n").asMap()
+                val nodeId = mp.get("nodeId").asInstanceOf[Long].toInt
+                val ref = mp.get("ref").asInstanceOf[Long].toInt
+                (nodeId, ref)
+              })
+              .asScala
+              .toList
+            tx.commit()
 
-          ret
-        })
-        val refToIdMap = transaction.map({ case (nodeId, ref) => (ref, nodeId) })
-        (label, refToIdMap)
-    }).foldLeft(new RefToIdMapping())((acc, mapping) => {
-      acc.addMappings(mapping._1, mapping._2); acc;
-    })
+            ret
+          })
+          val refToIdMap = transaction.map({ case (nodeId, ref) => (ref, nodeId) })
+          (label, refToIdMap)
+      })
+      .foldLeft(new RefToIdMapping())((acc, mapping) => {
+        acc.addMappings(mapping._1, mapping._2); acc;
+      })
 
     session.close()
     refToIdMapping
@@ -330,9 +346,9 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   }
 
   override private[engine] def batchImportRelations(
-                                                     relations: IterableOnce[Relation],
-                                                     refToIdMapping: RefToIdMapping
-                                                   ): Unit = {
+      relations: IterableOnce[Relation],
+      refToIdMapping: RefToIdMapping
+  ): Unit = {
     val session = neo4jConnection.session()
     val batchedRelations = aggregateRelationsByLabel(relations)
 
