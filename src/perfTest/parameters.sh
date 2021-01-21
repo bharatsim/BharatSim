@@ -1,3 +1,3 @@
-inputMemory=10000000
-inputTime=1
+inputMemory=40000000
+inputTime=2
 bound=0.2
