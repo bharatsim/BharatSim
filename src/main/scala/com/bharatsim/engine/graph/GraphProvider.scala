@@ -50,6 +50,18 @@ trait GraphNode {
   }
 }
 
+object GraphNode {
+  def apply(nodeLabel: String, id: NodeId, params: Map[String, Any] = Map.empty): GraphNode = new GraphNode() {
+    override def label: String = nodeLabel
+
+    override def Id: NodeId = id
+
+    override def getParams: Map[String, Any] = params
+
+    override def apply(key: String): Option[Any] = params.get(key)
+  }
+}
+
 /**
   * GraphProvider interface allows to perform CRUD operations on underlying data store
   */

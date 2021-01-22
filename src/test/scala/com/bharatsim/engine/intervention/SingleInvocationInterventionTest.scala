@@ -1,9 +1,10 @@
 package com.bharatsim.engine.intervention
 
 import com.bharatsim.engine.cache.PerTickCache
-import com.bharatsim.engine.control.{BehaviourControl, StateControl}
+import com.bharatsim.engine.execution.Simulation
+import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.graph.GraphProvider
-import com.bharatsim.engine.{Context, Dynamics, Simulation, SimulationConfig}
+import com.bharatsim.engine.{Context, Dynamics, SimulationConfig}
 import org.mockito.MockitoSugar.mock
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

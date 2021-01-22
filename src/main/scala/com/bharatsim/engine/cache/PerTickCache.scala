@@ -2,7 +2,7 @@ package com.bharatsim.engine.cache
 
 import scala.collection.mutable
 
-class PerTickCache(private val store: mutable.HashMap[Any, Any] = mutable.HashMap.empty) {
+class PerTickCache(private val store: mutable.AbstractMap[Any, Any] = mutable.HashMap.empty) {
   /**
    * This function tries to retrieve value from the cache
    * If value is absent from the cache, it evaluates the valueFunction and puts the value in cache
