@@ -51,8 +51,10 @@ object Main extends LazyLogging {
         new CsvOutputGenerator("src/main/resources/GIS_output.csv", new GISOutputSpec(context))
       )
 
+      val startTime = System.currentTimeMillis()
       Simulation.run()
-
+      val endTime = System.currentTimeMillis()
+      logger.info("Total time: {} s", (endTime - startTime) / 1000)
       printStats(beforeCount)
     } finally {
       teardown()
