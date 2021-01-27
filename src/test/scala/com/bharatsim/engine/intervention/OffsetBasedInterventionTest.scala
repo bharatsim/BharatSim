@@ -1,29 +1,25 @@
 package com.bharatsim.engine.intervention
 
-import com.bharatsim.engine.cache.PerTickCache
-import com.bharatsim.engine.execution.Simulation
-import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
-import com.bharatsim.engine.graph.GraphProvider
-import com.bharatsim.engine.{Context, Dynamics, SimulationConfig}
-import org.mockito.MockitoSugar.mock
+import com.bharatsim.engine.Context
+import org.mockito.MockitoSugar.{mock, spyLambda, verify, when}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 class OffsetBasedInterventionTest extends AnyWordSpec with Matchers {
-  "IntervalBasedIntervention" should {
+  "OffsetBasedIntervention" should {
     "create intervention which ends after n ticks" in {
       val startWhen = (context: Context) => context.getCurrentStep == 2
-      var lastTick = 0
-      val perTickFunc = (context: Context) => lastTick = context.getCurrentStep
+      val firstTimeAction = spyLambda((_: Context) => {})
       val intervention =
-        OffsetBasedIntervention("dummyIntervention", startWhen, 5, whenActiveActionFunc = perTickFunc)
-      val context = new Context(mock[GraphProvider], mock[Dynamics], SimulationConfig(10), mock[PerTickCache])
-      context.interventions.add(intervention)
-      val simulation = new Simulation(context, new BehaviourControl(context), new StateControl(context))
+        OffsetBasedIntervention("dummyIntervention", startWhen, endAfterNTicks = 5, firstTimeAction)
 
-      simulation.run()
-
-      lastTick shouldBe 7
+      val context = mock[Context]
+      when(context.getCurrentStep).thenReturn(2, 2, 8)
+      intervention.shouldActivate(context) shouldBe true
+      intervention.firstTimeAction(context)
+      intervention.startedAt shouldBe 2
+      verify(firstTimeAction).apply(context)
+      intervention.shouldDeactivate(context) shouldBe true
     }
   }
 }

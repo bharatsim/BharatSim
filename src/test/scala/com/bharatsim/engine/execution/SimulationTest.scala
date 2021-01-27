@@ -6,12 +6,12 @@ import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.cache.PerTickCache
 import com.bharatsim.engine.execution.SimulationTest.graphNodeStudent
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
+import com.bharatsim.engine.execution.simulation.{PostSimulationActions, PreSimulationActions}
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
-import com.bharatsim.engine.listeners.{SimulationListener, SimulationListenerRegistry}
 import com.bharatsim.engine.testModels.Employee.employeeBehaviour
 import com.bharatsim.engine.testModels.Student
 import com.bharatsim.engine.testModels.Student.{studentBehaviour1, studentBehaviour2}
-import com.bharatsim.engine.{Context, Dynamics, SimulationConfig}
+import com.bharatsim.engine.{ApplicationConfig, Context, Dynamics, SimulationConfig}
 import org.mockito.Mockito.clearInvocations
 import org.mockito.MockitoSugar
 import org.scalatest.BeforeAndAfterEach
@@ -33,12 +33,13 @@ class SimulationTest extends AnyWordSpec with MockitoSugar with BeforeAndAfterEa
       }
       val stateControl = mock[StateControl]
       val behaviourControl = mock[BehaviourControl]
+      val agentExecutor = new AgentExecutor(behaviourControl, stateControl)
       val steps = 2
       implicit val context: Context = getContext(steps, graphProvider)
 
       registerAgent[Student]
 
-      new Simulation(context, behaviourControl, stateControl).run()
+      new Simulation(context, mock[ApplicationConfig], agentExecutor, mock[PreSimulationActions], mock[PostSimulationActions]).run()
 
       verify(behaviourControl, times(2)).executeFor(graphNodeStudent.as[Student])
     }
@@ -52,42 +53,17 @@ class SimulationTest extends AnyWordSpec with MockitoSugar with BeforeAndAfterEa
         }
         val stateControl = mock[StateControl]
         val behaviourControl = mock[BehaviourControl]
+        val agentExecutor = new AgentExecutor(behaviourControl, stateControl)
         val steps = 5
         implicit val context: Context = getContext(steps, graphProvider)
 
         registerAgent[Student]
         registerAction(StopSimulation, c => c.getCurrentStep == 3)
 
-        new Simulation(context, behaviourControl, stateControl).run()
+        new Simulation(context, mock[ApplicationConfig], agentExecutor, mock[PreSimulationActions], mock[PostSimulationActions]).run()
 
         verify(behaviourControl, times(3)).executeFor(graphNodeStudent.as[Student])
       }
-    }
-  }
-
-  "invokePreSimulationActions" should {
-    "notify simulation start" in {
-      val mockListener = mock[SimulationListener]
-      SimulationListenerRegistry.register(mockListener)
-      implicit val context: Context = getContext(1)
-
-      new Simulation(context, mock[BehaviourControl], mock[StateControl]).invokePreSimulationActions()
-
-      val order = inOrder(mockListener)
-      order.verify(mockListener).onSimulationStart(context)
-    }
-  }
-
-  "invokePostSimulationActions" should {
-    "notify simulation end" in {
-      val mockListener = mock[SimulationListener]
-      SimulationListenerRegistry.register(mockListener)
-      implicit val context: Context = getContext(1)
-
-      new Simulation(context, mock[BehaviourControl], mock[StateControl]).invokePostSimulationActions()
-
-      val order = inOrder(mockListener)
-      order.verify(mockListener).onSimulationEnd(context)
     }
   }
 

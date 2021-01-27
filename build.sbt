@@ -4,11 +4,14 @@ version := "0.1"
 
 scalaVersion := "2.13.3"
 
+val AkkaVersion = "2.6.10"
+libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
 libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2"
 libraryDependencies += "com.typesafe" % "config" % "1.4.1"
 libraryDependencies += "org.neo4j.driver" % "neo4j-java-driver" % "4.1.1"
 libraryDependencies += "com.chuusai" %% "shapeless" % "2.3.3"
+libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.0"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.0" % Test
 libraryDependencies += "org.scalatest" %% "scalatest-funsuite" % "3.2.0" % Test
