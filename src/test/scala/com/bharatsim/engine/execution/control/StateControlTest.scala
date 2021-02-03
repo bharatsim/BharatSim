@@ -21,7 +21,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import scala.reflect.ClassTag
 
 class StateControlTest extends AnyWordSpec with BeforeAndAfterEach with Matchers {
-  private val graph = new GraphProviderImpl()
+  private val graph = GraphProviderImpl()
 
   override protected def beforeEach(): Unit = {
     graph.deleteAll()

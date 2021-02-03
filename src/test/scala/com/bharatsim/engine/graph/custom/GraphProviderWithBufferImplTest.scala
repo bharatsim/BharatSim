@@ -1,7 +1,6 @@
-package com.bharatsim.engine.graph
+package com.bharatsim.engine.graph.custom
 
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
-import com.bharatsim.engine.graph.custom.GraphProviderWithBufferImpl
 import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.testModels.{TestCitizen, TestHome}
@@ -13,7 +12,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
   "fetchNode" when {
     "provided with only label" should {
       "return any node with given label" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
         graphProvider.createNode("Person", ("name", "Ramesh"))
         graphProvider.syncBuffers()
         val someNode = graphProvider.fetchNode("Person")
@@ -22,14 +21,14 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
       }
 
       "return no node if label doesnt exist" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
 
         val someNode = graphProvider.fetchNode("Person")
         someNode.isDefined shouldBe false
       }
 
       "return node form read buffer" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
         graphProvider.createNode("Person", ("name", "Ramesh"))
         val someNode = graphProvider.fetchNode("Person")
         someNode.isDefined shouldBe false
@@ -38,7 +37,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
 
     "provided with label and properties" should {
       "return any node matching with label and properties" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
         graphProvider.createNode("Person", Map(("name", "Suresh"), ("age", 32)))
         graphProvider.syncBuffers()
 
@@ -55,7 +54,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
       }
 
       "return no node if label and properties does not match with any node" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
         graphProvider.createNode("Person", Map(("name", "Suresh"), ("age", 32)))
         graphProvider.syncBuffers()
 
@@ -76,7 +75,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
   "fetchNodes" when {
     "provided with only label" should {
       "return all nodes with given label" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
@@ -87,7 +86,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
       }
 
       "return empty list if label doesnt exist" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
@@ -100,7 +99,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
 
     "provided with label and properties" should {
       "return any node matching with label and properties" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
@@ -112,7 +111,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
       }
 
       "return no node if label and properties does not match with any node" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
@@ -125,7 +124,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
 
     "provided with label and matcher" should {
       "return any node matching with label and conditions" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
@@ -137,7 +136,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
       }
 
       "return no node if label and conditions does not match with any node" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
@@ -152,7 +151,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
   "fetchCount" when {
     "label exists in store" should {
       "return count of nodes matching the condition" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
 
         graphProvider.createNode("Person", ("age", 34))
         graphProvider.createNode("Person", ("age", 24))
@@ -170,7 +169,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
 
     "label does not exists" should {
       "return 0" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
 
         graphProvider.createNode("Person", ("name", "Suresh"))
         graphProvider.syncBuffers()
@@ -183,7 +182,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
   "fetchNeighboursOf" when {
     "node exists" should {
       "return nodes with provided labels" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
         val node1 = graphProvider.createNode("Person", ("name", "Ramesh"))
         val node2 = graphProvider.createNode("Person", ("name", "Suresh"))
         val node3 = graphProvider.createNode("Person", ("name", "Harish"))
@@ -196,7 +195,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
       }
 
       "return unique nodes always" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
         val node1 = graphProvider.createNode("Person", ("name", "Ramesh"))
         val node2 = graphProvider.createNode("Person", ("name", "Suresh"))
         val node3 = graphProvider.createNode("Person", ("name", "Harish"))
@@ -210,7 +209,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
       }
 
       "return no nodes if relationship with label does not exist" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
         val node1 = graphProvider.createNode("Person", ("name", "Ramesh"))
         val node2 = graphProvider.createNode("Person", ("name", "Suresh"))
         val node3 = graphProvider.createNode("Person", ("name", "Harish"))
@@ -225,7 +224,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
 
     "node does not exist" should {
       "return no nodes" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
         val node1 = graphProvider.createNode("Person", ("name", "Ramesh"))
         val node2 = graphProvider.createNode("Person", ("name", "Suresh"))
         val node3 = graphProvider.createNode("Person", ("name", "Harish"))
@@ -242,7 +241,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
   "neighborCount" when {
     "provided count condition" should {
       "return count of neighbors matching the condition" in {
-        val graphProvider = new GraphProviderWithBufferImpl
+        val graphProvider = GraphProviderWithBufferImpl()
 
         val home = graphProvider.createNode("Home", ("homeId", 1))
         val person1 = graphProvider.createNode("Person", ("id", 1), ("age", 22))
@@ -261,7 +260,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
   "updateProps" when {
     "node exists" should {
       "update existing or add new props" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
         val nodeId = graphProvider.createNode("Person", ("name", "Rajesh"))
 
         graphProvider.updateNode(nodeId, ("name", "Suresh"), ("age", 23))
@@ -273,7 +272,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
         maybeNode.get.apply("name").get shouldBe "Suresh"
       }
       "not reflect update on read before sync" in {
-        val graphProvider = new GraphProviderWithBufferImpl()
+        val graphProvider = GraphProviderWithBufferImpl()
         val nodeId = graphProvider.createNode("Person", ("name", "Rajesh"))
 
         graphProvider.updateNode(nodeId, ("name", "Suresh"), ("age", 23))
@@ -286,7 +285,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
 
   "deleteNode" should {
     "remove node from the store" in {
-      val graphProvider = new GraphProviderWithBufferImpl
+      val graphProvider = GraphProviderWithBufferImpl()
       val nodeId = graphProvider.createNode("Person", ("name", "Ramesh"))
       graphProvider.syncBuffers()
 
@@ -298,7 +297,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
       graphProvider.fetchNodes("Person").size shouldBe 0
     }
     "not reflect delete on read before sync" in {
-      val graphProvider = new GraphProviderWithBufferImpl
+      val graphProvider = GraphProviderWithBufferImpl()
       val nodeId = graphProvider.createNode("Person", ("name", "Ramesh"))
       graphProvider.syncBuffers()
       graphProvider.fetchNodes("Person").size shouldBe 1
@@ -312,7 +311,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
 
     }
     "delete all the associations of node from other nodes" in {
-      val graphProvider = new GraphProviderWithBufferImpl
+      val graphProvider = GraphProviderWithBufferImpl()
       val nodeId1 = graphProvider.createNode("Person", ("name", "Ramesh"))
       val nodeId2 = graphProvider.createNode("Person", ("name", "Suresh"))
       graphProvider.createRelationship(nodeId1, "KNOWS", nodeId2)
@@ -327,7 +326,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
 
   "deleteNodes" should {
     "remove all nodes matching the label and properties" in {
-      val graphProvider = new GraphProviderWithBufferImpl
+      val graphProvider = GraphProviderWithBufferImpl()
 
       graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 24))
       graphProvider.createNode("Person", ("name", "Suresh"), ("age", 24))
@@ -344,7 +343,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
     }
 
     "not reflect deleteNodes on read before sync" in {
-      val graphProvider = new GraphProviderWithBufferImpl
+      val graphProvider = GraphProviderWithBufferImpl()
 
       graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 24))
       graphProvider.createNode("Person", ("name", "Suresh"), ("age", 24))
@@ -361,7 +360,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
 
   "deleteRelationship" should {
     "remove relationship between the nodes" in {
-      val graphProvider = new GraphProviderWithBufferImpl
+      val graphProvider = GraphProviderWithBufferImpl()
       val from = graphProvider.createNode("Person", ("name", "Ramesh"))
       val to = graphProvider.createNode("Person", ("name", "Suresh"))
       graphProvider.createRelationship(from, "OWES", to)
@@ -376,7 +375,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
     }
 
     "not reflect deleteRelationships on read before sync" in {
-      val graphProvider = new GraphProviderWithBufferImpl
+      val graphProvider = GraphProviderWithBufferImpl()
       val from = graphProvider.createNode("Person", ("name", "Ramesh"))
       val to = graphProvider.createNode("Person", ("name", "Suresh"))
       graphProvider.createRelationship(from, "OWES", to)
@@ -396,7 +395,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
 
   "deleteAll" should {
     "remove all the nodes and relationships from the store" in {
-      val graphProvider = new GraphProviderWithBufferImpl
+      val graphProvider = GraphProviderWithBufferImpl()
       val node1 = graphProvider.createNode("Person", ("age", 34))
       val node2 = graphProvider.createNode("Person", ("age", 34))
       graphProvider.createNode("Person", ("age", 34))
@@ -405,27 +404,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
       graphProvider.createRelationship(node1, "OWES", node2)
 
       graphProvider.deleteAll()
-      graphProvider.syncBuffers()
 
-      graphProvider.fetchNodes("Person").size shouldBe 0
-      graphProvider.fetchNeighborsOf(node1, "OWES").size shouldBe 0
-    }
-
-    "not reflect deleteRelationships on read before sync" in {
-      val graphProvider = new GraphProviderWithBufferImpl
-      val node1 = graphProvider.createNode("Person", ("age", 34))
-      val node2 = graphProvider.createNode("Person", ("age", 34))
-      graphProvider.createNode("Person", ("age", 34))
-      graphProvider.createNode("Person", ("age", 34))
-      graphProvider.createNode("Person", ("age", 34))
-      graphProvider.createRelationship(node1, "OWES", node2)
-      graphProvider.syncBuffers()
-
-      graphProvider.deleteAll()
-
-      graphProvider.fetchNodes("Person").size shouldBe 5
-      graphProvider.fetchNeighborsOf(node1, "OWES").size shouldBe 1
-      graphProvider.syncBuffers()
       graphProvider.fetchNodes("Person").size shouldBe 0
       graphProvider.fetchNeighborsOf(node1, "OWES").size shouldBe 0
     }
@@ -441,7 +420,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
         graphData
       })
 
-      val graphProvider = new GraphProviderWithBufferImpl
+      val graphProvider = GraphProviderWithBufferImpl()
       graphProvider.ingestFromCsv(filePath, mapper)
       val nodes = graphProvider.fetchNodes("TestCitizen").toList
       nodes should have length 2
@@ -466,7 +445,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
         graphData
       })
 
-      val graphProvider = new GraphProviderWithBufferImpl
+      val graphProvider = GraphProviderWithBufferImpl()
       graphProvider.ingestFromCsv(filePath, mapper)
       val house = graphProvider.fetchNode("TestHome").toList.head
       val citizensId = graphProvider.fetchNeighborsOf(house.Id, "HOUSES").toList

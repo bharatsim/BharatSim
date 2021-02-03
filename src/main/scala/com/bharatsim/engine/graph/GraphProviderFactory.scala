@@ -1,9 +1,9 @@
 package com.bharatsim.engine.graph
 
-import com.bharatsim.engine.graph.custom.{GraphProviderImpl, GraphProviderWithBufferImpl}
+import com.bharatsim.engine.graph.custom.GraphProviderWithBufferImpl
 
 private[engine] object GraphProviderFactory {
-  private var graphProvider: GraphProvider = new GraphProviderWithBufferImpl()
+  private var graphProvider: GraphProvider = GraphProviderWithBufferImpl()
 
   def get: GraphProvider = graphProvider
 

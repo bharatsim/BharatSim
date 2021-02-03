@@ -1,7 +1,6 @@
-package com.bharatsim.engine.graph
+package com.bharatsim.engine.graph.custom
 
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
-import com.bharatsim.engine.graph.custom.GraphProviderImpl
 import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.testModels.{TestCitizen, TestHome}
@@ -13,7 +12,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
   "fetchNode" when {
     "provided with only label" should {
       "return any node with given label" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
         graphProvider.createNode("Person", ("name", "Ramesh"))
 
         val someNode = graphProvider.fetchNode("Person")
@@ -22,7 +21,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
       }
 
       "return no node if label doesnt exist" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
 
         val someNode = graphProvider.fetchNode("Person")
         someNode.isDefined shouldBe false
@@ -31,7 +30,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
 
     "provided with label and properties" should {
       "return any node matching with label and properties" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
         graphProvider.createNode("Person", Map(("name", "Suresh"), ("age", 32)))
 
         val result1 = graphProvider.fetchNode("Person", Map(("name", "Suresh"), ("age", 32)))
@@ -47,7 +46,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
       }
 
       "return no node if label and properties does not match with any node" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
         graphProvider.createNode("Person", Map(("name", "Suresh"), ("age", 32)))
 
         val result1 = graphProvider.fetchNode("Person", Map(("name", "Suresh"), ("age", 32)))
@@ -67,7 +66,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
   "fetchNodes" when {
     "provided with only label" should {
       "return all nodes with given label" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
@@ -77,7 +76,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
       }
 
       "return empty list if label doesnt exist" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
@@ -89,7 +88,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
 
     "provided with label and properties" should {
       "return any node matching with label and properties" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
@@ -100,7 +99,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
       }
 
       "return no node if label and properties does not match with any node" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
@@ -112,7 +111,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
 
     "provided with label and matcher" should {
       "return any node matching with label and conditions" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
@@ -123,7 +122,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
       }
 
       "return no node if label and conditions does not match with any node" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
@@ -137,7 +136,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
   "fetchCount" when {
     "label exists in store" should {
       "return count of nodes matching the condition" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
 
         graphProvider.createNode("Person", ("age", 34))
         graphProvider.createNode("Person", ("age", 24))
@@ -154,7 +153,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
 
     "label does not exists" should {
       "return 0" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
 
         graphProvider.createNode("Person", ("name", "Suresh"))
         graphProvider.fetchCount("Vector", "spreadProbability" equ 0.34) shouldBe 0
@@ -165,7 +164,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
   "fetchNeighboursOf" when {
     "node exists" should {
       "return nodes with provided labels" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
         val node1 = graphProvider.createNode("Person", ("name", "Ramesh"))
         val node2 = graphProvider.createNode("Person", ("name", "Suresh"))
         val node3 = graphProvider.createNode("Person", ("name", "Harish"))
@@ -177,7 +176,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
       }
 
       "return unique nodes always" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
         val node1 = graphProvider.createNode("Person", ("name", "Ramesh"))
         val node2 = graphProvider.createNode("Person", ("name", "Suresh"))
         val node3 = graphProvider.createNode("Person", ("name", "Harish"))
@@ -190,7 +189,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
       }
 
       "return no nodes if relationship with label does not exist" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
         val node1 = graphProvider.createNode("Person", ("name", "Ramesh"))
         val node2 = graphProvider.createNode("Person", ("name", "Suresh"))
         val node3 = graphProvider.createNode("Person", ("name", "Harish"))
@@ -204,7 +203,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
 
     "node does not exist" should {
       "return no nodes" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
         val node1 = graphProvider.createNode("Person", ("name", "Ramesh"))
         val node2 = graphProvider.createNode("Person", ("name", "Suresh"))
         val node3 = graphProvider.createNode("Person", ("name", "Harish"))
@@ -220,7 +219,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
   "neighborCount" when {
     "provided count condition" should {
       "return count of neighbors matching the condition" in {
-        val graphProvider = new GraphProviderImpl
+        val graphProvider = GraphProviderImpl()
 
         val home = graphProvider.createNode("Home", ("homeId", 1))
         val person1 = graphProvider.createNode("Person", ("id", 1), ("age", 22))
@@ -238,7 +237,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
   "updateProps" when {
     "node exists" should {
       "update existing or add new props" in {
-        val graphProvider = new GraphProviderImpl()
+        val graphProvider = GraphProviderImpl()
         val nodeId = graphProvider.createNode("Person", ("name", "Rajesh"))
 
         graphProvider.updateNode(nodeId, ("name", "Suresh"), ("age", 23))
@@ -253,7 +252,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
 
   "deleteNode" should {
     "remove node from the store" in {
-      val graphProvider = new GraphProviderImpl
+      val graphProvider = GraphProviderImpl()
       val nodeId = graphProvider.createNode("Person", ("name", "Ramesh"))
 
       graphProvider.fetchNodes("Person").size shouldBe 1
@@ -264,7 +263,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
     }
 
     "delete all the associations of node from other nodes" in {
-      val graphProvider = new GraphProviderImpl
+      val graphProvider = GraphProviderImpl()
       val nodeId1 = graphProvider.createNode("Person", ("name", "Ramesh"))
       val nodeId2 = graphProvider.createNode("Person", ("name", "Suresh"))
       graphProvider.createRelationship(nodeId1, "KNOWS", nodeId2)
@@ -279,7 +278,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
 
   "deleteNodes" should {
     "remove all nodes matching the label and properties" in {
-      val graphProvider = new GraphProviderImpl
+      val graphProvider = GraphProviderImpl()
 
       graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 24))
       graphProvider.createNode("Person", ("name", "Suresh"), ("age", 24))
@@ -296,7 +295,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
 
   "deleteRelationship" should {
     "remove relationship between the nodes" in {
-      val graphProvider = new GraphProviderImpl
+      val graphProvider = GraphProviderImpl()
       val from = graphProvider.createNode("Person", ("name", "Ramesh"))
       val to = graphProvider.createNode("Person", ("name", "Suresh"))
       graphProvider.createRelationship(from, "OWES", to)
@@ -311,7 +310,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
 
   "deleteAll" should {
     "remove all the nodes and relationships from the store" in {
-      val graphProvider = new GraphProviderImpl
+      val graphProvider = GraphProviderImpl()
       val node1 = graphProvider.createNode("Person", ("age", 34))
       val node2 = graphProvider.createNode("Person", ("age", 34))
       graphProvider.createNode("Person", ("age", 34))
@@ -336,7 +335,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
         graphData
       })
 
-      val graphProvider = new GraphProviderImpl
+      val graphProvider = GraphProviderImpl()
       graphProvider.ingestFromCsv(filePath, mapper)
       val nodes = graphProvider.fetchNodes("TestCitizen").toList
       nodes should have length 2
@@ -361,7 +360,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
         graphData
       })
 
-      val graphProvider = new GraphProviderImpl
+      val graphProvider = GraphProviderImpl()
       graphProvider.ingestFromCsv(filePath, mapper)
       val house = graphProvider.fetchNode("TestHome").toList.head
       val citizensId = graphProvider.fetchNeighborsOf(house.Id, "HOUSES").toList
