@@ -20,18 +20,29 @@ trait GraphOperations {
   def emptyNode: () => IndexedNodesType
 }
 
-private[engine] class Graph(buffer: Buffer) extends GraphOperations {
+private[engine] class Graph(buffer: Buffer, idGenerator: IdGenerator) extends GraphOperations {
   val readOperations = new ReadOperations(buffer)
-  val writeOperations = new WriteOperations(buffer, emptyNode)
+  val writeOperations = new WriteOperations(buffer, emptyNode, idGenerator)
 
   override def emptyNode: () => IndexedNodesType = () => new mutable.HashMap[NodeId, InternalNode]()
 }
 
-private[engine] class BufferedGraph(val readBuffer: Buffer, val writeBuffer: Buffer) extends GraphOperations {
+private[engine] class BufferedGraph(readBuffer: Buffer, writeBuffer: Buffer, idGenerator: IdGenerator) extends GraphOperations {
   val readOperations = new ReadOperations(readBuffer)
-  val writeOperations = new WriteOperations(writeBuffer, emptyNode)
+  val writeOperations = new WriteOperations(writeBuffer, emptyNode, idGenerator)
 
   override def emptyNode: () => IndexedNodesType = () => new TrieMap[NodeId, InternalNode]()
+
+  def syncBuffers(): BufferedGraph = {
+    new BufferedGraph(createSnapshot(writeBuffer), writeBuffer, idGenerator)
+  }
+
+  private def createSnapshot(b: Buffer): Buffer = {
+    type N = TrieMap[NodeId, InternalNode]
+    val newNodes: NodesType = b.nodes.asInstanceOf[TrieMap[String, N]].map(kv => (kv._1, kv._2.snapshot()))
+    val newIndexedNodes = b.indexedNodes.asInstanceOf[N].snapshot()
+    Buffer(newNodes, newIndexedNodes)
+  }
 }
 
 object GraphOperations {

@@ -8,9 +8,7 @@ import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.{immutable, mutable}
 
-class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType) extends LazyLogging {
-  private val idGenerator = new IdGenerator
-
+class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGenerator: IdGenerator) extends LazyLogging {
   def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
     val reader = CSVReader.open(csvPath)
     val records = reader.allWithHeaders()

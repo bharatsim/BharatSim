@@ -66,7 +66,6 @@ class TickLoop(
     override def onMessage(msg: TickLoop.Command): Behavior[Command] =
       msg match {
         case UnitOfWorkFinished =>
-          //          println(finishedUnits + 1, totalUnits)
           if (finishedUnits + 1 == totalUnits) {
             postTickActions.execute()
             Tick(currentTick + 1)

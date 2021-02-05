@@ -51,7 +51,6 @@ class ReadOperations(buffer: Buffer) extends LazyLogging {
   }
 
   def fetchNeighborsOf(nodeId: NodeId, allLabels: List[String]): Iterable[GraphNode] = {
-
     if (buffer.indexedNodes.contains(nodeId)) {
       val node = buffer.indexedNodes(nodeId)
       allLabels

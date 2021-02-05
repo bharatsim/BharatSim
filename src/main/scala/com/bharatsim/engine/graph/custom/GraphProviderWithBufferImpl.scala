@@ -2,7 +2,6 @@ package com.bharatsim.engine.graph.custom
 
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.custom.GraphOperations.NodesType
 import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
@@ -92,20 +91,8 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
     graphOperations.writeOperations.batchImportRelations(relations, refToIdMapping)
   }
 
-  private def createSnapshot(b: Buffer): Buffer = {
-    type N = TrieMap[NodeId, InternalNode]
-    val newNodes: NodesType =
-      b.nodes.asInstanceOf[TrieMap[String, N]].map(kv => (kv._1, kv._2.snapshot()))
-    val newIndexedNodes = b.indexedNodes.asInstanceOf[N].snapshot()
-    Buffer(newNodes, newIndexedNodes)
-  }
-
   private[engine] def syncBuffers(): Unit = {
-    val newReadBuffer: Buffer = createSnapshot(graphOperations.asInstanceOf[BufferedGraph].writeBuffer)
-    graphOperations = new BufferedGraph(
-      newReadBuffer,
-      graphOperations.asInstanceOf[BufferedGraph].writeBuffer
-    )
+    graphOperations = graphOperations.asInstanceOf[BufferedGraph].syncBuffers()
   }
 
   override def onSimulationStart(context: Context): Unit = {}
@@ -121,8 +108,9 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
 
 object GraphProviderWithBufferImpl {
   def apply(): GraphProviderWithBufferImpl = {
+    val idGenerator = new IdGenerator
     val graphOperations =
-      new BufferedGraph(Buffer(TrieMap.empty, TrieMap.empty), Buffer(TrieMap.empty, TrieMap.empty))
+      new BufferedGraph(Buffer(TrieMap.empty, TrieMap.empty), Buffer(TrieMap.empty, TrieMap.empty), idGenerator)
     new GraphProviderWithBufferImpl(graphOperations)
   }
 }

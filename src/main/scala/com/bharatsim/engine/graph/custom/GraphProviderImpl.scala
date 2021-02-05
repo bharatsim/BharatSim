@@ -89,6 +89,7 @@ object GraphProviderImpl {
   def apply(): GraphProviderImpl = {
     val nodes: NodesType = mutable.HashMap.empty
     val indexedNodes: IndexedNodesType = mutable.HashMap.empty
-    new GraphProviderImpl(new Graph(Buffer(nodes, indexedNodes)))
+    val idGenerator = new IdGenerator
+    new GraphProviderImpl(new Graph(Buffer(nodes, indexedNodes), idGenerator))
   }
 }
