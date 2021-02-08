@@ -25,77 +25,96 @@ object MatchCondition {
   }
 }
 
-case class Equals[B <: BasicValue](b: B, key: String) extends MatchCondition {
+case class Equals[B](b: B, key: String) extends MatchCondition {
   override def eval(m: Map[String, Any]): Boolean = {
-    val a: BasicValue = BasicValue.fromAnyValue(m.getOrElse(key, null))
-    a.get == b.get
+    m.getOrElse(key, null) == b
   }
 }
 
-case class LessThan[B <: BasicValue](b: B, key: String) extends MatchCondition {
+case class LessThan[B](b: B, key: String) extends MatchCondition {
   override def eval(m: Map[String, Any]): Boolean = {
-    val a: BasicValue = BasicValue.fromAnyValue(m.getOrElse(key, null))
+    val a = m.getOrElse(key, null)
     (a, b) match {
-      case (a: IntValue, b: IntValue)       => a.v < b.v
-      case (a: FloatValue, b: FloatValue)   => a.v < b.v
-      case (a: DoubleValue, b: DoubleValue) => a.v < b.v
-      case (a: LongValue, b: LongValue)     => a.v < b.v
-      case (a: ByteValue, b: ByteValue)     => a.v < b.v
-      case (a: CharValue, b: CharValue)     => a.v < b.v
-      case (a: StringValue, b: StringValue) => a.v < b.v
-      case (_: NoValue, _)                  => false
-      case _                                => throw new Exception(s"Cannot decide if ${a.get} < ${b.get}")
+      case (a: Int, b: Int)       => a < b
+      case (a: Float, b: Float)   => a < b
+      case (a: Double, b: Double) => a < b
+      case (a: Long, b: Long)     => a < b
+      case (a: Byte, b: Byte)     => a < b
+      case (a: Char, b: Char)     => a < b
+      case (a: String, b: String) => a < b
+      case (null, _)              => false
+      case _                      => throw new Exception(s"Cannot decide if $a < $b")
     }
   }
 }
 
-case class GreaterThan[B <: BasicValue](b: B, key: String) extends MatchCondition {
+case class GreaterThan[B](b: B, key: String) extends MatchCondition {
   override def eval(m: Map[String, Any]): Boolean = {
-    val a: BasicValue = BasicValue.fromAnyValue(m.getOrElse(key, null))
+    val a = m.getOrElse(key, null)
     (a, b) match {
-      case (a: IntValue, b: IntValue)       => a.v > b.v
-      case (a: FloatValue, b: FloatValue)   => a.v > b.v
-      case (a: DoubleValue, b: DoubleValue) => a.v > b.v
-      case (a: LongValue, b: LongValue)     => a.v > b.v
-      case (a: ByteValue, b: ByteValue)     => a.v > b.v
-      case (a: CharValue, b: CharValue)     => a.v > b.v
-      case (a: StringValue, b: StringValue) => a.v > b.v
-      case (_: NoValue, _)                  => false
-      case _                                => throw new Exception(s"Cannot decide if ${a.get} > ${b.get}")
+      case (a: Int, b: Int)       => a > b
+      case (a: Float, b: Float)   => a > b
+      case (a: Double, b: Double) => a > b
+      case (a: Long, b: Long)     => a > b
+      case (a: Byte, b: Byte)     => a > b
+      case (a: Char, b: Char)     => a > b
+      case (a: String, b: String) => a > b
+      case (null, _)              => false
+      case _                      => throw new Exception(s"Cannot decide if $a > $b")
     }
   }
 }
 
-case class LessThanEquals[B <: BasicValue](b: B, key: String) extends MatchCondition {
+case class LessThanEquals[B](b: B, key: String) extends MatchCondition {
   override def eval(m: Map[String, Any]): Boolean = {
-    val a: BasicValue = BasicValue.fromAnyValue(m.getOrElse(key, null))
+    val a = m.getOrElse(key, null)
     (a, b) match {
-      case (a: IntValue, b: IntValue)       => a.v <= b.v
-      case (a: FloatValue, b: FloatValue)   => a.v <= b.v
-      case (a: DoubleValue, b: DoubleValue) => a.v <= b.v
-      case (a: LongValue, b: LongValue)     => a.v <= b.v
-      case (a: ByteValue, b: ByteValue)     => a.v <= b.v
-      case (a: CharValue, b: CharValue)     => a.v <= b.v
-      case (a: StringValue, b: StringValue) => a.v <= b.v
-      case (_: NoValue, _)                  => false
-      case _                                => throw new Exception(s"Cannot decide if ${a.get} <= ${b.get}")
+      case (a: Int, b: Int)       => a <= b
+      case (a: Float, b: Float)   => a <= b
+      case (a: Double, b: Double) => a <= b
+      case (a: Long, b: Long)     => a <= b
+      case (a: Byte, b: Byte)     => a <= b
+      case (a: Char, b: Char)     => a <= b
+      case (a: String, b: String) => a <= b
+      case (null, _)              => false
+      case _                      => throw new Exception(s"Cannot decide if $a <= $b")
     }
   }
 }
 
-case class GreaterThanEquals[B <: BasicValue](b: B, key: String) extends MatchCondition {
+case class GreaterThanEquals[B](b: B, key: String) extends MatchCondition {
   override def eval(m: Map[String, Any]): Boolean = {
-    val a: BasicValue = BasicValue.fromAnyValue(m.getOrElse(key, null))
+    val a = m.getOrElse(key, null)
     (a, b) match {
-      case (a: IntValue, b: IntValue)       => a.v >= b.v
-      case (a: FloatValue, b: FloatValue)   => a.v >= b.v
-      case (a: DoubleValue, b: DoubleValue) => a.v >= b.v
-      case (a: LongValue, b: LongValue)     => a.v >= b.v
-      case (a: ByteValue, b: ByteValue)     => a.v >= b.v
-      case (a: CharValue, b: CharValue)     => a.v >= b.v
-      case (a: StringValue, b: StringValue) => a.v >= b.v
-      case (_: NoValue, _)                  => false
-      case _                                => throw new Exception(s"Cannot decide if ${a.get} >= ${b.get}")
+      case (a: Int, b: Int)       => a >= b
+      case (a: Float, b: Float)   => a >= b
+      case (a: Double, b: Double) => a >= b
+      case (a: Long, b: Long)     => a >= b
+      case (a: Byte, b: Byte)     => a >= b
+      case (a: Char, b: Char)     => a >= b
+      case (a: String, b: String) => a >= b
+      case (null, _)              => false
+      case _                      => throw new Exception(s"Cannot decide if $a >= $b")
     }
   }
+}
+
+object Equals {
+  def apply[B <: BasicValue](b: B, key: String): Equals[b.Out] = new Equals(b.get, key)
+}
+
+object LessThan {
+  def apply[B <: BasicValue](b: B, key: String): LessThan[b.Out] = new LessThan(b.get, key)
+}
+
+object GreaterThan {
+  def apply[B <: BasicValue](b: B, key: String): GreaterThan[b.Out] = new GreaterThan(b.get, key)
+}
+
+object LessThanEquals {
+  def apply[B <: BasicValue](b: B, key: String): LessThanEquals[b.Out] = new LessThanEquals(b.get, key)
+}
+
+object GreaterThanEquals {
+  def apply[B <: BasicValue](b: B, key: String): GreaterThanEquals[b.Out] = new GreaterThanEquals(b.get, key)
 }

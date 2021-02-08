@@ -32,8 +32,6 @@ private[engine] class GraphProviderImpl(graphOperations: GraphOperations) extend
     graphOperations.readOperations.fetchNodes(label, params)
   }
 
-  override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
-
   override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
     graphOperations.readOperations.fetchNodes(label, matchPattern)
   }

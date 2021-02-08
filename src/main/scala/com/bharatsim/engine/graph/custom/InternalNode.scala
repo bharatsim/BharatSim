@@ -1,7 +1,7 @@
 package com.bharatsim.engine.graph.custom
 
+import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.{GraphNode, GraphNodeImpl}
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.immutable._
@@ -13,7 +13,7 @@ private[engine] case class InternalNode(label: String, id: NodeId, params: HashM
 
   def fetchIncoming: Map[String, HashSet[NodeId]] = incoming
 
-  def toGraphNode: GraphNode = new GraphNodeImpl(label, id, params.toMap)
+  def toGraphNode: GraphNode = GraphNode(label, id, params)
 
   def fetchParam(key: String): Option[Any] = params.get(key)
 

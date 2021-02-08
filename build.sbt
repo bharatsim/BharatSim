@@ -6,6 +6,9 @@ scalaVersion := "2.13.3"
 
 val AkkaVersion = "2.6.10"
 libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion
+libraryDependencies += "com.typesafe.akka" %% "akka-cluster-typed" % AkkaVersion
+libraryDependencies += "com.typesafe.akka" %% "akka-serialization-jackson" % AkkaVersion
+
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
 libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2"
 libraryDependencies += "com.typesafe" % "config" % "1.4.1"

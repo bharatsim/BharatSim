@@ -14,27 +14,27 @@ import scala.reflect.ClassTag
 /**
   * Representation of node data from the data store
   */
-trait GraphNode {
+case class GraphNode(nodeLabel: String, id: NodeId, params: Map[String, Any] = Map.empty) {
 
   /**
     * label of the node
     */
-  def label: String
+  def label: String = nodeLabel
 
   /** Id of the node */
-  def Id: NodeId
+  def Id: NodeId = id
 
   /**
     * Additional parameter associated with node
     */
-  def getParams: Map[String, Any]
+  def getParams: Map[String, Any] = params
 
   /**
     *  gets the data from the node
     * @param key parameter name
     * @return value of the parameter
     */
-  def apply(key: String): Option[Any]
+  def apply(key: String): Option[Any] = params.get(key)
 
   /**
     * Decodes the GraphNode to the node instance in the model
@@ -47,18 +47,6 @@ trait GraphNode {
     val node = BasicConversions.decode(getParams)
     node.setId(Id)
     node
-  }
-}
-
-object GraphNode {
-  def apply(nodeLabel: String, id: NodeId, params: Map[String, Any] = Map.empty): GraphNode = new GraphNode() {
-    override def label: String = nodeLabel
-
-    override def Id: NodeId = id
-
-    override def getParams: Map[String, Any] = params
-
-    override def apply(key: String): Option[Any] = params.get(key)
   }
 }
 
@@ -160,7 +148,7 @@ trait GraphProvider {
     * @param params is data parameter of node to find
     * @return all the matching nodes
     */
-  def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode]
+  def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
   /**
     * Gets all the nodes that matches the criteria

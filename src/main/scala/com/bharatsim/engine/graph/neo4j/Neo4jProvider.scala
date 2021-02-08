@@ -293,7 +293,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     val extractedLabel = record.get("nodeLabels").asList(List[AnyRef](label).asJava)
 
     val mapWithValueTypeAny = node.asScala.map(kv => (kv._1, kv._2.asInstanceOf[Any])).toMap
-    new GraphNodeImpl(extractedLabel.get(0).toString, nodeId, mapWithValueTypeAny)
+    GraphNode(extractedLabel.get(0).toString, nodeId, mapWithValueTypeAny)
   }
 
   override def shutdown(): Unit = neo4jConnection.close()
