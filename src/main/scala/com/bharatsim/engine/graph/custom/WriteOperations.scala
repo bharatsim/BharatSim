@@ -9,24 +9,6 @@ import com.typesafe.scalalogging.LazyLogging
 import scala.collection.{immutable, mutable}
 
 class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGenerator: IdGenerator) extends LazyLogging {
-  def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
-    val reader = CSVReader.open(csvPath)
-    val records = reader.allWithHeaders()
-
-    if (mapper.isDefined) {
-      val batchOfNodes = mutable.ListBuffer.empty[CsvNode]
-      val batchOfRelations = mutable.ListBuffer.empty[Relation]
-      records.foreach(row => {
-        val graphData = mapper.get.apply(row)
-        batchOfNodes.addAll(graphData._nodes)
-        batchOfRelations.addAll(graphData._relations)
-      })
-
-      val refToIdMapping = batchImportNodes(batchOfNodes)
-      batchImportRelations(batchOfRelations, refToIdMapping)
-    }
-  }
-
   def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
     val nodeFrom = buffer.indexedNodes.get(node1)
     val nodeTo = buffer.indexedNodes.get(node2)

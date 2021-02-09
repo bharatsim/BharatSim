@@ -21,8 +21,6 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     case None    => GraphDatabase.driver(config.uri)
   }
 
-  private[engine] override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
-
   private[engine] override def createNode(label: String, props: Map[String, Any]): NodeId = {
     val session = neo4jConnection.session()
 
@@ -57,25 +55,6 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
       case e: Exception => logger.error(s"Failed to create relation '{}' due to reason -> {}", label, e.getMessage)
     } finally {
       session.close()
-    }
-  }
-
-  override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
-    val reader = CSVReader.open(csvPath)
-    val records = reader.allWithHeaders()
-
-    if (mapper.isDefined) {
-      val relations = mutable.ListBuffer.empty[Relation]
-      val nodes = mutable.ListBuffer.empty[CsvNode]
-
-      records.foreach(row => {
-        val data = mapper.get.apply(row)
-        nodes.addAll(data._nodes)
-        relations.addAll(data._relations)
-      })
-
-      val refToIdMapping = batchImportNodes(nodes)
-      batchImportRelations(relations, refToIdMapping)
     }
   }
 
@@ -130,8 +109,6 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     session.close()
     nodes.asScala
   }
-
-  override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
   override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
     val patternWithParams = PatternMaker.from(matchPattern, "a")
@@ -210,9 +187,6 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
 
     session.close()
   }
-
-  override def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit =
-    updateNode(nodeId, (prop :: props.toList).toMap)
 
   override def deleteNode(nodeId: NodeId): Unit = {
     val query =

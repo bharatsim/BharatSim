@@ -10,12 +10,6 @@ import com.typesafe.scalalogging.LazyLogging
 import scala.collection.mutable
 
 private[engine] class GraphProviderImpl(graphOperations: GraphOperations) extends GraphProvider with LazyLogging {
-  override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
-    graphOperations.writeOperations.ingestFromCsv(csvPath, mapper)
-  }
-
-  private[engine] override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
-
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
     graphOperations.writeOperations.createRelationship(node1, label, node2)
   }
@@ -51,9 +45,6 @@ private[engine] class GraphProviderImpl(graphOperations: GraphOperations) extend
   override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = {
     graphOperations.writeOperations.updateNode(nodeId, props)
   }
-
-  override def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit =
-    updateNode(nodeId, (prop :: props.toList).toMap)
 
   override def deleteNode(nodeId: NodeId): Unit = {
     graphOperations.writeOperations.deleteNode(nodeId)

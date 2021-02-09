@@ -8,7 +8,9 @@ import com.bharatsim.engine.graph.ingestion._
 import com.bharatsim.engine.graph.patternMatcher.{EmptyPattern, MatchPattern}
 import com.bharatsim.engine.models.Node
 import com.bharatsim.engine.utils.Utils.fetchClassName
+import com.github.tototoshi.csv.CSVReader
 
+import scala.collection.mutable
 import scala.reflect.ClassTag
 
 /**
@@ -94,7 +96,7 @@ trait GraphProvider {
     * @param props is data associated with Node.
     * @return a node id of newly created Node.
     */
-  private[engine] def createNode(label: String, props: (String, Any)*): NodeId
+  private[engine] def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
 
   /**
     * Crate one way relation or connection between node
@@ -111,7 +113,24 @@ trait GraphProvider {
     * @param csvPath is path to the CSV
     * @param mapper  is function that map a csv row to Nodes and Relations
     */
-  def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit
+  def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
+    val reader = CSVReader.open(csvPath)
+    val records = reader.allWithHeaders()
+
+    if (mapper.isDefined) {
+      val nodes = mutable.ListBuffer.empty[CsvNode]
+      val relations = mutable.ListBuffer.empty[Relation]
+
+      records.foreach(row => {
+        val data = mapper.get.apply(row)
+        nodes.addAll(data._nodes)
+        relations.addAll(data._relations)
+      })
+
+      val refToIdMapping = batchImportNodes(nodes)
+      batchImportRelations(relations, refToIdMapping)
+    }
+  }
 
   private[engine] def batchImportNodes(node: IterableOnce[CsvNode]): RefToIdMapping
 
@@ -198,7 +217,7 @@ trait GraphProvider {
     * @param prop updated data
     * @param props additional updated data
     */
-  def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit
+  def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit = updateNode(nodeId, (prop :: props.toList).toMap)
 
   /**
     * delete the node.

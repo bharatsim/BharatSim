@@ -11,11 +11,9 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
   extends GraphProvider {
 
   override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
-    graphOperations.writeOperations.ingestFromCsv(csvPath, mapper)
+    super.ingestFromCsv(csvPath, mapper)
     syncBuffers()
   }
-
-  private[engine] override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
 
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
     graphOperations.writeOperations.createRelationship(node1, label, node2)
@@ -32,8 +30,6 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
   override def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode] = {
     graphOperations.readOperations.fetchNodes(label, params)
   }
-
-  override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
   override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
     graphOperations.readOperations.fetchNodes(label, matchPattern)
@@ -54,9 +50,6 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
   override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = {
     graphOperations.writeOperations.updateNode(nodeId, props)
   }
-
-  override def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit =
-    updateNode(nodeId, (prop :: props.toList).toMap)
 
   override def deleteNode(nodeId: NodeId): Unit = {
     graphOperations.writeOperations.deleteNode(nodeId)
