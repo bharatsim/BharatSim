@@ -25,13 +25,13 @@ object MatchCondition {
   }
 }
 
-case class Equals[B](b: B, key: String) extends MatchCondition {
+private[engine] case class Equals[B](b: B, key: String) extends MatchCondition {
   override def eval(m: Map[String, Any]): Boolean = {
     m.getOrElse(key, null) == b
   }
 }
 
-case class LessThan[B](b: B, key: String) extends MatchCondition {
+private[engine] case class LessThan[B](b: B, key: String) extends MatchCondition {
   override def eval(m: Map[String, Any]): Boolean = {
     val a = m.getOrElse(key, null)
     (a, b) match {
@@ -48,7 +48,7 @@ case class LessThan[B](b: B, key: String) extends MatchCondition {
   }
 }
 
-case class GreaterThan[B](b: B, key: String) extends MatchCondition {
+private[engine] case class GreaterThan[B](b: B, key: String) extends MatchCondition {
   override def eval(m: Map[String, Any]): Boolean = {
     val a = m.getOrElse(key, null)
     (a, b) match {
@@ -65,7 +65,7 @@ case class GreaterThan[B](b: B, key: String) extends MatchCondition {
   }
 }
 
-case class LessThanEquals[B](b: B, key: String) extends MatchCondition {
+private[engine] case class LessThanEquals[B](b: B, key: String) extends MatchCondition {
   override def eval(m: Map[String, Any]): Boolean = {
     val a = m.getOrElse(key, null)
     (a, b) match {
@@ -82,7 +82,7 @@ case class LessThanEquals[B](b: B, key: String) extends MatchCondition {
   }
 }
 
-case class GreaterThanEquals[B](b: B, key: String) extends MatchCondition {
+private[engine] case class GreaterThanEquals[B](b: B, key: String) extends MatchCondition {
   override def eval(m: Map[String, Any]): Boolean = {
     val a = m.getOrElse(key, null)
     (a, b) match {

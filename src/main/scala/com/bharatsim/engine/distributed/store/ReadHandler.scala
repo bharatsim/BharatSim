@@ -5,24 +5,23 @@ import akka.actor.typed.{ActorRef, Behavior}
 import com.bharatsim.engine.distributed.store.ActorBasedStore._
 import com.bharatsim.engine.distributed.store.ReadHandler._
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.custom.{Buffer, ReadOperations}
+import com.bharatsim.engine.graph.custom.{GraphProviderWithBufferImpl, ReadOperations}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 
-class ReadHandler(actorContext: ActorContext[ReadQuery], buffer: Buffer) extends AbstractBehavior(actorContext) {
-  val readOperations = new ReadOperations(buffer)
+class ReadHandler(actorContext: ActorContext[ReadQuery], graph: GraphProviderWithBufferImpl) extends AbstractBehavior(actorContext) {
   override def onMessage(msg: ReadQuery): Behavior[ReadQuery] = {
     msg match {
       case FetchNode(label, params, replyTo) =>
-        replyTo ! OptionalGraphNode(readOperations.fetchNode(label, params))
+        replyTo ! OptionalGraphNode(graph.fetchNode(label, params))
       case FetchNodes(label, params, replyTo) =>
-        replyTo ! GraphNodesReply(readOperations.fetchNodes(label, params))
+        replyTo ! GraphNodesReply(graph.fetchNodes(label, params))
       case FetchNodesByPattern(label, pattern, replyTo) =>
-        replyTo ! GraphNodesReply(readOperations.fetchNodes(label, pattern))
-      case FetchCount(label, pattern, replyTo) => replyTo ! IntReply(readOperations.fetchCount(label, pattern))
+        replyTo ! GraphNodesReply(graph.fetchNodes(label, pattern))
+      case FetchCount(label, pattern, replyTo) => replyTo ! IntReply(graph.fetchCount(label, pattern))
       case FetchNeighborsOf(nodeId, allLabels, replyTo) =>
-        replyTo ! GraphNodesReply(readOperations.fetchNeighborsOf(nodeId, allLabels))
+        replyTo ! GraphNodesReply(graph.fetchNeighborsOf(nodeId, allLabels.head, allLabels.tail:_*))
       case NeighborCount(nodeId, label, matchCondition, replyTo) =>
-        replyTo ! IntReply(readOperations.neighborCount(nodeId, label, matchCondition))
+        replyTo ! IntReply(graph.neighborCount(nodeId, label, matchCondition))
     }
     Behaviors.same
   }
@@ -39,5 +38,5 @@ object ReadHandler {
   case class NeighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern, replyTo: ActorRef[Reply])
       extends ReadQuery
 
-  def apply(buffer: Buffer): Behavior[ReadQuery] = Behaviors.setup(context => new ReadHandler(context, buffer))
+  def apply(graph: GraphProviderWithBufferImpl): Behavior[ReadQuery] = Behaviors.setup(context => new ReadHandler(context, graph))
 }

@@ -1,18 +1,14 @@
 package com.bharatsim.engine.graph.custom
 
-import com.bharatsim.engine.Context
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
-import com.bharatsim.engine.listeners.{SimulationListener, SimulationListenerRegistry}
 
 import scala.collection.concurrent.TrieMap
 
 private[engine] class GraphProviderWithBufferImpl(private var graphOperations: GraphOperations)
-  extends GraphProvider
-    with SimulationListener {
-  SimulationListenerRegistry.register(this)
+  extends GraphProvider {
 
   override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
     graphOperations.writeOperations.ingestFromCsv(csvPath, mapper)
@@ -94,16 +90,6 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
   private[engine] def syncBuffers(): Unit = {
     graphOperations = graphOperations.asInstanceOf[BufferedGraph].syncBuffers()
   }
-
-  override def onSimulationStart(context: Context): Unit = {}
-
-  override def onStepStart(context: Context): Unit = {
-    syncBuffers()
-  }
-
-  override def onStepEnd(context: Context): Unit = {}
-
-  override def onSimulationEnd(context: Context): Unit = {}
 }
 
 object GraphProviderWithBufferImpl {
