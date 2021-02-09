@@ -76,7 +76,7 @@ object Main extends LazyLogging {
           val isEssentialWorker = agent.asInstanceOf[Person].isEssentialWorker
           val violateLockdown = agent.asInstanceOf[Person].violateLockdown
           val isLockdown = context.activeInterventionNames.contains(interventionName)
-          val isSeverelyInfected = agent.asInstanceOf[Person].activeState == InfectedState(Severe)
+          val isSeverelyInfected = agent.asInstanceOf[Person].isSevereInfected
           isLockdown && !(isEssentialWorker || violateLockdown || isSeverelyInfected)
         }
       )
@@ -130,7 +130,7 @@ object Main extends LazyLogging {
     registerSchedules(
       (
         hospitalizedSchedule,
-        (agent: Agent, _: Context) => agent.asInstanceOf[Person].activeState == InfectedState(Severe)
+        (agent: Agent, _: Context) => agent.asInstanceOf[Person].isSevereInfected
       ),
       (
         employeeScheduleWithPublicTransport,
