@@ -17,7 +17,7 @@ case class LogNormal(mean: Double, standardDeviation: Double) {
   private def generateDistributionFrom(mean: Double, standardDeviation: Double): LogNormalDistribution = {
     val scale: Double = log(mean) - 0.5 * log((standardDeviation * standardDeviation) / (mean * mean) + 1)
     val shape: Double = sqrt(log((standardDeviation * standardDeviation) / (mean * mean) + 1))
-    
+
     new LogNormalDistribution(scale, shape)
   }
 

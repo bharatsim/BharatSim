@@ -10,46 +10,55 @@ import com.bharatsim.model.InfectionSeverity.{InfectionSeverity, Mild, Severe}
 import com.bharatsim.model.InfectionStatus.Exposed
 import com.bharatsim.model.{Disease, Person}
 
-case class ExposedState(severeInfectionPercentage: Double, isAsymptomatic: Boolean) extends State{
+case class ExposedState(severeInfectionPercentage: Double, isAsymptomatic: Boolean, exposedDuration: Double)
+    extends State {
 
   private val infectionSeverity = getInfectionSeverity(severeInfectionPercentage)
 
   private def getInfectionSeverity(severeInfectionPercentage: Double): InfectionSeverity = {
-    if (biasedCoinToss(severeInfectionPercentage)){
+    if (biasedCoinToss(severeInfectionPercentage)) {
       return Severe
     }
     Mild
   }
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
-      agent.updateParam("infectionState", Exposed)
+    agent.updateParam("infectionState", Exposed)
   }
 
-  private def checkForExposure(context: Context, agent: StatefulAgent) = {
-      agent.asInstanceOf[Person].infectionDay == context.dynamics.asInstanceOf[Disease.type].exposedDuration
+  private def checkForExposure(agent: StatefulAgent) = {
+    agent.asInstanceOf[Person].infectionDay >= exposedDuration
   }
 
   private def checkForPreSymptomatic(context: Context, agent: StatefulAgent): Boolean = {
-    if (checkForExposure(context, agent) && !isAsymptomatic) {
+    if (checkForExposure(agent) && !isAsymptomatic) {
       return true
     }
     false
   }
 
   private def checkForAsymptomatic(context: Context, agent: StatefulAgent): Boolean = {
-    if (checkForExposure(context, agent) && isAsymptomatic) {
+    if (checkForExposure(agent) && isAsymptomatic) {
       return true
     }
     false
   }
 
+  private def getNextCompartmentDuration(context: Context): Double = {
+    if (isAsymptomatic) {
+      return (context.dynamics.asInstanceOf[Disease.type].asymptomaticDurationProbabilityDistribution.sample()
+        + exposedDuration)
+    }
+    context.dynamics.asInstanceOf[Disease.type].presymptomaticDurationProbabilityDistribution.sample() + exposedDuration
+  }
+
   addTransition(
     when = checkForPreSymptomatic,
-    to = context => PreSymptomaticState(infectionSeverity)
+    to = context => PreSymptomaticState(infectionSeverity, getNextCompartmentDuration(context))
   )
 
   addTransition(
     when = checkForAsymptomatic,
-    to = context => AsymptomaticState()
+    to = context => AsymptomaticState(getNextCompartmentDuration(context))
   )
 }

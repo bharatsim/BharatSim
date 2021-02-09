@@ -10,7 +10,7 @@ import com.bharatsim.model.InfectionSeverity.{Mild, Severe}
 import com.bharatsim.model.InfectionStatus.{InfectedMild, InfectedSevere}
 import com.bharatsim.model.{Disease, Person}
 
-case class InfectedState[T](severity: T) extends State {
+case class InfectedState[T](severity: T, infectedDuration: Double) extends State {
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     if (severity == Mild) {
@@ -21,9 +21,7 @@ case class InfectedState[T](severity: T) extends State {
   }
 
   private def checkInfectionLastDay(context: Context, agent: StatefulAgent): Boolean = {
-    agent.asInstanceOf[Person].infectionDay == context.dynamics
-      .asInstanceOf[Disease.type]
-      .lastDay
+    agent.asInstanceOf[Person].infectionDay >= infectedDuration
   }
 
   def checkForRecovery(context: Context, agent: StatefulAgent): Boolean = {
@@ -34,7 +32,7 @@ case class InfectedState[T](severity: T) extends State {
   }
 
   def checkForDeceased(context: Context, agent: StatefulAgent): Boolean = {
-    if (agent.activeState == InfectedState(Severe) && checkInfectionLastDay(context, agent)) {
+    if (agent.asInstanceOf[Person].isSevereInfected && checkInfectionLastDay(context, agent)) {
       if (biasedCoinToss(context.dynamics.asInstanceOf[Disease.type].deathRate)) {
         return true
       }

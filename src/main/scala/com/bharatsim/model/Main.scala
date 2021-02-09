@@ -236,12 +236,16 @@ object Main extends LazyLogging {
       context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage
     )
     val severeInfectionPercentage = context.dynamics.asInstanceOf[Disease.type].severeInfectedPopulationPercentage
+    val exposedDuration = context.dynamics.asInstanceOf[Disease.type].exposedDurationProbabilityDistribution.sample()
+    val preSymptomaticDuration = context.dynamics.asInstanceOf[Disease.type].presymptomaticDurationProbabilityDistribution.sample()
+    val mildSymptomaticDuration = context.dynamics.asInstanceOf[Disease.type].mildSymptomaticDurationProbabilityDistribution.sample()
+    val severeSymptomaticDuration = context.dynamics.asInstanceOf[Disease.type].severeSymptomaticDurationProbabilityDistribution.sample()
     initialState match {
       case "Susceptible"    => citizen.setInitialState(SusceptibleState())
-      case "Exposed"        => citizen.setInitialState(ExposedState(severeInfectionPercentage, isAsymptomatic))
-      case "PreSymptomatic" => citizen.setInitialState(PreSymptomaticState(Mild))
-      case "InfectedMild"   => citizen.setInitialState(InfectedState(Mild))
-      case "InfectedSevere" => citizen.setInitialState(InfectedState(Severe))
+      case "Exposed"        => citizen.setInitialState(ExposedState(severeInfectionPercentage, isAsymptomatic, exposedDuration))
+      case "PreSymptomatic" => citizen.setInitialState(PreSymptomaticState(Mild, preSymptomaticDuration))
+      case "InfectedMild"   => citizen.setInitialState(InfectedState(Mild, mildSymptomaticDuration))
+      case "InfectedSevere" => citizen.setInitialState(InfectedState(Severe, severeSymptomaticDuration))
       case "Recovered"      => citizen.setInitialState(RecoveredState())
       case "Deceased"       => citizen.setInitialState(DeceasedState())
       case _                => throw new Exception(s"Unsupported infection status: $initialState")

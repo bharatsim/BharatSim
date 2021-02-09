@@ -53,7 +53,8 @@ case class SusceptibleState() extends State {
     to = context =>
       ExposedState(
         context.dynamics.asInstanceOf[Disease.type].severeInfectedPopulationPercentage,
-        biasedCoinToss(context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage)
+        biasedCoinToss(context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage),
+        context.dynamics.asInstanceOf[Disease.type].exposedDurationProbabilityDistribution.sample()
       )
   )
 }

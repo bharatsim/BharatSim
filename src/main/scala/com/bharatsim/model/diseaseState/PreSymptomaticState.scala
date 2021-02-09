@@ -5,26 +5,38 @@ import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.models.StatefulAgent
-import com.bharatsim.model.InfectionSeverity.InfectionSeverity
+import com.bharatsim.model.InfectionSeverity.{InfectionSeverity, Mild}
 import com.bharatsim.model.InfectionStatus.PreSymptomatic
 import com.bharatsim.model.{Disease, Person}
 
-case class PreSymptomaticState(infectionSeverity: InfectionSeverity) extends State {
+case class PreSymptomaticState(infectionSeverity: InfectionSeverity, preSymptomaticDuration: Double) extends State {
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
-      agent.updateParam("infectionState", PreSymptomatic)
+    agent.updateParam("infectionState", PreSymptomatic)
   }
 
   def checkForInfectionSeverity(context: Context, agent: StatefulAgent): Boolean = {
-    if (
-      agent.asInstanceOf[Person].infectionDay == context.dynamics.asInstanceOf[Disease.type].preSymptomaticDuration) {
+    if (agent.asInstanceOf[Person].infectionDay >= preSymptomaticDuration) {
       return true
     }
     false
   }
 
+  private def getInfectionDuration(context: Context, infectionSeverity: InfectionSeverity): Double = {
+    if (infectionSeverity == Mild) {
+      return (context.dynamics
+        .asInstanceOf[Disease.type]
+        .mildSymptomaticDurationProbabilityDistribution
+        .sample() + preSymptomaticDuration)
+    }
+    context.dynamics
+      .asInstanceOf[Disease.type]
+      .severeSymptomaticDurationProbabilityDistribution
+      .sample() + preSymptomaticDuration
+  }
+
   addTransition(
     when = checkForInfectionSeverity,
-    to = context => InfectedState(infectionSeverity)
+    to = context => InfectedState(infectionSeverity, getInfectionDuration(context, infectionSeverity))
   )
 }
