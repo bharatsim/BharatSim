@@ -12,6 +12,7 @@ libraryDependencies += "com.typesafe" % "config" % "1.4.1"
 libraryDependencies += "org.neo4j.driver" % "neo4j-java-driver" % "4.1.1"
 libraryDependencies += "com.chuusai" %% "shapeless" % "2.3.3"
 libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.0"
+libraryDependencies += "org.apache.commons" % "commons-math3" % "3.6.1"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.0" % Test
 libraryDependencies += "org.scalatest" %% "scalatest-funsuite" % "3.2.0" % Test
