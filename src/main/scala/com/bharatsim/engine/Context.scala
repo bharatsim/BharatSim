@@ -85,7 +85,7 @@ object Context {
   }
 
   private def buildCache(applicationConfig: ApplicationConfig) = {
-    applicationConfig.parallelism match {
+    applicationConfig.executionMode match {
       case NoParallelism => new PerTickCache()
       case _ => new PerTickCache(TrieMap.empty)
     }

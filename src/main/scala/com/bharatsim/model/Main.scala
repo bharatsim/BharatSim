@@ -29,6 +29,8 @@ object Main extends LazyLogging {
     implicit val context: Context = Context(Disease, config)
 
     try {
+      Simulation.init(args)
+
       addLockdown
       vaccination
 
