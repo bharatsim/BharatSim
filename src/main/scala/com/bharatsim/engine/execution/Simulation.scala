@@ -1,12 +1,12 @@
 package com.bharatsim.engine.execution
 
 import akka.actor.typed.ActorSystem
+import com.bharatsim.engine._
+import com.bharatsim.engine.distributed.{Guardian, Role}
 import com.bharatsim.engine.execution.actorbased.ActorBackedSimulation
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.execution.simulation.{PostSimulationActions, PreSimulationActions}
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
-import com.bharatsim.engine._
-import com.bharatsim.engine.distributed.Guardian
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
 
@@ -57,27 +57,43 @@ class Simulation(
 
 object Simulation {
   private val applicationConfig: ApplicationConfig = ApplicationConfigFactory.config
+  private var role = "";
+  private var port = "";
 
-  def init(args: Array[String]): Unit = {
+  def init(args: Array[String])(implicit simulationContext: Context): Unit = {
     if (applicationConfig.executionMode == Distributed) {
       if (args.length < 2) {
         throw new Exception("Usage: <role> <port>")
       } else {
-        val role = args(0)
-        val port = args(1).toInt
+        role = args(0)
+        port = args(1)
+        if (role == Role.DataStore.toString) {
+          start(role, port, simulationContext)
+        }
 
-        val config = ConfigFactory.parseString(
-          s"""akka.remote.artery.canonical.port=$port
-            |akka.cluster.roles = [$role]
-            |""".stripMargin)
-          .withFallback(ConfigFactory.load())
-
-        ActorSystem[Nothing](Guardian(), "BharatsimCluster", config)
       }
     }
   }
 
+  private def start(role: String, port: String, simulationContext: Context): Unit = {
+    val config = ConfigFactory
+      .parseString(s"""akka.remote.artery.canonical.port=$port
+                      |akka.cluster.roles = [$role]
+                      |""".stripMargin)
+      .withFallback(ConfigFactory.load())
+
+    ActorSystem[Nothing](Guardian(simulationContext), "BharatsimCluster", config)
+
+  }
+
   def run()(implicit context: Context): Unit = {
+    if (applicationConfig.executionMode == Distributed) {
+      if (role == Role.EngineMain.toString || role == Role.Worker.toString) {
+        start(role, port, context)
+      }
+      return
+    }
+
     val behaviourControl = new BehaviourControl(context)
     val stateControl = new StateControl(context)
     val agentExecutor = new AgentExecutor(behaviourControl, stateControl)
