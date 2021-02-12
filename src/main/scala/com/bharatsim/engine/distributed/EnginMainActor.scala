@@ -14,7 +14,7 @@ import scala.util.{Failure, Success}
 object EnginMainActor extends LazyLogging {
 
   def executeRun(
-      context: ActorContext[DistributedTickLoop.Command],
+      actorContext: ActorContext[DistributedTickLoop.Command],
       simulationContext: Context
   ): Behavior[DistributedTickLoop.Command] = {
     val preSimulationActions = new PreSimulationActions(simulationContext)
@@ -22,11 +22,12 @@ object EnginMainActor extends LazyLogging {
     val preTickActions = new PreTickActions(simulationContext)
     val postTickActions = new PostTickActions(simulationContext)
     preSimulationActions.execute()
+    val contextReplicator =
+      actorContext.spawn(SimulationContextReplicator(simulationContext), "simulationContextReplicator")
+    val tickLoop = new DistributedTickLoop(simulationContext, preTickActions, postTickActions, contextReplicator)
 
-    val tickLoop = new DistributedTickLoop(simulationContext, preTickActions, postTickActions)
-
-    val executionContext = context.executionContext
-    context.system.whenTerminated.andThen {
+    val executionContext = actorContext.executionContext
+    actorContext.system.whenTerminated.andThen {
       case Failure(exception) =>
         logger.error("Error occurred while executing simulation using actor system: {}", exception.getMessage)
         postSimulationActions.execute()

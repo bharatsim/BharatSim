@@ -10,6 +10,7 @@ import com.bharatsim.engine.distributed.store.ActorBasedStore
 import com.bharatsim.engine.distributed.store.ActorBasedStore.DBQuery
 import com.bharatsim.engine.execution.AgentExecutor
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
+import com.bharatsim.engine.graph.GraphProviderFactory
 
 object Guardian {
   private val storeServiceKey: ServiceKey[DBQuery] = ServiceKey[DBQuery]("DataStore")
@@ -19,11 +20,15 @@ object Guardian {
     val behaviourControl = new BehaviourControl(simulationContext)
     val stateControl = new StateControl(simulationContext)
     val agentExecutor = new AgentExecutor(behaviourControl, stateControl)
+    context.spawn(SimulationContextSubscriber(simulationContext), "SimulationContextSubscriber");
     val worker = context.spawn(AgentProcessor(agentExecutor), "Worker");
+    GraphProviderFactory.init(store, context.system)
+
     context.system.receptionist ! Receptionist.register(workerServiceKey, worker)
   }
 
   def createMain(context: ActorContext[Nothing], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
+    GraphProviderFactory.init(store, context.system)
     context.spawn(EnginMainActor(store, simulationContext), "EngineMain")
   }
 
@@ -33,7 +38,7 @@ object Guardian {
 
       if (cluster.selfMember.hasRole(DataStore.toString)) {
         val actorBasedStore = context.spawn(ActorBasedStore(), "store")
-
+        GraphProviderFactory.initDataStore()
         context.system.receptionist ! Receptionist.register(storeServiceKey, actorBasedStore)
       }
 

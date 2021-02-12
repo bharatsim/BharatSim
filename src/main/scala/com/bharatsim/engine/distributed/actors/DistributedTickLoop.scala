@@ -3,11 +3,13 @@ package com.bharatsim.engine.distributed.actors
 import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
-import akka.actor.typed.{Behavior, Scheduler}
+import akka.actor.typed.{ActorRef, Behavior, Scheduler}
 import akka.util.Timeout
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.AgentProcessor.{NotifyCompletion, UnitOfWork}
 import com.bharatsim.engine.distributed.Guardian.workerServiceKey
+import com.bharatsim.engine.distributed.SimulationContextReplicator
+import com.bharatsim.engine.distributed.SimulationContextReplicator.{ContextData, UpdateContext}
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{Command, CurrentTick, UnitOfWorkFinished}
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 
@@ -17,7 +19,8 @@ import scala.concurrent.duration.{Duration, DurationInt}
 class DistributedTickLoop(
     simulationContext: Context,
     preTickActions: PreTickActions,
-    postTickActions: PostTickActions
+    postTickActions: PostTickActions,
+    simulationContextReplicator: ActorRef[SimulationContextReplicator.Command]
 ) {
 
   class Tick(actorContext: ActorContext[Command], currentTick: Int) extends AbstractBehavior(actorContext) {
@@ -33,6 +36,7 @@ class DistributedTickLoop(
             Behaviors.stopped
           } else {
             preTickActions.execute(currentTick)
+            simulationContextReplicator ! UpdateContext()
             implicit val seconds: Timeout = 3.seconds
             implicit val scheduler: Scheduler = context.system.scheduler
             val workerList = Await.result(

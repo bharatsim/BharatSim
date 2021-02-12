@@ -12,7 +12,8 @@ import com.bharatsim.engine.graph.custom.{Buffer, GraphProviderWithBufferImpl}
 
 import scala.collection.concurrent.TrieMap
 
-class ActorBasedStore(actorContext: ActorContext[DBQuery], graph: GraphProviderWithBufferImpl) extends AbstractBehavior(actorContext) {
+private[engine] class ActorBasedStore(actorContext: ActorContext[DBQuery], graph: GraphProviderWithBufferImpl)
+    extends AbstractBehavior(actorContext) {
   private val readHandler = context.spawn(ReadHandler(graph), "read-handler")
   private val writeHandler = context.spawn(WriteHandler(graph), "write-handler")
 
@@ -31,7 +32,7 @@ class ActorBasedStore(actorContext: ActorContext[DBQuery], graph: GraphProviderW
   }
 }
 
-object ActorBasedStore {
+private[engine] object ActorBasedStore {
   trait DBQuery extends CborSerializable
   case class DeleteAll(replyTo: ActorRef[Reply]) extends DBQuery
   case class SwapBuffers(replyTo: ActorRef[Reply]) extends DBQuery
@@ -43,9 +44,9 @@ object ActorBasedStore {
 
   case class NodeIdReply(value: NodeId) extends Reply
   case class DoneReply() extends Reply
+  val graphProvider = GraphProviderWithBufferImpl()
 
   def apply(readBuffer: Buffer = Buffer(TrieMap.empty, TrieMap.empty)): Behavior[DBQuery] = {
-    val graph = GraphProviderWithBufferImpl()
-    Behaviors.setup(context => new ActorBasedStore(context, graph))
+    Behaviors.setup(context => new ActorBasedStore(context, graphProvider))
   }
 }
