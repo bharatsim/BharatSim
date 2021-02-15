@@ -6,15 +6,20 @@ import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider, PartialGraphNode}
 
 import scala.collection.concurrent.TrieMap
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
-private[engine] class GraphProviderWithBufferImpl(private var graphOperations: GraphOperations)
-  extends GraphProvider {
-
+private[engine] class GraphProviderWithBufferImpl(private var graphOperations: GraphOperations) extends GraphProvider {
+  private val ingestedCsvs: mutable.ListBuffer[String] = ListBuffer.empty
   override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
     super.ingestFromCsv(csvPath, mapper)
+    ingestedCsvs.addOne(csvPath)
     syncBuffers()
   }
 
+  def isIngested(csvPath: String): Boolean = {
+    ingestedCsvs.contains(csvPath)
+  }
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
     graphOperations.writeOperations.createRelationship(node1, label, node2)
   }
@@ -84,9 +89,9 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
   }
 
   override private[engine] def batchImportRelations(
-                                                     relations: IterableOnce[Relation],
-                                                     refToIdMapping: RefToIdMapping
-                                                   ): Unit = {
+      relations: IterableOnce[Relation],
+      refToIdMapping: RefToIdMapping
+  ): Unit = {
     graphOperations.writeOperations.batchImportRelations(relations, refToIdMapping)
   }
 

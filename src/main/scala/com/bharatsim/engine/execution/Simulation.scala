@@ -62,9 +62,8 @@ object Simulation {
 
   def init()(implicit simulationContext: Context): Unit = {
     if (applicationConfig.executionMode == Distributed) {
-      if (applicationConfig.hasDataStoreRole()) {
-        start(applicationConfig.role, applicationConfig.port, simulationContext)
-      }
+
+      start(applicationConfig.role, applicationConfig.port, simulationContext)
     } else {
       GraphProviderFactory.init()
     }
@@ -83,9 +82,7 @@ object Simulation {
 
   def run()(implicit context: Context): Unit = {
     if (applicationConfig.executionMode == Distributed) {
-      if (applicationConfig.hasEngineMainRole() || applicationConfig.hasWorkerRole()) {
-        start(applicationConfig.role, applicationConfig.port, context)
-      }
+      Guardian.run()
       return
     }
 

@@ -3,11 +3,12 @@ package com.bharatsim.engine.distributed.store
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.{ActorRef, ActorSystem, Scheduler}
 import akka.util.Timeout
+import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.distributed.store.ActorBasedStore._
 import com.bharatsim.engine.distributed.store.ReadHandler.{apply => _, _}
 import com.bharatsim.engine.distributed.store.WriteHandler.{apply => _, _}
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.ingestion.{CsvNode, RefToIdMapping, Relation}
+import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider, PartialGraphNode}
 
@@ -18,6 +19,18 @@ class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val syst
     extends GraphProvider {
   implicit val seconds: Timeout = 3.seconds
   implicit val scheduler: Scheduler = system.scheduler
+
+  override private[engine] def ingestFromCsv(
+      csvPath: String,
+      mapper: Option[Function[Map[String, String], GraphData]]
+  ): Unit = {
+    if (ApplicationConfigFactory.config.hasEngineMainRole()) {
+      var ingested = false
+      while (!ingested) {
+        ingested = AwaitedResult(ref => IsIngested(csvPath, ref)).getBoolean
+      }
+    }
+  }
 
   override private[engine] def createNode(label: String, props: Map[String, Any]): NodeId = {
     AwaitedResult(ref => CreateNode(label, props, ref)).getNodeId
@@ -82,9 +95,9 @@ class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val syst
   override private[engine] def batchImportNodes(node: IterableOnce[CsvNode]) = ???
 
   override private[engine] def batchImportRelations(
-                                                     relations: IterableOnce[Relation],
-                                                     refToIdMapping: RefToIdMapping
-                                                   ): Unit = ???
+      relations: IterableOnce[Relation],
+      refToIdMapping: RefToIdMapping
+  ): Unit = ???
 
   override def shutdown(): Unit = {}
 
@@ -99,6 +112,7 @@ class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val syst
     def getOptionalGraphNode: Option[GraphNode] = get[OptionalGraphNode].maybeValue
     def getPartialNodes: Iterable[PartialGraphNode] = get[PartialNodesReply].value
     def getNodeId: NodeId = get[NodeIdReply].value
+    def getBoolean: Boolean = get[BooleanReply].value
     def await(): Unit = get[DoneReply]
   }
 

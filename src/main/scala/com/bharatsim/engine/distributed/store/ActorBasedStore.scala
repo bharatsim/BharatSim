@@ -3,7 +3,14 @@ package com.bharatsim.engine.distributed.store
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
 import com.bharatsim.engine.distributed.CborSerializable
-import com.bharatsim.engine.distributed.store.ActorBasedStore.{DBQuery, DeleteAll, DoneReply, SwapBuffers}
+import com.bharatsim.engine.distributed.store.ActorBasedStore.{
+  BooleanReply,
+  DBQuery,
+  DeleteAll,
+  DoneReply,
+  IsIngested,
+  SwapBuffers
+}
 import com.bharatsim.engine.distributed.store.ReadHandler.ReadQuery
 import com.bharatsim.engine.distributed.store.WriteHandler.WriteQuery
 import com.bharatsim.engine.graph.{GraphNode, PartialGraphNode}
@@ -25,6 +32,8 @@ private[engine] class ActorBasedStore(actorContext: ActorContext[DBQuery], graph
       case SwapBuffers(replyTo) =>
         graph.syncBuffers()
         replyTo ! DoneReply()
+      case IsIngested(csvPath, replyTo) =>
+        replyTo ! BooleanReply(graph.isIngested(csvPath))
     }
     Behaviors.same
   }
@@ -34,6 +43,7 @@ private[engine] object ActorBasedStore {
   trait DBQuery extends CborSerializable
   case class DeleteAll(replyTo: ActorRef[Reply]) extends DBQuery
   case class SwapBuffers(replyTo: ActorRef[Reply]) extends DBQuery
+  case class IsIngested(csvPath: String, replyTo: ActorRef[Reply]) extends DBQuery
 
   sealed trait Reply extends CborSerializable
   case class IntReply(value: Int) extends Reply
@@ -43,7 +53,8 @@ private[engine] object ActorBasedStore {
 
   case class NodeIdReply(value: NodeId) extends Reply
   case class DoneReply() extends Reply
-  val graphProvider: GraphProviderWithBufferImpl = GraphProviderWithBufferImpl()
+  case class BooleanReply(value: Boolean) extends Reply
+  val graphProvider = GraphProviderWithBufferImpl()
 
   def apply(): Behavior[DBQuery] = {
     Behaviors.setup(context => new ActorBasedStore(context, graphProvider))
