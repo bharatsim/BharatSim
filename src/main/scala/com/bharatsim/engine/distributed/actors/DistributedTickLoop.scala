@@ -6,11 +6,12 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, Scheduler}
 import akka.util.Timeout
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.distributed.AgentProcessor.{NotifyCompletion, UnitOfWork}
+import com.bharatsim.engine.distributed.DistributedAgentProcessor.{NotifyCompletion, UnitOfWork}
 import com.bharatsim.engine.distributed.Guardian.workerServiceKey
 import com.bharatsim.engine.distributed.SimulationContextReplicator
-import com.bharatsim.engine.distributed.SimulationContextReplicator.{ContextData, UpdateContext}
+import com.bharatsim.engine.distributed.SimulationContextReplicator.UpdateContext
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{Command, CurrentTick, UnitOfWorkFinished}
+import com.bharatsim.engine.execution.actorbased.RoundRobinStrategy
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 
 import scala.concurrent.Await
@@ -45,23 +46,20 @@ class DistributedTickLoop(
               ),
               Duration.Inf
             ) match {
-              case workerServiceKey.Listing(listings) => listings
+              case workerServiceKey.Listing(listings) => listings.toArray
             }
 
-            val nodesWithDecoders = simulationContext.registeredNodesWithDecoder
-            val numAgents = nodesWithDecoders.size
-            val numWorker = workerList.size
-            val groupSize = (numAgents.toDouble / numWorker).ceil.toInt
-            val groupedWork = nodesWithDecoders.grouped(groupSize)
-            workerList.foreach((worker) => {
-              val workSet = groupedWork.next()
-              workSet.foreach(work => {
-                worker ! UnitOfWork(work)
-                worker ! NotifyCompletion(actorContext.self)
-              })
+            val agents = simulationContext.agentLabels
+              .flatMap(label => simulationContext.graphProvider.fetchNodesSelect(label, Set.empty))
+
+            val roundRobinStrategy = new RoundRobinStrategy(workerList.length)
+            agents.foreach(agent => {
+              val worker = workerList(roundRobinStrategy.next)
+              worker ! UnitOfWork(agent.id, agent.nodeLabel)
+              worker ! NotifyCompletion(actorContext.self)
             })
 
-            TickBarrier(currentTick, nodesWithDecoders.size, 0)
+            TickBarrier(currentTick, agents.size, 0)
           }
       }
 

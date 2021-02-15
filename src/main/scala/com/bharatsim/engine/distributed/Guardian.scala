@@ -14,14 +14,14 @@ import com.bharatsim.engine.graph.GraphProviderFactory
 
 object Guardian {
   private val storeServiceKey: ServiceKey[DBQuery] = ServiceKey[DBQuery]("DataStore")
-  val workerServiceKey: ServiceKey[AgentProcessor.Command] = ServiceKey[AgentProcessor.Command]("Worker")
+  val workerServiceKey: ServiceKey[DistributedAgentProcessor.Command] = ServiceKey[DistributedAgentProcessor.Command]("Worker")
 
   def createWorker(context: ActorContext[Nothing], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
     val behaviourControl = new BehaviourControl(simulationContext)
     val stateControl = new StateControl(simulationContext)
     val agentExecutor = new AgentExecutor(behaviourControl, stateControl)
     context.spawn(SimulationContextSubscriber(simulationContext), "SimulationContextSubscriber");
-    val worker = context.spawn(AgentProcessor(agentExecutor), "Worker");
+    val worker = context.spawn(DistributedAgentProcessor(agentExecutor, simulationContext), "Worker");
     GraphProviderFactory.init(store, context.system)
 
     context.system.receptionist ! Receptionist.register(workerServiceKey, worker)
@@ -29,7 +29,7 @@ object Guardian {
 
   def createMain(context: ActorContext[Nothing], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
     GraphProviderFactory.init(store, context.system)
-    context.spawn(EnginMainActor(store, simulationContext), "EngineMain")
+    context.spawn(EngineMainActor(store, simulationContext), "EngineMain")
   }
 
   def apply(simulationContext: Context): Behavior[Nothing] =

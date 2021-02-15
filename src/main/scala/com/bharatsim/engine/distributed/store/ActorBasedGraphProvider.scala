@@ -9,7 +9,7 @@ import com.bharatsim.engine.distributed.store.WriteHandler.{apply => _, _}
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion.{CsvNode, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
-import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
+import com.bharatsim.engine.graph.{GraphNode, GraphProvider, PartialGraphNode}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, DurationInt}
@@ -37,6 +37,14 @@ class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val syst
 
   override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
     AwaitedResult((ref: ActorRef[Reply]) => FetchNodesByPattern(label, matchPattern, ref)).getGraphNodes
+  }
+
+  override def fetchNodesSelect(label: String, select: Set[String], where: MatchPattern): Iterable[PartialGraphNode] = {
+    AwaitedResult(ref => Fetch(label, select, where , ref)).getPartialNodes
+  }
+
+  override def fetchById(id: NodeId): Option[GraphNode] = {
+    AwaitedResult(ref => FetchByNodeId(id, ref)).getOptionalGraphNode
   }
 
   override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
@@ -89,6 +97,7 @@ class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val syst
     def getInt: Int = get[IntReply].value
     def getGraphNodes: Iterable[GraphNode] = get[GraphNodesReply].value
     def getOptionalGraphNode: Option[GraphNode] = get[OptionalGraphNode].maybeValue
+    def getPartialNodes: Iterable[PartialGraphNode] = get[PartialNodesReply].value
     def getNodeId: NodeId = get[NodeIdReply].value
     def await(): Unit = get[DoneReply]
   }

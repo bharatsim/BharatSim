@@ -60,7 +60,7 @@ class Simulation(
 object Simulation {
   private val applicationConfig: ApplicationConfig = ApplicationConfigFactory.config
 
-  def init(args: Array[String])(implicit simulationContext: Context): Unit = {
+  def init()(implicit simulationContext: Context): Unit = {
     if (applicationConfig.executionMode == Distributed) {
       if (applicationConfig.hasDataStoreRole()) {
         start(applicationConfig.role, applicationConfig.port, simulationContext)

@@ -1,6 +1,6 @@
 package com.bharatsim.engine.graph.custom
 
-import com.bharatsim.engine.graph.GraphNode
+import com.bharatsim.engine.graph.{GraphNode, PartialGraphNode}
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.typesafe.scalalogging.LazyLogging
@@ -39,10 +39,14 @@ class ReadOperations(buffer: Buffer) extends LazyLogging {
   }
 
   def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
-    if (buffer.nodes.contains(label) && buffer.nodes(label).nonEmpty) {
-      buffer.nodes(label).values.filter(node => matchPattern.eval(node.params)).map(_.toGraphNode)
-    } else List.empty
+    filterByPattern(label, matchPattern).map(_.toGraphNode)
   }
+
+  def fetchNodesSelect(label: String, select: Set[String], where: MatchPattern): Iterable[PartialGraphNode] = {
+    filterByPattern(label, where).map(_.reduceWith(select))
+  }
+
+  def fetchByNodeId(id: NodeId): Option[GraphNode] = buffer.indexedNodes.get(id).map(_.toGraphNode)
 
   def fetchCount(label: String, matchPattern: MatchPattern): Int = {
     buffer.nodes
@@ -77,6 +81,12 @@ class ReadOperations(buffer: Buffer) extends LazyLogging {
         })
       count
     } else 0
+  }
+
+  private def filterByPattern(label: String, matchPattern: MatchPattern): Iterable[InternalNode] = {
+    if (buffer.nodes.contains(label) && buffer.nodes(label).nonEmpty) {
+      buffer.nodes(label).values.filter(node => matchPattern.eval(node.params))
+    } else List.empty
   }
 
   private def filterNodesByMatchingParams(label: String, params: Map[String, Any]): Iterable[InternalNode] = {

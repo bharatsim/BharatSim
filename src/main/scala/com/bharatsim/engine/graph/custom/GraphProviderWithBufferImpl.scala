@@ -3,7 +3,7 @@ package com.bharatsim.engine.graph.custom
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
-import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
+import com.bharatsim.engine.graph.{GraphNode, GraphProvider, PartialGraphNode}
 
 import scala.collection.concurrent.TrieMap
 
@@ -33,6 +33,16 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
 
   override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
     graphOperations.readOperations.fetchNodes(label, matchPattern)
+  }
+
+  // TODO implement for other data store implementations as well
+  override def fetchNodesSelect(label: String, select: Set[String], where: MatchPattern): Iterable[PartialGraphNode] = {
+    graphOperations.readOperations.fetchNodesSelect(label, select, where)
+  }
+
+  // TODO implement for other data store implementations as well
+  override def fetchById(id: NodeId): Option[GraphNode] = {
+    graphOperations.readOperations.fetchByNodeId(id)
   }
 
   override def fetchCount(label: String, matchPattern: MatchPattern): Int = {

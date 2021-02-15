@@ -11,7 +11,7 @@ import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.{Failure, Success}
 
-object EnginMainActor extends LazyLogging {
+object EngineMainActor extends LazyLogging {
 
   def executeRun(
       actorContext: ActorContext[DistributedTickLoop.Command],

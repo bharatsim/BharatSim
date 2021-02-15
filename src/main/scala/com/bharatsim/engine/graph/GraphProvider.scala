@@ -52,6 +52,8 @@ case class GraphNode(nodeLabel: String, id: NodeId, params: Map[String, Any] = M
   }
 }
 
+case class PartialGraphNode(nodeLabel: String, id: NodeId, params: Map[String, Any])
+
 /**
   * GraphProvider interface allows to perform CRUD operations on underlying data store
   */
@@ -176,6 +178,10 @@ trait GraphProvider {
     * @return all the matching nodes
     */
   def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode]
+
+  def fetchNodesSelect(label: String, select: Set[String], where: MatchPattern = EmptyPattern()): Iterable[PartialGraphNode] = Iterable.empty
+
+  private[engine] def fetchById(id: NodeId): Option[GraphNode] = None
 
   /**
     * Gets count of all the nodes that matches the criteria

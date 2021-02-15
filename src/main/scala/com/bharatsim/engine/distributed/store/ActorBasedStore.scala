@@ -6,11 +6,9 @@ import com.bharatsim.engine.distributed.CborSerializable
 import com.bharatsim.engine.distributed.store.ActorBasedStore.{DBQuery, DeleteAll, DoneReply, SwapBuffers}
 import com.bharatsim.engine.distributed.store.ReadHandler.ReadQuery
 import com.bharatsim.engine.distributed.store.WriteHandler.WriteQuery
-import com.bharatsim.engine.graph.GraphNode
+import com.bharatsim.engine.graph.{GraphNode, PartialGraphNode}
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.custom.{Buffer, GraphProviderWithBufferImpl}
-
-import scala.collection.concurrent.TrieMap
+import com.bharatsim.engine.graph.custom.GraphProviderWithBufferImpl
 
 private[engine] class ActorBasedStore(actorContext: ActorContext[DBQuery], graph: GraphProviderWithBufferImpl)
     extends AbstractBehavior(actorContext) {
@@ -41,12 +39,13 @@ private[engine] object ActorBasedStore {
   case class IntReply(value: Int) extends Reply
   case class GraphNodesReply(value: Iterable[GraphNode]) extends Reply
   case class OptionalGraphNode(maybeValue: Option[GraphNode]) extends Reply
+  case class PartialNodesReply(value: Iterable[PartialGraphNode]) extends Reply
 
   case class NodeIdReply(value: NodeId) extends Reply
   case class DoneReply() extends Reply
-  val graphProvider = GraphProviderWithBufferImpl()
+  val graphProvider: GraphProviderWithBufferImpl = GraphProviderWithBufferImpl()
 
-  def apply(readBuffer: Buffer = Buffer(TrieMap.empty, TrieMap.empty)): Behavior[DBQuery] = {
+  def apply(): Behavior[DBQuery] = {
     Behaviors.setup(context => new ActorBasedStore(context, graphProvider))
   }
 }

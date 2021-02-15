@@ -75,6 +75,8 @@ class Context(
         .fetchNodes(labelWithDecoder.label)
         .map(node => NodeWithDecoder(node, labelWithDecoder.decoder))
     )
+
+  private[engine] def agentLabels: Iterable[String] = agentTypes.map(_.label)
 }
 
 object Context {
