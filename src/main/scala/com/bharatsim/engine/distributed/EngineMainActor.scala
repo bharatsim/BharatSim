@@ -9,7 +9,8 @@ import com.bharatsim.engine.execution.simulation.{PostSimulationActions, PreSimu
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 import com.typesafe.scalalogging.LazyLogging
 
-import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext
+import scala.util.Success
 
 object EngineMainActor extends LazyLogging {
 
@@ -26,15 +27,11 @@ object EngineMainActor extends LazyLogging {
       actorContext.spawn(SimulationContextReplicator(simulationContext), "simulationContextReplicator")
     val tickLoop = new DistributedTickLoop(simulationContext, preTickActions, postTickActions, contextReplicator)
 
-    val executionContext = actorContext.executionContext
     actorContext.system.whenTerminated.andThen {
-      case Failure(exception) =>
-        logger.error("Error occurred while executing simulation using actor system: {}", exception.getMessage)
-        postSimulationActions.execute()
       case Success(_) =>
-        logger.info("Finished running simulation")
         postSimulationActions.execute()
-    }(executionContext)
+        logger.info("Finished running simulation")
+    }(ExecutionContext.global)
 
     tickLoop.Tick(1)
   }

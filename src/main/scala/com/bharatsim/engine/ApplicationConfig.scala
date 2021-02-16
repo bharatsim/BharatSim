@@ -7,7 +7,7 @@ import scala.util.Properties
 class ApplicationConfig {
   private val config = ConfigFactory.load()
 
-  val role: Role.Value = Role.withName(Properties.envOrElse("ROLE", "worker"))
+  val role: Role.Value = Role.withName(Properties.envOrElse("ROLE", "Worker"))
   val port: String = Properties.envOrElse("PORT", "8000")
 
   val executionMode: ExecutionMode = {

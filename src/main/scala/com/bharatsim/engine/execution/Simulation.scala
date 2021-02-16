@@ -1,15 +1,11 @@
 package com.bharatsim.engine.execution
 
-import akka.actor.typed.ActorSystem
 import com.bharatsim.engine._
-import com.bharatsim.engine.distributed.Guardian
-import com.bharatsim.engine.distributed.Role.Role
 import com.bharatsim.engine.execution.actorbased.ActorBackedSimulation
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.execution.simulation.{PostSimulationActions, PreSimulationActions}
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 import com.bharatsim.engine.graph.GraphProviderFactory
-import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.annotation.tailrec
@@ -60,38 +56,11 @@ class Simulation(
 object Simulation {
   private val applicationConfig: ApplicationConfig = ApplicationConfigFactory.config
 
-  def init(dynamic: Dynamics, simulationConfig: SimulationConfig): Context = {
-    if (applicationConfig.executionMode == Distributed) {
-
-      start(applicationConfig.role, applicationConfig.port)
-    } else {
+  def init()(implicit simulationContext: Context): Unit = {
       GraphProviderFactory.init()
-    }
-
-    while (GraphProviderFactory.get == null) {
-      println("waiting for graph provider")
-    }
-
-    Context(dynamic, simulationConfig)
-  }
-
-  private def start(role: Role, port: String): Unit = {
-    val config = ConfigFactory
-      .parseString(s"""akka.remote.artery.canonical.port=$port
-                      |akka.cluster.roles = [${role.toString}]
-                      |""".stripMargin)
-      .withFallback(ConfigFactory.load("cluster.conf"))
-
-    ActorSystem[Guardian.Command](Guardian(), "Cluster", config)
-
   }
 
   def run()(implicit context: Context): Unit = {
-    if (applicationConfig.executionMode == Distributed) {
-      Guardian.run(context)
-      return
-    }
-
     val behaviourControl = new BehaviourControl(context)
     val stateControl = new StateControl(context)
     val agentExecutor = new AgentExecutor(behaviourControl, stateControl)
