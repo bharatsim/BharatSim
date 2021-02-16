@@ -55,7 +55,7 @@ class Context(
     * @return Set of intervention names that are active at the current tick
     */
   def activeInterventionNames: Set[String] = {
-    if (ApplicationConfigFactory.config.hasEngineMainRole()) {
+    if (ApplicationConfigFactory.config.hasWorkerRole()) {
       return proxyActiveInterventions
     }
     interventions.activeNames

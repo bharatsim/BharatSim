@@ -30,7 +30,7 @@ class DistributedAgentProcessor(
 
 object DistributedAgentProcessor {
 
-  sealed trait Command
+  sealed trait Command extends CborSerializable
 
   case class UnitOfWork(agentId: Int, label: String) extends Command
 

@@ -8,13 +8,16 @@ import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.dsl.SyntaxHelpers._
 import com.bharatsim.engine.execution.Simulation
 import com.bharatsim.engine.graph.GraphNode
+import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.intervention.{IntervalBasedIntervention, Intervention}
 import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
-import com.bharatsim.model.InfectionSeverity.{Mild, Severe}
+import com.bharatsim.engine.utils.Utils
+import com.bharatsim.engine.utils.Utils._
+import com.bharatsim.model.InfectionSeverity.{InfectionSeverity, Mild, Severe}
 import com.bharatsim.model.InfectionStatus._
 import com.bharatsim.model.diseaseState._
 import com.typesafe.scalalogging.LazyLogging
@@ -26,10 +29,10 @@ object Main extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
     val config = SimulationConfig(5000)
-    implicit val context: Context = Context(Disease, config)
+    implicit val context: Context = Simulation.init(Disease, config)
+    println("Inti DONE>>>>>>>>>>>>>>>>>>>", context.graphProvider)
 
     try {
-      Simulation.init()
 
       addLockdown
       vaccination
@@ -49,6 +52,14 @@ object Main extends LazyLogging {
 
       registerAgent[Person]
 
+      State.saveSerde[SusceptibleState](Utils.fetchClassName[SusceptibleState])
+      State.saveSerde[InfectedState[InfectionSeverity]](Utils.fetchClassName[InfectedState[InfectionSeverity]])
+      State.saveSerde[ExposedState](Utils.fetchClassName[ExposedState])
+      State.saveSerde[AsymptomaticState](Utils.fetchClassName[AsymptomaticState])
+      State.saveSerde[PreSymptomaticState](Utils.fetchClassName[PreSymptomaticState])
+      State.saveSerde[RecoveredState](Utils.fetchClassName[RecoveredState])
+      State.saveSerde[DeceasedState](Utils.fetchClassName[DeceasedState])
+
       SimulationListenerRegistry.register(
         new CsvOutputGenerator("src/main/resources/output.csv", new SEIROutputSpec(context))
       )
@@ -62,24 +73,32 @@ object Main extends LazyLogging {
       logger.info("Total time: {} s", (endTime - startTime) / 1000)
       printStats(beforeCount)
     } finally {
-      teardown()
+//      teardown(false)
     }
   }
 
   private def vaccination(implicit context: Context): Unit = {
     val interventionName = "vaccination"
-    val intervention: Intervention = IntervalBasedIntervention(interventionName, 2, 12, _ => (), context => {
-      val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person")
+    val intervention: Intervention = IntervalBasedIntervention(
+      interventionName,
+      2,
+      12,
+      _ => (),
+      context => {
+        val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person")
 
-      populationIterable.foreach(node => if (biasedCoinToss(Disease.vaccinationRate)) {
-        val person = node.as[Person]
-        if ((person.isSusceptible || person.isExposed) && !person.isVaccinated) {
-          person.updateParam("vaccinationStatus", true)
-          person.updateParam("betaMultiplier", person.betaMultiplier * Disease.betaMultiplier)
-          person.updateParam("gammaMultiplier", Disease.vaccinatedGammaFractionalIncrease)
-        }
-      })
-    })
+        populationIterable.foreach(node =>
+          if (biasedCoinToss(Disease.vaccinationRate)) {
+            val person = node.as[Person]
+            if ((person.isSusceptible || person.isExposed) && !person.isVaccinated) {
+              person.updateParam("vaccinationStatus", true)
+              person.updateParam("betaMultiplier", person.betaMultiplier * Disease.betaMultiplier)
+              person.updateParam("gammaMultiplier", Disease.vaccinatedGammaFractionalIncrease)
+            }
+          }
+        )
+      }
+    )
 
     registerIntervention(intervention)
   }
@@ -163,11 +182,10 @@ object Main extends LazyLogging {
         (agent: Agent, _: Context) => agent.asInstanceOf[Person].isSevereInfected,
         2
       ),
-      (mildSymptomaticSchedule, (agent:Agent, _: Context) => agent.asInstanceOf[Person].isMildInfected, 3),
+      (mildSymptomaticSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isMildInfected, 3),
       (
         employeeScheduleWithPublicTransport,
-        (agent: Agent, _: Context) =>
-          agent.asInstanceOf[Person].takesPublicTransport,
+        (agent: Agent, _: Context) => agent.asInstanceOf[Person].takesPublicTransport,
         4
       ),
       (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isEmployee, 5),
@@ -182,7 +200,7 @@ object Main extends LazyLogging {
     val takesPublicTransport = map("PublicTransport_Jobs").toInt == 1
     val isEssentialWorker = map("essential_worker").toInt == 1
     val violateLockdown = map("Adherence_to_Intervention").toFloat >= 0.5
-    val initialInfectionState = if(biasedCoinToss(initialInfectedFraction)) "InfectedMild" else "Susceptible"
+    val initialInfectionState = if (biasedCoinToss(initialInfectedFraction)) "InfectedMild" else "Susceptible"
     val villageTown = map("VillTownName")
     val lat = map("H_Lat")
     val long = map("H_Lon")
@@ -192,8 +210,8 @@ object Main extends LazyLogging {
     val officeId = map("WorkPlaceID").toLong
     val publicPlaceId = generatePublicPlaceId()
 
-    val isEmployee:Boolean = officeId > 0
-    val isStudent:Boolean = schoolId > 0
+    val isEmployee: Boolean = officeId > 0
+    val isStudent: Boolean = schoolId > 0
 
     val betaMultiplier = 1.0
 //    val gammaMultiplier = if (age > ageLimit) 0.1 else 0.4
@@ -281,13 +299,18 @@ object Main extends LazyLogging {
     )
     val severeInfectionPercentage = context.dynamics.asInstanceOf[Disease.type].severeInfectedPopulationPercentage
     val exposedDuration = context.dynamics.asInstanceOf[Disease.type].exposedDurationProbabilityDistribution.sample()
-    val asymptomaticDuration = context.dynamics.asInstanceOf[Disease.type].asymptomaticDurationProbabilityDistribution.sample()
-    val preSymptomaticDuration = context.dynamics.asInstanceOf[Disease.type].presymptomaticDurationProbabilityDistribution.sample()
-    val mildSymptomaticDuration = context.dynamics.asInstanceOf[Disease.type].mildSymptomaticDurationProbabilityDistribution.sample()
-    val severeSymptomaticDuration = context.dynamics.asInstanceOf[Disease.type].severeSymptomaticDurationProbabilityDistribution.sample()
+    val asymptomaticDuration =
+      context.dynamics.asInstanceOf[Disease.type].asymptomaticDurationProbabilityDistribution.sample()
+    val preSymptomaticDuration =
+      context.dynamics.asInstanceOf[Disease.type].presymptomaticDurationProbabilityDistribution.sample()
+    val mildSymptomaticDuration =
+      context.dynamics.asInstanceOf[Disease.type].mildSymptomaticDurationProbabilityDistribution.sample()
+    val severeSymptomaticDuration =
+      context.dynamics.asInstanceOf[Disease.type].severeSymptomaticDurationProbabilityDistribution.sample()
     initialState match {
-      case "Susceptible"    => citizen.setInitialState(SusceptibleState())
-      case "Exposed"        => citizen.setInitialState(ExposedState(severeInfectionPercentage, isAsymptomatic, exposedDuration))
+      case "Susceptible" => citizen.setInitialState(SusceptibleState())
+      case "Exposed" =>
+        citizen.setInitialState(ExposedState(severeInfectionPercentage, isAsymptomatic, exposedDuration))
       case "Asymptomatic"   => citizen.setInitialState(AsymptomaticState(asymptomaticDuration))
       case "PreSymptomatic" => citizen.setInitialState(PreSymptomaticState(Mild, preSymptomaticDuration))
       case "InfectedMild"   => citizen.setInitialState(InfectedState(Mild, mildSymptomaticDuration))

@@ -23,10 +23,10 @@ object Guardian {
   private val storeServiceKey: ServiceKey[DBQuery] = ServiceKey[DBQuery]("DataStore")
   val workerServiceKey: ServiceKey[DistributedAgentProcessor.Command] =
     ServiceKey[DistributedAgentProcessor.Command]("Worker")
-  private var simulationContext: Context = null;
-  private var actorContext: ActorContext[Nothing] = null;
+  private var actorContext: ActorContext[Command] = null;
   private var storeRef: ActorRef[DBQuery] = null;
   private var cluster: Cluster = null;
+  private var selfRef: ActorRef[Command] = null
 
   private def getStoreRef(): Future[ActorRef[DBQuery]] = {
     val system = actorContext.system
@@ -50,53 +50,70 @@ object Guardian {
   private def awaitStoreRef(): ActorRef[DBQuery] = {
     implicit val scheduler = actorContext.system.scheduler.toClassic
     implicit val executionContext = actorContext.system.executionContext
-    val retried = retry(() => getStoreRef(), 10, 100.milliseconds)
+    val retried = retry(() => getStoreRef(), 10, 1.seconds)
     Await.result(retried, Duration.Inf)
   }
 
-  private def init(context: ActorContext[Nothing], simContext: Context): Unit = {
+  private def init(context: ActorContext[Command]): Unit = {
     actorContext = context
-    simulationContext = simContext
     cluster = Cluster(actorContext.system)
     if (cluster.selfMember.hasRole(DataStore.toString)) {
       val actorBasedStore = actorContext.spawn(ActorBasedStore(), "store")
       storeRef = actorBasedStore
       GraphProviderFactory.initDataStore()
       actorContext.system.receptionist ! Receptionist.register(storeServiceKey, actorBasedStore)
+
+      context.log.info("Store Registerd")
     }
 
     if (cluster.selfMember.hasRole(Worker.toString) || cluster.selfMember.hasRole(EngineMain.toString)) {
       storeRef = awaitStoreRef()
+      println("data store init path=====>", storeRef.path)
+
       GraphProviderFactory.init(storeRef, context.system)
     }
   }
 
-  def run(): Unit = {
-    if (cluster.selfMember.hasRole(Worker.toString)) {
-      createWorker(actorContext, storeRef, simulationContext)
-    }
-
-    if (cluster.selfMember.hasRole(EngineMain.toString)) {
-      createMain(actorContext, storeRef, simulationContext)
-    }
+  def run(simulationContext: Context): Unit = {
+    selfRef ! Run(simulationContext)
   }
 
-  def createWorker(context: ActorContext[Nothing], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
+  def createWorker(context: ActorContext[Command], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
     val behaviourControl = new BehaviourControl(simulationContext)
     val stateControl = new StateControl(simulationContext)
     val agentExecutor = new AgentExecutor(behaviourControl, stateControl)
     context.spawn(SimulationContextSubscriber(simulationContext), "SimulationContextSubscriber");
     val worker = context.spawn(DistributedAgentProcessor(agentExecutor, simulationContext), "Worker");
     context.system.receptionist ! Receptionist.register(workerServiceKey, worker)
+    context.log.info("worker Registerd")
+
   }
 
-  def createMain(context: ActorContext[Nothing], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
+  def createMain(context: ActorContext[Command], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
     context.spawn(EngineMainActor(store, simulationContext), "EngineMain")
+    context.log.info("Main staterd")
+
   }
 
-  def apply(simulationContext: Context): Behavior[Nothing] =
-    Behaviors.setup[Nothing](context => {
-      init(context, simulationContext)
-      Behaviors.empty
+  trait Command;
+  case class Run(simContext: Context) extends Command
+
+  def apply(): Behavior[Command] =
+    Behaviors.setup[Command](context => {
+      selfRef = context.self
+      init(context)
+
+      Behaviors.receiveMessage[Command] {
+        case Run(simContext) => {
+          if (cluster.selfMember.hasRole(Worker.toString)) {
+            createWorker(context, storeRef, simContext)
+          }
+
+          if (cluster.selfMember.hasRole(EngineMain.toString)) {
+            createMain(context, storeRef, simContext)
+          }
+          Behaviors.same
+        }
+      }
     })
 }

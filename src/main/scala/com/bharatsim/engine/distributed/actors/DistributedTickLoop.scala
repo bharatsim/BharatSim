@@ -8,9 +8,10 @@ import akka.util.Timeout
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.DistributedAgentProcessor.{NotifyCompletion, UnitOfWork}
 import com.bharatsim.engine.distributed.Guardian.workerServiceKey
-import com.bharatsim.engine.distributed.SimulationContextReplicator
+import com.bharatsim.engine.distributed.{CborSerializable, SimulationContextReplicator}
 import com.bharatsim.engine.distributed.SimulationContextReplicator.UpdateContext
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{Command, CurrentTick, UnitOfWorkFinished}
+import com.bharatsim.engine.distributed.store.ActorBasedGraphProvider
 import com.bharatsim.engine.execution.actorbased.RoundRobinStrategy
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 
@@ -38,6 +39,7 @@ class DistributedTickLoop(
           } else {
             preTickActions.execute(currentTick)
             simulationContextReplicator ! UpdateContext()
+            simulationContext.graphProvider.asInstanceOf[ActorBasedGraphProvider].swapBuffers()
             implicit val seconds: Timeout = 3.seconds
             implicit val scheduler: Scheduler = context.system.scheduler
             val workerList = Await.result(
@@ -95,7 +97,7 @@ class DistributedTickLoop(
 
 object DistributedTickLoop {
 
-  sealed trait Command
+  sealed trait Command extends CborSerializable
 
   case object CurrentTick extends Command
 

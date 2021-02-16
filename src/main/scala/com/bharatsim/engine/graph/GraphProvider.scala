@@ -115,7 +115,7 @@ trait GraphProvider {
     * @param csvPath is path to the CSV
     * @param mapper  is function that map a csv row to Nodes and Relations
     */
-  def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
+  private[engine] def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
     val reader = CSVReader.open(csvPath)
     val records = reader.allWithHeaders()
 
@@ -179,7 +179,11 @@ trait GraphProvider {
     */
   def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode]
 
-  def fetchNodesSelect(label: String, select: Set[String], where: MatchPattern = EmptyPattern()): Iterable[PartialGraphNode] = Iterable.empty
+  def fetchNodesSelect(
+      label: String,
+      select: Set[String],
+      where: MatchPattern = EmptyPattern()
+  ): Iterable[PartialGraphNode] = Iterable.empty
 
   private[engine] def fetchById(id: NodeId): Option[GraphNode] = None
 
@@ -223,7 +227,8 @@ trait GraphProvider {
     * @param prop updated data
     * @param props additional updated data
     */
-  def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit = updateNode(nodeId, (prop :: props.toList).toMap)
+  def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit =
+    updateNode(nodeId, (prop :: props.toList).toMap)
 
   /**
     * delete the node.

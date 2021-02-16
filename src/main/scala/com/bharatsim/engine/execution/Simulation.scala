@@ -60,29 +60,35 @@ class Simulation(
 object Simulation {
   private val applicationConfig: ApplicationConfig = ApplicationConfigFactory.config
 
-  def init()(implicit simulationContext: Context): Unit = {
+  def init(dynamic: Dynamics, simulationConfig: SimulationConfig): Context = {
     if (applicationConfig.executionMode == Distributed) {
 
-      start(applicationConfig.role, applicationConfig.port, simulationContext)
+      start(applicationConfig.role, applicationConfig.port)
     } else {
       GraphProviderFactory.init()
     }
+
+    while (GraphProviderFactory.get == null) {
+      println("waiting for graph provider")
+    }
+
+    Context(dynamic, simulationConfig)
   }
 
-  private def start(role: Role, port: String, simulationContext: Context): Unit = {
+  private def start(role: Role, port: String): Unit = {
     val config = ConfigFactory
       .parseString(s"""akka.remote.artery.canonical.port=$port
                       |akka.cluster.roles = [${role.toString}]
                       |""".stripMargin)
-      .withFallback(ConfigFactory.load())
+      .withFallback(ConfigFactory.load("cluster.conf"))
 
-    ActorSystem[Nothing](Guardian(simulationContext), "BharatsimCluster", config)
+    ActorSystem[Guardian.Command](Guardian(), "Cluster", config)
 
   }
 
   def run()(implicit context: Context): Unit = {
     if (applicationConfig.executionMode == Distributed) {
-      Guardian.run()
+      Guardian.run(context)
       return
     }
 

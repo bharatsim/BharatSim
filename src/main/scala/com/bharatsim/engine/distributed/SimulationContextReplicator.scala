@@ -9,12 +9,12 @@ import com.bharatsim.engine.Context
 object SimulationContextReplicator {
 
   val contextKey = "ReplicatedSimulationContext"
-  case class ContextData(currentTick: Int, activeIntervention: Set[String])
+  case class ContextData(currentTick: Int, activeIntervention: Set[String]) extends CborSerializable
 
   private def fromContext(context: Context): ContextData = {
     ContextData(context.getCurrentStep, context.activeInterventionNames)
   }
-  sealed trait Command
+  sealed trait Command extends CborSerializable
   final case class UpdateContext() extends Command
   private sealed trait InternalCommand extends Command
   private case class InternalUpdateResponse(rsp: UpdateResponse[LWWMap[String, ContextData]]) extends InternalCommand

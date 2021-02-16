@@ -53,7 +53,7 @@ class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val syst
   }
 
   override def fetchNodesSelect(label: String, select: Set[String], where: MatchPattern): Iterable[PartialGraphNode] = {
-    AwaitedResult(ref => Fetch(label, select, where , ref)).getPartialNodes
+    AwaitedResult(ref => Fetch(label, select, where, ref)).getPartialNodes
   }
 
   override def fetchById(id: NodeId): Option[GraphNode] = {
@@ -99,6 +99,10 @@ class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val syst
       refToIdMapping: RefToIdMapping
   ): Unit = ???
 
+  private[engine] def swapBuffers(): Unit = {
+    AwaitedResult(ref => SwapBuffers(ref)).await()
+
+  }
   override def shutdown(): Unit = {}
 
   private class AwaitedResult[A <: DBQuery](query: ActorRef[Reply] => A) {
