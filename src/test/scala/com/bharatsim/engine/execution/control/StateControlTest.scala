@@ -12,7 +12,7 @@ import com.bharatsim.engine.models.StatefulAgent
 import com.bharatsim.engine.models.StatefulAgent.STATE_RELATIONSHIP
 import com.bharatsim.engine.testModels.StatefulPerson
 import com.bharatsim.engine.testModels.TestFSM.{IdleState, NoTransitionState, StateWithTransition}
-import com.bharatsim.engine.{Context, Dynamics, SimulationConfig}
+import com.bharatsim.engine.{ApplicationConfig, Context, Dynamics}
 import org.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
@@ -31,7 +31,7 @@ class StateControlTest extends AnyWordSpec with BeforeAndAfterEach with Matchers
   private def initializeStateAgent[T <: State: ClassTag](
       withState: T
   )(implicit encoder: BasicMapEncoder[T], decoder: BasicMapDecoder[T]): (StatefulAgent, Context) = {
-    val context = new Context(graph, mock[Dynamics], mock[SimulationConfig], mock[PerTickCache])
+    val context = new Context(graph, mock[Dynamics], mock[ApplicationConfig], mock[PerTickCache])
     val agentToIngest = StatefulPerson("Shraddha", 33)
     agentToIngest.setInitialState(withState)
     context.graphProvider.createNodeFromInstance(agentToIngest)

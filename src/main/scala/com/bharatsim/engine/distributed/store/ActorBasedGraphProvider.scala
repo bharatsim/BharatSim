@@ -20,7 +20,7 @@ class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val syst
   implicit val seconds: Timeout = 3.seconds
   implicit val scheduler: Scheduler = system.scheduler
 
-  override private[engine] def ingestFromCsv(
+  override def ingestFromCsv(
       csvPath: String,
       mapper: Option[Function[Map[String, String], GraphData]]
   ): Unit = {

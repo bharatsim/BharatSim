@@ -15,9 +15,7 @@ import com.bharatsim.engine.intervention.{IntervalBasedIntervention, Interventio
 import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
-import com.bharatsim.engine.utils.Utils
-import com.bharatsim.engine.utils.Utils._
-import com.bharatsim.model.InfectionSeverity.{InfectionSeverity, Mild, Severe}
+import com.bharatsim.model.InfectionSeverity.{Mild, Severe}
 import com.bharatsim.model.InfectionStatus._
 import com.bharatsim.model.diseaseState._
 import com.typesafe.scalalogging.LazyLogging
@@ -28,11 +26,10 @@ object Main extends LazyLogging {
   private val initialInfectedFraction = 0.3
 
   def main(args: Array[String]): Unit = {
-    val config = SimulationConfig(5000)
-    implicit val context: Context = Simulation.init(Disease, config)
-    println("Inti DONE>>>>>>>>>>>>>>>>>>>", context.graphProvider)
+    implicit val context: Context = Context(Disease)
 
     try {
+      Simulation.init()
 
       addLockdown
       vaccination
@@ -52,14 +49,6 @@ object Main extends LazyLogging {
 
       registerAgent[Person]
 
-      State.saveSerde[SusceptibleState](Utils.fetchClassName[SusceptibleState])
-      State.saveSerde[InfectedState[InfectionSeverity]](Utils.fetchClassName[InfectedState[InfectionSeverity]])
-      State.saveSerde[ExposedState](Utils.fetchClassName[ExposedState])
-      State.saveSerde[AsymptomaticState](Utils.fetchClassName[AsymptomaticState])
-      State.saveSerde[PreSymptomaticState](Utils.fetchClassName[PreSymptomaticState])
-      State.saveSerde[RecoveredState](Utils.fetchClassName[RecoveredState])
-      State.saveSerde[DeceasedState](Utils.fetchClassName[DeceasedState])
-
       SimulationListenerRegistry.register(
         new CsvOutputGenerator("src/main/resources/output.csv", new SEIROutputSpec(context))
       )
@@ -73,7 +62,7 @@ object Main extends LazyLogging {
       logger.info("Total time: {} s", (endTime - startTime) / 1000)
       printStats(beforeCount)
     } finally {
-//      teardown(false)
+      teardown()
     }
   }
 

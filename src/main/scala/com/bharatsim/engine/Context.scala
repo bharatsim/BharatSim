@@ -18,12 +18,12 @@ import scala.collection.mutable.ListBuffer
   *
   * @param graphProvider    instance of [[graph.GraphProvider GraphProvider]]
   * @param dynamics         instance of [[Dynamics]] for current simulation
-  * @param simulationConfig instance of [[SimulationConfig]] for the simulation
+  * @param simulationConfig instance of [[ApplicationConfig]] for the simulation
   */
 class Context(
     val graphProvider: GraphProvider,
     val dynamics: Dynamics,
-    val simulationConfig: SimulationConfig,
+    val simulationConfig: ApplicationConfig,
     val perTickCache: PerTickCache
 ) {
   private[engine] val schedules = new Schedules
@@ -84,16 +84,14 @@ object Context {
   /** Creator method for Context
     *
     * @param dynamics          instance of [[Dynamics]] for current simulation
-    * @param simulationConfig  instance of [[SimulationConfig]] for the simulation
-    * @param applicationConfig optional instance of [[ApplicationConfig]]
     */
   def apply(
-      dynamics: Dynamics,
-      simulationConfig: SimulationConfig,
-      applicationConfig: ApplicationConfig = ApplicationConfigFactory.config
+      dynamics: Dynamics
   ): Context = {
-    val perTickCache: PerTickCache = buildCache(applicationConfig)
-    new Context(GraphProviderFactory.get, dynamics, simulationConfig, perTickCache)
+    val applicationConfig: ApplicationConfig = ApplicationConfigFactory.config
+    val perTickCache: PerTickCache =
+      buildCache(applicationConfig)
+    new Context(GraphProviderFactory.get, dynamics, applicationConfig, perTickCache)
   }
 
   private def buildCache(applicationConfig: ApplicationConfig) = {

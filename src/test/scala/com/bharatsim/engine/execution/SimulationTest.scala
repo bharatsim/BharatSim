@@ -11,9 +11,9 @@ import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
 import com.bharatsim.engine.testModels.Employee.employeeBehaviour
 import com.bharatsim.engine.testModels.Student
 import com.bharatsim.engine.testModels.Student.{studentBehaviour1, studentBehaviour2}
-import com.bharatsim.engine.{ApplicationConfig, Context, Dynamics, SimulationConfig}
+import com.bharatsim.engine.{ApplicationConfig, Context, Dynamics}
 import org.mockito.Mockito.clearInvocations
-import org.mockito.MockitoSugar
+import org.mockito.{Mockito, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -72,7 +72,9 @@ class SimulationTest extends AnyWordSpec with MockitoSugar with BeforeAndAfterEa
       mockGraphProvider: GraphProvider = mock[GraphProvider],
       perTickCache: PerTickCache = mock[PerTickCache]
   ) = {
-    new Context(mockGraphProvider, new Dynamics, SimulationConfig(steps), perTickCache)
+    val config = mock[ApplicationConfig]
+    Mockito.when(config.simulationSteps).thenReturn(steps)
+    new Context(mockGraphProvider, new Dynamics, config, perTickCache)
   }
 }
 
