@@ -17,15 +17,9 @@ import scala.collection.mutable.ListBuffer
   * Context holds all the configurations and state of the simulation.
   *
   * @param graphProvider    instance of [[graph.GraphProvider GraphProvider]]
-  * @param dynamics         instance of [[Dynamics]] for current simulation
   * @param simulationConfig instance of [[ApplicationConfig]] for the simulation
   */
-class Context(
-    val graphProvider: GraphProvider,
-    val dynamics: Dynamics,
-    val simulationConfig: ApplicationConfig,
-    val perTickCache: PerTickCache
-) {
+class Context(val graphProvider: GraphProvider, val simulationConfig: ApplicationConfig, val perTickCache: PerTickCache) {
   private[engine] val schedules = new Schedules
   private[engine] val agentTypes: mutable.ListBuffer[GenericLabelWithDecoder] = ListBuffer.empty
   private[engine] var currentStep = 0
@@ -83,15 +77,12 @@ object Context {
 
   /** Creator method for Context
     *
-    * @param dynamics          instance of [[Dynamics]] for current simulation
     */
-  def apply(
-      dynamics: Dynamics
-  ): Context = {
+  def apply(): Context = {
     val applicationConfig: ApplicationConfig = ApplicationConfigFactory.config
     val perTickCache: PerTickCache =
       buildCache(applicationConfig)
-    new Context(GraphProviderFactory.get, dynamics, applicationConfig, perTickCache)
+    new Context(GraphProviderFactory.get, applicationConfig, perTickCache)
   }
 
   private def buildCache(applicationConfig: ApplicationConfig) = {

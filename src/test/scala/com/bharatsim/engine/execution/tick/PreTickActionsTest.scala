@@ -120,6 +120,6 @@ class PreTickActionsTest extends AnyWordSpec with Matchers {
                         ) = {
     val config = mock[ApplicationConfig]
     Mockito.when(config.simulationSteps).thenReturn(steps)
-    new Context(mockGraphProvider, new Dynamics, config, perTickCache)
+    new Context(mockGraphProvider, config, perTickCache)
   }
 }

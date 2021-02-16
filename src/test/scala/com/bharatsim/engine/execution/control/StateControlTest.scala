@@ -31,7 +31,7 @@ class StateControlTest extends AnyWordSpec with BeforeAndAfterEach with Matchers
   private def initializeStateAgent[T <: State: ClassTag](
       withState: T
   )(implicit encoder: BasicMapEncoder[T], decoder: BasicMapDecoder[T]): (StatefulAgent, Context) = {
-    val context = new Context(graph, mock[Dynamics], mock[ApplicationConfig], mock[PerTickCache])
+    val context = new Context(graph, mock[ApplicationConfig], mock[PerTickCache])
     val agentToIngest = StatefulPerson("Shraddha", 33)
     agentToIngest.setInitialState(withState)
     context.graphProvider.createNodeFromInstance(agentToIngest)

@@ -29,7 +29,7 @@ class BehaviourControlTest extends AnyWordSpec with BeforeAndAfterEach {
   private def getContext(steps: Int, mockGraphProvider: GraphProvider = mock[GraphProvider], perTickCache: PerTickCache = mock[PerTickCache]) = {
     val config = mock[ApplicationConfig]
     Mockito.when(config.simulationSteps).thenReturn(steps)
-    new Context(mockGraphProvider, new Dynamics, config, perTickCache)
+    new Context(mockGraphProvider, config, perTickCache)
   }
 
   override protected def beforeEach(): Unit = {
