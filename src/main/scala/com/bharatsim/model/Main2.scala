@@ -45,6 +45,14 @@ object Main2 extends LazyLogging {
 
       registerAgent[Person]
 
+      registerState[AsymptomaticState]
+      registerState[DeceasedState]
+      registerState[ExposedState]
+      registerState[InfectedState]
+      registerState[PreSymptomaticState]
+      registerState[RecoveredState]
+      registerState[SusceptibleState]
+
       SimulationListenerRegistry.register(
         new CsvOutputGenerator("src/main/resources/output.csv", new SEIROutputSpec(context))
       )
