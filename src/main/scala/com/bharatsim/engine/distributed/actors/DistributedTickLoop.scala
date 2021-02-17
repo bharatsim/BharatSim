@@ -7,12 +7,12 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, Scheduler}
 import akka.util.Timeout
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.distributed.DistributedAgentProcessor.{NotifyCompletion, UnitOfWork}
+import com.bharatsim.engine.distributed.DistributedAgentProcessor.UnitOfWork
 import com.bharatsim.engine.distributed.Guardian.{UserInitiatedShutdown, workerServiceKey}
-import com.bharatsim.engine.distributed.{CborSerializable, SimulationContextReplicator}
 import com.bharatsim.engine.distributed.SimulationContextReplicator.UpdateContext
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{Command, CurrentTick, UnitOfWorkFinished}
 import com.bharatsim.engine.distributed.store.ActorBasedGraphProvider
+import com.bharatsim.engine.distributed.{CborSerializable, SimulationContextReplicator}
 import com.bharatsim.engine.execution.actorbased.RoundRobinStrategy
 import com.bharatsim.engine.execution.simulation.PostSimulationActions
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
@@ -64,8 +64,7 @@ class DistributedTickLoop(
             val roundRobinStrategy = new RoundRobinStrategy(workerList.length)
             agents.foreach(agent => {
               val worker = workerList(roundRobinStrategy.next)
-              worker ! UnitOfWork(agent.id, agent.nodeLabel)
-              worker ! NotifyCompletion(actorContext.self)
+              worker ! UnitOfWork(agent.id, agent.nodeLabel, actorContext.self)
             })
 
             TickBarrier(currentTick, agents.size, 0)

@@ -4,7 +4,7 @@ import akka.actor.CoordinatedShutdown
 import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.scaladsl.adapter._
-import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors, Routers}
 import akka.actor.typed.{ActorRef, Behavior, Scheduler}
 import akka.cluster.typed.Cluster
 import akka.pattern.retry
@@ -91,8 +91,12 @@ object Guardian {
     val stateControl = new StateControl(simulationContext)
     val agentExecutor = new AgentExecutor(behaviourControl, stateControl)
     context.spawn(SimulationContextSubscriber(simulationContext), "SimulationContextSubscriber")
-    val worker = context.spawn(DistributedAgentProcessor(agentExecutor, simulationContext), "Worker")
-    context.system.receptionist ! Receptionist.register(workerServiceKey, worker)
+
+    val workerRouter: ActorRef[DistributedAgentProcessor.Command] = context.spawn(
+      Routers.pool(100)(DistributedAgentProcessor(agentExecutor, simulationContext))
+        .withRoundRobinRouting(), "worker-router")
+
+    context.system.receptionist ! Receptionist.register(workerServiceKey, workerRouter)
   }
 
   private def createMain(context: ActorContext[Nothing], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
