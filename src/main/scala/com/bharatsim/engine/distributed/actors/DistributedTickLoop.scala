@@ -1,5 +1,6 @@
 package com.bharatsim.engine.distributed.actors
 
+import akka.actor.CoordinatedShutdown
 import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
@@ -7,12 +8,13 @@ import akka.actor.typed.{ActorRef, Behavior, Scheduler}
 import akka.util.Timeout
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.DistributedAgentProcessor.{NotifyCompletion, UnitOfWork}
-import com.bharatsim.engine.distributed.Guardian.workerServiceKey
+import com.bharatsim.engine.distributed.Guardian.{UserInitiatedShutdown, workerServiceKey}
 import com.bharatsim.engine.distributed.{CborSerializable, SimulationContextReplicator}
 import com.bharatsim.engine.distributed.SimulationContextReplicator.UpdateContext
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{Command, CurrentTick, UnitOfWorkFinished}
 import com.bharatsim.engine.distributed.store.ActorBasedGraphProvider
 import com.bharatsim.engine.execution.actorbased.RoundRobinStrategy
+import com.bharatsim.engine.execution.simulation.PostSimulationActions
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 
 import scala.concurrent.Await
@@ -22,6 +24,7 @@ class DistributedTickLoop(
     simulationContext: Context,
     preTickActions: PreTickActions,
     postTickActions: PostTickActions,
+    postSimulationActions: PostSimulationActions,
     simulationContextReplicator: ActorRef[SimulationContextReplicator.Command]
 ) {
 
@@ -35,8 +38,12 @@ class DistributedTickLoop(
           val endOfSimulation =
             currentTick > simulationContext.simulationConfig.simulationSteps || simulationContext.stopSimulation
           if (endOfSimulation) {
+            postSimulationActions.execute()
+            CoordinatedShutdown(context.system).run(UserInitiatedShutdown)
             Behaviors.stopped
           } else {
+            simulationContext.graphProvider.asInstanceOf[ActorBasedGraphProvider].swapBuffers()
+
             preTickActions.execute(currentTick)
             simulationContextReplicator ! UpdateContext()
             simulationContext.graphProvider.asInstanceOf[ActorBasedGraphProvider].swapBuffers()

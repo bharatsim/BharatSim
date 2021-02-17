@@ -25,13 +25,13 @@ object EngineMainActor extends LazyLogging {
     preSimulationActions.execute()
     val contextReplicator =
       actorContext.spawn(SimulationContextReplicator(simulationContext), "simulationContextReplicator")
-    val tickLoop = new DistributedTickLoop(simulationContext, preTickActions, postTickActions, contextReplicator)
-
-    actorContext.system.whenTerminated.andThen {
-      case Success(_) =>
-        postSimulationActions.execute()
-        logger.info("Finished running simulation")
-    }(ExecutionContext.global)
+    val tickLoop = new DistributedTickLoop(
+      simulationContext,
+      preTickActions,
+      postTickActions,
+      postSimulationActions,
+      contextReplicator
+    )
 
     tickLoop.Tick(1)
   }

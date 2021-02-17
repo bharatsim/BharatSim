@@ -1,7 +1,6 @@
 package com.bharatsim.engine.distributed
 
-import akka.actor
-import akka.actor.Terminated
+import akka.actor.CoordinatedShutdown
 import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.scaladsl.adapter._
@@ -10,6 +9,7 @@ import akka.actor.typed.{ActorRef, Behavior, Scheduler}
 import akka.cluster.typed.Cluster
 import akka.pattern.retry
 import akka.util.Timeout
+import akka.{Done, actor}
 import com.bharatsim.engine.distributed.Role._
 import com.bharatsim.engine.distributed.store.ActorBasedStore
 import com.bharatsim.engine.distributed.store.ActorBasedStore.DBQuery
@@ -20,7 +20,6 @@ import com.bharatsim.engine.{Context, SimulationDefinition}
 
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
-import scala.util.Success
 
 object Guardian {
   private val storeServiceKey: ServiceKey[DBQuery] = ServiceKey[DBQuery]("DataStore")
@@ -71,16 +70,19 @@ object Guardian {
       createWorker(context, simulationContext)
     }
 
-    if(cluster.selfMember.hasRole(EngineMain.toString)) {
+    if (cluster.selfMember.hasRole(EngineMain.toString)) {
       val storeRef = awaitStoreRef(context)
       GraphProviderFactory.init(storeRef, context.system)
       val simulationContext = Context()
       simulationDefinition.simulationBody(simulationContext)
       createMain(context, storeRef, simulationContext)
-
-      context.system.whenTerminated.andThen {
-        case Success(_) => simulationDefinition.onComplete(simulationContext)
-      }(ExecutionContext.global)
+      CoordinatedShutdown(context.system)
+        .addTask(CoordinatedShutdown.PhaseBeforeServiceUnbind, "user-defined-post-actions") { () =>
+          Future {
+            simulationDefinition.onComplete(simulationContext)
+            Done
+          }(ExecutionContext.global)
+        }
     }
   }
 
@@ -93,15 +95,15 @@ object Guardian {
     context.system.receptionist ! Receptionist.register(workerServiceKey, worker)
   }
 
-  def createMain(context: ActorContext[Nothing], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
+  private def createMain(context: ActorContext[Nothing], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
     context.spawn(EngineMainActor(store, simulationContext), "EngineMain")
   }
 
   def apply(simulationDefinition: SimulationDefinition): Behavior[Nothing] =
     Behaviors.setup[Nothing](context => {
       start(context, simulationDefinition)
-      Behaviors.receiveMessagePartial[Terminated.type] {
-        case Terminated => Behaviors.stopped
-      }.narrow[Nothing]
+      Behaviors.empty
     })
+
+  case object UserInitiatedShutdown extends CoordinatedShutdown.Reason
 }
