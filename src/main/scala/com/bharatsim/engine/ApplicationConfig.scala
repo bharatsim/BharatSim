@@ -7,6 +7,9 @@ import scala.util.Properties
 class ApplicationConfig {
   private val config = ConfigFactory.load()
 
+  val storeActorCount: Int = config.getInt("bharatsim.engine.distributed.data-store-node.actor-count")
+  val workerActorCount: Int = config.getInt("bharatsim.engine.distributed.worker-node.actor-count")
+
   val role: Role.Value = Role.withName(Properties.envOrElse("ROLE", "Worker"))
   val port: String = Properties.envOrElse("PORT", "8000")
 

@@ -16,7 +16,7 @@ import com.bharatsim.engine.distributed.store.ActorBasedStore.DBQuery
 import com.bharatsim.engine.execution.AgentExecutor
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.graph.GraphProviderFactory
-import com.bharatsim.engine.{Context, SimulationDefinition}
+import com.bharatsim.engine.{ApplicationConfigFactory, Context, SimulationDefinition}
 
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
@@ -93,8 +93,13 @@ object Guardian {
     context.spawn(SimulationContextSubscriber(simulationContext), "SimulationContextSubscriber")
 
     val workerRouter: ActorRef[DistributedAgentProcessor.Command] = context.spawn(
-      Routers.pool(100)(DistributedAgentProcessor(agentExecutor, simulationContext))
-        .withRoundRobinRouting(), "worker-router")
+      Routers
+        .pool(ApplicationConfigFactory.config.workerActorCount)(
+          DistributedAgentProcessor(agentExecutor, simulationContext)
+        )
+        .withRoundRobinRouting(),
+      "worker-router"
+    )
 
     context.system.receptionist ! Receptionist.register(workerServiceKey, workerRouter)
   }

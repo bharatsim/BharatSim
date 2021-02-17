@@ -1,7 +1,8 @@
 package com.bharatsim.engine.distributed.store
 
-import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
+import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors, Routers}
 import akka.actor.typed.{ActorRef, Behavior}
+import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.distributed.CborSerializable
 import com.bharatsim.engine.distributed.store.ActorBasedStore.{
   BooleanReply,
@@ -19,8 +20,13 @@ import com.bharatsim.engine.graph.custom.GraphProviderWithBufferImpl
 
 private[engine] class ActorBasedStore(actorContext: ActorContext[DBQuery], graph: GraphProviderWithBufferImpl)
     extends AbstractBehavior(actorContext) {
-  private val readHandler = context.spawn(ReadHandler(graph), "read-handler")
-  private val writeHandler = context.spawn(WriteHandler(graph), "write-handler")
+
+  private def pool[T <: DBQuery](routee: Behavior[T]) = {
+    Routers.pool(ApplicationConfigFactory.config.storeActorCount)(routee).withRoundRobinRouting()
+  }
+
+  private val readHandler = context.spawn(pool(ReadHandler(graph)), "read-handler")
+  private val writeHandler = context.spawn(pool(WriteHandler(graph)), "write-handler")
 
   override def onMessage(msg: DBQuery): Behavior[DBQuery] = {
     msg match {
