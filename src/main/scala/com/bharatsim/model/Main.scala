@@ -64,9 +64,9 @@ object Main extends LazyLogging {
   private def addLockdown(implicit context: Context): Unit = {
 
     val interventionName = "lockdown"
-    val intervention = IntervalBasedIntervention(interventionName, 20, 530);
+    val intervention = IntervalBasedIntervention(interventionName, 20, 530)
 
-    val lockdownSchedule = (Day, Hour).add[House](0, 23);
+    val lockdownSchedule = (Day, Hour).add[House](0, 23)
 
     registerIntervention(intervention)
     registerSchedules(
@@ -78,7 +78,8 @@ object Main extends LazyLogging {
           val isLockdown = context.activeInterventionNames.contains(interventionName)
           val isSeverelyInfected = agent.asInstanceOf[Person].isSevereInfected
           isLockdown && !(isEssentialWorker || violateLockdown || isSeverelyInfected)
-        }
+        },
+        1
       )
     )
   }
@@ -130,15 +131,17 @@ object Main extends LazyLogging {
     registerSchedules(
       (
         hospitalizedSchedule,
-        (agent: Agent, _: Context) => agent.asInstanceOf[Person].isSevereInfected
+        (agent: Agent, _: Context) => agent.asInstanceOf[Person].isSevereInfected,
+        2
       ),
       (
         employeeScheduleWithPublicTransport,
         (agent: Agent, _: Context) =>
-          agent.asInstanceOf[Person].takesPublicTransport && agent.asInstanceOf[Person].age >= 30
+          agent.asInstanceOf[Person].takesPublicTransport && agent.asInstanceOf[Person].age >= 30,
+        3
       ),
-      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 30),
-      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 30)
+      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 30, 4),
+      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 30, 5)
     )
   }
 

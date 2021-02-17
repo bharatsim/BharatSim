@@ -16,15 +16,15 @@ object ContextBuilder {
 
   /**
     * Register the schedule with conditions specifying when schedule is applicable.
-    * @param s1  a tuple with a [[Schedule]] and a function specifying condition
-    * @param more additional [[Schedule]] and condition tuples.
+    * @param s1  a tuple with a [[Schedule]], function specifying condition and priority
+    * @param more additional [[Schedule]], condition and priority tuples.
     * @param context instance of [[Context]] for the simulation
     */
-  def registerSchedules(s1: (Schedule, (Agent, Context) => Boolean), more: (Schedule, (Agent, Context) => Boolean)*)(
+  def registerSchedules(s1: (Schedule, (Agent, Context) => Boolean, Int), more: (Schedule, (Agent, Context) => Boolean, Int)*)(
       implicit context: Context
   ): Unit = {
     val allSchedules = s1 :: more.toList
-    allSchedules.foreach(sc => context.schedules.add(sc._1, sc._2))
+    allSchedules.foreach(sc => context.schedules.add(sc._1, sc._2, sc._3))
   }
 
   /**

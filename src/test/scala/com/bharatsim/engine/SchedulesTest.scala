@@ -16,8 +16,8 @@ class SchedulesTest extends AnyFunSuite with Matchers with MockitoSugar {
 
     val schedules = new Schedules()
 
-    schedules.add(employeeSchedule, (agent: Agent, _: Context) => { agent == employee })
-    schedules.add(studentSchedule, (agent: Agent, _: Context) => { agent == student })
+    schedules.add(employeeSchedule, (agent: Agent, _: Context) => { agent == employee }, 1)
+    schedules.add(studentSchedule, (agent: Agent, _: Context) => { agent == student }, 2)
 
     schedules.get(employee, context).get shouldBe employeeSchedule
     schedules.get(student, context).get shouldBe studentSchedule
@@ -32,7 +32,7 @@ class SchedulesTest extends AnyFunSuite with Matchers with MockitoSugar {
     schedules.get(employee, context) shouldBe None
   }
 
-  test("should get first matching schedule when multiple schedules are matching") {
+  test("should get prioritised schedule when multiple schedules are matching") {
     val employeeSchedule1 = mock[Schedule]
     val employeeSchedule2 = mock[Schedule]
     val context = mock[Context]
@@ -40,10 +40,10 @@ class SchedulesTest extends AnyFunSuite with Matchers with MockitoSugar {
     val schedules = new Schedules()
     val employeeMatcher = spyLambda((agent: Agent, _: Context) => { agent == employee })
 
-    schedules.add(employeeSchedule1, employeeMatcher)
-    schedules.add(employeeSchedule2, employeeMatcher)
+    schedules.add(employeeSchedule1, employeeMatcher, 2)
+    schedules.add(employeeSchedule2, employeeMatcher, 1)
 
-    schedules.get(employee, context).get shouldBe employeeSchedule1
-    verify(employeeMatcher)(employee, context)
+    schedules.get(employee, context).get shouldBe employeeSchedule2
+    verify(employeeMatcher, times(2))(employee, context)
   }
 }
