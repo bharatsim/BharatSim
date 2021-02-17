@@ -1,11 +1,16 @@
 package com.bharatsim.engine.distributed
 
-import akka.actor.typed.Behavior
-import akka.actor.typed.scaladsl.Behaviors
-import akka.cluster.ddata.{LWWMap, LWWMapKey, SelfUniqueAddress}
-import akka.cluster.ddata.typed.scaladsl.DistributedData
+import akka.actor.typed.scaladsl.AskPattern.Askable
+import akka.actor.typed.{ActorRef, ActorSystem, Scheduler}
 import akka.cluster.ddata.typed.scaladsl.Replicator._
+import akka.cluster.ddata.typed.scaladsl.{DistributedData, Replicator}
+import akka.cluster.ddata.{LWWMap, LWWMapKey, Replicator, SelfUniqueAddress}
+import akka.util.Timeout
 import com.bharatsim.engine.Context
+
+import scala.concurrent.Await
+import scala.concurrent.duration.{Duration, DurationInt}
+
 object SimulationContextReplicator {
 
   val contextKey = "ReplicatedSimulationContext"
@@ -14,31 +19,26 @@ object SimulationContextReplicator {
   private def fromContext(context: Context): ContextData = {
     ContextData(context.getCurrentStep, context.activeInterventionNames)
   }
-  sealed trait Command extends CborSerializable
-  final case class UpdateContext() extends Command
-  private sealed trait InternalCommand extends Command
-  private case class InternalUpdateResponse(rsp: UpdateResponse[LWWMap[String, ContextData]]) extends InternalCommand
 
-  def apply(simulationContext: Context): Behavior[Command] =
-    Behaviors.setup { actorContext =>
-      DistributedData.withReplicatorMessageAdapter[Command, LWWMap[String, ContextData]] { replicator =>
-        implicit val node: SelfUniqueAddress = DistributedData(actorContext.system).selfUniqueAddress
+  def updateContext(simulationContext: Context, system: ActorSystem[_]): Unit = {
+    implicit val node: SelfUniqueAddress = DistributedData(system).selfUniqueAddress
 
-        def dataKey: LWWMapKey[String, ContextData] = LWWMapKey(contextKey)
+    implicit val seconds: Timeout = 3.seconds
+    implicit val scheduler: Scheduler = system.scheduler
+    def dataKey: LWWMapKey[String, ContextData] = LWWMapKey(contextKey)
+    val replicator = DistributedData
+      .get(system)
+      .replicator
 
-        Behaviors.receiveMessage[Command] {
-          case UpdateContext() =>
-            replicator.askUpdate(
-              askReplyTo =>
-                Update(dataKey, LWWMap.empty[String, ContextData], WriteLocal, askReplyTo)(
-                  _ :+ (contextKey -> fromContext(simulationContext))
-                ),
-              InternalUpdateResponse.apply
-            )
-            Behaviors.same
-          case InternalUpdateResponse(_) => Behaviors.same
-        }
-      }
+    Await.result(
+      replicator.ask((replyTo: ActorRef[UpdateResponse[LWWMap[String, ContextData]]]) =>
+        Update(dataKey, LWWMap.empty[String, ContextData], WriteAll(3.seconds), replyTo)(
+          _ :+ (contextKey -> fromContext(simulationContext))
+        )
+      ),
+      Duration.Inf
+    ) match {
+      case res: UpdateResponse[LWWMap[String, ContextData]] => res
     }
-
+  }
 }

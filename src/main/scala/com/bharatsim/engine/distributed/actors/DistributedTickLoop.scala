@@ -24,8 +24,7 @@ class DistributedTickLoop(
     simulationContext: Context,
     preTickActions: PreTickActions,
     postTickActions: PostTickActions,
-    postSimulationActions: PostSimulationActions,
-    simulationContextReplicator: ActorRef[SimulationContextReplicator.Command]
+    postSimulationActions: PostSimulationActions
 ) {
 
   class Tick(actorContext: ActorContext[Command], currentTick: Int) extends AbstractBehavior(actorContext) {
@@ -45,7 +44,7 @@ class DistributedTickLoop(
             simulationContext.graphProvider.asInstanceOf[ActorBasedGraphProvider].swapBuffers()
 
             preTickActions.execute(currentTick)
-            simulationContextReplicator ! UpdateContext()
+            SimulationContextReplicator.updateContext(simulationContext, actorContext.system)
             simulationContext.graphProvider.asInstanceOf[ActorBasedGraphProvider].swapBuffers()
             implicit val seconds: Timeout = 3.seconds
             implicit val scheduler: Scheduler = context.system.scheduler

@@ -14,31 +14,23 @@ import scala.util.Success
 
 object EngineMainActor extends LazyLogging {
 
-  def executeRun(
-      actorContext: ActorContext[DistributedTickLoop.Command],
-      simulationContext: Context
-  ): Behavior[DistributedTickLoop.Command] = {
+  def executeRun(simulationContext: Context): Behavior[DistributedTickLoop.Command] = {
     val preSimulationActions = new PreSimulationActions(simulationContext)
     val postSimulationActions = new PostSimulationActions(simulationContext)
     val preTickActions = new PreTickActions(simulationContext)
     val postTickActions = new PostTickActions(simulationContext)
     preSimulationActions.execute()
-    val contextReplicator =
-      actorContext.spawn(SimulationContextReplicator(simulationContext), "simulationContextReplicator")
     val tickLoop = new DistributedTickLoop(
       simulationContext,
       preTickActions,
       postTickActions,
-      postSimulationActions,
-      contextReplicator
+      postSimulationActions
     )
 
     tickLoop.Tick(1)
   }
 
   def apply(storeRef: ActorRef[DBQuery], simulationContext: Context): Behavior[DistributedTickLoop.Command] =
-    Behaviors.setup[DistributedTickLoop.Command](context => {
-      executeRun(context, simulationContext)
-    })
+    executeRun(simulationContext)
 
 }
