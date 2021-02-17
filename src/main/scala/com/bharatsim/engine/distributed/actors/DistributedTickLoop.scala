@@ -7,18 +7,20 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, Scheduler}
 import akka.util.Timeout
 import com.bharatsim.engine.Context
+import com.bharatsim.engine.distributed.CborSerializable
 import com.bharatsim.engine.distributed.DistributedAgentProcessor.UnitOfWork
 import com.bharatsim.engine.distributed.Guardian.{UserInitiatedShutdown, workerServiceKey}
-import com.bharatsim.engine.distributed.SimulationContextReplicator.UpdateContext
-import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{Command, CurrentTick, UnitOfWorkFinished}
+import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
+import com.bharatsim.engine.distributed.WorkerManager.{Update, WorkMessage}
+import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{Command, ContextUpdateDone, CurrentTick, UnitOfWorkFinished}
 import com.bharatsim.engine.distributed.store.ActorBasedGraphProvider
-import com.bharatsim.engine.distributed.{CborSerializable, SimulationContextReplicator}
 import com.bharatsim.engine.execution.actorbased.RoundRobinStrategy
 import com.bharatsim.engine.execution.simulation.PostSimulationActions
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 
-import scala.concurrent.Await
+import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.duration.{Duration, DurationInt}
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class DistributedTickLoop(
     simulationContext: Context,
@@ -44,12 +46,14 @@ class DistributedTickLoop(
             simulationContext.graphProvider.asInstanceOf[ActorBasedGraphProvider].swapBuffers()
 
             preTickActions.execute(currentTick)
-            SimulationContextReplicator.updateContext(simulationContext, actorContext.system)
+
             simulationContext.graphProvider.asInstanceOf[ActorBasedGraphProvider].swapBuffers()
+
             implicit val seconds: Timeout = 3.seconds
             implicit val scheduler: Scheduler = context.system.scheduler
+
             val workerList = Await.result(
-              context.system.receptionist.ask[Receptionist.Listing]((replyTo) =>
+              context.system.receptionist.ask[Receptionist.Listing](replyTo =>
                 Receptionist.find(workerServiceKey, replyTo)
               ),
               Duration.Inf
@@ -57,13 +61,26 @@ class DistributedTickLoop(
               case workerServiceKey.Listing(listings) => listings.toArray
             }
 
+            Await.result(
+              Future.foldLeft(
+                workerList.map(worker =>
+                  worker.ask((replyTo: ActorRef[ContextUpdateDone]) => {
+                    val updatedContext =
+                      ContextData(simulationContext.getCurrentStep, simulationContext.activeInterventionNames)
+                    Update(updatedContext, replyTo)
+                  })
+                )
+              )()((_, _) => ())(ExecutionContext.global),
+              Inf
+            )
+
             val agents = simulationContext.agentLabels
               .flatMap(label => simulationContext.graphProvider.fetchNodesSelect(label, Set.empty))
 
             val roundRobinStrategy = new RoundRobinStrategy(workerList.length)
             agents.foreach(agent => {
               val worker = workerList(roundRobinStrategy.next)
-              worker ! UnitOfWork(agent.id, agent.nodeLabel, actorContext.self)
+              worker ! WorkMessage(UnitOfWork(agent.id, agent.nodeLabel, actorContext.self))
             })
 
             TickBarrier(currentTick, agents.size, 0)
@@ -108,4 +125,5 @@ object DistributedTickLoop {
 
   case object UnitOfWorkFinished extends Command
 
+  case class ContextUpdateDone() extends CborSerializable
 }

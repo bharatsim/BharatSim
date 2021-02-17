@@ -23,8 +23,8 @@ import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Futu
 
 object Guardian {
   private val storeServiceKey: ServiceKey[DBQuery] = ServiceKey[DBQuery]("DataStore")
-  val workerServiceKey: ServiceKey[DistributedAgentProcessor.Command] =
-    ServiceKey[DistributedAgentProcessor.Command]("Worker")
+  val workerServiceKey: ServiceKey[WorkerManager.Command] =
+    ServiceKey[WorkerManager.Command]("Worker")
 
   private def getStoreRef(actorContext: ActorContext[Nothing]): Future[ActorRef[DBQuery]] = {
     val system = actorContext.system
@@ -90,7 +90,6 @@ object Guardian {
     val behaviourControl = new BehaviourControl(simulationContext)
     val stateControl = new StateControl(simulationContext)
     val agentExecutor = new AgentExecutor(behaviourControl, stateControl)
-    context.spawn(SimulationContextSubscriber(simulationContext), "SimulationContextSubscriber")
 
     val workerRouter: ActorRef[DistributedAgentProcessor.Command] = context.spawn(
       Routers
@@ -101,7 +100,9 @@ object Guardian {
       "worker-router"
     )
 
-    context.system.receptionist ! Receptionist.register(workerServiceKey, workerRouter)
+    val workerManager = context.spawn(WorkerManager(workerRouter, simulationContext), "worker-manager")
+
+    context.system.receptionist ! Receptionist.register(workerServiceKey, workerManager)
   }
 
   private def createMain(context: ActorContext[Nothing], store: ActorRef[DBQuery], simulationContext: Context): Unit = {

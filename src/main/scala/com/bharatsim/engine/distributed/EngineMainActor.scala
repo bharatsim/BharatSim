@@ -1,6 +1,5 @@
 package com.bharatsim.engine.distributed
 
-import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop
@@ -8,9 +7,6 @@ import com.bharatsim.engine.distributed.store.ActorBasedStore.DBQuery
 import com.bharatsim.engine.execution.simulation.{PostSimulationActions, PreSimulationActions}
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 import com.typesafe.scalalogging.LazyLogging
-
-import scala.concurrent.ExecutionContext
-import scala.util.Success
 
 object EngineMainActor extends LazyLogging {
 
@@ -20,17 +16,10 @@ object EngineMainActor extends LazyLogging {
     val preTickActions = new PreTickActions(simulationContext)
     val postTickActions = new PostTickActions(simulationContext)
     preSimulationActions.execute()
-    val tickLoop = new DistributedTickLoop(
-      simulationContext,
-      preTickActions,
-      postTickActions,
-      postSimulationActions
-    )
+    val tickLoop = new DistributedTickLoop(simulationContext, preTickActions, postTickActions, postSimulationActions)
 
     tickLoop.Tick(1)
   }
 
-  def apply(storeRef: ActorRef[DBQuery], simulationContext: Context): Behavior[DistributedTickLoop.Command] =
-    executeRun(simulationContext)
-
+  def apply(storeRef: ActorRef[DBQuery], simulationContext: Context): Behavior[DistributedTickLoop.Command] = executeRun(simulationContext)
 }
