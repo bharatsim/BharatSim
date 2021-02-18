@@ -1,7 +1,7 @@
 package com.bharatsim.engine
 
-import com.bharatsim.engine.LabelWithDecoder.GenericLabelWithDecoder
 import com.bharatsim.engine.actions.ConditionalAction
+import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.cache.PerTickCache
 import com.bharatsim.engine.execution.NodeWithDecoder
 import com.bharatsim.engine.execution.NodeWithDecoder.GenericNodeWithDecoder
@@ -21,7 +21,8 @@ import scala.collection.mutable.ListBuffer
   */
 class Context(val graphProvider: GraphProvider, val simulationConfig: ApplicationConfig, val perTickCache: PerTickCache) {
   private[engine] val schedules = new Schedules
-  private[engine] val agentTypes: mutable.ListBuffer[GenericLabelWithDecoder] = ListBuffer.empty
+  type AgentDecoder = BasicMapDecoder[_ <: Agent]
+  private[engine] val agentTypes: mutable.HashMap[String, AgentDecoder] = mutable.HashMap.empty
   private[engine] var currentStep = 0
   private[engine] val actions: ListBuffer[ConditionalAction] = ListBuffer.empty
   private[engine] var stopSimulation = false
@@ -63,14 +64,14 @@ class Context(val graphProvider: GraphProvider, val simulationConfig: Applicatio
     proxyActiveInterventions = activeInterventions
   }
 
+  private[engine] def agentLabels: Iterable[String] = agentTypes.keys
+
   private[engine] def registeredNodesWithDecoder: Iterable[GenericNodeWithDecoder] =
     agentTypes.flatMap(labelWithDecoder =>
       graphProvider
-        .fetchNodes(labelWithDecoder.label)
-        .map(node => NodeWithDecoder(node, labelWithDecoder.decoder))
+        .fetchNodes(labelWithDecoder._1)
+        .map(node => NodeWithDecoder(node, labelWithDecoder._2))
     )
-
-  private[engine] def agentLabels: Iterable[String] = agentTypes.map(_.label)
 }
 
 object Context {

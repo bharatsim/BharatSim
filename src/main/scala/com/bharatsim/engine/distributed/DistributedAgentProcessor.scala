@@ -17,7 +17,7 @@ class DistributedAgentProcessor(
     msg match {
       case UnitOfWork(agentId, label, replyTo) =>
         val graphProvider = simulationContext.graphProvider
-        val decoder = simulationContext.agentTypes.find(_.label == label).get.decoder
+        val decoder = simulationContext.agentTypes(label)
         val gn = graphProvider.fetchById(agentId).get
         val nodeWithDecoder = NodeWithDecoder(gn, decoder)
         agentExecutor.execute(nodeWithDecoder)

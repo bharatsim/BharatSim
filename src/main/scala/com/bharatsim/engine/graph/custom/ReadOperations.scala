@@ -38,12 +38,31 @@ class ReadOperations(buffer: Buffer) extends LazyLogging {
     }
   }
 
+
+  def fetchNodes(label: String, params: Map[String, Any], skip: Int, limit: Int): Iterable[GraphNode] = {
+    if (params.isEmpty) {
+      if (buffer.nodes.contains(label) && buffer.nodes(label).nonEmpty)
+        buffer.nodes(label).values.slice(skip, skip + limit).map(_.toGraphNode)
+      else List.empty
+    } else {
+      if (buffer.nodes.contains(label) && buffer.nodes(label).nonEmpty) {
+        filterNodesByMatchingParams(label = label, params = params).slice(skip, skip + limit).map(_.toGraphNode)
+      } else List.empty
+    }
+  }
+
   def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
     filterByPattern(label, matchPattern).map(_.toGraphNode)
   }
 
-  def fetchNodesSelect(label: String, select: Set[String], where: MatchPattern): Iterable[PartialGraphNode] = {
-    filterByPattern(label, where).map(_.reduceWith(select))
+  def fetchNodesSelect(
+      label: String,
+      select: Set[String],
+      where: MatchPattern,
+      skip: Int,
+      limit: Int
+  ): Iterable[PartialGraphNode] = {
+    filterByPattern(label, where).slice(skip, skip + limit).map(_.reduceWith(select))
   }
 
   def fetchByNodeId(id: NodeId): Option[GraphNode] = buffer.indexedNodes.get(id).map(_.toGraphNode)

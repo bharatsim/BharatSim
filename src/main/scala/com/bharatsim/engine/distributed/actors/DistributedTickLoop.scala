@@ -7,17 +7,19 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, Scheduler}
 import akka.util.Timeout
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.distributed.CborSerializable
 import com.bharatsim.engine.distributed.DistributedAgentProcessor.UnitOfWork
 import com.bharatsim.engine.distributed.Guardian.{UserInitiatedShutdown, workerServiceKey}
 import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
 import com.bharatsim.engine.distributed.WorkerManager.{Update, WorkMessage}
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{Command, ContextUpdateDone, CurrentTick, UnitOfWorkFinished}
 import com.bharatsim.engine.distributed.store.ActorBasedGraphProvider
+import com.bharatsim.engine.distributed.{CborSerializable, WorkerManager}
 import com.bharatsim.engine.execution.actorbased.RoundRobinStrategy
 import com.bharatsim.engine.execution.simulation.PostSimulationActions
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
+import com.bharatsim.engine.graph.patternMatcher.EmptyPattern
 
+import scala.annotation.tailrec
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -33,6 +35,36 @@ class DistributedTickLoop(
 
     actorContext.self ! CurrentTick
 
+    private def sendWorkLoad(workerList: Array[ActorRef[WorkerManager.Command]]): Int = {
+      val roundRobinStrategy = new RoundRobinStrategy(workerList.length)
+
+      @tailrec
+      def fetchForLabel(label: String, skip: Int, limit: Int, total: Int): Int = {
+        val graphNodes = simulationContext.graphProvider.fetchNodesSelect(label, Set.empty, EmptyPattern(), skip, limit)
+        val worker = workerList(roundRobinStrategy.next)
+        worker ! WorkMessage(graphNodes, actorContext.self)
+
+        if (graphNodes.isEmpty) total
+        else {
+          val fetchedInThisCycle = graphNodes.size
+          fetchForLabel(label, skip + fetchedInThisCycle, limit, total + fetchedInThisCycle)
+        }
+      }
+
+      @tailrec
+      def fetchForAllLabels(labels: Iterator[String], count: Int): Int = {
+        if (labels.hasNext) {
+          val label = labels.next()
+          val sentCount = fetchForLabel(label, 0, 500, 0)
+          fetchForAllLabels(labels, count + sentCount)
+        } else {
+          count
+        }
+      }
+
+      fetchForAllLabels(simulationContext.agentLabels.iterator, 0)
+    }
+
     override def onMessage(msg: Command): Behavior[Command] =
       msg match {
         case CurrentTick =>
@@ -46,8 +78,6 @@ class DistributedTickLoop(
             simulationContext.graphProvider.asInstanceOf[ActorBasedGraphProvider].swapBuffers()
 
             preTickActions.execute(currentTick)
-
-            simulationContext.graphProvider.asInstanceOf[ActorBasedGraphProvider].swapBuffers()
 
             implicit val seconds: Timeout = 3.seconds
             implicit val scheduler: Scheduler = context.system.scheduler
@@ -74,16 +104,9 @@ class DistributedTickLoop(
               Inf
             )
 
-            val agents = simulationContext.agentLabels
-              .flatMap(label => simulationContext.graphProvider.fetchNodesSelect(label, Set.empty))
+            val totalWorkload = sendWorkLoad(workerList)
 
-            val roundRobinStrategy = new RoundRobinStrategy(workerList.length)
-            agents.foreach(agent => {
-              val worker = workerList(roundRobinStrategy.next)
-              worker ! WorkMessage(UnitOfWork(agent.id, agent.nodeLabel, actorContext.self))
-            })
-
-            TickBarrier(currentTick, agents.size, 0)
+            TickBarrier(currentTick, totalWorkload, 0)
           }
       }
 

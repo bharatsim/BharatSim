@@ -16,6 +16,7 @@ class ReadHandler(actorContext: ActorContext[ReadQuery], graph: GraphProviderWit
         replyTo ! OptionalGraphNode(graph.fetchNode(label, params))
       case FetchNodes(label, params, replyTo) =>
         replyTo ! GraphNodesReply(graph.fetchNodes(label, params))
+      case FetchNodesWithSkipAndLimit(label, params, skip, limit, replyTo) =>replyTo ! GraphNodesReply(graph.fetchNodesWithSkipAndLimit(label, params, skip, limit))
       case FetchNodesByPattern(label, pattern, replyTo) =>
         replyTo ! GraphNodesReply(graph.fetchNodes(label, pattern))
       case FetchCount(label, pattern, replyTo) => replyTo ! IntReply(graph.fetchCount(label, pattern))
@@ -23,8 +24,8 @@ class ReadHandler(actorContext: ActorContext[ReadQuery], graph: GraphProviderWit
         replyTo ! GraphNodesReply(graph.fetchNeighborsOf(nodeId, allLabels.head, allLabels.tail: _*))
       case NeighborCount(nodeId, label, matchCondition, replyTo) =>
         replyTo ! IntReply(graph.neighborCount(nodeId, label, matchCondition))
-      case Fetch(label, select, where, replyTo) =>
-        replyTo ! PartialNodesReply(graph.fetchNodesSelect(label, select, where))
+      case Fetch(label, select, where, skip, limit, replyTo) =>
+        replyTo ! PartialNodesReply(graph.fetchNodesSelect(label, select, where, skip, limit))
       case FetchByNodeId(id, replyTo) => replyTo ! OptionalGraphNode(graph.fetchById(id))
     }
     Behaviors.same
@@ -36,8 +37,9 @@ object ReadHandler {
 
   case class FetchNode(label: String, params: Map[String, Any], replyTo: ActorRef[Reply]) extends ReadQuery
   case class FetchNodes(label: String, params: Map[String, Any], replyTo: ActorRef[Reply]) extends ReadQuery
+  case class FetchNodesWithSkipAndLimit(label: String, params: Map[String, Any], skip: Int, limit: Int, replyTo: ActorRef[Reply]) extends ReadQuery
   case class FetchNodesByPattern(label: String, pattern: MatchPattern, replyTo: ActorRef[Reply]) extends ReadQuery
-  case class Fetch(label: String, select: Set[String], where: MatchPattern, replyTo: ActorRef[Reply]) extends ReadQuery
+  case class Fetch(label: String, select: Set[String], where: MatchPattern, skip: Int, limit: Int, replyTo: ActorRef[Reply]) extends ReadQuery
   case class FetchByNodeId(id: NodeId, replyTo: ActorRef[Reply]) extends ReadQuery
   case class FetchCount(label: String, matchPattern: MatchPattern, replyTo: ActorRef[Reply]) extends ReadQuery
   case class FetchNeighborsOf(nodeId: NodeId, allLabels: List[String], replyTo: ActorRef[Reply]) extends ReadQuery

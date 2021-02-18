@@ -60,7 +60,7 @@ private[engine] object ActorBasedStore {
   case class NodeIdReply(value: NodeId) extends Reply
   case class DoneReply() extends Reply
   case class BooleanReply(value: Boolean) extends Reply
-  val graphProvider = GraphProviderWithBufferImpl()
+  lazy val graphProvider: GraphProviderWithBufferImpl = GraphProviderWithBufferImpl()
 
   def apply(): Behavior[DBQuery] = {
     Behaviors.setup(context => new ActorBasedStore(context, graphProvider))

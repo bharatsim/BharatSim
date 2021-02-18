@@ -26,7 +26,7 @@ object Main2 extends LazyLogging {
     val distributedSimulation = new DistributedSimulation
 
     distributedSimulation.ingestData{implicit context =>
-      ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
+      ingestCSVData("input.csv", csvDataExtractor)
     }
 
     distributedSimulation.defineSimulation{implicit context =>
@@ -55,9 +55,6 @@ object Main2 extends LazyLogging {
 
       SimulationListenerRegistry.register(
         new CsvOutputGenerator("src/main/resources/output.csv", new SEIROutputSpec(context))
-      )
-      SimulationListenerRegistry.register(
-        new CsvOutputGenerator("src/main/resources/GIS_output.csv", new GISOutputSpec(context))
       )
     }
 

@@ -162,6 +162,9 @@ trait GraphProvider {
     */
   def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode]
 
+  // TODO: Implement for other all stores
+  def fetchNodesWithSkipAndLimit(label: String, params: Map[String, Any], skip: Int, limit: Int): Iterable[GraphNode] = Iterable.empty
+
   /**
     * Fetch all the nodes with matching label and parameters
     *
@@ -182,7 +185,8 @@ trait GraphProvider {
   def fetchNodesSelect(
       label: String,
       select: Set[String],
-      where: MatchPattern = EmptyPattern()
+      where: MatchPattern = EmptyPattern(),
+      skip: Int = 0, limit: Int = Int.MaxValue
   ): Iterable[PartialGraphNode] = Iterable.empty
 
   private[engine] def fetchById(id: NodeId): Option[GraphNode] = None
