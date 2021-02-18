@@ -28,3 +28,9 @@ libraryDependencies += "com.dimafeng" %% "testcontainers-scala-neo4j" % "0.39.3"
 Compile / doc / scalacOptions := Seq("-skip-packages", "com.bharatsim.model")
 
 Test / fork := true
+
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case "reference.conf" => MergeStrategy.concat
+  case x => MergeStrategy.first
+}

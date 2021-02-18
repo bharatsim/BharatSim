@@ -3,15 +3,15 @@ package com.bharatsim.engine
 import com.bharatsim.engine.distributed.Role
 import com.typesafe.config.ConfigFactory
 
-import scala.util.Properties
 class ApplicationConfig {
   private val config = ConfigFactory.load()
+  private lazy val clusterConfig = ConfigFactory.load("cluster.conf")
+
 
   val storeActorCount: Int = config.getInt("bharatsim.engine.distributed.data-store-node.actor-count")
   val workerActorCount: Int = config.getInt("bharatsim.engine.distributed.worker-node.actor-count")
 
-  val role: Role.Value = Role.withName(Properties.envOrElse("ROLE", "Worker"))
-  val port: String = Properties.envOrElse("PORT", "8000")
+  val role: Role.Value = Role.withName(clusterConfig.getStringList("akka.cluster.roles").get(0))
 
   val executionMode: ExecutionMode = {
     val mode = config.getString("bharatsim.engine.execution.mode")

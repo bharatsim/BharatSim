@@ -24,12 +24,7 @@ class DistributedSimulation extends LazyLogging {
 
   def run(): Unit = {
     val simulationDef = SimulationDefinition(ingestionStep, simulationBody, onComplete)
-    val applicationConfig = ApplicationConfigFactory.config
-    val config = ConfigFactory
-      .parseString(s"""akka.remote.artery.canonical.port=${applicationConfig.port}
-                      |akka.cluster.roles = [${applicationConfig.role.toString}]
-                      |""".stripMargin)
-      .withFallback(ConfigFactory.load("cluster"))
+    val config = ConfigFactory.load("cluster")
 
     ActorSystem[Nothing](Guardian(simulationDef), "Cluster", config)
   }
