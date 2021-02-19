@@ -24,7 +24,7 @@ class DistributedSimulation extends LazyLogging {
 
   def run(): Unit = {
     val simulationDef = SimulationDefinition(ingestionStep, simulationBody, onComplete)
-    val config = ConfigFactory.load("cluster")
+    val config = ConfigFactory.load("cluster").withFallback(ConfigFactory.load())
 
     ActorSystem[Nothing](Guardian(simulationDef), "Cluster", config)
   }

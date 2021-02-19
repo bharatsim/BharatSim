@@ -7,7 +7,6 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, Scheduler}
 import akka.util.Timeout
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.distributed.DistributedAgentProcessor.UnitOfWork
 import com.bharatsim.engine.distributed.Guardian.{UserInitiatedShutdown, workerServiceKey}
 import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
 import com.bharatsim.engine.distributed.WorkerManager.{Update, WorkMessage}
@@ -55,7 +54,7 @@ class DistributedTickLoop(
       def fetchForAllLabels(labels: Iterator[String], count: Int): Int = {
         if (labels.hasNext) {
           val label = labels.next()
-          val sentCount = fetchForLabel(label, 0, 500, 0)
+          val sentCount = fetchForLabel(label, 0, simulationContext.simulationConfig.countBatchSize, 0)
           fetchForAllLabels(labels, count + sentCount)
         } else {
           count

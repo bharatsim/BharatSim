@@ -17,7 +17,7 @@ import scala.concurrent.duration.{Duration, DurationInt}
 
 class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val system: ActorSystem[_])
     extends GraphProvider {
-  implicit val seconds: Timeout = 3.seconds
+  implicit val seconds: Timeout = 10.seconds
   implicit val scheduler: Scheduler = system.scheduler
 
   override def ingestFromCsv(

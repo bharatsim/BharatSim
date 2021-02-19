@@ -4,16 +4,17 @@ import com.bharatsim.engine.distributed.Role
 import com.typesafe.config.ConfigFactory
 
 class ApplicationConfig {
-  private val config = ConfigFactory.load()
+  private lazy val config = ConfigFactory.load()
   private lazy val clusterConfig = ConfigFactory.load("cluster.conf")
 
+  lazy val countBatchSize: Int = config.getInt("bharatsim.engine.distributed.count-batch-size")
 
-  val storeActorCount: Int = config.getInt("bharatsim.engine.distributed.data-store-node.actor-count")
-  val workerActorCount: Int = config.getInt("bharatsim.engine.distributed.worker-node.actor-count")
+  lazy val storeActorCount: Int = config.getInt("bharatsim.engine.distributed.data-store-node.actor-count")
+  lazy val workerActorCount: Int = config.getInt("bharatsim.engine.distributed.worker-node.actor-count")
 
-  val role: Role.Value = Role.withName(clusterConfig.getStringList("akka.cluster.roles").get(0))
+  lazy val role: Role.Value = Role.withName(clusterConfig.getStringList("akka.cluster.roles").get(0))
 
-  val executionMode: ExecutionMode = {
+  lazy val executionMode: ExecutionMode = {
     val mode = config.getString("bharatsim.engine.execution.mode")
     mode match {
       case "collection-based" => CollectionBased
@@ -35,5 +36,5 @@ class ApplicationConfig {
     executionMode == Distributed && role == Role.Worker
   }
 
-  val numProcessingActors: Int = config.getInt("bharatsim.engine.execution.actor-based.num-processing-actors")
+  lazy val numProcessingActors: Int = config.getInt("bharatsim.engine.execution.actor-based.num-processing-actors")
 }
