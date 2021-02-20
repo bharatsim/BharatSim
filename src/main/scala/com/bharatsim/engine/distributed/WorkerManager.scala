@@ -5,14 +5,14 @@ import akka.actor.typed.{ActorRef, Behavior}
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.DistributedAgentProcessor.UnitOfWork
 import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
-import com.bharatsim.engine.distributed.actors.DistributedTickLoop
+import com.bharatsim.engine.distributed.actors.{Barrier, DistributedTickLoop}
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.ContextUpdateDone
 import com.bharatsim.engine.graph.PartialGraphNode
 
 object WorkerManager {
   sealed trait Command extends CborSerializable
 
-  case class WorkMessage(workload: Iterable[PartialGraphNode], replyTo: ActorRef[DistributedTickLoop.Command])
+  case class WorkMessage(workload: Iterable[PartialGraphNode], replyTo: ActorRef[Barrier.Command])
       extends Command
   case class Update(updatedContext: ContextData, replyTo: ActorRef[ContextUpdateDone]) extends Command
 

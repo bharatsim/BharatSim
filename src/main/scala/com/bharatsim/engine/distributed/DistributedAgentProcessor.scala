@@ -4,8 +4,8 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.DistributedAgentProcessor.{Command, UnitOfWork}
-import com.bharatsim.engine.distributed.actors.DistributedTickLoop
-import com.bharatsim.engine.distributed.actors.DistributedTickLoop.UnitOfWorkFinished
+import com.bharatsim.engine.distributed.actors.Barrier
+import com.bharatsim.engine.distributed.actors.Barrier.UnitOfWorkFinished
 import com.bharatsim.engine.execution.{AgentExecutor, NodeWithDecoder}
 
 class DistributedAgentProcessor(
@@ -30,7 +30,7 @@ object DistributedAgentProcessor {
 
   sealed trait Command extends CborSerializable
 
-  case class UnitOfWork(agentId: Int, label: String, replyTo: ActorRef[DistributedTickLoop.Command]) extends Command
+  case class UnitOfWork(agentId: Int, label: String, replyTo: ActorRef[Barrier.Command]) extends Command
 
   def apply(agentExecutor: AgentExecutor, simulationContext: Context): Behavior[Command] =
     Behaviors.setup(context => new DistributedAgentProcessor(context, agentExecutor, simulationContext))
