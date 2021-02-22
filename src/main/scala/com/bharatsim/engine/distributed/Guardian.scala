@@ -5,7 +5,7 @@ import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.scaladsl.adapter._
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors, Routers}
-import akka.actor.typed.{ActorRef, Behavior, Scheduler}
+import akka.actor.typed.{ActorRef, Behavior, DispatcherSelector, Scheduler}
 import akka.cluster.typed.Cluster
 import akka.pattern.retry
 import akka.util.Timeout
@@ -20,6 +20,7 @@ import com.bharatsim.engine.{ApplicationConfigFactory, Context, SimulationDefini
 
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
+import scala.util.Success
 
 object Guardian {
   private val storeServiceKey: ServiceKey[DBQuery] = ServiceKey[DBQuery]("DataStore")
@@ -58,8 +59,11 @@ object Guardian {
       val actorBasedStore = context.spawn(ActorBasedStore(), "store")
       GraphProviderFactory.initDataStore()
       val simulationContext = Context()
-      simulationDefinition.ingestionStep(simulationContext)
-      context.system.receptionist ! Receptionist.register(storeServiceKey, actorBasedStore)
+      Future {
+        simulationDefinition.ingestionStep(simulationContext)
+      }(ExecutionContext.global).onComplete {
+        case Success(_) => context.system.receptionist ! Receptionist.register(storeServiceKey, actorBasedStore)
+      }(ExecutionContext.global)
     }
 
     if (cluster.selfMember.hasRole(Worker.toString)) {
@@ -106,7 +110,8 @@ object Guardian {
   }
 
   private def createMain(context: ActorContext[Nothing], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
-    context.spawn(EngineMainActor(store, simulationContext), "EngineMain")
+    val blockingIoDispatcher = DispatcherSelector.blocking()
+    context.spawn(EngineMainActor(store, simulationContext), "EngineMain", blockingIoDispatcher)
   }
 
   def apply(simulationDefinition: SimulationDefinition): Behavior[Nothing] =

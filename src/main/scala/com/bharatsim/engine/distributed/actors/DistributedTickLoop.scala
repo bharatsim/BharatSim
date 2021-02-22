@@ -10,13 +10,7 @@ import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.Guardian.{UserInitiatedShutdown, workerServiceKey}
 import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
 import com.bharatsim.engine.distributed.WorkerManager.Update
-import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{
-  AllWorkFinished,
-  Command,
-  ContextUpdateDone,
-  CurrentTick
-}
-import com.bharatsim.engine.distributed.actors.WorkDistributor.FetchForNextLabel
+import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{AllWorkFinished, Command, ContextUpdateDone, CurrentTick}
 import com.bharatsim.engine.distributed.store.ActorBasedGraphProvider
 import com.bharatsim.engine.distributed.{CborSerializable, WorkerManager}
 import com.bharatsim.engine.execution.simulation.PostSimulationActions
@@ -76,13 +70,8 @@ class DistributedTickLoop(
               Inf
             )
 
-            val barrier = actorContext.spawn(Barrier(0, None, actorContext.self), "barrier")
-            val distributor = actorContext.spawn(
-              WorkDistributor(workerList, barrier, simulationContext),
-              "distributor"
-            )
-
-            distributor ! FetchForNextLabel
+            val distributorV2 = new WorkDistributorV2(workerList, context.self, simulationContext)
+            distributorV2.init(context)
 
             Behaviors.same
           }

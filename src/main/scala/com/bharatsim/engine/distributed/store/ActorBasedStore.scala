@@ -1,17 +1,10 @@
 package com.bharatsim.engine.distributed.store
 
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors, Routers}
-import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.{ActorRef, Behavior, DispatcherSelector}
 import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.distributed.CborSerializable
-import com.bharatsim.engine.distributed.store.ActorBasedStore.{
-  BooleanReply,
-  DBQuery,
-  DeleteAll,
-  DoneReply,
-  IsIngested,
-  SwapBuffers
-}
+import com.bharatsim.engine.distributed.store.ActorBasedStore.{BooleanReply, DBQuery, DeleteAll, DoneReply, IsIngested, SwapBuffers}
 import com.bharatsim.engine.distributed.store.ReadHandler.ReadQuery
 import com.bharatsim.engine.distributed.store.WriteHandler.WriteQuery
 import com.bharatsim.engine.graph.{GraphNode, PartialGraphNode}
@@ -21,8 +14,12 @@ import com.bharatsim.engine.graph.custom.GraphProviderWithBufferImpl
 private[engine] class ActorBasedStore(actorContext: ActorContext[DBQuery], graph: GraphProviderWithBufferImpl)
     extends AbstractBehavior(actorContext) {
 
+  private val customBlockingIoDispatcher = DispatcherSelector.fromConfig("dispatchers.data-store-blocking")
+
   private def pool[T <: DBQuery](routee: Behavior[T]) = {
-    Routers.pool(ApplicationConfigFactory.config.storeActorCount)(routee).withRoundRobinRouting()
+    Routers.pool(ApplicationConfigFactory.config.storeActorCount)(routee)
+      .withRoundRobinRouting()
+      .withRouteeProps(customBlockingIoDispatcher)
   }
 
   private val readHandler = context.spawn(pool(ReadHandler(graph)), "read-handler")

@@ -1,25 +1,25 @@
 package com.bharatsim.engine.distributed.actors
 
-import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
-import com.bharatsim.engine.distributed.CborSerializable
-import com.bharatsim.engine.distributed.actors.DistributedTickLoop.AllWorkFinished
+import akka.actor.typed.{ActorRef, Behavior}
+import com.bharatsim.engine.distributed.WorkerManager.ChildrenFinished
+import com.bharatsim.engine.distributed.{CborSerializable, WorkerManager}
 
 class Barrier {}
 
 object Barrier {
-  def apply(finished: Int, work: Option[Int], tick: ActorRef[DistributedTickLoop.Command]): Behavior[Command] =
+  def apply(finished: Int, work: Option[Int], tick: ActorRef[WorkerManager.Command], distributorV2: ActorRef[WorkDistributorV2.Command]): Behavior[Command] =
     Behaviors.receiveMessage[Command] {
       case UnitOfWorkFinished =>
-        if (work.isDefined && finished + 1 == work.get) handleEnd(tick)
-        else Barrier(finished + 1, work, tick)
+        if (work.isDefined && finished + 1 == work.get) handleEnd(tick, distributorV2)
+        else Barrier(finished + 1, work, tick, distributorV2)
       case SetWorkCount(count) =>
-        if(finished >= count) handleEnd(tick)
-        else Barrier(finished, Some(count), tick)
+        if(finished >= count) handleEnd(tick, distributorV2)
+        else Barrier(finished, Some(count), tick, distributorV2)
     }
 
-  private def handleEnd(tick: ActorRef[DistributedTickLoop.Command]): Behavior[Command] = {
-    tick ! AllWorkFinished
+  private def handleEnd(tick: ActorRef[WorkerManager.Command], distributorV2: ActorRef[WorkDistributorV2.Command]): Behavior[Command] = {
+    tick ! ChildrenFinished(distributorV2)
     Behaviors.stopped
   }
 
