@@ -2,6 +2,7 @@ package com.bharatsim.engine.distributed.store
 
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors, Routers}
 import akka.actor.typed.{ActorRef, Behavior, DispatcherSelector}
+import akka.stream.SourceRef
 import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.distributed.CborSerializable
 import com.bharatsim.engine.distributed.store.ActorBasedStore.{BooleanReply, DBQuery, DeleteAll, DoneReply, IsIngested, SwapBuffers}
@@ -53,6 +54,7 @@ private[engine] object ActorBasedStore {
   case class GraphNodesReply(value: Iterable[GraphNode]) extends Reply
   case class OptionalGraphNode(maybeValue: Option[GraphNode]) extends Reply
   case class PartialNodesReply(value: Iterable[PartialGraphNode]) extends Reply
+  case class NodeIdStreamReply(value: SourceRef[NodeId], size: Int) extends Reply
 
   case class NodeIdReply(value: NodeId) extends Reply
   case class DoneReply() extends Reply

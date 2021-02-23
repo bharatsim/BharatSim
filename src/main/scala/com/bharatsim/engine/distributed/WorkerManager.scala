@@ -2,12 +2,15 @@ package com.bharatsim.engine.distributed
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
+import akka.stream.scaladsl.Sink
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.DistributedAgentProcessor.UnitOfWork
 import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.ContextUpdateDone
 import com.bharatsim.engine.distributed.actors.{Barrier, WorkDistributorV2}
 import com.bharatsim.engine.distributed.actors.WorkDistributorV2.{AckNoWork, ExhaustedFor, FetchWork}
+import com.bharatsim.engine.distributed.store.ActorBasedGraphProvider
+import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.patternMatcher.EmptyPattern
 
 object WorkerManager {
@@ -22,11 +25,15 @@ object WorkerManager {
       Behaviors.receiveMessage { msg =>
         msg match {
           case Work(label, skip, limit, sender) =>
-            val workload =
-              simulationContext.graphProvider.fetchNodesSelect(label, Set.empty, EmptyPattern(), skip, limit)
-            if (workload.nonEmpty) {
-              val barrier = context.spawn(Barrier(0, Some(workload.size), context.self, sender), "barrier")
-              workload.foreach(workUnit => router ! UnitOfWork(workUnit.id, workUnit.nodeLabel, barrier))
+            val reply =
+              simulationContext.graphProvider
+                .asInstanceOf[ActorBasedGraphProvider]
+                .fetchNodeIdStream(label, skip, limit)
+            val replySize = reply.size
+
+            if (replySize > 0) {
+              val barrier = context.spawn(Barrier(0, Some(replySize), context.self, sender), "barrier")
+              reply.value.to(Sink.foreach[NodeId](nodeId => router ! UnitOfWork(nodeId, label, barrier)))
             } else {
               sender ! ExhaustedFor(label)
               sender ! FetchWork(context.self)

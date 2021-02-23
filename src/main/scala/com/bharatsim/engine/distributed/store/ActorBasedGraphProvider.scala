@@ -56,6 +56,10 @@ class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val syst
     AwaitedResult(ref => Fetch(label, select, where, skip, limit, ref)).getPartialNodes
   }
 
+  def fetchNodeIdStream(label: String, skip: Int, limit: Int): NodeIdStreamReply = {
+    AwaitedResult(ref => FetchNodeIdStream(label, skip, limit, ref)).getNodeIdStream
+  }
+
   override def fetchById(id: NodeId): Option[GraphNode] = {
     AwaitedResult(ref => FetchByNodeId(id, ref)).getOptionalGraphNode
   }
@@ -118,6 +122,7 @@ class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val syst
     def getNodeId: NodeId = get[NodeIdReply].value
     def getBoolean: Boolean = get[BooleanReply].value
     def await(): Unit = get[DoneReply]
+    def getNodeIdStream: NodeIdStreamReply = get[NodeIdStreamReply]
   }
 
   private object AwaitedResult {
