@@ -5,7 +5,14 @@ import akka.actor.typed.{ActorRef, Behavior, DispatcherSelector}
 import akka.stream.SourceRef
 import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.distributed.CborSerializable
-import com.bharatsim.engine.distributed.store.ActorBasedStore.{BooleanReply, DBQuery, DeleteAll, DoneReply, IsIngested, SwapBuffers}
+import com.bharatsim.engine.distributed.store.ActorBasedStore.{
+  BooleanReply,
+  DBQuery,
+  DeleteAll,
+  DoneReply,
+  IsIngested,
+  SwapBuffers
+}
 import com.bharatsim.engine.distributed.store.ReadHandler.ReadQuery
 import com.bharatsim.engine.distributed.store.WriteHandler.WriteQuery
 import com.bharatsim.engine.graph.{GraphNode, PartialGraphNode}
@@ -18,7 +25,8 @@ private[engine] class ActorBasedStore(actorContext: ActorContext[DBQuery], graph
   private val customBlockingIoDispatcher = DispatcherSelector.fromConfig("dispatchers.data-store-blocking")
 
   private def pool[T <: DBQuery](routee: Behavior[T]) = {
-    Routers.pool(ApplicationConfigFactory.config.storeActorCount)(routee)
+    Routers
+      .pool(ApplicationConfigFactory.config.storeActorCount)(routee)
       .withRoundRobinRouting()
       .withRouteeProps(customBlockingIoDispatcher)
   }

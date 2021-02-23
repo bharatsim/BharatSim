@@ -8,6 +8,9 @@ import com.bharatsim.engine.distributed.actors.Barrier
 import com.bharatsim.engine.distributed.actors.Barrier.UnitOfWorkFinished
 import com.bharatsim.engine.execution.{AgentExecutor, NodeWithDecoder}
 
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
+
 class DistributedAgentProcessor(
     actorContext: ActorContext[Command],
     agentExecutor: AgentExecutor,
@@ -16,12 +19,19 @@ class DistributedAgentProcessor(
   override def onMessage(msg: Command): Behavior[Command] =
     msg match {
       case UnitOfWork(agentId, label, replyTo) =>
-        val graphProvider = simulationContext.graphProvider
-        val decoder = simulationContext.agentTypes(label)
-        val gn = graphProvider.fetchById(agentId).get
-        val nodeWithDecoder = NodeWithDecoder(gn, decoder)
-        agentExecutor.execute(nodeWithDecoder)
-        replyTo ! UnitOfWorkFinished
+        val f = Future {
+          val graphProvider = simulationContext.graphProvider
+          val decoder = simulationContext.agentTypes(label)
+          val gn = graphProvider.fetchById(agentId).get
+          val nodeWithDecoder = NodeWithDecoder(gn, decoder)
+          agentExecutor.execute(nodeWithDecoder)
+        }(ExecutionContext.global)
+        f.onComplete {
+          case Success(v)         => replyTo ! UnitOfWorkFinished
+          case Failure(exception) => throw new Exception(s"failed for ${agentId}")
+
+        }(ExecutionContext.global)
+
         Behaviors.same
     }
 }

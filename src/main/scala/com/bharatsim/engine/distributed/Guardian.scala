@@ -111,7 +111,7 @@ object Guardian {
 
   private def createMain(context: ActorContext[Nothing], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
     val blockingIoDispatcher = DispatcherSelector.blocking()
-    context.spawn(EngineMainActor(store, simulationContext), "EngineMain", blockingIoDispatcher)
+    context.spawn(EngineMainActor(store, simulationContext), "EngineMain")
   }
 
   def apply(simulationDefinition: SimulationDefinition): Behavior[Nothing] =

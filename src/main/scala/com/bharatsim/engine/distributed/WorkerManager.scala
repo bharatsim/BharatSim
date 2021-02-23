@@ -2,6 +2,7 @@ package com.bharatsim.engine.distributed
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
+import akka.stream.Materializer
 import akka.stream.scaladsl.Sink
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.DistributedAgentProcessor.UnitOfWork
@@ -33,7 +34,9 @@ object WorkerManager {
 
             if (replySize > 0) {
               val barrier = context.spawn(Barrier(0, Some(replySize), context.self, sender), "barrier")
-              reply.value.to(Sink.foreach[NodeId](nodeId => router ! UnitOfWork(nodeId, label, barrier)))
+              reply.value.runWith(Sink.foreach[NodeId](nodeId => router ! UnitOfWork(nodeId, label, barrier)))(
+                Materializer.matFromSystem(context.system)
+              )
             } else {
               sender ! ExhaustedFor(label)
               sender ! FetchWork(context.self)
