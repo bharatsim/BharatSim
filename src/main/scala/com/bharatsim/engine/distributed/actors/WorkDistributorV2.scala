@@ -22,11 +22,11 @@ class WorkDistributorV2(
 
   def self(label: String, skip: Int, endOfWork: Boolean = false): Behavior[Command] =
     Behaviors.setup { context =>
-      def handleStart(label: String, skip: Int, limit: Int): Behavior[Command] = {
+      def handleStart(label: String): Behavior[Command] = {
         @tailrec
         def sendToAll(
-                       workerIterator: Iterator[ActorRef[WorkerManager.Command]],
-                       skipRec: Int
+            workerIterator: Iterator[ActorRef[WorkerManager.Command]],
+            skipRec: Int
         ): Behavior[Command] = {
           if (workerIterator.hasNext) {
             val cur = workerIterator.next()
@@ -57,10 +57,9 @@ class WorkDistributorV2(
       }
 
       Behaviors.receiveMessage {
-        case Start() =>
-          handleStart(label, skip, limit)
+        case Start() => handleStart(label)
         case ExhaustedFor(exhausted) =>
-          if(!endOfWork) {
+          if (!endOfWork) {
             if (label == exhausted) {
               if (labels.hasNext) self(labels.next(), 0)
               else self("", 0, endOfWork = true)
