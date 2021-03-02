@@ -56,8 +56,9 @@ class Simulation(
 object Simulation {
   private val applicationConfig: ApplicationConfig = ApplicationConfigFactory.config
 
-  def init()(implicit simulationContext: Context): Unit = {
-      GraphProviderFactory.init()
+  def init(): Context = {
+    GraphProviderFactory.init()
+    Context()
   }
 
   def run()(implicit context: Context): Unit = {
