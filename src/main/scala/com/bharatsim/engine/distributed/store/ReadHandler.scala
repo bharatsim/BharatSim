@@ -36,7 +36,7 @@ class ReadHandler(actorContext: ActorContext[ReadQuery], graph: GraphProviderWit
       case FetchNodeIdStream(label, skip, limit, replyTo) =>
         val values: Iterable[GraphNode] = graph.fetchNodesWithSkipAndLimit(label, Map.empty, skip, limit)
         val source = Source[NodeId](immutable.Iterable.from(values.map(_.id)))
-        replyTo ! NodeIdStreamReply(source.runWith(StreamRefs.sourceRef())(Materializer.matFromSystem(context.system)), values.size)
+        replyTo ! NodeIdStreamReply(source.runWith(StreamRefs.sourceRef())(Materializer.createMaterializer(context.system)), values.size)
     }
     Behaviors.same
   }

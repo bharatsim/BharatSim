@@ -17,12 +17,13 @@ import com.bharatsim.engine.execution.AgentExecutor
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.graph.GraphProviderFactory
 import com.bharatsim.engine.{ApplicationConfigFactory, Context, SimulationDefinition}
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.Success
 
-object Guardian {
+object Guardian extends LazyLogging {
   private val storeServiceKey: ServiceKey[DBQuery] = ServiceKey[DBQuery]("DataStore")
   val workerServiceKey: ServiceKey[WorkerManager.Command] =
     ServiceKey[WorkerManager.Command]("Worker")
@@ -62,7 +63,9 @@ object Guardian {
       Future {
         simulationDefinition.ingestionStep(simulationContext)
       }(ExecutionContext.global).onComplete {
-        case Success(_) => context.system.receptionist ! Receptionist.register(storeServiceKey, actorBasedStore)
+        case Success(_) =>
+          logger.info("Data ingestion finished")
+          context.system.receptionist ! Receptionist.register(storeServiceKey, actorBasedStore)
       }(ExecutionContext.global)
     }
 
@@ -110,7 +113,6 @@ object Guardian {
   }
 
   private def createMain(context: ActorContext[Nothing], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
-    val blockingIoDispatcher = DispatcherSelector.blocking()
     context.spawn(EngineMainActor(store, simulationContext), "EngineMain")
   }
 

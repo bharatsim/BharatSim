@@ -8,13 +8,15 @@ import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.DistributedAgentProcessor.UnitOfWork
 import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.ContextUpdateDone
-import com.bharatsim.engine.distributed.actors.{Barrier, WorkDistributorV2}
 import com.bharatsim.engine.distributed.actors.WorkDistributorV2.{AckNoWork, ExhaustedFor, FetchWork}
+import com.bharatsim.engine.distributed.actors.{Barrier, WorkDistributorV2}
 import com.bharatsim.engine.distributed.store.ActorBasedGraphProvider
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.patternMatcher.EmptyPattern
+import com.typesafe.scalalogging.LazyLogging
 
-object WorkerManager {
+import scala.concurrent.ExecutionContext
+
+object WorkerManager extends LazyLogging {
   sealed trait Command extends CborSerializable
   case class Update(updatedContext: ContextData, replyTo: ActorRef[ContextUpdateDone]) extends Command
   case class Work(label: String, skip: Int, limit: Int, sender: ActorRef[WorkDistributorV2.Command]) extends Command
@@ -33,10 +35,11 @@ object WorkerManager {
             val replySize = reply.size
 
             if (replySize > 0) {
+              logger.info("Stream started for label {} with skip {}", label, skip)
               val barrier = context.spawn(Barrier(0, Some(replySize), context.self, sender), "barrier")
               reply.value.runWith(Sink.foreach[NodeId](nodeId => router ! UnitOfWork(nodeId, label, barrier)))(
-                Materializer.matFromSystem(context.system)
-              )
+                Materializer.createMaterializer(context.system)
+              ).onComplete(_ => logger.info("Stream finished with skip {}", skip))(ExecutionContext.global)
             } else {
               sender ! ExhaustedFor(label)
               sender ! FetchWork(context.self)
@@ -50,7 +53,9 @@ object WorkerManager {
             simulationContext.perTickCache.clear()
             replyTo ! ContextUpdateDone()
 
-          case ChildrenFinished(distributor) => distributor ! FetchWork(context.self)
+          case ChildrenFinished(distributor) =>
+            logger.info("All children finished")
+            distributor ! FetchWork(context.self)
         }
         Behaviors.same
       }
