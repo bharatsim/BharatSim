@@ -37,4 +37,9 @@ class ApplicationConfig {
   }
 
   lazy val numProcessingActors: Int = config.getInt("bharatsim.engine.execution.actor-based.num-processing-actors")
+
+  private lazy val neo4jConfig = config.getConfig("bharatsim.engine.db.neo4j")
+  lazy val neo4jURI: String = neo4jConfig.getString("uri")
+  lazy val neo4jUsername: String = neo4jConfig.getString("username")
+  lazy val neo4jPass: String = neo4jConfig.getString("password")
 }
