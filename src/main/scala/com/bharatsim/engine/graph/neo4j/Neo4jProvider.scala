@@ -4,12 +4,11 @@ import java.util
 
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph._
-import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
+import com.bharatsim.engine.graph.ingestion.{CsvNode, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
-import com.github.tototoshi.csv.CSVReader
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Values.{parameters, value}
-import org.neo4j.driver.{AuthTokens, GraphDatabase, Record, Transaction}
+import org.neo4j.driver.{AuthTokens, GraphDatabase, Record, Session, Transaction}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -272,49 +271,56 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
 
   override def shutdown(): Unit = neo4jConnection.close()
 
+  private val BATCH_SIZE = 50000
+
   override private[engine] def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
     val session = neo4jConnection.session()
 
-    val processedNodes = aggregateNodesByLabel(batchOfNodes)
-    val refToIdMapping = processedNodes
-      .map({
-        case (label, nodes) =>
-          val transaction: List[(NodeId, Long)] = session.writeTransaction((tx: Transaction) => {
-            val properties = nodes.map(n => {
-              val nodeData = new util.HashMap[String, Any]()
-              nodeData.put("ref", n.uniqueRef)
-              nodeData.put("data", n.params.asJava)
-              nodeData
-            })
-            val result = tx.run(
-              s"""UNWIND $$properties as props
-               |CREATE (n:$label) set n=props.data
-               |RETURN {nodeId: id(n), ref: props.ref} as n""".stripMargin,
-              parameters("properties", properties.asJava)
-            )
-
-            val ret = result
-              .list(record => {
-                val mp = record.get("n").asMap()
-                val nodeId = mp.get("nodeId").asInstanceOf[Long]
-                val ref = mp.get("ref").asInstanceOf[Long]
-                (nodeId, ref)
-              })
-              .asScala
-              .toList
-            tx.commit()
-
-            ret
-          })
-          val refToIdMap = transaction.map({ case (nodeId, ref) => (ref, nodeId) })
-          (label, refToIdMap)
+    val refToIdMapping = batchOfNodes.iterator
+      .grouped(BATCH_SIZE)
+      .flatMap(groupedNodes => {
+        aggregateNodesByLabel(groupedNodes).map({
+          case (label, nodes) => (label, ingestBatchOfNodes(nodes, session, label))
+        })
       })
       .foldLeft(new RefToIdMapping())((acc, mapping) => {
-        acc.addMappings(mapping._1, mapping._2); acc;
+        acc.addMappings(mapping._1, mapping._2);
+        acc
       })
 
     session.close()
     refToIdMapping
+  }
+
+  private def ingestBatchOfNodes(nodes: Iterable[CsvNode], session: Session, label: String) = {
+    val transaction: List[(NodeId, Long)] = session.writeTransaction((tx: Transaction) => {
+      val properties = nodes.map(n => {
+        val nodeData = new util.HashMap[String, Any]()
+        nodeData.put("ref", n.uniqueRef)
+        nodeData.put("data", n.params.asJava)
+        nodeData
+      })
+      val result = tx.run(
+        s"""UNWIND $$properties as props
+           |CREATE (n:$label) set n=props.data
+           |RETURN {nodeId: id(n), ref: props.ref} as n""".stripMargin,
+        parameters("properties", properties.asJava)
+      )
+
+      val ret = result
+        .list(record => {
+          val mp = record.get("n").asMap()
+          val nodeId = mp.get("nodeId").asInstanceOf[Long]
+          val ref = mp.get("ref").asInstanceOf[Long]
+          (nodeId, ref)
+        })
+        .asScala
+        .toList
+      tx.commit()
+
+      ret
+    })
+    transaction.map({ case (nodeId, ref) => (ref, nodeId) })
   }
 
   private def aggregateNodesByLabel(batchOfNodes: IterableOnce[CsvNode]): Iterator[(String, Iterable[CsvNode])] = {
@@ -331,6 +337,10 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
       relations: IterableOnce[Relation],
       refToIdMapping: RefToIdMapping
   ): Unit = {
+    relations.iterator.grouped(BATCH_SIZE).foreach(ingestRelationshipBatch(_, refToIdMapping))
+  }
+
+  private def ingestRelationshipBatch(relations: IterableOnce[Relation], refToIdMapping: RefToIdMapping) = {
     val session = neo4jConnection.session()
     val batchedRelations = aggregateRelationsByLabel(relations)
 
