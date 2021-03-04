@@ -21,5 +21,5 @@ object EngineMainActor extends LazyLogging {
     tickLoop.Tick(1)
   }
 
-  def apply(storeRef: ActorRef[DBQuery], simulationContext: Context): Behavior[DistributedTickLoop.Command] = executeRun(simulationContext)
+  def apply(simulationContext: Context): Behavior[DistributedTickLoop.Command] = executeRun(simulationContext)
 }

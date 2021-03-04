@@ -19,19 +19,12 @@ class DistributedAgentProcessor(
   override def onMessage(msg: Command): Behavior[Command] =
     msg match {
       case UnitOfWork(agentId, label, replyTo) =>
-        val f = Future {
           val graphProvider = simulationContext.graphProvider
           val decoder = simulationContext.agentTypes(label)
           val gn = graphProvider.fetchById(agentId).get
           val nodeWithDecoder = NodeWithDecoder(gn, decoder)
           agentExecutor.execute(nodeWithDecoder)
-        }(ExecutionContext.global)
-        f.onComplete {
-          case Success(v)         => replyTo ! UnitOfWorkFinished
-          case Failure(exception) => throw new Exception(s"failed for ${agentId}")
-
-        }(ExecutionContext.global)
-
+          replyTo ! UnitOfWorkFinished
         Behaviors.same
     }
 }

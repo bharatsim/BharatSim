@@ -56,33 +56,23 @@ object Guardian extends LazyLogging {
 
   private def start(context: ActorContext[Nothing], simulationDefinition: SimulationDefinition): Unit = {
     val cluster = Cluster(context.system)
-    if (cluster.selfMember.hasRole(DataStore.toString)) {
-      val actorBasedStore = context.spawn(ActorBasedStore(), "store")
-      GraphProviderFactory.initDataStore()
-      val simulationContext = Context()
-      Future {
-        simulationDefinition.ingestionStep(simulationContext)
-      }(ExecutionContext.global).onComplete {
-        case Success(_) =>
-          logger.info("Data ingestion finished")
-          context.system.receptionist ! Receptionist.register(storeServiceKey, actorBasedStore)
-      }(ExecutionContext.global)
-    }
 
     if (cluster.selfMember.hasRole(Worker.toString)) {
-      val storeRef = awaitStoreRef(context)
-      GraphProviderFactory.init(storeRef, context.system)
+      GraphProviderFactory.initLazyNeo4j()
       val simulationContext = Context()
       simulationDefinition.simulationBody(simulationContext)
       createWorker(context, simulationContext)
     }
 
     if (cluster.selfMember.hasRole(EngineMain.toString)) {
-      val storeRef = awaitStoreRef(context)
-      GraphProviderFactory.init(storeRef, context.system)
+      GraphProviderFactory.initLazyNeo4j()
       val simulationContext = Context()
+
+      simulationDefinition.ingestionStep(simulationContext)
+      logger.info("Ingestion finished")
+
       simulationDefinition.simulationBody(simulationContext)
-      createMain(context, storeRef, simulationContext)
+      createMain(context, simulationContext)
       CoordinatedShutdown(context.system)
         .addTask(CoordinatedShutdown.PhaseBeforeServiceUnbind, "user-defined-post-actions") { () =>
           Future {
@@ -112,8 +102,8 @@ object Guardian extends LazyLogging {
     context.system.receptionist ! Receptionist.register(workerServiceKey, workerManager)
   }
 
-  private def createMain(context: ActorContext[Nothing], store: ActorRef[DBQuery], simulationContext: Context): Unit = {
-    context.spawn(EngineMainActor(store, simulationContext), "EngineMain")
+  private def createMain(context: ActorContext[Nothing], simulationContext: Context): Unit = {
+    context.spawn(EngineMainActor(simulationContext), "EngineMain")
   }
 
   def apply(simulationDefinition: SimulationDefinition): Behavior[Nothing] =

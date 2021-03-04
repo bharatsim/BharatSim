@@ -9,12 +9,13 @@ import akka.util.Timeout
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.Guardian.{UserInitiatedShutdown, workerServiceKey}
 import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
-import com.bharatsim.engine.distributed.WorkerManager.Update
-import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{AllWorkFinished, Command, ContextUpdateDone, CurrentTick}
+import com.bharatsim.engine.distributed.WorkerManager.{ExecutePendingWrites, Update}
+import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{AllWorkFinished, Command, ContextUpdateDone, CurrentTick, PendingWritesExecuted}
 import com.bharatsim.engine.distributed.store.ActorBasedGraphProvider
 import com.bharatsim.engine.distributed.{CborSerializable, WorkerManager}
 import com.bharatsim.engine.execution.simulation.PostSimulationActions
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
+import com.bharatsim.engine.graph.neo4j.LazyWriteNeo4jProvider
 
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.duration.{Duration, DurationInt}
@@ -28,6 +29,9 @@ class DistributedTickLoop(
 ) {
 
   class Tick(actorContext: ActorContext[Command], currentTick: Int) extends AbstractBehavior(actorContext) {
+    private implicit val seconds: Timeout = 3.seconds
+    private implicit val scheduler: Scheduler = context.system.scheduler
+    private val workerList = fetchAvailableWorkers(context)
 
     actorContext.self ! CurrentTick
 
@@ -41,34 +45,9 @@ class DistributedTickLoop(
             CoordinatedShutdown(context.system).run(UserInitiatedShutdown)
             Behaviors.stopped
           } else {
-            simulationContext.graphProvider.asInstanceOf[ActorBasedGraphProvider].swapBuffers()
-
             preTickActions.execute(currentTick)
 
-            implicit val seconds: Timeout = 3.seconds
-            implicit val scheduler: Scheduler = context.system.scheduler
-
-            val workerList: Array[ActorRef[WorkerManager.Command]] = Await.result(
-              context.system.receptionist.ask[Receptionist.Listing](replyTo =>
-                Receptionist.find(workerServiceKey, replyTo)
-              ),
-              Duration.Inf
-            ) match {
-              case workerServiceKey.Listing(listings) => listings.toArray
-            }
-
-            Await.result(
-              Future.foldLeft(
-                workerList.map(worker =>
-                  worker.ask((replyTo: ActorRef[ContextUpdateDone]) => {
-                    val updatedContext =
-                      ContextData(simulationContext.getCurrentStep, simulationContext.activeInterventionNames)
-                    Update(updatedContext, replyTo)
-                  })
-                )
-              )()((_, _) => ())(ExecutionContext.global),
-              Inf
-            )
+            notifyWorkersNewTick()
 
             val distributorV2 = new WorkDistributorV2(workerList, context.self, simulationContext)
             distributorV2.init(context)
@@ -77,10 +56,47 @@ class DistributedTickLoop(
           }
 
         case AllWorkFinished =>
+          executePendingWrites()
           postTickActions.execute()
           Tick(currentTick + 1)
       }
 
+    def notifyWorkersExecutePendingWrites(): Unit = {
+      Await.ready(
+        Future.foldLeft(workerList.map(
+          worker => worker.ask((replyTo: ActorRef[PendingWritesExecuted]) => ExecutePendingWrites(replyTo))(60.seconds, scheduler)
+        ))()((_, _) => ())(ExecutionContext.global), Inf
+      )
+    }
+
+    private def executePendingWrites(): Unit = {
+      simulationContext.graphProvider.asInstanceOf[LazyWriteNeo4jProvider].executePendingWrites()
+      notifyWorkersExecutePendingWrites()
+    }
+
+    private def notifyWorkersNewTick(): Unit = {
+      Await.result(
+        Future.foldLeft(
+          workerList.map(worker =>
+            worker.ask((replyTo: ActorRef[ContextUpdateDone]) => {
+              val updatedContext =
+                ContextData(simulationContext.getCurrentStep, simulationContext.activeInterventionNames)
+              Update(updatedContext, replyTo)
+            })
+          )
+        )()((_, _) => ())(ExecutionContext.global),
+        Inf
+      )
+    }
+
+    private def fetchAvailableWorkers(context: ActorContext[Command]) = {
+      Await.result(
+        context.system.receptionist.ask[Receptionist.Listing](replyTo => Receptionist.find(workerServiceKey, replyTo)),
+        Duration.Inf
+      ) match {
+        case workerServiceKey.Listing(listings) => listings.toArray
+      }
+    }
   }
 
   object Tick {
@@ -98,5 +114,6 @@ object DistributedTickLoop {
   case object AllWorkFinished extends Command
 
   case class ContextUpdateDone() extends CborSerializable
+  case class PendingWritesExecuted() extends CborSerializable
 
 }
