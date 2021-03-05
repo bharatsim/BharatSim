@@ -5,6 +5,7 @@ import akka.actor.typed.{ActorRef, Behavior}
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.DistributedAgentProcessor.UnitOfWork
 import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
+import com.bharatsim.engine.distributed.actors.Barrier.{Die, SetWorkCount}
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{ContextUpdateDone, PendingWritesExecuted}
 import com.bharatsim.engine.distributed.actors.WorkDistributorV2.{AckNoWork, ExhaustedFor, FetchWork}
 import com.bharatsim.engine.distributed.actors.{Barrier, WorkDistributorV2}
@@ -24,13 +25,17 @@ object WorkerManager extends LazyLogging {
       Behaviors.receiveMessage { msg =>
         msg match {
           case Work(label, skip, limit, sender) =>
-            val reply = simulationContext.graphProvider.fetchNodesWithSkipAndLimit(label, Map.empty, skip, limit)
+            val barrier = context.spawn(Barrier(0, None, context.self, sender), "barrier")
 
-            if (reply.nonEmpty) {
-              logger.info("Stream has {} elements for label {} with skip {}", reply.size, label, skip)
-              val barrier = context.spawn(Barrier(0, Some(reply.size), context.self, sender), "barrier")
-              reply.foreach(nodeId => router ! UnitOfWork(nodeId.id, label, barrier))
+            val reply = simulationContext.graphProvider
+              .asInstanceOf[LazyWriteNeo4jProvider]
+              .applyNodeIds(label, skip, limit, nodeId => router ! UnitOfWork(nodeId, label, barrier))
+
+            if (reply > 0) {
+              logger.info("Stream had {} elements for label {} with skip {}", reply, label, skip)
+              barrier ! SetWorkCount(reply)
             } else {
+              barrier ! Die()
               sender ! ExhaustedFor(label)
               sender ! FetchWork(context.self)
             }

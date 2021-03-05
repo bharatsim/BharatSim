@@ -16,6 +16,7 @@ object Barrier {
       case SetWorkCount(count) =>
         if(finished >= count) handleEnd(tick, distributorV2)
         else Barrier(finished, Some(count), tick, distributorV2)
+      case Die() => Behaviors.stopped
     }
 
   private def handleEnd(tick: ActorRef[WorkerManager.Command], distributorV2: ActorRef[WorkDistributorV2.Command]): Behavior[Command] = {
@@ -26,4 +27,5 @@ object Barrier {
   sealed trait Command extends CborSerializable
   case object UnitOfWorkFinished extends Command
   case class SetWorkCount(count: Int) extends Command
+  case class Die() extends Command
 }
