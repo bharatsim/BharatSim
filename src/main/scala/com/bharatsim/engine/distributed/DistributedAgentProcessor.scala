@@ -5,11 +5,8 @@ import akka.actor.typed.{ActorRef, Behavior}
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.DistributedAgentProcessor.{Command, UnitOfWork}
 import com.bharatsim.engine.distributed.actors.Barrier
-import com.bharatsim.engine.distributed.actors.Barrier.UnitOfWorkFinished
+import com.bharatsim.engine.distributed.actors.Barrier.WorkFinished
 import com.bharatsim.engine.execution.{AgentExecutor, NodeWithDecoder}
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 class DistributedAgentProcessor(
     actorContext: ActorContext[Command],
@@ -24,7 +21,7 @@ class DistributedAgentProcessor(
           val gn = graphProvider.fetchById(agentId).get
           val nodeWithDecoder = NodeWithDecoder(gn, decoder)
           agentExecutor.execute(nodeWithDecoder)
-          replyTo ! UnitOfWorkFinished
+          replyTo ! WorkFinished()
         Behaviors.same
     }
 }
@@ -33,7 +30,7 @@ object DistributedAgentProcessor {
 
   sealed trait Command extends CborSerializable
 
-  case class UnitOfWork(agentId: Int, label: String, replyTo: ActorRef[Barrier.Command]) extends Command
+  case class UnitOfWork(agentId: Int, label: String, replyTo: ActorRef[Barrier.Request]) extends Command
 
   def apply(agentExecutor: AgentExecutor, simulationContext: Context): Behavior[Command] =
     Behaviors.setup(context => new DistributedAgentProcessor(context, agentExecutor, simulationContext))

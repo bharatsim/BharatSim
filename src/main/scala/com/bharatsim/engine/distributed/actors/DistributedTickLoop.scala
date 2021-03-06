@@ -1,22 +1,22 @@
 package com.bharatsim.engine.distributed.actors
 
-import akka.actor.CoordinatedShutdown
 import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, Scheduler}
+import akka.actor.{Address, CoordinatedShutdown}
 import akka.util.Timeout
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.Guardian.{UserInitiatedShutdown, workerServiceKey}
 import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
-import com.bharatsim.engine.distributed.WorkerManager.{ExecutePendingWrites, Update}
-import com.bharatsim.engine.distributed.actors.DistributedTickLoop.{AllWorkFinished, Command, ContextUpdateDone, CurrentTick, PendingWritesExecuted}
-import com.bharatsim.engine.distributed.store.ActorBasedGraphProvider
+import com.bharatsim.engine.distributed.WorkerManager.{ExecutePendingWrites, StartOfNewTick}
+import com.bharatsim.engine.distributed.actors.DistributedTickLoop._
 import com.bharatsim.engine.distributed.{CborSerializable, WorkerManager}
 import com.bharatsim.engine.execution.simulation.PostSimulationActions
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 import com.bharatsim.engine.graph.neo4j.LazyWriteNeo4jProvider
 
+import scala.collection.mutable
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -46,32 +46,25 @@ class DistributedTickLoop(
             Behaviors.stopped
           } else {
             preTickActions.execute(currentTick)
-
             notifyWorkersNewTick()
-
-            val distributorV2 = new WorkDistributorV2(workerList, context.self, simulationContext)
-            distributorV2.init(context)
-
+            new WorkDistributorV2(workerList, context.self, simulationContext)
+              .init(context)
             Behaviors.same
           }
 
-        case AllWorkFinished =>
+        case ReadsFinished =>
           executePendingWrites()
           postTickActions.execute()
-          Tick(currentTick + 1)
-      }
+          Behaviors.same
 
-    def notifyWorkersExecutePendingWrites(): Unit = {
-      Await.ready(
-        Future.foldLeft(workerList.map(
-          worker => worker.ask((replyTo: ActorRef[PendingWritesExecuted]) => ExecutePendingWrites(replyTo))(60.seconds, scheduler)
-        ))()((_, _) => ())(ExecutionContext.global), Inf
-      )
-    }
+        case BarrierReply(_) => Tick(currentTick + 1)
+      }
 
     private def executePendingWrites(): Unit = {
       simulationContext.graphProvider.asInstanceOf[LazyWriteNeo4jProvider].executePendingWrites()
-      notifyWorkersExecutePendingWrites()
+      val adaptedToBarrierReply = actorContext.messageAdapter(response => BarrierReply(response))
+      val barrier = context.spawn(Barrier(0, Some(workerList.length), adaptedToBarrierReply), "write-barrier")
+      workerList.foreach(worker => worker ! ExecutePendingWrites(barrier))
     }
 
     private def notifyWorkersNewTick(): Unit = {
@@ -81,7 +74,7 @@ class DistributedTickLoop(
             worker.ask((replyTo: ActorRef[ContextUpdateDone]) => {
               val updatedContext =
                 ContextData(simulationContext.getCurrentStep, simulationContext.activeInterventionNames)
-              Update(updatedContext, replyTo)
+              StartOfNewTick(updatedContext, replyTo)
             })
           )
         )()((_, _) => ())(ExecutionContext.global),
@@ -109,11 +102,9 @@ class DistributedTickLoop(
 object DistributedTickLoop {
 
   sealed trait Command extends CborSerializable
-
   case object CurrentTick extends Command
-  case object AllWorkFinished extends Command
+  case object ReadsFinished extends Command
+  case class BarrierReply(message: Barrier.Reply) extends Command
 
   case class ContextUpdateDone() extends CborSerializable
-  case class PendingWritesExecuted() extends CborSerializable
-
 }

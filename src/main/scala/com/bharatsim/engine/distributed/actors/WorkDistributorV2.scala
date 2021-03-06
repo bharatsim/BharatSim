@@ -70,7 +70,7 @@ class WorkDistributorV2(
         case AckNoWork(from) =>
           finishedWorkers.add(from.path.address)
           if (finishedWorkers.size == workers.length) {
-            tickLoop ! DistributedTickLoop.AllWorkFinished
+            tickLoop ! DistributedTickLoop.ReadsFinished
             Behaviors.stopped
           } else Behaviors.same
       }
@@ -81,7 +81,7 @@ class WorkDistributorV2(
       val actor = system.spawn(self(labels.next(), 0), "distributor")
       actor ! WorkDistributorV2.Start()
     } else {
-      tickLoop ! DistributedTickLoop.AllWorkFinished
+      tickLoop ! DistributedTickLoop.ReadsFinished
     }
   }
 }

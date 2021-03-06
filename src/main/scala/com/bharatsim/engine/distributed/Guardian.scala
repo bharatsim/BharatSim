@@ -97,7 +97,7 @@ object Guardian extends LazyLogging {
       "worker-router"
     )
 
-    val workerManager = context.spawn(WorkerManager(workerRouter, simulationContext), "worker-manager")
+    val workerManager = context.spawn(new WorkerManager(workerRouter, simulationContext).default(), "worker-manager")
 
     context.system.receptionist ! Receptionist.register(workerServiceKey, workerManager)
   }
