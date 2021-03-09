@@ -10,6 +10,7 @@ import com.bharatsim.engine.graph.neo4j.{LazyWriteNeo4jProvider, Neo4jConfig, Ne
 
 private[engine] object GraphProviderFactory {
   private var graphProvider: GraphProvider = null
+  private lazy val config = ApplicationConfigFactory.config
 
   def init(): Unit = {
     graphProvider = new Neo4jProvider(makeNeo4jConfig())
@@ -24,11 +25,10 @@ private[engine] object GraphProviderFactory {
   }
 
   def initLazyNeo4j(): Unit = {
-    graphProvider = new LazyWriteNeo4jProvider(makeNeo4jConfig())
+    graphProvider = new LazyWriteNeo4jProvider(makeNeo4jConfig(), config.writeParallelism)
   }
 
   private def makeNeo4jConfig() = {
-    val config = ApplicationConfigFactory.config
     new Neo4jConfig(URI.create(config.neo4jURI), Some(config.neo4jUsername), Some(config.neo4jPass))
   }
 

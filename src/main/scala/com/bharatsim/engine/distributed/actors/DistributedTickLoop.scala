@@ -61,10 +61,13 @@ class DistributedTickLoop(
       }
 
     private def executePendingWrites(): Unit = {
-      simulationContext.graphProvider.asInstanceOf[LazyWriteNeo4jProvider].executePendingWrites()
+      val f = simulationContext.graphProvider
+        .asInstanceOf[LazyWriteNeo4jProvider]
+        .executePendingWrites(actorContext.system)
       val adaptedToBarrierReply = actorContext.messageAdapter(response => BarrierReply(response))
       val barrier = context.spawn(Barrier(0, Some(workerList.length), adaptedToBarrierReply), "write-barrier")
       workerList.foreach(worker => worker ! ExecutePendingWrites(barrier))
+      Await.ready(f, Inf)
     }
 
     private def notifyWorkersNewTick(): Unit = {

@@ -1,19 +1,24 @@
 package com.bharatsim.engine.graph.neo4j
 
-import java.util
 import java.util.concurrent.ConcurrentLinkedDeque
 
+import akka.Done
+import akka.actor.typed.ActorSystem
 import com.bharatsim.engine.distributed.store.WriteHandler._
-import com.bharatsim.engine.graph.GraphNode
+import com.bharatsim.engine.distributed.streams.WriteOperationsStream
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion.GraphData
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Transaction
-import org.neo4j.driver.Values.{parameters, value}
+import org.neo4j.driver.Values.parameters
 
 import scala.annotation.tailrec
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-private[engine] class LazyWriteNeo4jProvider(config: Neo4jConfig) extends Neo4jProvider(config) with LazyLogging {
+private[engine] class LazyWriteNeo4jProvider(config: Neo4jConfig, writeParallelism: Int)
+    extends Neo4jProvider(config)
+    with LazyLogging {
   private val queryQueue = new ConcurrentLinkedDeque[WriteQuery]()
 
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
@@ -59,30 +64,49 @@ private[engine] class LazyWriteNeo4jProvider(config: Neo4jConfig) extends Neo4jP
     nodes
   }
 
-  def executePendingWrites(): Unit = {
+  def fetchNodeIds(label: String, skip: Int, limit: Int): List[NodeId] = {
+    val session = neo4jConnection.session()
+
+    val nodes = session.readTransaction((tx: Transaction) => {
+
+      val result = tx.run(
+        s"""MATCH (n:$label) return id(n) as nodeId
+                             |SKIP $$skip LIMIT $$limit""".stripMargin,
+        parameters("skip", skip, "limit", limit)
+      )
+
+      result.list().asScala.map(record => record.get("nodeId").asInt())
+    })
+    session.close()
+    nodes.toList
+  }
+
+  def executePendingWrites(actorSystem: ActorSystem[_]): Future[Done] = {
     logger.info("pending writes count {}", queryQueue.size)
 
     @tailrec
-    def executeFrom(q: ConcurrentLinkedDeque[WriteQuery]): Unit = {
+    def collect(q: ConcurrentLinkedDeque[WriteQuery], acc: List[WriteQuery] = List.empty): List[WriteQuery] = {
       if (!q.isEmpty) {
         val head = q.poll()
-        head match {
-          case CreateRelationship(node1, label, node2, _) => super.createRelationship(node1, label, node2)
-          case UpdateNode(nodeId, props, _)               => super.updateNode(nodeId, props)
-          case DeleteNode(nodeId, _)                      => super.deleteNode(nodeId)
-          case DeleteRelationship(from, label, to, _)     => super.deleteRelationship(from, label, to)
-          case DeleteNodes(label, props, _)               => super.deleteNodes(label, props)
-        }
-
-        executeFrom(q)
-      }
+        collect(q, head :: acc)
+      } else acc
     }
 
-    executeFrom(queryQueue)
+    val writeOperations = collect(queryQueue)
+    new WriteOperationsStream(writeParallelism)(actorSystem).write(writeOperations, executeQuery)
+  }
+
+  private def executeQuery(query: WriteQuery): Unit = {
+    query match {
+      case CreateRelationship(node1, label, node2, _) => super.createRelationship(node1, label, node2)
+      case UpdateNode(nodeId, props, _)               => super.updateNode(nodeId, props)
+      case DeleteNode(nodeId, _)                      => super.deleteNode(nodeId)
+      case DeleteRelationship(from, label, to, _)     => super.deleteRelationship(from, label, to)
+      case DeleteNodes(label, props, _)               => super.deleteNodes(label, props)
+    }
   }
 
   override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
     super.ingestFromCsv(csvPath, mapper)
-    executePendingWrites()
   }
 }

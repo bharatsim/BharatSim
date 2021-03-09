@@ -3,35 +3,43 @@ package com.bharatsim.engine.distributed
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.distributed.DistributedAgentProcessor.UnitOfWork
 import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
 import com.bharatsim.engine.distributed.WorkerManager._
-import com.bharatsim.engine.distributed.actors.Barrier.{Die, SetWorkCount, WorkFinished}
+import com.bharatsim.engine.distributed.actors.Barrier.WorkFinished
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.ContextUpdateDone
 import com.bharatsim.engine.distributed.actors.WorkDistributorV2.{AckNoWork, ExhaustedFor, FetchWork}
 import com.bharatsim.engine.distributed.actors.{Barrier, WorkDistributorV2}
+import com.bharatsim.engine.distributed.streams.AgentProcessingStream
+import com.bharatsim.engine.execution.AgentExecutor
+import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.graph.neo4j.LazyWriteNeo4jProvider
 
-class WorkerManager(router: ActorRef[DistributedAgentProcessor.Command], simulationContext: Context) {
+import scala.util.Success
+
+class WorkerManager(simulationContext: Context) {
   def default(): Behavior[Command] =
     Behaviors.receivePartial {
       case (context, message) =>
         message match {
           case Work(label, skip, limit, sender) =>
-            val adaptedToBarrierSelf: ActorRef[Barrier.Reply] =
-              context.messageAdapter(barrierMessage => BarrierReply(barrierMessage))
-            val barrier = context.spawn(Barrier(0, None, adaptedToBarrierSelf), "barrier")
+            context.log.info("Received work for label {} with skip {}", label, skip)
 
-            val idCountInConsumedStream = simulationContext.graphProvider
+            val nodeIds = simulationContext.graphProvider
               .asInstanceOf[LazyWriteNeo4jProvider]
-              .applyNodeIds(label, skip, limit, nodeId => router ! UnitOfWork(nodeId, label, barrier))
+              .fetchNodeIds(label, skip, limit)
 
-            if (idCountInConsumedStream > 0) {
-              context.log.info("Stream had {} elements for label {} with skip {}", idCountInConsumedStream, label, skip)
-              barrier ! SetWorkCount(idCountInConsumedStream)
-              waitForChildren(sender)
+            if (nodeIds.nonEmpty) {
+              context.log.info("Stream has {} elements for label {} with skip {}", nodeIds.size, label, skip)
+              val behaviourControl = new BehaviourControl(simulationContext)
+              val stateControl = new StateControl(simulationContext)
+              val agentExecutor = new AgentExecutor(behaviourControl, stateControl)
+              new AgentProcessingStream(label, agentExecutor, simulationContext)(context.system)
+                .start(nodeIds)
+                .onComplete {
+                  case Success(_) => sender ! FetchWork(context.self)
+                }(context.executionContext)
+              Behaviors.same
             } else {
-              barrier ! Die()
               sender ! ExhaustedFor(label)
               sender ! FetchWork(context.self)
               Behaviors.same
@@ -49,8 +57,13 @@ class WorkerManager(router: ActorRef[DistributedAgentProcessor.Command], simulat
             Behaviors.same
 
           case ExecutePendingWrites(replyTo) =>
-            simulationContext.graphProvider.asInstanceOf[LazyWriteNeo4jProvider].executePendingWrites()
-            replyTo ! WorkFinished()
+            simulationContext.graphProvider
+              .asInstanceOf[LazyWriteNeo4jProvider]
+              .executePendingWrites(context.system)
+              .onComplete{
+                case Success(_) => replyTo ! WorkFinished()
+              }(context.executionContext)
+
             Behaviors.same
         }
     }

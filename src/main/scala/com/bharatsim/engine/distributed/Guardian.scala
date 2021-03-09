@@ -1,58 +1,22 @@
 package com.bharatsim.engine.distributed
 
+import akka.Done
 import akka.actor.CoordinatedShutdown
+import akka.actor.typed.Behavior
 import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
-import akka.actor.typed.scaladsl.AskPattern.Askable
-import akka.actor.typed.scaladsl.adapter._
-import akka.actor.typed.scaladsl.{ActorContext, Behaviors, Routers}
-import akka.actor.typed.{ActorRef, Behavior, DispatcherSelector, Scheduler}
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.cluster.typed.Cluster
-import akka.pattern.retry
-import akka.util.Timeout
-import akka.{Done, actor}
+import com.bharatsim.engine.ApplicationConfigFactory.config
 import com.bharatsim.engine.distributed.Role._
-import com.bharatsim.engine.distributed.store.ActorBasedStore
-import com.bharatsim.engine.distributed.store.ActorBasedStore.DBQuery
-import com.bharatsim.engine.execution.AgentExecutor
-import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.graph.GraphProviderFactory
-import com.bharatsim.engine.{ApplicationConfigFactory, Context, SimulationDefinition}
+import com.bharatsim.engine.{Context, SimulationDefinition}
 import com.typesafe.scalalogging.LazyLogging
 
-import scala.concurrent.duration.{Duration, DurationInt}
-import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
-import scala.util.Success
+import scala.concurrent.{ExecutionContext, Future}
 
 object Guardian extends LazyLogging {
-  private val storeServiceKey: ServiceKey[DBQuery] = ServiceKey[DBQuery]("DataStore")
   val workerServiceKey: ServiceKey[WorkerManager.Command] =
     ServiceKey[WorkerManager.Command]("Worker")
-
-  private def getStoreRef(actorContext: ActorContext[Nothing]): Future[ActorRef[DBQuery]] = {
-    val system = actorContext.system
-    implicit val seconds: Timeout = 3.seconds
-    implicit val scheduler: Scheduler = system.scheduler
-
-    val storeList = Await.result(
-      system.receptionist.ask[Receptionist.Listing](replyTo => Receptionist.find(storeServiceKey, replyTo)),
-      Duration.Inf
-    ) match {
-      case storeServiceKey.Listing(listings) => listings
-    }
-
-    if (storeList.nonEmpty) {
-      Future.successful(storeList.head)
-    } else {
-      Future.failed(new Exception("Data service not found"));
-    }
-  }
-
-  private def awaitStoreRef(context: ActorContext[Nothing]): ActorRef[DBQuery] = {
-    implicit val scheduler: actor.Scheduler = context.system.scheduler.toClassic
-    implicit val executionContext: ExecutionContextExecutor = context.system.executionContext
-    val retried = retry(() => getStoreRef(context), 10, 1.second)
-    Await.result(retried, Duration.Inf)
-  }
 
   private def start(context: ActorContext[Nothing], simulationDefinition: SimulationDefinition): Unit = {
     val cluster = Cluster(context.system)
@@ -68,8 +32,12 @@ object Guardian extends LazyLogging {
       GraphProviderFactory.initLazyNeo4j()
       val simulationContext = Context()
 
-      simulationDefinition.ingestionStep(simulationContext)
-      logger.info("Ingestion finished")
+      if(config.disableIngestion) {
+        logger.info("ingestion skipped")
+      } else {
+        simulationDefinition.ingestionStep(simulationContext)
+        logger.info("Ingestion finished")
+      }
 
       simulationDefinition.simulationBody(simulationContext)
       createMain(context, simulationContext)
@@ -84,20 +52,7 @@ object Guardian extends LazyLogging {
   }
 
   private def createWorker(context: ActorContext[Nothing], simulationContext: Context): Unit = {
-    val behaviourControl = new BehaviourControl(simulationContext)
-    val stateControl = new StateControl(simulationContext)
-    val agentExecutor = new AgentExecutor(behaviourControl, stateControl)
-
-    val workerRouter: ActorRef[DistributedAgentProcessor.Command] = context.spawn(
-      Routers
-        .pool(ApplicationConfigFactory.config.workerActorCount)(
-          DistributedAgentProcessor(agentExecutor, simulationContext)
-        )
-        .withRoundRobinRouting(),
-      "worker-router"
-    )
-
-    val workerManager = context.spawn(new WorkerManager(workerRouter, simulationContext).default(), "worker-manager")
+    val workerManager = context.spawn(new WorkerManager(simulationContext).default(), "worker-manager")
 
     context.system.receptionist ! Receptionist.register(workerServiceKey, workerManager)
   }

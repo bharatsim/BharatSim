@@ -12,6 +12,11 @@ class ApplicationConfig {
   lazy val storeActorCount: Int = config.getInt("bharatsim.engine.distributed.data-store-node.actor-count")
   lazy val workerActorCount: Int = config.getInt("bharatsim.engine.distributed.worker-node.actor-count")
 
+  lazy val nodeFetchBatchSize: Int = config.getInt("bharatsim.engine.distributed.node-fetch-batch-size")
+  lazy val processBatchSize: Int = config.getInt("bharatsim.engine.distributed.process-batch-size")
+
+  lazy val disableIngestion: Boolean = config.getBoolean("bharatsim.engine.debug.disable-ingestion")
+
   lazy val role: Role.Value = Role.withName(clusterConfig.getStringList("akka.cluster.roles").get(0))
 
   lazy val executionMode: ExecutionMode = {
@@ -42,4 +47,5 @@ class ApplicationConfig {
   lazy val neo4jURI: String = neo4jConfig.getString("uri")
   lazy val neo4jUsername: String = neo4jConfig.getString("username")
   lazy val neo4jPass: String = neo4jConfig.getString("password")
+  lazy val writeParallelism: Int = neo4jConfig.getInt("write-parallelism")
 }
