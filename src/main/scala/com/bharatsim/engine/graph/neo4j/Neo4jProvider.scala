@@ -342,12 +342,12 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
       val properties = nodes.map(n => {
         val nodeData = new util.HashMap[String, Any]()
         nodeData.put("ref", n.uniqueRef)
-        nodeData.put("data", n.params.asJava)
+        nodeData.put("nodeProps", n.params.asJava)
         nodeData
       })
       val result = tx.run(
         s"""UNWIND $$properties as props
-           |CREATE (n:$label) set n=props.data
+           |CREATE (n:$label) set n=props.nodeProps
            |RETURN {nodeId: id(n), ref: props.ref} as n""".stripMargin,
         parameters("properties", properties.asJava)
       )
