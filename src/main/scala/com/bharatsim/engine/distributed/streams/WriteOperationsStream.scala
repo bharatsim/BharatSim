@@ -12,7 +12,7 @@ class WriteOperationsStream(writeParallelism: Int)(implicit actorSystem: ActorSy
 
   def write(operations: List[WriteQuery], executor: WriteQuery => Unit): Future[Done] = {
     Source(operations)
-      .mapAsyncUnordered(writeParallelism)(q => Future(executor(q)))
+      .map(q => executor(q))
       .run()
   }
 }
