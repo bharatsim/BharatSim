@@ -5,11 +5,11 @@ import akka.actor.typed.{ActorRef, Behavior}
 import com.bharatsim.engine.distributed.CborSerializable
 
 object Barrier {
-  def apply(finished: Int, work: Option[Int], replyFinishTo: ActorRef[BarrierFinished]): Behavior[Request] =
+  def apply(finished: Int, workSize: Option[Int], replyFinishTo: ActorRef[BarrierFinished]): Behavior[Request] =
     Behaviors.receiveMessage[Request] {
       case WorkFinished() =>
-        if (work.isDefined && finished + 1 == work.get) handleEnd(replyFinishTo)
-        else Barrier(finished + 1, work, replyFinishTo)
+        if (workSize.isDefined && finished + 1 == workSize.get) handleEnd(replyFinishTo)
+        else Barrier(finished + 1, workSize, replyFinishTo)
       case SetWorkCount(count) =>
         if (finished >= count) handleEnd(replyFinishTo)
         else Barrier(finished, Some(count), replyFinishTo)
