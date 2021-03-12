@@ -32,7 +32,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
 
       val result = tx.run(s"CREATE (n:$label) SET n=$$props return id(n) as nodeId", parameters("props", javaMap))
 
-      result.next().get("nodeId").asInt()
+      result.next().get("nodeId").asLong()
     })
 
     session.close()
@@ -281,7 +281,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
 
   private def extractGraphNode(label: String, record: Record) = {
     val node = record.get("node").asMap()
-    val nodeId = record.get("nodeId").asInt()
+    val nodeId = record.get("nodeId").asLong()
     val extractedLabel = record.get("nodeLabels").asList(List[AnyRef](label).asJava)
 
     val mapWithValueTypeAny = node.asScala.map(kv => (kv._1, kv._2.asInstanceOf[Any])).toMap
@@ -297,7 +297,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     val refToIdMapping = processedNodes
       .map({
         case (label, nodes) =>
-          val transaction: List[(NodeId, Int)] = session.writeTransaction((tx: Transaction) => {
+          val transaction: List[(NodeId, Long)] = session.writeTransaction((tx: Transaction) => {
             val properties = nodes.map(n => {
               val nodeData = new util.HashMap[String, Any]()
               nodeData.put("ref", n.uniqueRef)
@@ -314,8 +314,8 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
             val ret = result
               .list(record => {
                 val mp = record.get("n").asMap()
-                val nodeId = mp.get("nodeId").asInstanceOf[Long].toInt
-                val ref = mp.get("ref").asInstanceOf[Long].toInt
+                val nodeId = mp.get("nodeId").asInstanceOf[Long]
+                val ref = mp.get("ref").asInstanceOf[Long]
                 (nodeId, ref)
               })
               .asScala

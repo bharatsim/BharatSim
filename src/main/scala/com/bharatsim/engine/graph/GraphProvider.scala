@@ -246,5 +246,5 @@ trait GraphProvider {
 }
 
 object GraphProvider {
-  type NodeId = Int
+  type NodeId = Long
 }

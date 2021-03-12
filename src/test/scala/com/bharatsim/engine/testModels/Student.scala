@@ -15,8 +15,8 @@ case class Student() extends Agent {
 }
 
 object Student {
-  val goToSchool: NodeId => Unit = spyLambda[NodeId => Unit]((_: Int) => {})
-  val playAGame: NodeId => Unit = spyLambda[NodeId => Unit]((_: Int) => {})
+  val goToSchool: NodeId => Unit = spyLambda[NodeId => Unit]((_: Long) => {})
+  val playAGame: NodeId => Unit = spyLambda[NodeId => Unit]((_: Long) => {})
 
   val studentBehaviour1: Context => Unit = spyLambda[Context => Unit]((context: Context) => {
     goToSchool(context.getCurrentStep)

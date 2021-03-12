@@ -14,10 +14,10 @@ import scala.reflect.ClassTag
   */
 
 class Node(private[engine] val graphProvider: GraphProvider = GraphProviderFactory.get) extends Identity {
-  override var internalId: Int = 0
+  override var internalId: Long = 0
   private[engine] val relationSchema: mutable.HashMap[String, String] = mutable.HashMap.empty
 
-  private[engine] def setId(newId: Int): Unit = {
+  private[engine] def setId(newId: Long): Unit = {
     internalId = newId
   }
 

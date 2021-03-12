@@ -2,15 +2,17 @@ package com.bharatsim.engine.models
 
 import com.bharatsim.engine.exception.MultipleRelationDefinitionsException
 import com.bharatsim.engine.graph.GraphProvider
+import com.bharatsim.engine.graph.GraphProvider.NodeId
 import org.mockito.MockitoSugar
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers._
+import org.testcontainers.shaded.org.yaml.snakeyaml.nodes.NodeId
 
 class NodeTest extends AnyFunSuite with MockitoSugar {
 
   test("Should have Id") {
     val node = new Node()
-    node.internalId shouldBe a[Int]
+    node.internalId shouldBe a[Long]
   }
 
   test("Should connect nodes to each other with unidirectional connection") {

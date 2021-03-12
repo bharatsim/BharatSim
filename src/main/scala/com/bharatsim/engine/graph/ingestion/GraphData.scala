@@ -7,8 +7,8 @@ import com.bharatsim.engine.utils.Utils.fetchClassName
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 
-private[engine] case class CsvNode(label: String, uniqueRef: Int, params: Map[String, Any]) {
-  override def hashCode(): Int = uniqueRef.hashCode()
+private[engine] case class CsvNode(label: String, uniqueRef: Long, params: Map[String, Any]) {
+  override def hashCode():Int = uniqueRef.hashCode()
 }
 
 class GraphData(nodeExpander: NodeExpander) {
@@ -24,7 +24,7 @@ class GraphData(nodeExpander: NodeExpander) {
    *                import default basic encoder from com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
    * @tparam T Type of Node
    */
-  def addNode[T <: Node : ClassTag](ref: Int, n: T)(implicit encoder: BasicMapEncoder[T]): Unit = {
+  def addNode[T <: Node : ClassTag](ref: Long, n: T)(implicit encoder: BasicMapEncoder[T]): Unit = {
     val expanded = nodeExpander.expand(ref, n)
     _nodes.addAll(expanded._nodes)
     _relations.addAll(expanded._relations)
@@ -57,7 +57,7 @@ object GraphData {
  * @param fromLabel label of the from node
  * @param toLabel   label of the to node
  */
-case class Relation(fromLabel: String, fromRef: Int, relation: String, toLabel: String, toRef: Int)
+case class Relation(fromLabel: String, fromRef: Long, relation: String, toLabel: String, toRef: Long)
 
 object Relation {
 
@@ -69,7 +69,7 @@ object Relation {
     * @tparam T type of "to" node
     * @return Relation instance
     */
-  def apply[F <: Node: ClassTag, T <: Node: ClassTag](fromRef: Int, relation: String, toRef: Int): Relation = {
+  def apply[F <: Node: ClassTag, T <: Node: ClassTag](fromRef: Long, relation: String, toRef: Long): Relation = {
     val fromLabel: String = fetchClassName[F]
     val toLabel: String = fetchClassName[T]
     Relation(fromLabel, fromRef, relation, toLabel, toRef)
