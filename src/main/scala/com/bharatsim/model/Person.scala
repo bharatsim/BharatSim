@@ -11,8 +11,8 @@ import com.bharatsim.model.InfectionStatus._
 import com.bharatsim.model.diseaseState._
 
 case class Person(
-    id: Int,
-    age: Int,
+    id: Long,
+    age: Double,
     infectionState: InfectionStatus,
     infectionDay: Int,
     takesPublicTransport: Boolean,

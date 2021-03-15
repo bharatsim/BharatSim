@@ -147,8 +147,8 @@ object Main extends LazyLogging {
 
   private def csvDataExtractor(map: Map[String, String])(implicit context: Context): GraphData = {
 
-    val citizenId = map("id").toInt
-    val age = map("age").toInt
+    val citizenId = map("id").toLong
+    val age = map("age").toDouble
     val takesPublicTransport = map("public_transport").toBoolean
     val isEssentialWorker = map("is_essential_worker").toBoolean
     val violateLockdown = map("violate_lockdown").toBoolean
