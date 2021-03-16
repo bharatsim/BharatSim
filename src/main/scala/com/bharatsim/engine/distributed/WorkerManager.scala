@@ -12,11 +12,12 @@ import com.bharatsim.engine.distributed.actors.{Barrier, WorkDistributorV2}
 import com.bharatsim.engine.distributed.streams.AgentProcessingStream
 import com.bharatsim.engine.execution.AgentExecutor
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
-import com.bharatsim.engine.graph.neo4j.LazyWriteNeo4jProvider
+import com.bharatsim.engine.graph.neo4j.BatchWriteNeo4jProvider
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.Success
 
-class WorkerManager(simulationContext: Context) {
+class WorkerManager(simulationContext: Context) extends LazyLogging {
   def default(): Behavior[Command] =
     Behaviors.receivePartial {
       case (context, message) =>
@@ -25,7 +26,7 @@ class WorkerManager(simulationContext: Context) {
             context.log.info("Received work for label {} with skip {}", label, skip)
 
             val nodeIds = simulationContext.graphProvider
-              .asInstanceOf[LazyWriteNeo4jProvider]
+              .asInstanceOf[BatchWriteNeo4jProvider]
               .fetchNodeIds(label, skip, limit)
 
             if (nodeIds.nonEmpty) {
@@ -58,10 +59,12 @@ class WorkerManager(simulationContext: Context) {
 
           case ExecutePendingWrites(replyTo) =>
             simulationContext.graphProvider
-              .asInstanceOf[LazyWriteNeo4jProvider]
+              .asInstanceOf[BatchWriteNeo4jProvider]
               .executePendingWrites(context.system)
               .onComplete{
-                case Success(_) => replyTo ! WorkFinished()
+                case Success(_) =>
+                  logger.info("Pending writes executed")
+                  replyTo ! WorkFinished()
               }(context.executionContext)
 
             Behaviors.same

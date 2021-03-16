@@ -3,11 +3,11 @@ package com.bharatsim.engine.distributed.streams
 import akka.Done
 import akka.actor.typed.ActorSystem
 import akka.stream.scaladsl.Source
-import com.bharatsim.engine.{ApplicationConfigFactory, Context}
 import com.bharatsim.engine.execution.{AgentExecutor, NodeWithDecoder}
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.neo4j.LazyWriteNeo4jProvider
+import com.bharatsim.engine.graph.neo4j.BatchWriteNeo4jProvider
+import com.bharatsim.engine.{ApplicationConfigFactory, Context}
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
@@ -21,7 +21,7 @@ class AgentProcessingStream(label: String, agentExecutor: AgentExecutor, simulat
   def fetch(agentId: NodeId): Future[GraphNode] =
     Future {
       simulationContext.graphProvider
-        .asInstanceOf[LazyWriteNeo4jProvider]
+        .asInstanceOf[BatchWriteNeo4jProvider]
         .fetchById(agentId)
         .get
     }

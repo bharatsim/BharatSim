@@ -1,22 +1,21 @@
 package com.bharatsim.engine.distributed.actors
 
+import akka.actor.CoordinatedShutdown
 import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, Scheduler}
-import akka.actor.{Address, CoordinatedShutdown}
 import akka.util.Timeout
 import com.bharatsim.engine.Context
+import com.bharatsim.engine.distributed.CborSerializable
 import com.bharatsim.engine.distributed.Guardian.{UserInitiatedShutdown, workerServiceKey}
 import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
 import com.bharatsim.engine.distributed.WorkerManager.{ExecutePendingWrites, StartOfNewTick}
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop._
-import com.bharatsim.engine.distributed.{CborSerializable, WorkerManager}
 import com.bharatsim.engine.execution.simulation.PostSimulationActions
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
-import com.bharatsim.engine.graph.neo4j.LazyWriteNeo4jProvider
+import com.bharatsim.engine.graph.neo4j.BatchWriteNeo4jProvider
 
-import scala.collection.mutable
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -54,15 +53,18 @@ class DistributedTickLoop(
 
         case ReadsFinished =>
           executePendingWrites()
-          postTickActions.execute()
           Behaviors.same
 
-        case BarrierReply(_) => Tick(currentTick + 1)
+        case BarrierReply(_) =>
+          context.log.info("Finished executing pending writes")
+          postTickActions.execute()
+          Tick(currentTick + 1)
       }
 
     private def executePendingWrites(): Unit = {
+      context.log.info("Started executing pending writes")
       val f = simulationContext.graphProvider
-        .asInstanceOf[LazyWriteNeo4jProvider]
+        .asInstanceOf[BatchWriteNeo4jProvider]
         .executePendingWrites(actorContext.system)
       val adaptedToBarrierReply = actorContext.messageAdapter(response => BarrierReply(response))
       val barrier = context.spawn(Barrier(0, Some(workerList.length), adaptedToBarrierReply), "write-barrier")

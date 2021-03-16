@@ -48,4 +48,6 @@ class ApplicationConfig {
   lazy val neo4jUsername: String = neo4jConfig.getString("username")
   lazy val neo4jPass: String = neo4jConfig.getString("password")
   lazy val writeParallelism: Int = neo4jConfig.getInt("write-parallelism")
+  lazy val queryGroupSize: Int = neo4jConfig.getInt("query-group-size")
+  lazy val preProcessGroupCount: Int = neo4jConfig.getInt("pre-process-group-count")
 }
