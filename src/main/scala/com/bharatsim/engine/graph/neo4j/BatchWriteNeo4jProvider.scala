@@ -10,11 +10,13 @@ import com.bharatsim.engine.graph.ingestion.GraphData
 import com.bharatsim.engine.graph.neo4j.queryBatching._
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Values.parameters
-import org.neo4j.driver.{Result, Transaction}
+import org.neo4j.driver.{Record, Result, Transaction}
 
 import scala.annotation.tailrec
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.duration.Duration.Inf
+import scala.concurrent.{Await, Future, Promise}
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava}
+import scala.util.{Failure, Success}
 
 private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallelism: Int)
     extends Neo4jProvider(config)
@@ -22,31 +24,34 @@ private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallel
   private val queryQueue = new ConcurrentLinkedDeque[QueryWithPromise]()
 
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
+    val promisedRecord = Promise[Record]()
     queryQueue.push(
       QueryWithPromise(
         SubstituableQuery(
-          TwoParamString((node1, node2) => s"""OPTIONAL MATCH ($node1) WHERE id($node1) = props.nodeId1
-                                 |OPTIONAL MATCH ($node2) WHERE id($node2) = props.nodeId2
-                                 |CREATE ($node1)-[:$label]-> ($node2)""".stripMargin),
+          s"""OPTIONAL MATCH ($node1) WHERE id($node1) = props.nodeId1
+          |OPTIONAL MATCH ($node2) WHERE id($node2) = props.nodeId2
+          |CREATE ($node1)-[:$label]-> ($node2)""".stripMargin,
           parameters("nodeId1", node1, "nodeId2", node2).asMap()
         ),
-        Promise[Result]()
+        promisedRecord
       )
     )
+
+    Await.ready(promisedRecord.future, Inf)
   }
 
   override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = {
     queryQueue.push(
       QueryWithPromise(
         SubstituableQuery(
-          SingleParamString(n => {
-            val expandedProps = toMatchCriteria(n, "props", props, ",")
-            s"""OPTIONAL MATCH ($n) where id($n) = props.nodeId
-                   |SET $expandedProps""".stripMargin
-          }),
+          {
+            val expandedProps = toMatchCriteria("n", "props", props, ",")
+            s"""OPTIONAL MATCH (n) where id(n) = props.nodeId
+             |SET $expandedProps""".stripMargin
+          },
           props.+(("nodeId", nodeId)).map(kv => (kv._1, kv._2.asInstanceOf[java.lang.Object])).asJava
         ),
-        Promise[Result]()
+        Promise[Record]()
       )
     )
   }
@@ -59,11 +64,11 @@ private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallel
     queryQueue.push(
       QueryWithPromise(
         SubstituableQuery(
-          SingleParamString(n => s"""OPTIONAL MATCH ($n) where id($n) = props.nodeId
-                                     |DETACH DELETE $n""".stripMargin),
+          s"""OPTIONAL MATCH (n) where id(n) = props.nodeId
+                                     |DETACH DELETE n""".stripMargin,
           parameters("nodeId", nodeId).asMap()
         ),
-        Promise[Result]()
+        Promise[Record]()
       )
     )
   }
@@ -72,10 +77,10 @@ private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallel
     queryQueue.push(
       QueryWithPromise(
         SubstituableQuery(
-          TwoParamString((node1, node2) => s"""OPTIONAL MATCH ($node1) where id($node1) = props.from
-                                         |OPTIONAL MATCH ($node2) where id($node2) = props.to
-                                         |OPTIONAL MATCH ($node1)-[rel:$label]->($node2)
-                                         |DELETE rel""".stripMargin),
+          s"""OPTIONAL MATCH (node1) where id(node1) = props.from
+             |OPTIONAL MATCH (node2) where id(node2) = props.to
+             |OPTIONAL MATCH (node1)-[rel:$label]->(node2)
+             |DELETE rel""".stripMargin,
           parameters("from", from, "to", to).asMap()
         ),
         Promise()
@@ -87,11 +92,11 @@ private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallel
     queryQueue.push(
       QueryWithPromise(
         SubstituableQuery(
-          SingleParamString(n => {
-            val matchCriteria = toMatchCriteria(n, "props", props, "AND")
-            s"""OPTIONAL MATCH ($n:$label) WHERE $matchCriteria
-                DETACH DELETE $n""".stripMargin
-          }),
+          {
+            val matchCriteria = toMatchCriteria("n", "props", props, "AND")
+            s"""OPTIONAL MATCH (n:$label) WHERE $matchCriteria
+                DETACH DELETE n""".stripMargin
+          },
           props.map(kv => (kv._1, kv._2.asInstanceOf[java.lang.Object])).asJava
         ),
         Promise()
@@ -116,9 +121,14 @@ private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallel
     nodes.toList
   }
 
+  def executeWrite(query: String, params: java.util.HashMap[String, Object]): Future[Record] = {
+    val p = Promise[Record]()
+    queryQueue.push(QueryWithPromise(SubstituableQuery(query, params), p))
+    p.future
+  }
+
   def executePendingWrites(actorSystem: ActorSystem[_]): Future[Done] = {
     logger.info("pending writes count {}", queryQueue.size)
-
     @tailrec
     def collect(
         q: ConcurrentLinkedDeque[QueryWithPromise],
@@ -131,7 +141,9 @@ private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallel
     }
 
     val writeOperations = collect(queryQueue)
-    new WriteOperationsStream(neo4jConnection)(actorSystem).write(writeOperations)
+    Await.ready(new WriteOperationsStream(neo4jConnection)(actorSystem).write(writeOperations), Inf)
+    if(queryQueue.isEmpty) Future(Done)(actorSystem.executionContext)
+    else executePendingWrites(actorSystem)
   }
 
   override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {

@@ -3,13 +3,13 @@ package com.bharatsim.engine.graph.neo4j.queryBatching
 import java.util
 
 import com.typesafe.scalalogging.LazyLogging
-import org.neo4j.driver.Result
+import org.neo4j.driver.Record
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Promise
 import scala.jdk.CollectionConverters.IterableHasAsJava
 
-case class QueryWithPromise(b: SubstituableQuery, p: Promise[Result])
+case class QueryWithPromise(b: SubstituableQuery, p: Promise[Record])
 
 case class BatchQuery(queries: Seq[QueryWithPromise]) extends LazyLogging {
   def generate(
@@ -24,54 +24,33 @@ case class BatchQuery(queries: Seq[QueryWithPromise]) extends LazyLogging {
     }
   }
 
-  def replaceParams(
-      generator: ParamNameGenerator,
-      body: SubstitutableString
-  ): String = {
-    body match {
-      case SingleParamString(bodyApply) =>
-        val names = generate(generator, 1)
-        bodyApply(names.head)
-      case TwoParamString(bodyApply) =>
-        val names = generate(generator, 2)
-        bodyApply(names.head, names(1))
-      case ThreeParamString(bodyApply) =>
-        val names = generate(generator, 3)
-        bodyApply(names.head, names(1), names(2))
-      case FourParamString(bodyApply) =>
-        val names = generate(generator, 4)
-        bodyApply(names.head, names(1), names(2), names(3))
-      case FiveParamString(bodyApply) =>
-        val names = generate(generator, 5)
-        bodyApply(names.head, names(1), names(2), names(3), names(4))
-      case _ => throw new Exception("Batchable query must have same type of body and return substitutable strings")
-    }
-  }
-
-  def formSingleQuery(): ListBuffer[(String, util.Map[String, java.lang.Object])] = {
+  def formSingleQuery(): ListBuffer[(String, util.Map[String, java.lang.Object], Iterable[Promise[Record]])] = {
     val orderedGroups = ListBuffer.empty[GroupQuery]
 
     queries
-      .map(q => q.b)
-      .foreach(q => {
+      .foreach(qp => {
+        val q = qp.b
+        val p = qp.p
         if (orderedGroups.nonEmpty && orderedGroups.last.query == q.queryBody) {
-          orderedGroups.last.multiProps.addOne(q.props)
+          val lastQuery = orderedGroups.last
+          lastQuery.multiProps.addOne(q.props)
+          lastQuery.promises.addOne(p)
+
         } else {
-          orderedGroups.addOne(GroupQuery(q.queryBody, ListBuffer(q.props)))
+          orderedGroups.addOne(GroupQuery(q.queryBody, ListBuffer(q.props), ListBuffer(p)))
         }
       })
 
     orderedGroups
       .map(gq => {
-        val replacedParamQuery = replaceParams(ParamNameGenerator(), gq.query)
         val unwindStatement = "UNWIND $propsList as props\n"
         val listProps = new util.HashMap[String, Object]
         listProps.put("propsList", gq.multiProps.asJava)
-        (s"$unwindStatement$replacedParamQuery", listProps)
+        (s"$unwindStatement${gq.query}", listProps, gq.promises)
       })
   }
 
-  def prepare(): Iterable[(String, util.Map[String, Object])] = {
+  def prepare(): Iterable[(String, util.Map[String, Object], Iterable[Promise[Record]])] = {
     val ret = formSingleQuery()
     logger.info("Grouped into {} queries", ret.size)
     ret
