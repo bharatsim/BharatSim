@@ -128,20 +128,27 @@ object Main extends LazyLogging {
     val hospitalizedSchedule = (Week, Day)
       .add(hospitalizedScheduleForDay, 0, 6)
 
+    val mildSymptomaticScheduleForDay = (Day, Hour)
+      .add[House](0, 23)
+
+    val mildSymptomaticSchedule = (Week, Day)
+      .add(mildSymptomaticScheduleForDay, 0, 6)
+
     registerSchedules(
       (
         hospitalizedSchedule,
         (agent: Agent, _: Context) => agent.asInstanceOf[Person].isSevereInfected,
         2
       ),
+      (mildSymptomaticSchedule, (agent:Agent, _: Context) => agent.asInstanceOf[Person].isMildInfected, 3),
       (
         employeeScheduleWithPublicTransport,
         (agent: Agent, _: Context) =>
           agent.asInstanceOf[Person].takesPublicTransport && agent.asInstanceOf[Person].age >= 30,
-        3
+        4
       ),
-      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 30, 4),
-      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 30, 5)
+      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 30, 5),
+      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 30, 6)
     )
   }
 
