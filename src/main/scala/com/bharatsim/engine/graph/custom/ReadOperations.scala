@@ -64,6 +64,14 @@ class ReadOperations(buffer: Buffer) extends LazyLogging {
     }
   }
 
+  def neighborCount(nodeId: NodeId, label: String): Int = {
+
+    if (buffer.indexedNodes.contains(nodeId)) {
+      val node = buffer.indexedNodes(nodeId)
+      node.fetchNeighborsWithLabelCount(label)
+    } else 0
+  }
+
   def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int = {
 
     if (buffer.indexedNodes.contains(nodeId)) {
@@ -80,13 +88,16 @@ class ReadOperations(buffer: Buffer) extends LazyLogging {
   }
 
   private def filterNodesByMatchingParams(label: String, params: Map[String, Any]): Iterable[InternalNode] = {
-    buffer.nodes(label).values.filter(node => {
-      params
-        .map(kv => {
-          val value = node.fetchParam(kv._1)
-          value.isDefined && value.get == kv._2
-        })
-        .reduce((a, b) => a && b)
-    })
+    buffer
+      .nodes(label)
+      .values
+      .filter(node => {
+        params
+          .map(kv => {
+            val value = node.fetchParam(kv._1)
+            value.isDefined && value.get == kv._2
+          })
+          .reduce((a, b) => a && b)
+      })
   }
 }

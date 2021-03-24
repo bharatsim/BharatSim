@@ -95,6 +95,14 @@ class Node(private[engine] val graphProvider: GraphProvider = GraphProviderFacto
 
   /**
     * @param relation is a label that describes the connection
+    * @return count of all the nodes with specified relation
+    */
+  def getConnectionCount(relation: String): Int = {
+    graphProvider.neighborCount(internalId, relation)
+  }
+
+  /**
+    * @param relation is a label that describes the connection
     * @param matchPattern is condition to filter the nodes
     * @return count of all the matching node
     */

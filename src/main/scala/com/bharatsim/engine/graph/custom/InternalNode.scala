@@ -50,6 +50,13 @@ private[engine] case class InternalNode(label: String, id: NodeId, params: HashM
     }
   }
 
+  def fetchNeighborsWithLabelCount(label: String): Int = {
+    if (relationships.contains(label)) {
+      return relationships(label).size
+    }
+    0
+  }
+
   def fetchNeighborsWithLabel(label: String): HashSet[NodeId] = {
     if (relationships.contains(label)) {
       relationships(label)

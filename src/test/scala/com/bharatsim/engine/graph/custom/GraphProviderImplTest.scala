@@ -232,6 +232,22 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
         graphProvider.neighborCount(home, "HOUSES", "age" lt 23) shouldBe 1
       }
     }
+
+    "without any condition" should {
+      "return count of neighbors matching the label" in {
+        val graphProvider = GraphProviderImpl()
+
+        val home = graphProvider.createNode("Home", ("homeId", 1))
+        val person1 = graphProvider.createNode("Person", ("id", 1), ("age", 22))
+        val person2 = graphProvider.createNode("Person", ("id", 2), ("age", 23))
+        val person3 = graphProvider.createNode("Person", ("id", 3), ("age", 23))
+        graphProvider.createRelationship(home, "HOUSES", person1)
+        graphProvider.createRelationship(home, "HOUSES", person2)
+        graphProvider.createRelationship(home, "HOUSES", person3)
+
+        graphProvider.neighborCount(home, "HOUSES") shouldBe 3
+      }
+    }
   }
 
   "updateProps" when {
