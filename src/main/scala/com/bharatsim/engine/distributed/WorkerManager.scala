@@ -14,8 +14,9 @@ import com.bharatsim.engine.execution.AgentExecutor
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.graph.neo4j.BatchWriteNeo4jProvider
 import com.typesafe.scalalogging.LazyLogging
+import org.neo4j.driver.Bookmark
 
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 class WorkerManager(simulationContext: Context) extends LazyLogging {
   def default(): Behavior[Command] =
@@ -37,7 +38,8 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
               new AgentProcessingStream(label, agentExecutor, simulationContext)(context.system)
                 .start(nodeIds)
                 .onComplete {
-                  case Success(_) => sender ! FetchWork(context.self)
+                  case Success(_)  => sender ! FetchWork(context.self)
+                  case Failure(ex) => ex.printStackTrace()
                 }(context.executionContext)
               Behaviors.same
             } else {
@@ -50,10 +52,13 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
             confirmTo ! AckNoWork(context.self)
             Behaviors.same
 
-          case StartOfNewTick(updatedContext, replyTo) =>
+          case StartOfNewTick(updatedContext, bookmarks, replyTo) =>
             simulationContext.setCurrentStep(updatedContext.currentTick)
             simulationContext.setActiveIntervention(updatedContext.activeIntervention)
             simulationContext.perTickCache.clear()
+            simulationContext.graphProvider
+              .asInstanceOf[BatchWriteNeo4jProvider]
+              .setBookmarks(bookmarks)
             replyTo ! ContextUpdateDone()
             Behaviors.same
 
@@ -61,10 +66,10 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
             simulationContext.graphProvider
               .asInstanceOf[BatchWriteNeo4jProvider]
               .executePendingWrites(context.system)
-              .onComplete{
-                case Success(_) =>
+              .onComplete {
+                case Success(bookmark) =>
                   logger.info("Pending writes executed")
-                  replyTo ! WorkFinished()
+                  replyTo ! WorkFinished(DBBookmark(bookmark.values()))
               }(context.executionContext)
 
             Behaviors.same
@@ -82,7 +87,11 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
 
 object WorkerManager {
   sealed trait Command extends CborSerializable
-  case class StartOfNewTick(updatedContext: ContextData, replyTo: ActorRef[ContextUpdateDone]) extends Command
+  case class StartOfNewTick(
+      updatedContext: ContextData,
+      bookmarks: List[DBBookmark],
+      replyTo: ActorRef[ContextUpdateDone]
+  ) extends Command
   case class Work(label: String, skip: Int, limit: Int, sender: ActorRef[WorkDistributorV2.Command]) extends Command
   case class NoWork(confirmTo: ActorRef[WorkDistributorV2.Command]) extends Command
   case class ChildrenFinished(distributor: ActorRef[WorkDistributorV2.Command]) extends Command

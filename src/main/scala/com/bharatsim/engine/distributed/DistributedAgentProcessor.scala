@@ -16,12 +16,12 @@ class DistributedAgentProcessor(
   override def onMessage(msg: Command): Behavior[Command] =
     msg match {
       case UnitOfWork(agentId, label, replyTo) =>
-          val graphProvider = simulationContext.graphProvider
-          val decoder = simulationContext.agentTypes(label)
-          val gn = graphProvider.fetchById(agentId).get
-          val nodeWithDecoder = NodeWithDecoder(gn, decoder)
-          agentExecutor.execute(nodeWithDecoder)
-          replyTo ! WorkFinished()
+        val graphProvider = simulationContext.graphProvider
+        val decoder = simulationContext.agentTypes(label)
+        val gn = graphProvider.fetchById(agentId).get
+        val nodeWithDecoder = NodeWithDecoder(gn, decoder)
+        agentExecutor.execute(nodeWithDecoder)
+//          replyTo ! WorkFinished()
         Behaviors.same
     }
 }

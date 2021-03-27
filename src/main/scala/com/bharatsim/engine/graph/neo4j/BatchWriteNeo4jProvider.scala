@@ -4,23 +4,36 @@ import java.util.concurrent.ConcurrentLinkedDeque
 
 import akka.Done
 import akka.actor.typed.ActorSystem
+import com.bharatsim.engine.distributed.DBBookmark
 import com.bharatsim.engine.distributed.streams.WriteOperationsStream
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion.GraphData
 import com.bharatsim.engine.graph.neo4j.queryBatching._
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Values.parameters
-import org.neo4j.driver.{Record, Result, Transaction}
+import org.neo4j.driver.{Bookmark, Record, Result, Session, Transaction}
 
 import scala.annotation.tailrec
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.{Await, Future, Promise}
-import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava}
+import scala.jdk.CollectionConverters.{IterableHasAsJava, ListHasAsScala, MapHasAsJava}
 import scala.util.{Failure, Success}
+import org.neo4j.driver.SessionConfig.builder
 
 private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallelism: Int)
     extends Neo4jProvider(config)
     with LazyLogging {
+
+  private var bookmarks = List.empty[Bookmark]
+
+  def setBookmarks(bookmarks: List[DBBookmark]) = {
+    this.bookmarks = bookmarks.map(b => Bookmark.from(b.values))
+  }
+
+  override def createSession: Session = {
+    neo4jConnection.session(builder().withBookmarks(bookmarks.asJava).build())
+  }
+
   private val queryQueue = new ConcurrentLinkedDeque[QueryWithPromise]()
 
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
@@ -127,7 +140,7 @@ private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallel
     p.future
   }
 
-  def executePendingWrites(actorSystem: ActorSystem[_]): Future[Done] = {
+  def executePendingWrites(actorSystem: ActorSystem[_], lastBookmark: Option[Bookmark] = None): Future[Bookmark] = {
     logger.info("pending writes count {}", queryQueue.size)
     @tailrec
     def collect(
@@ -141,9 +154,10 @@ private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallel
     }
 
     val writeOperations = collect(queryQueue)
-    Await.ready(new WriteOperationsStream(neo4jConnection)(actorSystem).write(writeOperations), Inf)
-    if(queryQueue.isEmpty) Future(Done)(actorSystem.executionContext)
-    else executePendingWrites(actorSystem)
+    val newBookmark =
+      Await.result(new WriteOperationsStream(neo4jConnection)(actorSystem).write(writeOperations, lastBookmark), Inf)
+    if (queryQueue.isEmpty) Future(newBookmark)(actorSystem.executionContext)
+    else executePendingWrites(actorSystem, Some(newBookmark))
   }
 
   override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {

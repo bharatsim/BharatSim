@@ -1,5 +1,5 @@
 package com.bharatsim.engine.graph.neo4j
-
+import java.net.URI
 import java.util
 
 import com.bharatsim.engine.graph.GraphProvider.NodeId
@@ -8,7 +8,7 @@ import com.bharatsim.engine.graph.ingestion.{CsvNode, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Values.{parameters, value}
-import org.neo4j.driver.{AuthTokens, GraphDatabase, Record, Session, Transaction}
+import org.neo4j.driver.{AuthTokens, Config, GraphDatabase, Record, Session, Transaction}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -21,7 +21,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   }
 
   private[engine] override def createNode(label: String, props: Map[String, Any]): NodeId = {
-    val session = neo4jConnection.session()
+    val session = createSession
 
     val nodeId = session.writeTransaction((tx: Transaction) => {
       val javaMap = new util.HashMap[String, java.lang.Object]()
@@ -36,8 +36,12 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     nodeId
   }
 
+  protected def createSession: Session = {
+    neo4jConnection.session()
+  }
+
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
-    val session = neo4jConnection.session()
+    val session = createSession
 
     try {
       session.writeTransaction((tx: Transaction) => {
@@ -58,7 +62,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   }
 
   override def fetchNode(label: String, params: Map[String, Any]): Option[GraphNode] = {
-    val session = neo4jConnection.session()
+    val session = createSession
 
     val retValue = session.readTransaction((tx: Transaction) => {
       val paramsMapJava = params.map(kv => (kv._1, value(kv._2))).asJava
@@ -78,7 +82,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   }
 
   override def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode] = {
-    val session = neo4jConnection.session()
+    val session = createSession
 
     val nodes: util.List[GraphNode] = session.readTransaction((tx: Transaction) => {
       val paramsMapJava = params.map(kv => (kv._1, value(kv._2))).asJava
@@ -92,12 +96,12 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   }
 
   override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
-    val session = neo4jConnection.session()
+    val session = createSession
     val patternWithParams = PatternMaker.from(matchPattern, "n")
 
     val nodes: util.List[GraphNode] = session.readTransaction((tx: Transaction) => {
 
-      val whereClause = if(patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
+      val whereClause = if (patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
       val result = tx.run(
         s"""MATCH (n:$label) $whereClause return properties(n) AS node, id(n) AS nodeId""",
         patternWithParams.params.map(keyValue => (keyValue._1, keyValue._2.asInstanceOf[Object])).asJava
@@ -115,7 +119,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
       skip: Int,
       limit: Int
   ): Iterable[GraphNode] = {
-    val session = neo4jConnection.session()
+    val session = createSession
 
     val nodes: util.List[GraphNode] = session.readTransaction((tx: Transaction) => {
       val paramsMapJava = params.map(kv => (kv._1, value(kv._2))).asJava
@@ -131,12 +135,14 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
     val patternWithParams = PatternMaker.from(matchPattern, "a")
 
-    val session = neo4jConnection.session()
+    val session = createSession
 
     val count = session.readTransaction((tx: Transaction) => {
-      val whereClause = if(patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
-      val result = tx.run(s"""MATCH (a:$label) $whereClause return count(a) as matchingCount""",
-        patternWithParams.params.map(kv => (kv._1, kv._2.asInstanceOf[Object])).asJava)
+      val whereClause = if (patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
+      val result = tx.run(
+        s"""MATCH (a:$label) $whereClause return count(a) as matchingCount""",
+        patternWithParams.params.map(kv => (kv._1, kv._2.asInstanceOf[Object])).asJava
+      )
 
       result.single().get("matchingCount").asInt()
     })
@@ -145,7 +151,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   }
 
   override def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode] = {
-    val session = neo4jConnection.session()
+    val session = createSession
     val allLabels = label :: labels.toList
     val labelAOrLabelB = allLabels.mkString(" | ")
 
@@ -167,13 +173,13 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   }
 
   override def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int = {
-    val session = neo4jConnection.session()
+    val session = createSession
 
     val patternWithParams = PatternMaker.from(matchCondition, "o")
     val retValue = session
       .readTransaction((tx: Transaction) => {
         val paramList = "nodeId" :: nodeId :: patternWithParams.params.flatMap(kv => List(kv._1, kv._2)).toList
-        val whereClause = if(patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
+        val whereClause = if (patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
         val result = tx.run(
           s"""MATCH (n) where id(n) = $$nodeId with n
              |MATCH (n)-[:$label]->(o) $whereClause
@@ -190,7 +196,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   }
 
   override def fetchById(id: NodeId): Option[GraphNode] = {
-    val session = neo4jConnection.session()
+    val session = createSession
 
     val retValue = session.readTransaction((tx: Transaction) => {
 
@@ -210,7 +216,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   }
 
   override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = {
-    val session = neo4jConnection.session()
+    val session = createSession
     val expandedProps = toMatchCriteria("n", props, ",")
     val query =
       s"""MATCH (n) where id(n) = $$nodeId
@@ -231,7 +237,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
       """MATCH (n) where id(n) = $nodeId
         |DETACH DELETE n""".stripMargin
 
-    val session = neo4jConnection.session()
+    val session = createSession
 
     session.writeTransaction(tx => {
       tx.run(query, parameters("nodeId", nodeId))
@@ -248,7 +254,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
          |MATCH (a)-[rel:$label]->(b)
          |DELETE rel""".stripMargin
 
-    val session = neo4jConnection.session()
+    val session = createSession
 
     session.writeTransaction(tx => {
       tx.run(query, parameters("from", from, "to", to))
@@ -264,7 +270,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
       s"""MATCH (n:$label) WHERE $matchCriteria
          |DETACH DELETE n""".stripMargin
 
-    val session = neo4jConnection.session()
+    val session = createSession
 
     session.writeTransaction(tx => {
       tx.run(query, value(props.map(kv => (kv._1, value(kv._2))).asJava))
@@ -274,7 +280,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   }
 
   override def deleteAll(): Unit = {
-    val session = neo4jConnection.session()
+    val session = createSession
     val query = "MATCH (n) detach delete n"
 
     session.writeTransaction((tx: Transaction) => {
@@ -319,7 +325,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   private val BATCH_SIZE = 50000
 
   override private[engine] def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
-    val session = neo4jConnection.session()
+    val session = createSession
 
     val refToIdMapping = batchOfNodes.iterator
       .grouped(BATCH_SIZE)
@@ -386,7 +392,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   }
 
   private def ingestRelationshipBatch(relations: IterableOnce[Relation], refToIdMapping: RefToIdMapping) = {
-    val session = neo4jConnection.session()
+    val session = createSession
     val batchedRelations = aggregateRelationsByLabel(relations)
 
     batchedRelations.foreach({

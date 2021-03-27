@@ -7,14 +7,16 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, Scheduler}
 import akka.util.Timeout
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.distributed.CborSerializable
+import com.bharatsim.engine.distributed.{CborSerializable, DBBookmark}
 import com.bharatsim.engine.distributed.Guardian.{UserInitiatedShutdown, workerServiceKey}
 import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
 import com.bharatsim.engine.distributed.WorkerManager.{ExecutePendingWrites, StartOfNewTick}
+import com.bharatsim.engine.distributed.actors.Barrier.BarrierFinished
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop._
 import com.bharatsim.engine.execution.simulation.PostSimulationActions
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 import com.bharatsim.engine.graph.neo4j.BatchWriteNeo4jProvider
+import org.neo4j.driver.Bookmark
 
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.duration.{Duration, DurationInt}
@@ -27,11 +29,14 @@ class DistributedTickLoop(
     postSimulationActions: PostSimulationActions
 ) {
 
-  class Tick(actorContext: ActorContext[Command], currentTick: Int) extends AbstractBehavior(actorContext) {
+  class Tick(actorContext: ActorContext[Command], currentTick: Int, bookmarks: List[DBBookmark])
+      extends AbstractBehavior(actorContext) {
     private implicit val seconds: Timeout = 3.seconds
     private implicit val scheduler: Scheduler = context.system.scheduler
     private val workerList = fetchAvailableWorkers(context)
-
+    simulationContext.graphProvider
+      .asInstanceOf[BatchWriteNeo4jProvider]
+      .setBookmarks(bookmarks)
     actorContext.self ! CurrentTick
 
     override def onMessage(msg: Command): Behavior[Command] =
@@ -55,8 +60,14 @@ class DistributedTickLoop(
           executePendingWrites()
           Behaviors.same
 
-        case BarrierReply(_) =>
+        case BarrierReply(r) =>
           context.log.info("Finished executing pending writes")
+          r match {
+            case BarrierFinished(bookmarks) => {
+              postTickActions.execute()
+              Tick(currentTick + 1, bookmarks)
+            }
+          }
           postTickActions.execute()
           Tick(currentTick + 1)
       }
@@ -66,10 +77,14 @@ class DistributedTickLoop(
       val f = simulationContext.graphProvider
         .asInstanceOf[BatchWriteNeo4jProvider]
         .executePendingWrites(actorContext.system)
+      val bookmark = Await.result(f, Inf)
       val adaptedToBarrierReply = actorContext.messageAdapter(response => BarrierReply(response))
-      val barrier = context.spawn(Barrier(0, Some(workerList.length), adaptedToBarrierReply), "write-barrier")
+      val barrier =
+        context.spawn(
+          Barrier(0, Some(workerList.length), adaptedToBarrierReply, List(DBBookmark(bookmark.values()))),
+          "write-barrier"
+        )
       workerList.foreach(worker => worker ! ExecutePendingWrites(barrier))
-      Await.ready(f, Inf)
     }
 
     private def notifyWorkersNewTick(): Unit = {
@@ -79,7 +94,7 @@ class DistributedTickLoop(
             worker.ask((replyTo: ActorRef[ContextUpdateDone]) => {
               val updatedContext =
                 ContextData(simulationContext.getCurrentStep, simulationContext.activeInterventionNames)
-              StartOfNewTick(updatedContext, replyTo)
+              StartOfNewTick(updatedContext, bookmarks, replyTo)
             })
           )
         )()((_, _) => ())(ExecutionContext.global),
@@ -98,8 +113,8 @@ class DistributedTickLoop(
   }
 
   object Tick {
-    def apply(currentTick: Int): Behavior[Command] = {
-      Behaviors.setup(context => new Tick(context, currentTick))
+    def apply(currentTick: Int, bookmarks: List[DBBookmark] = List.empty): Behavior[Command] = {
+      Behaviors.setup(context => new Tick(context, currentTick, bookmarks))
     }
   }
 }

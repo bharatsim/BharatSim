@@ -6,14 +6,21 @@ import akka.stream.scaladsl.Source
 import com.bharatsim.engine.ApplicationConfigFactory.config.{preProcessGroupCount, queryGroupSize}
 import com.bharatsim.engine.graph.neo4j.queryBatching.{BatchQuery, QueryWithPromise}
 import org.neo4j.driver.internal.InternalRecord
-import org.neo4j.driver.{Driver, Record, Result}
+import org.neo4j.driver.{Bookmark, Driver, Record, Result}
+import org.neo4j.driver.SessionConfig.builder
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
 class WriteOperationsStream(neo4jConnection: Driver)(implicit actorSystem: ActorSystem[_]) {
   private implicit val ec: ExecutionContext = actorSystem.executionContext
 
-  def write(operations: List[QueryWithPromise]): Future[Done] = {
+  def write(operations: List[QueryWithPromise], bookmark: Option[Bookmark] = None): Future[Bookmark] = {
+
+    val s =
+      if (bookmark.isDefined)
+        neo4jConnection.session(builder().withBookmarks(bookmark.get).build())
+      else neo4jConnection.session()
+
     Source(operations)
       .grouped(queryGroupSize)
       .mapAsync(preProcessGroupCount)(group => Future(BatchQuery(group).prepare()))
@@ -21,9 +28,7 @@ class WriteOperationsStream(neo4jConnection: Driver)(implicit actorSystem: Actor
         Source(
           list
             .map(x => {
-              val s = neo4jConnection.session()
               val result = s.run(x._1, x._2).list()
-              s.close()
               (result, x._3)
             })
             .toList
@@ -40,5 +45,11 @@ class WriteOperationsStream(neo4jConnection: Driver)(implicit actorSystem: Actor
             }
           })
       }
+      .map { _ =>
+        val bookmark = s.lastBookmark()
+        s.close()
+        bookmark
+      }
+
   }
 }
