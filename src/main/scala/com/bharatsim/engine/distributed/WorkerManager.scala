@@ -24,19 +24,30 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
       case (context, message) =>
         message match {
           case Work(label, skip, limit, sender) =>
-            context.log.info("Received work for label {} with skip {}", label, skip)
+            context.log.info(
+              "Received work for label {} with skip {} for tick {}",
+              label,
+              skip,
+              simulationContext.getCurrentStep
+            )
 
             val nodeIds = simulationContext.graphProvider
               .asInstanceOf[BatchWriteNeo4jProvider]
-              .fetchNodeIds(label, skip, limit)
+              .fetchWithStates(label, skip, limit)
 
             if (nodeIds.nonEmpty) {
-              context.log.info("Stream has {} elements for label {} with skip {}", nodeIds.size, label, skip)
+              context.log.info(
+                "Stream has {} elements for label {} with skip {} for tick {}",
+                nodeIds.size,
+                label,
+                skip,
+                simulationContext.getCurrentStep
+              )
               val behaviourControl = new BehaviourControl(simulationContext)
               val stateControl = new StateControl(simulationContext)
               val agentExecutor = new AgentExecutor(behaviourControl, stateControl)
               new AgentProcessingStream(label, agentExecutor, simulationContext)(context.system)
-                .start(nodeIds)
+                .startWithState(nodeIds)
                 .onComplete {
                   case Success(_)  => sender ! FetchWork(context.self)
                   case Failure(ex) => ex.printStackTrace()

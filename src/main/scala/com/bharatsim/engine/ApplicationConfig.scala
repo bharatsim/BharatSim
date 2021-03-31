@@ -8,6 +8,7 @@ class ApplicationConfig {
   private lazy val clusterConfig = ConfigFactory.load("cluster.conf")
 
   lazy val countBatchSize: Int = config.getInt("bharatsim.engine.distributed.count-batch-size")
+  lazy val publicPlaceCount: Int = config.getInt("bharatsim.engine.execution.public-places-count")
 
   lazy val storeActorCount: Int = config.getInt("bharatsim.engine.distributed.data-store-node.actor-count")
   lazy val workerActorCount: Int = config.getInt("bharatsim.engine.distributed.worker-node.actor-count")
@@ -47,6 +48,7 @@ class ApplicationConfig {
   lazy val neo4jURI: String = neo4jConfig.getString("uri")
   lazy val neo4jUsername: String = neo4jConfig.getString("username")
   lazy val neo4jPass: String = neo4jConfig.getString("password")
+  lazy val neo4jConnectionPoolSize: Int = neo4jConfig.getInt("connection-pool-size")
   lazy val writeParallelism: Int = neo4jConfig.getInt("write-parallelism")
   lazy val queryGroupSize: Int = neo4jConfig.getInt("query-group-size")
   lazy val preProcessGroupCount: Int = neo4jConfig.getInt("pre-process-group-count")

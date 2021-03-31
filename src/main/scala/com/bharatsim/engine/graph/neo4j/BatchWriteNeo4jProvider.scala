@@ -1,24 +1,25 @@
 package com.bharatsim.engine.graph.neo4j
 
+import java.util
+import java.util.Date
 import java.util.concurrent.ConcurrentLinkedDeque
 
-import akka.Done
 import akka.actor.typed.ActorSystem
 import com.bharatsim.engine.distributed.DBBookmark
 import com.bharatsim.engine.distributed.streams.WriteOperationsStream
+import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion.GraphData
 import com.bharatsim.engine.graph.neo4j.queryBatching._
 import com.typesafe.scalalogging.LazyLogging
+import org.neo4j.driver.SessionConfig.builder
 import org.neo4j.driver.Values.parameters
-import org.neo4j.driver.{Bookmark, Record, Result, Session, Transaction}
+import org.neo4j.driver.{Bookmark, Record, Session, Transaction}
 
 import scala.annotation.tailrec
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.{Await, Future, Promise}
-import scala.jdk.CollectionConverters.{IterableHasAsJava, ListHasAsScala, MapHasAsJava}
-import scala.util.{Failure, Success}
-import org.neo4j.driver.SessionConfig.builder
+import scala.jdk.CollectionConverters.{IterableHasAsJava, ListHasAsScala, MapHasAsJava, MapHasAsScala}
 
 private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallelism: Int)
     extends Neo4jProvider(config)
@@ -34,7 +35,50 @@ private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallel
     neo4jConnection.session(builder().withBookmarks(bookmarks.asJava).build())
   }
 
-  private val queryQueue = new ConcurrentLinkedDeque[QueryWithPromise]()
+  private val queryQueue = new ConcurrentLinkedDeque[QueryWithPromise]();
+
+  def fetchWithStates(label: String, skip: Int, limit: Int): Iterable[(GraphNode, Option[GraphNode])] = {
+    val st = new Date().getTime
+    val query = s"""match (p:$label) with p SKIP $$skip LIMIT $$limit
+                   |optional match (p)-[:FSM_STATE]->(q) with p, q
+                   |return {props: properties(p), labels: labels(p), id: id(p)} as node,  {props: properties(q), labels: labels(q), id: id(q)} as state""".stripMargin
+
+    val session = neo4jConnection.session()
+
+    val nodes = session.readTransaction((tx: Transaction) => {
+
+      val result = tx.run(query, parameters("skip", skip, "limit", limit))
+
+      result
+        .list()
+        .asScala
+        .map(record => {
+          val node = record.get("node").asMap()
+          val state = record.get("state").asMap()
+          val graphNode = extractGraphNode(node)
+          if (Option(state.get("id")).isDefined)
+            (graphNode, Some(extractGraphNode(state)))
+          else
+            (graphNode, None)
+        })
+    })
+    session.close()
+    val end = new Date().getTime
+
+    logger.info("fetchWithStates  label {}  skip {} limit {} time {}", label, skip, limit, end - st)
+
+    nodes.toList
+
+  }
+
+  private def extractGraphNode(map: java.util.Map[String, Object]) = {
+    val node = map.get("props").asInstanceOf[java.util.Map[String, Object]]
+    val nodeId = map.get("id").asInstanceOf[Long].toInt
+    val extractedLabel = map.get("labels").asInstanceOf[util.Collection[String]]
+
+    val mapWithValueTypeAny = node.asScala.map(kv => (kv._1, kv._2.asInstanceOf[Any])).toMap
+    GraphNode(extractedLabel.iterator().next(), nodeId, mapWithValueTypeAny)
+  }
 
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
     val promisedRecord = Promise[Record]()

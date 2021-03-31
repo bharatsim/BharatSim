@@ -1,7 +1,9 @@
 package com.bharatsim.engine.graph.neo4j
 import java.net.URI
 import java.util
+import java.util.concurrent.TimeUnit
 
+import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph._
 import com.bharatsim.engine.graph.ingestion.{CsvNode, RefToIdMapping, Relation}
@@ -15,9 +17,17 @@ import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters.{IterableHasAsJava, ListHasAsScala, MapHasAsJava, MapHasAsScala, SeqHasAsJava}
 
 private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging {
+
+  val driverConfig = Config
+    .builder()
+    .withMaxConnectionPoolSize(ApplicationConfigFactory.config.neo4jConnectionPoolSize)
+    .withConnectionAcquisitionTimeout(5, TimeUnit.MINUTES)
+    .build();
+
   protected val neo4jConnection = config.username match {
-    case Some(_) => GraphDatabase.driver(config.uri, AuthTokens.basic(config.username.get, config.password.get))
-    case None    => GraphDatabase.driver(config.uri)
+    case Some(_) =>
+      GraphDatabase.driver(config.uri, AuthTokens.basic(config.username.get, config.password.get), driverConfig)
+    case None => GraphDatabase.driver(config.uri, driverConfig)
   }
 
   private[engine] override def createNode(label: String, props: Map[String, Any]): NodeId = {

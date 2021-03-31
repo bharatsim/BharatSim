@@ -17,14 +17,14 @@ trait StatefulAgent extends Agent {
   private var maybeActiveState: Option[State] = None
 
   /**
-   * Fetches current state of the agent
-   *
-   * It is initialized using the initial state value set on creation of the Agent
-   *
-   * Fetching from data-store is lazy in nature
-   *
-   * @throws RuntimeException if the initial state is not set for the Agent
-   */
+    * Fetches current state of the agent
+    *
+    * It is initialized using the initial state value set on creation of the Agent
+    *
+    * Fetching from data-store is lazy in nature
+    *
+    * @throws RuntimeException if the initial state is not set for the Agent
+    */
   def activeState: State = {
     maybeActiveState match {
       case Some(value) => value
@@ -35,16 +35,16 @@ trait StatefulAgent extends Agent {
   }
 
   /**
-   * Mandatory method call for an StatefulAgent on creation
-   *
-   * @param s            State to be set as initial state
-   * @param serializer   is a basic encoder for the State of type T
-   * @param deserializer is a basic decoder for the State of type T
-   * @tparam T Type of the State
-   */
-  def setInitialState[T <: State : ClassTag](
-                                              s: T
-                                            )(implicit serializer: BasicMapEncoder[T], deserializer: BasicMapDecoder[T]): Unit = {
+    * Mandatory method call for an StatefulAgent on creation
+    *
+    * @param s            State to be set as initial state
+    * @param serializer   is a basic encoder for the State of type T
+    * @param deserializer is a basic decoder for the State of type T
+    * @tparam T Type of the State
+    */
+  def setInitialState[T <: State: ClassTag](
+      s: T
+  )(implicit serializer: BasicMapEncoder[T], deserializer: BasicMapDecoder[T]): Unit = {
     val className = Utils.fetchClassName[T]
     State.saveSerde(className)
 
@@ -53,6 +53,10 @@ trait StatefulAgent extends Agent {
 
   private[engine] def forceUpdateActiveState(): Unit = {
     maybeActiveState = Some(fetchActiveState)
+  }
+
+  private[engine] def setActiveState(state: GraphNode): Unit = {
+    maybeActiveState = Some(State.fetchDeserializer(state.label)(state))
   }
 
   private def fetchActiveState: State = {
