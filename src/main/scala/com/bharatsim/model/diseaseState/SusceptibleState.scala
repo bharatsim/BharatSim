@@ -15,6 +15,7 @@ case class SusceptibleState() extends State {
   def shouldInfect(context: Context, agent: StatefulAgent): Boolean = {
     if (agent.activeState == SusceptibleState()) {
       val infectionRate = context.dynamics.asInstanceOf[Disease.type].infectionRate
+      val dt = context.dynamics.asInstanceOf[Disease.type].dt
 
       val schedule = context.fetchScheduleFor(agent).get
 
@@ -26,26 +27,34 @@ case class SusceptibleState() extends State {
         val place = places.head
         val decodedPlace = agent.asInstanceOf[Person].decodeNode(placeType, place)
 
-        val infectedNeighbourCount = fetchInfectedNeighborsCount(decodedPlace, placeType, context)
+        val infectedFraction = fetchInfectedFraction(decodedPlace, placeType, context)
 
-        return biasedCoinToss(decodedPlace.getContactProbability()) && toss(infectionRate, infectedNeighbourCount)
+        return biasedCoinToss(infectionRate * dt * infectedFraction)
       }
     }
     false
   }
 
-  private def fetchInfectedNeighborsCount(decodedPlace: Network, place: String, context: Context): Int = {
+  private def fetchInfectedFraction(decodedPlace: Network, place: String, context: Context): Double = {
     val cache = context.perTickCache
 
-    cache.getOrUpdate((place, decodedPlace.internalId), () => fetchFromStore(decodedPlace)).asInstanceOf[Int]
+    cache.getOrUpdate((place, decodedPlace.internalId), () => fetchFromStore(decodedPlace)).asInstanceOf[Double]
   }
 
-  private def fetchFromStore(decodedPlace: Network) = {
-    decodedPlace
+  private def fetchFromStore(decodedPlace: Network): Double = {
+    val total = decodedPlace
+      .getConnectionCount(
+        decodedPlace.getRelation[Person]().get
+      )
+    val infected = decodedPlace
       .getConnectionCount(
         decodedPlace.getRelation[Person]().get,
-        ("infectionState" equ InfectedMild) or ("infectionState" equ InfectedSevere)
+        ("infectionState" equ InfectedMild) or ("infectionState" equ InfectedSevere) or ("infectionState" equ Asymptomatic) or ("infectionState" equ PreSymptomatic)
       )
+    if (total == 0.0)
+      return 0.0
+
+    infected.toDouble / total.toDouble
   }
 
   addTransition(
