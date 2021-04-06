@@ -7,16 +7,14 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, Scheduler}
 import akka.util.Timeout
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.distributed.{CborSerializable, DBBookmark}
 import com.bharatsim.engine.distributed.Guardian.{UserInitiatedShutdown, workerServiceKey}
 import com.bharatsim.engine.distributed.WorkerManager.{ExecutePendingWrites, StartOfNewTick}
 import com.bharatsim.engine.distributed.actors.Barrier.BarrierFinished
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop._
-import com.bharatsim.engine.distributed.{CborSerializable, ContextData}
+import com.bharatsim.engine.distributed.{CborSerializable, ContextData, DBBookmark}
 import com.bharatsim.engine.execution.simulation.PostSimulationActions
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 import com.bharatsim.engine.graph.neo4j.BatchWriteNeo4jProvider
-import org.neo4j.driver.Bookmark
 
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.duration.{Duration, DurationInt}

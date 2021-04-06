@@ -85,16 +85,14 @@ private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallel
     queryQueue.push(
       QueryWithPromise(
         SubstituableQuery(
-          s"""OPTIONAL MATCH ($node1) WHERE id($node1) = props.nodeId1
-          |OPTIONAL MATCH ($node2) WHERE id($node2) = props.nodeId2
-          |CREATE ($node1)-[:$label]-> ($node2)""".stripMargin,
+          s"""OPTIONAL MATCH (node1) WHERE id(node1) = props.nodeId1
+          |OPTIONAL MATCH (node2) WHERE id(node2) = props.nodeId2
+          |CREATE (node1)-[:$label]-> (node2)""".stripMargin,
           parameters("nodeId1", node1, "nodeId2", node2).asMap()
         ),
         promisedRecord
       )
     )
-
-    Await.ready(promisedRecord.future, Inf)
   }
 
   override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = {
