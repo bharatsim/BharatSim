@@ -12,18 +12,6 @@ import scala.jdk.CollectionConverters.IterableHasAsJava
 case class QueryWithPromise(b: SubstituableQuery, p: Promise[Record])
 
 case class BatchQuery(queries: Seq[QueryWithPromise]) extends LazyLogging {
-  def generate(
-      generator: ParamNameGenerator,
-      count: Int,
-      list: List[String] = List.empty
-  ): List[String] = {
-    if (count == 0) list
-    else {
-      val name = generator.get
-      generate(generator.next, count - 1, name :: list)
-    }
-  }
-
   def formSingleQuery(): ListBuffer[(String, util.Map[String, java.lang.Object], Iterable[Promise[Record]])] = {
     val orderedGroups = ListBuffer.empty[GroupQuery]
 

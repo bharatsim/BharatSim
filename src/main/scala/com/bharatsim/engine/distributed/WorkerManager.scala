@@ -3,7 +3,6 @@ package com.bharatsim.engine.distributed
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.distributed.SimulationContextReplicator.ContextData
 import com.bharatsim.engine.distributed.WorkerManager._
 import com.bharatsim.engine.distributed.actors.Barrier.WorkFinished
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.ContextUpdateDone
