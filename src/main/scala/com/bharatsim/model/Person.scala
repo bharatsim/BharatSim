@@ -14,7 +14,7 @@ case class Person(
     id: Long,
     age: Double,
     infectionState: InfectionStatus,
-    infectionDay: Int,
+    infectionTicks: Int,
     takesPublicTransport: Boolean,
     isEssentialWorker: Boolean,
     violateLockdown: Boolean,
@@ -24,8 +24,8 @@ case class Person(
 ) extends StatefulAgent {
 
   private def incrementInfectionDay(context: Context): Unit = {
-    if ((!isSusceptible && !isRecovered && !isDeceased) && isEOD(context.getCurrentStep)) {
-      updateParam("infectionDay", infectionDay + 1)
+    if (!isSusceptible && !isRecovered && !isDeceased) {
+      updateParam("infectionTicks", infectionTicks + 1)
     }
   }
 

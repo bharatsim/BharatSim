@@ -27,7 +27,7 @@ case class ExposedState(severeInfectionPercentage: Double, isAsymptomatic: Boole
   }
 
   private def checkForExposure(agent: StatefulAgent) = {
-    agent.asInstanceOf[Person].infectionDay >= exposedDuration
+    agent.asInstanceOf[Person].infectionTicks >= exposedDuration * Disease.inverse_dt
   }
 
   private def checkForPreSymptomatic(context: Context, agent: StatefulAgent): Boolean = {

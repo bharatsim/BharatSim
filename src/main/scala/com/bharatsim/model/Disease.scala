@@ -13,10 +13,8 @@ object Disease extends Dynamics {
   final val mildSymptomaticDurationProbabilityDistribution = LogNormal(8, 2)
   final val severeSymptomaticDurationProbabilityDistribution = LogNormal(14, 2.4)
 
-  final val preSymptomaticDuration = 4
   final val infectionRate: Double = 0.5
-  final val exposedDuration: Int = 2
-  final val lastDay: Int = 17
   final val deathRate = 0.02
   final val dt = 1.toDouble / 24.toDouble
+  final val inverse_dt = 24.toDouble / 1.toDouble
 }

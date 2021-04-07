@@ -6,7 +6,7 @@ import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.models.StatefulAgent
 import com.bharatsim.model.InfectionStatus.Asymptomatic
-import com.bharatsim.model.Person
+import com.bharatsim.model.{Disease, Person}
 
 case class AsymptomaticState(asymptomaticDuration: Double) extends State {
 
@@ -16,7 +16,7 @@ case class AsymptomaticState(asymptomaticDuration: Double) extends State {
   def checkForRecovery(context: Context, agent: StatefulAgent): Boolean = {
     if (
       agent.asInstanceOf[Person].isAsymptomatic &&
-      agent.asInstanceOf[Person].infectionDay >= asymptomaticDuration
+      agent.asInstanceOf[Person].infectionTicks >= asymptomaticDuration * Disease.inverse_dt
     ) {
       return true
     }

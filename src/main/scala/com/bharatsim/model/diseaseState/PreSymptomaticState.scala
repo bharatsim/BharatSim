@@ -16,7 +16,7 @@ case class PreSymptomaticState(infectionSeverity: InfectionSeverity, preSymptoma
   }
 
   def checkForInfectionSeverity(context: Context, agent: StatefulAgent): Boolean = {
-    if (agent.asInstanceOf[Person].infectionDay >= preSymptomaticDuration) {
+    if (agent.asInstanceOf[Person].infectionTicks >= preSymptomaticDuration * Disease.inverse_dt) {
       return true
     }
     false
