@@ -46,9 +46,9 @@ case class Person(
 
   def isPreSymptomatic: Boolean = activeState.isInstanceOf[PreSymptomaticState]
 
-  def isMildInfected: Boolean = activeState.isInstanceOf[InfectedState[Value]] && activeState.asInstanceOf[InfectedState[Value]].severity == Mild
+  def isMildInfected: Boolean = activeState.isInstanceOf[InfectedState] && activeState.asInstanceOf[InfectedState].severity == Mild
 
-  def isSevereInfected: Boolean = activeState.isInstanceOf[InfectedState[Value]] && activeState.asInstanceOf[InfectedState[Value]].severity == Severe
+  def isSevereInfected: Boolean = activeState.isInstanceOf[InfectedState] && activeState.asInstanceOf[InfectedState].severity == Severe
 
   def isAsymptomatic: Boolean = activeState.isInstanceOf[AsymptomaticState]
 

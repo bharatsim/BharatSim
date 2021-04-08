@@ -6,11 +6,11 @@ import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.models.StatefulAgent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
-import com.bharatsim.model.InfectionSeverity.{Mild, Severe}
+import com.bharatsim.model.InfectionSeverity.{InfectionSeverity, Mild, Severe}
 import com.bharatsim.model.InfectionStatus.{InfectedMild, InfectedSevere}
 import com.bharatsim.model.{Disease, Person}
 
-case class InfectedState[T](severity: T, infectedDuration: Double) extends State {
+case class InfectedState(severity: InfectionSeverity, infectedDuration: Double) extends State {
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     if (severity == Mild) {
