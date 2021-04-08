@@ -20,16 +20,19 @@ import com.typesafe.scalalogging.LazyLogging
 object Main2 extends LazyLogging {
   private val TOTAL_PUBLIC_PLACES = ApplicationConfigFactory.config.publicPlaceCount
   private var lastPublicPlaceId = 1
+  private val initialInfectedFraction = 0.3
 
   def main(args: Array[String]): Unit = {
     var beforeCount = 0
     val distributedSimulation = new DistributedSimulation
 
     distributedSimulation.ingestData { implicit context =>
+      context.setDynamics(Disease)
       ingestCSVData("input.csv", csvDataExtractor)
     }
 
     distributedSimulation.defineSimulation { implicit context =>
+      context.setDynamics(Disease)
       addLockdown
 
       createSchedules()
@@ -69,9 +72,9 @@ object Main2 extends LazyLogging {
   private def addLockdown(implicit context: Context): Unit = {
 
     val interventionName = "lockdown"
-    val intervention = IntervalBasedIntervention(interventionName, 20, 530);
+    val intervention = IntervalBasedIntervention(interventionName, 20, 530)
 
-    val lockdownSchedule = (Day, Hour).add[House](0, 23);
+    val lockdownSchedule = (Day, Hour).add[House](0, 23)
 
     registerIntervention(intervention)
     registerSchedules(
@@ -81,9 +84,10 @@ object Main2 extends LazyLogging {
           val isEssentialWorker = agent.asInstanceOf[Person].isEssentialWorker
           val violateLockdown = agent.asInstanceOf[Person].violateLockdown
           val isLockdown = context.activeInterventionNames.contains(interventionName)
-          val isSeverelyInfected = agent.asInstanceOf[Person].activeState == InfectedState(Severe)
+          val isSeverelyInfected = agent.asInstanceOf[Person].isSevereInfected
           isLockdown && !(isEssentialWorker || violateLockdown || isSeverelyInfected)
-        }
+        },
+        1
       )
     )
   }
@@ -132,32 +136,48 @@ object Main2 extends LazyLogging {
     val hospitalizedSchedule = (Week, Day)
       .add(hospitalizedScheduleForDay, 0, 6)
 
+    val mildSymptomaticScheduleForDay = (Day, Hour)
+      .add[House](0, 23)
+
+    val mildSymptomaticSchedule = (Week, Day)
+      .add(mildSymptomaticScheduleForDay, 0, 6)
+
     registerSchedules(
       (
         hospitalizedSchedule,
-        (agent: Agent, _: Context) => agent.asInstanceOf[Person].activeState == InfectedState(Severe)
+        (agent: Agent, _: Context) => agent.asInstanceOf[Person].isSevereInfected,
+        2
       ),
+      (mildSymptomaticSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isMildInfected, 3),
       (
         employeeScheduleWithPublicTransport,
-        (agent: Agent, _: Context) =>
-          agent.asInstanceOf[Person].takesPublicTransport && agent.asInstanceOf[Person].age >= 30
+        (agent: Agent, _: Context) => agent.asInstanceOf[Person].takesPublicTransport,
+        4
       ),
-      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 30),
-      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 30)
+      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isEmployee, 5),
+      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isStudent, 6)
     )
   }
 
   private def csvDataExtractor(map: Map[String, String])(implicit context: Context): GraphData = {
 
-    val citizenId = map("id").toInt
-    val age = map("age").toInt
-    val takesPublicTransport = map("public_transport").toBoolean
-    val isEssentialWorker = map("is_essential_worker").toBoolean
-    val violateLockdown = map("violate_lockdown").toBoolean
-    val initialInfectionState = map("infectionState")
-    val villageTown = map("village_town")
-    val lat = map("lattitude")
-    val long = map("longitude")
+    val citizenId = map("Agent_ID").toLong
+    val age = map("Age").toInt
+    val takesPublicTransport = map("PublicTransport_Jobs").toInt == 1
+    val isEssentialWorker = map("essential_worker").toInt == 1
+    val violateLockdown = map("Adherence_to_Intervention").toFloat >= 0.5
+    val initialInfectionState = if (biasedCoinToss(initialInfectedFraction)) "InfectedMild" else "Susceptible"
+    val villageTown = map("VillTownName")
+    val lat = map("H_Lat")
+    val long = map("H_Lon")
+
+    val homeId = map("HHID").toLong
+    val schoolId = map("school_id").toLong
+    val officeId = map("WorkPlaceID").toLong
+    val publicPlaceId = generatePublicPlaceId()
+
+    val isEmployee: Boolean = officeId > 0
+    val isStudent: Boolean = schoolId > 0
 
     val citizen: Person = Person(
       citizenId,
@@ -169,15 +189,16 @@ object Main2 extends LazyLogging {
       violateLockdown,
       villageTown,
       lat,
-      long
+      long,
+      isEmployee,
+      isStudent
     )
 
-    setCitizenInitialState(context, citizen, map("infectionState"))
-
-    val homeId = map("house_id").toInt
-    val schoolId = map("school_id").toInt
-    val officeId = map("office_id").toInt
-    val publicPlaceId = generatePublicPlaceId()
+    if (biasedCoinToss(0.01)) {
+      setCitizenInitialState(context, citizen, InfectionStatus.Exposed.toString)
+    } else {
+      setCitizenInitialState(context, citizen, InfectionStatus.Susceptible.toString)
+    }
 
     val home = House(homeId)
     val staysAt = Relation[Person, House](citizenId, "STAYS_AT", homeId)
@@ -191,7 +212,6 @@ object Main2 extends LazyLogging {
     graphData.addNode(publicPlaceId, PublicPlace(publicPlaceId))
     graphData.addRelations(staysAt, memberOf, visits, hosts)
 
-    val isEmployee = officeId > 0
     if (isEmployee) {
       val office = Office(officeId)
       val worksAt = Relation[Person, Office](citizenId, "WORKS_AT", officeId)
@@ -237,14 +257,24 @@ object Main2 extends LazyLogging {
   }
 
   private def setCitizenInitialState(context: Context, citizen: Person, initialState: String): Unit = {
-    val isAsymptomatic: Boolean = biasedCoinToss(Disease.asymptomaticPopulationPercentage)
-    val severeInfectionPercentage = Disease.severeInfectedPopulationPercentage
+    val isAsymptomatic: Boolean = biasedCoinToss(
+      context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage
+    )
+    val severeInfectionPercentage = context.dynamics.asInstanceOf[Disease.type].severeInfectedPopulationPercentage
+    val exposedDuration = context.dynamics.asInstanceOf[Disease.type].exposedDurationProbabilityDistribution.sample()
+    val preSymptomaticDuration =
+      context.dynamics.asInstanceOf[Disease.type].presymptomaticDurationProbabilityDistribution.sample()
+    val mildSymptomaticDuration =
+      context.dynamics.asInstanceOf[Disease.type].mildSymptomaticDurationProbabilityDistribution.sample()
+    val severeSymptomaticDuration =
+      context.dynamics.asInstanceOf[Disease.type].severeSymptomaticDurationProbabilityDistribution.sample()
     initialState match {
-      case "Susceptible"    => citizen.setInitialState(SusceptibleState())
-      case "Exposed"        => citizen.setInitialState(ExposedState(severeInfectionPercentage, isAsymptomatic))
-      case "PreSymptomatic" => citizen.setInitialState(PreSymptomaticState(Mild))
-      case "InfectedMild"   => citizen.setInitialState(InfectedState(Mild))
-      case "InfectedSevere" => citizen.setInitialState(InfectedState(Severe))
+      case "Susceptible" => citizen.setInitialState(SusceptibleState())
+      case "Exposed" =>
+        citizen.setInitialState(ExposedState(severeInfectionPercentage, isAsymptomatic, exposedDuration))
+      case "PreSymptomatic" => citizen.setInitialState(PreSymptomaticState(Mild, preSymptomaticDuration))
+      case "InfectedMild"   => citizen.setInitialState(InfectedState(Mild, mildSymptomaticDuration))
+      case "InfectedSevere" => citizen.setInitialState(InfectedState(Severe, severeSymptomaticDuration))
       case "Recovered"      => citizen.setInitialState(RecoveredState())
       case "Deceased"       => citizen.setInitialState(DeceasedState())
       case _                => throw new Exception(s"Unsupported infection status: $initialState")

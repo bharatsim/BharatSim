@@ -34,10 +34,16 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
       Future {
         val resultList = groupedQueries
           .map(gq => {
-            val s = neo4jConnection.session()
-            val result = s.run(gq.query, gq.props).list()
-            s.close()
-            GQResult(result, gq)
+            try {
+              val s = neo4jConnection.session()
+              val result = s.run(gq.query, gq.props).list()
+              s.close()
+              GQResult(result, gq)
+            } catch {
+              case ex: Throwable =>
+                logger.info("failed query {} with ex{}", gq.query, ex)
+                throw ex;
+            }
           })
           .toList
 

@@ -40,12 +40,23 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
     graphOperations.readOperations.fetchNodes(label, matchPattern)
   }
 
-  override def fetchNodesWithSkipAndLimit(label: String, params: Map[String, Any], skip: NodeId, limit: NodeId): Iterable[GraphNode] = {
+  override def fetchNodesWithSkipAndLimit(
+      label: String,
+      params: Map[String, Any],
+      skip: Int,
+      limit: Int
+  ): Iterable[GraphNode] = {
     graphOperations.readOperations.fetchNodes(label, params, skip, limit)
   }
 
   // TODO implement for other data store implementations as well
-  override def fetchNodesSelect(label: String, select: Set[String], where: MatchPattern, skip: Int, limit: Int): Iterable[PartialGraphNode] = {
+  override def fetchNodesSelect(
+      label: String,
+      select: Set[String],
+      where: MatchPattern,
+      skip: Int,
+      limit: Int
+  ): Iterable[PartialGraphNode] = {
     graphOperations.readOperations.fetchNodesSelect(label, select, where, skip, limit)
   }
 

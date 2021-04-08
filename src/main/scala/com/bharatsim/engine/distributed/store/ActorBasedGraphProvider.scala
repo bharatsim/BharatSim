@@ -52,7 +52,13 @@ class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val syst
     AwaitedResult((ref: ActorRef[Reply]) => FetchNodesByPattern(label, matchPattern, ref)).getGraphNodes
   }
 
-  override def fetchNodesSelect(label: String, select: Set[String], where: MatchPattern, skip: Int, limit: Int): Iterable[PartialGraphNode] = {
+  override def fetchNodesSelect(
+      label: String,
+      select: Set[String],
+      where: MatchPattern,
+      skip: Int,
+      limit: Int
+  ): Iterable[PartialGraphNode] = {
     AwaitedResult(ref => Fetch(label, select, where, skip, limit, ref)).getPartialNodes
   }
 
@@ -128,4 +134,5 @@ class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val syst
   private object AwaitedResult {
     def apply[A <: DBQuery](query: ActorRef[Reply] => A): AwaitedResult[A] = new AwaitedResult(query)
   }
+
 }

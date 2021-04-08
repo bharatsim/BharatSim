@@ -19,11 +19,16 @@ import scala.collection.mutable.ListBuffer
   * @param graphProvider    instance of [[graph.GraphProvider GraphProvider]]
   * @param simulationConfig instance of [[ApplicationConfig]] for the simulation
   */
-class Context(val graphProvider: GraphProvider, val simulationConfig: ApplicationConfig, val perTickCache: PerTickCache) {
+class Context(
+    val graphProvider: GraphProvider,
+    val simulationConfig: ApplicationConfig,
+    val perTickCache: PerTickCache
+) {
   private[engine] val schedules = new Schedules
   type AgentDecoder = BasicMapDecoder[_ <: Agent]
   private[engine] val agentTypes: mutable.HashMap[String, AgentDecoder] = mutable.HashMap.empty
   private[engine] var currentStep = 0
+  var dynamics: Dynamics = null
   private[engine] val actions: ListBuffer[ConditionalAction] = ListBuffer.empty
   private[engine] var stopSimulation = false
   private[engine] val interventions = new Interventions()
@@ -37,6 +42,10 @@ class Context(val graphProvider: GraphProvider, val simulationConfig: Applicatio
     */
   def fetchScheduleFor(agent: Agent): Option[Schedule] = {
     schedules.get(agent, this)
+  }
+
+  def setDynamics(d: Dynamics): Unit = {
+    dynamics = d
   }
 
   /**
@@ -77,7 +86,6 @@ class Context(val graphProvider: GraphProvider, val simulationConfig: Applicatio
 object Context {
 
   /** Creator method for Context
-    *
     */
   def apply(): Context = {
     val applicationConfig: ApplicationConfig = ApplicationConfigFactory.config

@@ -117,15 +117,16 @@ private[engine] class BatchWriteNeo4jProvider(
   }
 
   override def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int = {
-    val patternString = PatternMaker.from(matchCondition, "o")
-
-    val query = s"""OPTIONAL MATCH (n) where id(n) = props.nodeId with n, uuid
-                   |OPTIONAL MATCH (n)-[:$label]->(o) where $patternString
+    val patternWithParams = PatternMaker.from(matchCondition, "o", Some("props"))
+    val paramList = "nodeId" :: nodeId :: patternWithParams.params.flatMap(kv => List(kv._1, kv._2)).toList
+    val whereClause = if (patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
+    val query = s"""OPTIONAL MATCH (n) where id(n) = props.nodeId with n, props, uuid
+                   |OPTIONAL MATCH (n)-[:$label]->(o) $whereClause
                    |RETURN count(o) as matchingCount , uuid
                    |""".stripMargin
 
     val promisedRecord = Promise[Record]()
-    val substituableQuery = SubstituableQuery(query, parameters("nodeId", nodeId).asMap())
+    val substituableQuery = SubstituableQuery(query, parameters(paramList: _*).asMap())
     val enqueTime = readOperations.enqueue(
       QueryWithPromise(
         substituableQuery,
@@ -237,7 +238,7 @@ private[engine] class BatchWriteNeo4jProvider(
   def fetchNodeIds(label: String, skip: Int, limit: Int): List[NodeId] = {
     val session = neo4jConnection.session()
 
-    val nodes = session.readTransaction((tx: Transaction) => {
+    val nodes: Iterable[NodeId] = session.readTransaction((tx: Transaction) => {
 
       val result = tx.run(
         s"""OPTIONAL MATCH (n:$label) return id(n) as nodeId
@@ -245,7 +246,7 @@ private[engine] class BatchWriteNeo4jProvider(
         parameters("skip", skip, "limit", limit)
       )
 
-      result.list().asScala.map(record => record.get("nodeId").asInt())
+      result.list().asScala.map(record => record.get("nodeId").asLong())
     })
     session.close()
     nodes.toList
@@ -272,7 +273,10 @@ private[engine] class BatchWriteNeo4jProvider(
 
     val writeOperations = collect(queryQueue)
     val newBookmark =
-      Await.result(new WriteOperationsStream(neo4jConnection)(actorSystem).write(writeOperations, lastBookmark), Inf)
+      Await.result(
+        new WriteOperationsStream(neo4jConnection)(actorSystem).write(writeOperations, lastBookmark),
+        Inf
+      )
     if (queryQueue.isEmpty) Future(newBookmark)(actorSystem.executionContext)
     else executePendingWrites(actorSystem, Some(newBookmark))
   }
