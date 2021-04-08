@@ -7,6 +7,14 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class PatternMakerTest extends AnyWordSpec with Matchers {
   "from" should {
+    "create pattern string with prefix if provided" in {
+      val condition = "age" equ 30
+
+      val patternWithParams = PatternMaker.from(condition, "a", Some("props"))
+      patternWithParams.pattern shouldBe "a.age = props.a0"
+      patternWithParams.params shouldBe Map("a0" -> 30)
+    }
+
     "create pattern string with equal condition" in {
       val condition = "age" equ 30
 
