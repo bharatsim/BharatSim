@@ -20,7 +20,9 @@ case class Person(
     violateLockdown: Boolean,
     village_town: String,
     lat: String,
-    long: String
+    long: String,
+    isEmployee: Boolean,
+    isStudent: Boolean
 ) extends StatefulAgent {
 
   private def incrementInfectionDay(context: Context): Unit = {

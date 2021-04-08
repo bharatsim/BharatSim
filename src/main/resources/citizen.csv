@@ -1,6 +1,11 @@
-id,label,age,infectionState,house_id,office_id,school_id,public_transport,is_essential_worker,violate_lockdown,village_town,lattitude,longitude
-1,Citizen,25,InfectedMild,101,000,501,true,false,true, Baraj-Kalan,26.2436418,77.8224332
-2,Citizen,35,InfectedSevere,102,201,000,true,false,false,Samedi,26.2133806,77.84244559999998
-3,Citizen,45,Susceptible,101,201,000,true,true,false,Khitera,26.211426100000004,77.81957390000002
-4,Citizen,25,Susceptible,102,000,502,true,false,false,Samedi,26.2133806,77.84244559999998
-5,Citizen,25,Susceptible,103,000,501,true,false,false,Basota,26.1460061,77.802417
+Agent_ID,Age,PublicTransport_Jobs,essential_worker,Adherence_to_Intervention,VillTownName,H_Lat,H_Lon,HHID,school_id,WorkPlaceID
+1,36,0,0,0.2,some_village,0.7080815,0.6095491,1796,0,46
+2,29,0,0,0.8,some_village,0.5120802,0.08154106,1511,11,0
+3,49,1,1,0.5,some_village,0.5120802,0.08154106,1511,0,29
+4,41,0,0,0.6,some_village,0.7080815,0.6095491,1796,0,29
+5,10,1,0,0.0,some_village,0.7080815,0.6095491,1796,11,0
+6,39,1,0,0.4,some_village,0.3587113,0.9828037,1349,0,46
+7,31,0,0,0.6,some_village,0.85147166,0.9689613,253,0,43
+8,48,1,0,0.3,some_village,0.5120802,0.08154106,1511,0,44
+9,23,0,0,0.7,some_village,0.5120802,0.08154106,1511,19,0
+10,26,1,0,0.7,some_village,0.3587113,0.9828037,1349,11,0

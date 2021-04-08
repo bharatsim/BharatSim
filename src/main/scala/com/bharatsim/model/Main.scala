@@ -21,6 +21,7 @@ import com.typesafe.scalalogging.LazyLogging
 object Main extends LazyLogging {
   private val TOTAL_PUBLIC_PLACES = 10
   private var lastPublicPlaceId = 1
+  private val initialInfectedFraction = 0.3
 
   def main(args: Array[String]): Unit = {
     val config = SimulationConfig(5000)
@@ -144,25 +145,33 @@ object Main extends LazyLogging {
       (
         employeeScheduleWithPublicTransport,
         (agent: Agent, _: Context) =>
-          agent.asInstanceOf[Person].takesPublicTransport && agent.asInstanceOf[Person].age >= 30,
+          agent.asInstanceOf[Person].takesPublicTransport,
         4
       ),
-      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 30, 5),
-      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 30, 6)
+      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isEmployee, 5),
+      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isStudent, 6)
     )
   }
 
   private def csvDataExtractor(map: Map[String, String])(implicit context: Context): GraphData = {
 
-    val citizenId = map("id").toLong
-    val age = map("age").toDouble
-    val takesPublicTransport = map("public_transport").toBoolean
-    val isEssentialWorker = map("is_essential_worker").toBoolean
-    val violateLockdown = map("violate_lockdown").toBoolean
-    val initialInfectionState = map("infectionState")
-    val villageTown = map("village_town")
-    val lat = map("lattitude")
-    val long = map("longitude")
+    val citizenId = map("Agent_ID").toLong
+    val age = map("Age").toInt
+    val takesPublicTransport = map("PublicTransport_Jobs").toInt == 1
+    val isEssentialWorker = map("essential_worker").toInt == 1
+    val violateLockdown = map("Adherence_to_Intervention").toFloat >= 0.5
+    val initialInfectionState = if(biasedCoinToss(initialInfectedFraction)) "InfectedMild" else "Susceptible"
+    val villageTown = map("VillTownName")
+    val lat = map("H_Lat")
+    val long = map("H_Lon")
+
+    val homeId = map("HHID").toLong
+    val schoolId = map("school_id").toLong
+    val officeId = map("WorkPlaceID").toLong
+    val publicPlaceId = generatePublicPlaceId()
+
+    val isEmployee:Boolean = officeId > 0
+    val isStudent:Boolean = schoolId > 0
 
     val citizen: Person = Person(
       citizenId,
@@ -174,15 +183,16 @@ object Main extends LazyLogging {
       violateLockdown,
       villageTown,
       lat,
-      long
+      long,
+      isEmployee,
+      isStudent
     )
 
-    setCitizenInitialState(context, citizen, map("infectionState"))
-
-    val homeId = map("house_id").toInt
-    val schoolId = map("school_id").toInt
-    val officeId = map("office_id").toInt
-    val publicPlaceId = generatePublicPlaceId()
+    if(biasedCoinToss(0.01)){
+      setCitizenInitialState(context, citizen, InfectionStatus.Exposed.toString)
+    }else{
+      setCitizenInitialState(context, citizen, InfectionStatus.Susceptible.toString)
+    }
 
     val home = House(homeId)
     val staysAt = Relation[Person, House](citizenId, "STAYS_AT", homeId)
@@ -196,7 +206,6 @@ object Main extends LazyLogging {
     graphData.addNode(publicPlaceId, PublicPlace(publicPlaceId))
     graphData.addRelations(staysAt, memberOf, visits, hosts)
 
-    val isEmployee = officeId > 0
     if (isEmployee) {
       val office = Office(officeId)
       val worksAt = Relation[Person, Office](citizenId, "WORKS_AT", officeId)

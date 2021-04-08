@@ -9,25 +9,23 @@ import scala.util.Random
 
 object DummyDataGenerator {
   val headers = List(
-    "id",
-    "label",
-    "age",
-    "infectionState",
-    "house_id",
-    "office_id",
+    "Agent_ID",
+    "Age",
+    "PublicTransport_Jobs",
+    "essential_worker",
+    "Adherence_to_Intervention",
+    "VillTownName",
+    "H_Lat",
+    "H_Lon",
+    "HHID",
     "school_id",
-    "public_transport",
-    "is_essential_worker",
-    "violate_lockdown",
-    "village_town",
-    "lattitude",
-    "longitude"
+    "WorkPlaceID"
   )
 
   val totalPopulation = 10_000
-  val INITIAL_INFECTED_PERCENTAGE = 0.04
-  val ESSENTIAL_WORKER_PERCENTAGE = 0.2
-  val LEAKAGE_PERCENTAGE = 0.1
+  val ESSENTIAL_WORKER_FRACTION = 0.2
+  val LEAKAGE_FRACTION = 0.1
+  val PUBLIC_TRANSPORT_FRACTION = 0.3
 
   private val averageEmployeesPerOffice = 100
   val totalOffices = (totalPopulation / 2) / averageEmployeesPerOffice
@@ -37,41 +35,38 @@ object DummyDataGenerator {
 
   val random = new Random()
 
-  val writer = CSVWriter.open("dummydata.csv")
+  val writer = CSVWriter.open("dummy10k.csv")
 
   @tailrec
   private def generateRow(rowNum: Int): Unit = {
     val id = rowNum
-    val label = "Citizen"
     val age = random.between(10, 51)
-    val infectionStatus = if (biasedCoinToss(INITIAL_INFECTED_PERCENTAGE)) "InfectedMild" else "Susceptible"
     val houseId = random.between(1, totalPopulation / 4 + 1)
     val isEmployee = age >= 30
     val isStudent = !isEmployee
     val officeId = if (isEmployee) random.between(1, totalOffices + 1) else 0
     val schoolId = if (isStudent) random.between(1, totalSchools + 1) else 0
-    val publicTransport = random.nextBoolean()
-    val isEssentialWorker = if (isEmployee) biasedCoinToss(ESSENTIAL_WORKER_PERCENTAGE) else false
-    val violatesLockdown = biasedCoinToss(LEAKAGE_PERCENTAGE)
+    val publicTransport = if (biasedCoinToss(PUBLIC_TRANSPORT_FRACTION)) 1 else 0
+    val isEssentialWorker = if (isEmployee && biasedCoinToss(ESSENTIAL_WORKER_FRACTION)) 1 else 0
+    val violatesLockdown:Double = random.between(0.0, 1.0)
+    val scale = math pow (10, 1)
     val village_town = "some_village"
-    val lattitude = Random.nextFloat()
+    val latitude = Random.nextFloat()
     val longitude = Random.nextFloat()
 
     writer.writeRow(
       List(
         id,
-        label,
         age,
-        infectionStatus,
-        houseId,
-        officeId,
-        schoolId,
         publicTransport,
         isEssentialWorker,
-        violatesLockdown,
+        (math round violatesLockdown * scale) / scale,
         village_town,
-        lattitude,
-        longitude
+        latitude,
+        longitude,
+        houseId,
+        schoolId,
+        officeId
       )
     )
 
