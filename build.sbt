@@ -19,8 +19,8 @@ libraryDependencies += "org.scalatest" %% "scalatest-funsuite" % "3.2.0" % Test
 libraryDependencies += "org.mockito" %% "mockito-scala" % "1.15.0" % Test
 libraryDependencies += "org.neo4j.test" % "neo4j-harness" % "4.0.0" % Test
 libraryDependencies += "com.github.tototoshi" %% "scala-csv" % "1.3.6"
-libraryDependencies += "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.38.6" % "test"
-libraryDependencies += "com.dimafeng" %% "testcontainers-scala-neo4j" % "0.38.6" % "test"
+libraryDependencies += "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.39.3" % "test"
+libraryDependencies += "com.dimafeng" %% "testcontainers-scala-neo4j" % "0.39.3" % "test"
 
 Compile / doc / scalacOptions := Seq("-skip-packages", "com.bharatsim.model")
 
