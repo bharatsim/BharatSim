@@ -1,39 +1,48 @@
 package com.bharatsim.engine.graph.neo4j
 
-import com.bharatsim.engine.basicConversions.{BasicValue, StringValue}
 import com.bharatsim.engine.graph.patternMatcher._
 
+case class PatternWithParams(pattern: String, params: Map[String, Any])
+
 private[engine] object PatternMaker {
-  def from(m: MatchPattern, variable: String): String = {
+  def from(m: MatchPattern, variable: String): PatternWithParams = {
+    from(m, variable, VariableGenerator())._1
+  }
+
+  private def from(m: MatchPattern, variable: String, variableGenerator: VariableGenerator): (PatternWithParams, VariableGenerator) = {
     m match {
-      case Pattern(a)       => baseCase(a, variable)
-      case AndPattern(a, b) => "(" + baseCase(a, variable) + " and " + baseCase(b, variable) + ")"
-      case OrPattern(a, b)  => "(" + baseCase(a, variable) + " or " + baseCase(b, variable) + ")"
+      case Pattern(a)       => baseCase(a, variable, variableGenerator)
+      case AndPattern(a, b) =>
+        val (resolvedA, vgA) = baseCase(a, variable, variableGenerator)
+        val (resolvedB, vgB) = baseCase(b, variable, vgA)
+        val patternString = s"(${resolvedA.pattern} AND ${resolvedB.pattern})"
+        val params = resolvedA.params ++ resolvedB.params
+        (PatternWithParams(patternString, params), vgB)
+      case OrPattern(a, b)  =>
+        val (resolvedA, vgA) = baseCase(a, variable, variableGenerator)
+        val (resolvedB, vgB) = baseCase(b, variable, vgA)
+        val patternString = s"(${resolvedA.pattern} OR ${resolvedB.pattern})"
+        val params = resolvedA.params ++ resolvedB.params
+        (PatternWithParams(patternString, params), vgB)
     }
   }
 
-  private def baseCase(a: Expression, variable: String): String = {
+  private def baseCase(a: Expression, variable: String, variableGenerator: VariableGenerator): (PatternWithParams, VariableGenerator) = {
     a match {
-      case mp: MatchPattern   => from(mp, variable)
-      case mc: MatchCondition => condition(mc, variable)
+      case mp: MatchPattern   => from(mp, variable, variableGenerator)
+      case mc: MatchCondition =>
+        val generatedVariable = variableGenerator.generate
+        (condition(mc, variable, generatedVariable), variableGenerator.next)
     }
   }
 
-  private def condition(mc: MatchCondition, variable: String): String = {
+  private def condition(mc: MatchCondition, variable: String, generatedVariable: String): PatternWithParams = {
     mc match {
-      case Equals(b, key)            => s"$variable.$key = ${value(b)}"
-      case LessThan(b, key)          => s"$variable.$key < ${value(b)}"
-      case GreaterThan(b, key)       => s"$variable.$key > ${value(b)}"
-      case LessThanEquals(b, key)    => s"$variable.$key <= ${value(b)}"
-      case GreaterThanEquals(b, key) => s"$variable.$key >= ${value(b)}"
+      case Equals(b, key)            => PatternWithParams(s"$variable.$key = $$$generatedVariable", Map(generatedVariable -> b.get))
+      case LessThan(b, key)          => PatternWithParams(s"$variable.$key < $$$generatedVariable", Map(generatedVariable -> b.get))
+      case GreaterThan(b, key)       => PatternWithParams(s"$variable.$key > $$$generatedVariable", Map(generatedVariable -> b.get))
+      case LessThanEquals(b, key)    => PatternWithParams(s"$variable.$key <= $$$generatedVariable", Map(generatedVariable -> b.get))
+      case GreaterThanEquals(b, key) => PatternWithParams(s"$variable.$key >= $$$generatedVariable", Map(generatedVariable -> b.get))
     }
   }
-
-  private def value(x: BasicValue): String = {
-    x match {
-      case StringValue(v) => s""""$v""""
-      case _              => s"${x.get}"
-    }
-  }
-
 }

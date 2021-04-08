@@ -115,11 +115,14 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
 
   override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
     val session = neo4jConnection.session()
-    val patternString = PatternMaker.from(matchPattern, "n")
+    val patternWithParams = PatternMaker.from(matchPattern, "n")
 
     val nodes: util.List[GraphNode] = session.readTransaction((tx: Transaction) => {
 
-      val result = tx.run(s"""MATCH (n:$label) where $patternString return properties(n) AS node, id(n) AS nodeId""")
+      val result = tx.run(
+        s"""MATCH (n:$label) where ${patternWithParams.pattern} return properties(n) AS node, id(n) AS nodeId""",
+        patternWithParams.params.map(keyValue => (keyValue._1, keyValue._2.asInstanceOf[Object])).asJava
+      )
 
       result.list[GraphNode](record => extractGraphNode(label, record))
     })
@@ -130,12 +133,13 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
   override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
-    val patternString = PatternMaker.from(matchPattern, "a")
+    val patternWithParams = PatternMaker.from(matchPattern, "a")
 
     val session = neo4jConnection.session()
 
     val count = session.readTransaction((tx: Transaction) => {
-      val result = tx.run(s"""MATCH (a:$label) where $patternString return count(a) as matchingCount""")
+      val result = tx.run(s"""MATCH (a:$label) where ${patternWithParams.pattern} return count(a) as matchingCount""",
+        patternWithParams.params.map(kv => (kv._1, kv._2.asInstanceOf[Object])).asJava)
 
       result.single().get("matchingCount").asInt()
     })
@@ -188,15 +192,16 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   override def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int = {
     val session = neo4jConnection.session()
 
-    val patternString = PatternMaker.from(matchCondition, "o")
+    val patternWithParams = PatternMaker.from(matchCondition, "o")
     val retValue = session
       .readTransaction((tx: Transaction) => {
+        val paramList = "nodeId" :: nodeId :: patternWithParams.params.flatMap(kv => List(kv._1, kv._2)).toList
         val result = tx.run(
           s"""MATCH (n) where id(n) = $$nodeId with n
-             |MATCH (n)-[:$label]->(o) where $patternString
+             |MATCH (n)-[:$label]->(o) where ${patternWithParams.pattern}
              |RETURN count(n) as matchingCount
              |""".stripMargin,
-          parameters("nodeId", nodeId)
+          parameters(paramList: _*)
         )
 
         result.single().get("matchingCount").asInt()
