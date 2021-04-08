@@ -5,7 +5,7 @@ import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion._
-import com.bharatsim.engine.graph.patternMatcher.MatchPattern
+import com.bharatsim.engine.graph.patternMatcher.{EmptyPattern, MatchPattern}
 import com.bharatsim.engine.models.Node
 import com.bharatsim.engine.utils.Utils.fetchClassName
 
@@ -191,18 +191,10 @@ trait GraphProvider {
     *  Gets the count connected node of specified nodeId
     * @param nodeId id of a node
     * @param label is label of node to find
-    * @return count of all the connected node with specified label
-    */
-  def neighborCount(nodeId: NodeId, label: String): Int
-
-  /**
-    *  Gets the count connected node of specified nodeId
-    * @param nodeId id of a node
-    * @param label is label of node to find
     * @param matchCondition additional matching criteria.
     * @return count of all the matching connected node.
     */
-  def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int
+  def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern = EmptyPattern()): Int
 
   // U
   /**

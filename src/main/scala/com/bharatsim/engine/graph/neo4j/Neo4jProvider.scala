@@ -119,8 +119,9 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
 
     val nodes: util.List[GraphNode] = session.readTransaction((tx: Transaction) => {
 
+      val whereClause = if(patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
       val result = tx.run(
-        s"""MATCH (n:$label) where ${patternWithParams.pattern} return properties(n) AS node, id(n) AS nodeId""",
+        s"""MATCH (n:$label) $whereClause return properties(n) AS node, id(n) AS nodeId""",
         patternWithParams.params.map(keyValue => (keyValue._1, keyValue._2.asInstanceOf[Object])).asJava
       )
 
@@ -138,7 +139,8 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     val session = neo4jConnection.session()
 
     val count = session.readTransaction((tx: Transaction) => {
-      val result = tx.run(s"""MATCH (a:$label) where ${patternWithParams.pattern} return count(a) as matchingCount""",
+      val whereClause = if(patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
+      val result = tx.run(s"""MATCH (a:$label) $whereClause return count(a) as matchingCount""",
         patternWithParams.params.map(kv => (kv._1, kv._2.asInstanceOf[Object])).asJava)
 
       result.single().get("matchingCount").asInt()
@@ -169,26 +171,6 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     retValue.asScala
   }
 
-  override def neighborCount(nodeId: NodeId, label: String): Int = {
-    val session = neo4jConnection.session()
-
-    val retValue = session
-      .readTransaction((tx: Transaction) => {
-        val result = tx.run(
-          s"""MATCH (n) where id(n) = $$nodeId with n
-             |MATCH (n)-[:$label]->(o)
-             |RETURN count(n) as matchingCount
-             |""".stripMargin,
-          parameters("nodeId", nodeId)
-        )
-
-        result.single().get("matchingCount").asInt()
-      })
-
-    session.close()
-    retValue
-  }
-
   override def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int = {
     val session = neo4jConnection.session()
 
@@ -196,9 +178,10 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     val retValue = session
       .readTransaction((tx: Transaction) => {
         val paramList = "nodeId" :: nodeId :: patternWithParams.params.flatMap(kv => List(kv._1, kv._2)).toList
+        val whereClause = if(patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
         val result = tx.run(
           s"""MATCH (n) where id(n) = $$nodeId with n
-             |MATCH (n)-[:$label]->(o) where ${patternWithParams.pattern}
+             |MATCH (n)-[:$label]->(o) $whereClause
              |RETURN count(n) as matchingCount
              |""".stripMargin,
           parameters(paramList: _*)

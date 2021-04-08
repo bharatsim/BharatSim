@@ -51,10 +51,6 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
     graphOperations.readOperations.fetchNeighborsOf(nodeId, label :: labels.toList)
   }
 
-  override def neighborCount(nodeId: NodeId, label: String): Int = {
-    graphOperations.readOperations.neighborCount(nodeId, label)
-  }
-
   override def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int = {
     graphOperations.readOperations.neighborCount(nodeId, label, matchCondition)
   }

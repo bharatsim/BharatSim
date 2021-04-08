@@ -64,14 +64,6 @@ class ReadOperations(buffer: Buffer) extends LazyLogging {
     }
   }
 
-  def neighborCount(nodeId: NodeId, label: String): Int = {
-
-    if (buffer.indexedNodes.contains(nodeId)) {
-      val node = buffer.indexedNodes(nodeId)
-      node.fetchNeighborsWithLabelCount(label)
-    } else 0
-  }
-
   def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int = {
 
     if (buffer.indexedNodes.contains(nodeId)) {

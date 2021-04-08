@@ -18,3 +18,7 @@ case class OrPattern(a: Expression, b: Expression) extends MatchPattern {
   override def eval(m: Map[String, Any]): Boolean = a.eval(m) || b.eval(m)
 }
 
+case class EmptyPattern() extends MatchPattern {
+  override def eval(m: Map[String, Any]): Boolean = true
+}
+
