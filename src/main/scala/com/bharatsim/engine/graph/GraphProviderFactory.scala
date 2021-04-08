@@ -6,6 +6,7 @@ import akka.actor.typed.{ActorRef, ActorSystem}
 import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.distributed.store.ActorBasedStore.DBQuery
 import com.bharatsim.engine.distributed.store.{ActorBasedGraphProvider, ActorBasedStore}
+import com.bharatsim.engine.distributed.streams.ReadOperationsStream
 import com.bharatsim.engine.graph.neo4j.{BatchWriteNeo4jProvider, Neo4jConfig, Neo4jProvider}
 
 private[engine] object GraphProviderFactory {
@@ -24,8 +25,8 @@ private[engine] object GraphProviderFactory {
     graphProvider = ActorBasedStore.graphProvider
   }
 
-  def initLazyNeo4j(): Unit = {
-    graphProvider = new BatchWriteNeo4jProvider(makeNeo4jConfig(), config.writeParallelism)
+  def initLazyNeo4j(system: ActorSystem[Nothing]): Unit = {
+    graphProvider = new BatchWriteNeo4jProvider(makeNeo4jConfig(), config.writeParallelism, system)
   }
 
   private def makeNeo4jConfig() = {

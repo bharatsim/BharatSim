@@ -18,18 +18,18 @@ import com.bharatsim.model.diseaseState._
 import com.typesafe.scalalogging.LazyLogging
 
 object Main2 extends LazyLogging {
-  private val TOTAL_PUBLIC_PLACES = 10
+  private val TOTAL_PUBLIC_PLACES = ApplicationConfigFactory.config.publicPlaceCount
   private var lastPublicPlaceId = 1
 
   def main(args: Array[String]): Unit = {
     var beforeCount = 0
     val distributedSimulation = new DistributedSimulation
 
-    distributedSimulation.ingestData{implicit context =>
+    distributedSimulation.ingestData { implicit context =>
       ingestCSVData("input.csv", csvDataExtractor)
     }
 
-    distributedSimulation.defineSimulation{implicit context =>
+    distributedSimulation.defineSimulation { implicit context =>
       addLockdown
 
       createSchedules()
@@ -58,7 +58,7 @@ object Main2 extends LazyLogging {
       )
     }
 
-    distributedSimulation.onCompleteSimulation{implicit context =>
+    distributedSimulation.onCompleteSimulation { implicit context =>
       printStats(beforeCount)
       teardown()
     }

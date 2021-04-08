@@ -22,17 +22,17 @@ object Guardian extends LazyLogging {
     val cluster = Cluster(context.system)
 
     if (cluster.selfMember.hasRole(Worker.toString)) {
-      GraphProviderFactory.initLazyNeo4j()
+      GraphProviderFactory.initLazyNeo4j(context.system)
       val simulationContext = Context()
       simulationDefinition.simulationBody(simulationContext)
       createWorker(context, simulationContext)
     }
 
     if (cluster.selfMember.hasRole(EngineMain.toString)) {
-      GraphProviderFactory.initLazyNeo4j()
+      GraphProviderFactory.initLazyNeo4j(context.system)
       val simulationContext = Context()
 
-      if(config.disableIngestion) {
+      if (config.disableIngestion) {
         logger.info("ingestion skipped")
       } else {
         simulationDefinition.ingestionStep(simulationContext)

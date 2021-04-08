@@ -7,6 +7,13 @@ import org.neo4j.driver.Record
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Promise
 
-case class SubstituableQuery(queryBody: String, props: util.Map[String, java.lang.Object] = new util.HashMap[String, java.lang.Object]())
+case class SubstituableQuery(
+    queryBody: String,
+    props: util.Map[String, java.lang.Object] = new util.HashMap[String, java.lang.Object]()
+)
 
-case class GroupQuery(query: String, multiProps: ListBuffer[util.Map[String, java.lang.Object]], promises: ListBuffer[Promise[Record]])
+case class GroupQuery(
+    query: String,
+    multiProps: ListBuffer[util.Map[String, java.lang.Object]],
+    promises: ListBuffer[Promise[Record]]
+)

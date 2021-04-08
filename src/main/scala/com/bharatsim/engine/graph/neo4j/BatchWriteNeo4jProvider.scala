@@ -3,14 +3,16 @@ package com.bharatsim.engine.graph.neo4j
 import java.util
 import java.util.Date
 import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.atomic.AtomicInteger
 
 import akka.actor.typed.ActorSystem
 import com.bharatsim.engine.distributed.DBBookmark
-import com.bharatsim.engine.distributed.streams.WriteOperationsStream
+import com.bharatsim.engine.distributed.streams.{ReadOperationsStream, WriteOperationsStream}
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion.GraphData
 import com.bharatsim.engine.graph.neo4j.queryBatching._
+import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.SessionConfig.builder
 import org.neo4j.driver.Values.parameters
@@ -18,15 +20,20 @@ import org.neo4j.driver.{Bookmark, Record, Session, Transaction}
 
 import scala.annotation.tailrec
 import scala.concurrent.duration.Duration.Inf
-import scala.concurrent.{Await, Future, Promise}
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 import scala.jdk.CollectionConverters.{IterableHasAsJava, ListHasAsScala, MapHasAsJava, MapHasAsScala}
+import scala.util.{Failure, Success}
 
-private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallelism: Int)
-    extends Neo4jProvider(config)
+private[engine] class BatchWriteNeo4jProvider(
+    config: Neo4jConfig,
+    writeParallelism: Int,
+    actorSystem: ActorSystem[_]
+) extends Neo4jProvider(config)
     with LazyLogging {
 
   private var bookmarks = List.empty[Bookmark]
-
+  val readOperations = new ReadOperationsStream(neo4jConnection)(actorSystem)
   def setBookmarks(bookmarks: List[DBBookmark]) = {
     this.bookmarks = bookmarks.map(b => Bookmark.from(b.values))
   }
@@ -69,6 +76,74 @@ private[engine] class BatchWriteNeo4jProvider(config: Neo4jConfig, writeParallel
 
     nodes.toList
 
+  }
+
+  override def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode] = {
+    val allLabels = label :: labels.toList
+    val labelAOrLabelB = allLabels.mkString(" | ")
+
+    val query = s"""OPTIONAL Match (n) where id(n) = props.nodeId with n, uuid
+                   |OPTIONAL Match (n)-[:$labelAOrLabelB]->(o)
+                   |RETURN collect({props: properties(o), id: id(o), labels: labels(o) }) as toNodes , uuid """.stripMargin
+
+    val promisedRecord = Promise[Record]()
+    val substituableQuery = SubstituableQuery(query, parameters("nodeId", nodeId).asMap())
+    val enqueTime = readOperations.enqueue(
+      QueryWithPromise(
+        substituableQuery,
+        promisedRecord
+      )
+    )
+
+    try {
+      val record = Await.result(promisedRecord.future, Inf)
+      record
+        .get("toNodes")
+        .asList()
+        .asScala
+        .filter(v => Option(v.asInstanceOf[util.Map[String, Object]].get("id")).isDefined)
+        .map(v => extractGraphNode(v.asInstanceOf[util.Map[String, Object]]))
+
+    } catch {
+      case ex: Throwable =>
+        logger.info("failed  record with nodeid {} enquetime {}", nodeId, enqueTime)
+        promisedRecord.future.onComplete({
+          case Failure(exception) => logger.info("timeout promise failed now ex {}", exception)
+          case Success(value)     => logger.info("timeout promise succeded now ex {}", value)
+        })(ExecutionContext.global)
+        throw ex
+//        List.empty
+    }
+  }
+
+  override def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int = {
+    val patternString = PatternMaker.from(matchCondition, "o")
+
+    val query = s"""OPTIONAL MATCH (n) where id(n) = props.nodeId with n, uuid
+                   |OPTIONAL MATCH (n)-[:$label]->(o) where $patternString
+                   |RETURN count(o) as matchingCount , uuid
+                   |""".stripMargin
+
+    val promisedRecord = Promise[Record]()
+    val substituableQuery = SubstituableQuery(query, parameters("nodeId", nodeId).asMap())
+    val enqueTime = readOperations.enqueue(
+      QueryWithPromise(
+        substituableQuery,
+        promisedRecord
+      )
+    )
+    try {
+      val record = Await.result(promisedRecord.future, Inf)
+
+      record.get("matchingCount").asInt(0)
+
+    } catch {
+      case ex: Throwable =>
+        logger.info("failed for  node {}, ex {} enque time", nodeId, ex.getMessage, enqueTime)
+//        ex.printStackTrace()
+        throw ex
+//        0
+    }
   }
 
   private def extractGraphNode(map: java.util.Map[String, Object]) = {
