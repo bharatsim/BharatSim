@@ -188,11 +188,7 @@ object Main extends LazyLogging {
       isStudent
     )
 
-    if(biasedCoinToss(0.01)){
-      setCitizenInitialState(context, citizen, InfectionStatus.Exposed.toString)
-    }else{
-      setCitizenInitialState(context, citizen, InfectionStatus.Susceptible.toString)
-    }
+    setCitizenInitialState(context, citizen)
 
     val home = House(homeId)
     val staysAt = Relation[Person, House](citizenId, "STAYS_AT", homeId)
@@ -250,7 +246,8 @@ object Main extends LazyLogging {
     lastPublicPlaceId
   }
 
-  private def setCitizenInitialState(context: Context, citizen: Person, initialState: String): Unit = {
+  private def setCitizenInitialState(context: Context, citizen: Person): Unit = {
+    val initialState = citizen.infectionState.toString
     val isAsymptomatic: Boolean = biasedCoinToss(
       context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage
     )
