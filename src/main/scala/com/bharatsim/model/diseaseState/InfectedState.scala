@@ -21,7 +21,7 @@ case class InfectedState(severity: InfectionSeverity, infectedDuration: Double) 
   }
 
   private def checkInfectionLastDay(context: Context, agent: StatefulAgent): Boolean = {
-    agent.asInstanceOf[Person].infectionTicks >= infectedDuration * Disease.inverse_dt
+    context.getCurrentStep >= agent.asInstanceOf[Person].infectedAtTick + infectedDuration * Disease.inverse_dt
   }
 
   def checkForRecovery(context: Context, agent: StatefulAgent): Boolean = {

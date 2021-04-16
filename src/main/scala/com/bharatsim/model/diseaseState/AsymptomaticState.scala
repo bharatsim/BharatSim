@@ -16,7 +16,7 @@ case class AsymptomaticState(asymptomaticDuration: Double) extends State {
   def checkForRecovery(context: Context, agent: StatefulAgent): Boolean = {
     if (
       agent.asInstanceOf[Person].isAsymptomatic &&
-      agent.asInstanceOf[Person].infectionTicks >= asymptomaticDuration * Disease.inverse_dt
+        context.getCurrentStep >= agent.asInstanceOf[Person].infectedAtTick + asymptomaticDuration * Disease.inverse_dt
     ) {
       return true
     }

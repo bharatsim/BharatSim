@@ -14,7 +14,7 @@ case class Person(
     id: Long,
     age: Double,
     infectionState: InfectionStatus,
-    infectionTicks: Int,
+    infectedAtTick: Int,
     takesPublicTransport: Boolean,
     isEssentialWorker: Boolean,
     violateLockdown: Boolean,
@@ -24,12 +24,6 @@ case class Person(
     isEmployee: Boolean,
     isStudent: Boolean
 ) extends StatefulAgent {
-
-  private def incrementInfectionDay(context: Context): Unit = {
-    if (!isSusceptible && !isRecovered && !isDeceased) {
-      updateParam("infectionTicks", infectionTicks + 1)
-    }
-  }
 
   def decodeNode(classType: String, node: GraphNode): Network = {
     classType match {
@@ -57,8 +51,6 @@ case class Person(
   def isRecovered: Boolean = activeState.isInstanceOf[RecoveredState]
 
   def isDeceased: Boolean = activeState.isInstanceOf[DeceasedState]
-
-  addBehaviour(incrementInfectionDay)
 
   addRelation[House]("STAYS_AT")
   addRelation[Office]("WORKS_AT")

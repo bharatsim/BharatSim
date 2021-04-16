@@ -24,21 +24,22 @@ case class ExposedState(severeInfectionPercentage: Double, isAsymptomatic: Boole
 
   override def enterAction(context: Context, agent: StatefulAgent): Unit = {
     agent.updateParam("infectionState", Exposed)
+    agent.updateParam("infectedAtTick", context.getCurrentStep)
   }
 
-  private def checkForExposure(agent: StatefulAgent) = {
-    agent.asInstanceOf[Person].infectionTicks >= exposedDuration * Disease.inverse_dt
+  private def checkForExposure(context: Context, agent: StatefulAgent): Boolean = {
+    context.getCurrentStep >= agent.asInstanceOf[Person].infectedAtTick + exposedDuration * Disease.inverse_dt
   }
 
   private def checkForPreSymptomatic(context: Context, agent: StatefulAgent): Boolean = {
-    if (checkForExposure(agent) && !isAsymptomatic) {
+    if (checkForExposure(context, agent) && !isAsymptomatic) {
       return true
     }
     false
   }
 
   private def checkForAsymptomatic(context: Context, agent: StatefulAgent): Boolean = {
-    if (checkForExposure(agent) && isAsymptomatic) {
+    if (checkForExposure(context, agent) && isAsymptomatic) {
       return true
     }
     false
