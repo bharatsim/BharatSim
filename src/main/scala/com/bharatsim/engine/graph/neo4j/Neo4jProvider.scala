@@ -1,9 +1,9 @@
 package com.bharatsim.engine.graph.neo4j
-import java.net.URI
 import java.util
 import java.util.concurrent.TimeUnit
 
 import com.bharatsim.engine.ApplicationConfigFactory
+import com.bharatsim.engine.ApplicationConfigFactory.config.neo4jImportBatchSize
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph._
 import com.bharatsim.engine.graph.ingestion.{CsvNode, RefToIdMapping, Relation}
@@ -22,7 +22,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     .builder()
     .withMaxConnectionPoolSize(ApplicationConfigFactory.config.neo4jConnectionPoolSize)
     .withConnectionAcquisitionTimeout(5, TimeUnit.MINUTES)
-    .build();
+    .build()
 
   protected val neo4jConnection = config.username match {
     case Some(_) =>
@@ -308,8 +308,8 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   private def makeMatchNodeQuery(
       label: String,
       params: Map[String, Any],
-      skip: Option[NodeId] = None,
-      limit: Option[NodeId] = None
+      skip: Option[Int] = None,
+      limit: Option[Int] = None
   ) = {
     val limitClause = if (limit.isDefined) s"LIMIT ${limit.get}" else ""
     val skipClause = if (skip.isDefined) s"SKIP ${skip.get}" else ""
@@ -332,13 +332,11 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
 
   override def shutdown(): Unit = neo4jConnection.close()
 
-  private val BATCH_SIZE = 50000
-
   override private[engine] def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
     val session = createSession
 
     val refToIdMapping = batchOfNodes.iterator
-      .grouped(BATCH_SIZE)
+      .grouped(neo4jImportBatchSize)
       .flatMap(groupedNodes => {
         aggregateNodesByLabel(groupedNodes).map({
           case (label, nodes) => (label, ingestBatchOfNodes(nodes, session, label))
@@ -398,7 +396,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
       relations: IterableOnce[Relation],
       refToIdMapping: RefToIdMapping
   ): Unit = {
-    relations.iterator.grouped(BATCH_SIZE).foreach(ingestRelationshipBatch(_, refToIdMapping))
+    relations.iterator.grouped(neo4jImportBatchSize).foreach(ingestRelationshipBatch(_, refToIdMapping))
   }
 
   private def ingestRelationshipBatch(relations: IterableOnce[Relation], refToIdMapping: RefToIdMapping) = {

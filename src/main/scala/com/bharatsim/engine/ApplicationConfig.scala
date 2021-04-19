@@ -49,6 +49,7 @@ class ApplicationConfig {
   lazy val neo4jUsername: String = neo4jConfig.getString("username")
   lazy val neo4jPass: String = neo4jConfig.getString("password")
   lazy val neo4jConnectionPoolSize: Int = neo4jConfig.getInt("connection-pool-size")
+  lazy val neo4jImportBatchSize: Int = neo4jConfig.getInt("neo4j-import-batch-size")
   lazy val writeParallelism: Int = neo4jConfig.getInt("write-parallelism")
   lazy val readParallelism: Int = neo4jConfig.getInt("read-parallelism")
   lazy val readWaitTime: Int = neo4jConfig.getInt("read-wait-time")
