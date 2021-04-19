@@ -116,14 +116,11 @@ trait GraphProvider {
     * @param mapper  is function that map a csv row to Nodes and Relations
     */
   private[engine] def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
-    val reader = CSVReader.open(csvPath)
-    val records = reader.allWithHeaders()
-
     if (mapper.isDefined) {
       val nodes = mutable.ListBuffer.empty[CsvNode]
       val relations = mutable.ListBuffer.empty[Relation]
 
-      records.foreach(row => {
+      CSVReader.open(csvPath).toStreamWithHeaders.foreach(row => {
         val data = mapper.get.apply(row)
         nodes.addAll(data._nodes)
         relations.addAll(data._relations)
