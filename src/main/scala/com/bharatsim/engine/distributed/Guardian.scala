@@ -35,6 +35,7 @@ object Guardian extends LazyLogging {
       if (config.disableIngestion) {
         logger.info("ingestion skipped")
       } else {
+        logger.info("Ingestion started")
         simulationDefinition.ingestionStep(simulationContext)
         logger.info("Ingestion finished")
       }

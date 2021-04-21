@@ -6,8 +6,9 @@ import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.ApplicationConfigFactory.config.neo4jImportBatchSize
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph._
-import com.bharatsim.engine.graph.ingestion.{CsvNode, RefToIdMapping, Relation}
+import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
+import com.github.tototoshi.csv.CSVReader
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Values.{parameters, value}
 import org.neo4j.driver.{AuthTokens, Config, GraphDatabase, Record, Session, Transaction}
@@ -18,7 +19,7 @@ import scala.jdk.CollectionConverters.{IterableHasAsJava, ListHasAsScala, MapHas
 
 private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider with LazyLogging {
 
-  val driverConfig = Config
+  private val driverConfig = Config
     .builder()
     .withMaxConnectionPoolSize(ApplicationConfigFactory.config.neo4jConnectionPoolSize)
     .withConnectionAcquisitionTimeout(5, TimeUnit.MINUTES)
@@ -335,15 +336,12 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
   override private[engine] def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
     val session = createSession
 
-    val refToIdMapping = batchOfNodes.iterator
-      .grouped(neo4jImportBatchSize)
-      .flatMap(groupedNodes => {
-        aggregateNodesByLabel(groupedNodes).map({
-          case (label, nodes) => (label, ingestBatchOfNodes(nodes, session, label))
-        })
+    val refToIdMapping = aggregateNodesByLabel(batchOfNodes.iterator)
+      .map({
+        case (label, nodes) => (label, ingestBatchOfNodes(nodes, session, label))
       })
       .foldLeft(new RefToIdMapping())((acc, mapping) => {
-        acc.addMappings(mapping._1, mapping._2);
+        acc.addMappings(mapping._1, mapping._2)
         acc
       })
 
@@ -351,7 +349,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     refToIdMapping
   }
 
-  private def ingestBatchOfNodes(nodes: Iterable[CsvNode], session: Session, label: String) = {
+  private def ingestBatchOfNodes(nodes: Iterable[CsvNode], session: Session, label: String): Seq[(Long, NodeId)] = {
     val transaction: List[(NodeId, Long)] = session.writeTransaction((tx: Transaction) => {
       val properties = nodes.map(n => {
         val nodeData = new util.HashMap[String, Any]()
@@ -437,4 +435,45 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
         acc
       })
       .iterator
+
+  override private[engine] def ingestFromCsv(
+      csvPath: String,
+      mapper: Option[Function[Map[String, String], GraphData]]
+  ): Unit = {
+    if (mapper.isDefined) {
+      val relations = mutable.ListBuffer.empty[Relation]
+
+      val seenNodes = mutable.HashMap.empty[String, mutable.HashSet[Long]]
+      val refToIdMapping = CSVReader
+        .open(csvPath)
+        .toStreamWithHeaders
+        .flatMap(row => {
+          val data = mapper.get.apply(row)
+          relations.addAll(data._relations)
+          data._nodes
+        })
+        .filter(node => {
+          if (seenNodes.contains(node.label) && seenNodes(node.label).contains(node.uniqueRef)) {
+            false
+          } else {
+            val hs = seenNodes.getOrElse(node.label, mutable.HashSet.empty[Long])
+            hs.add(node.uniqueRef)
+            seenNodes.put(node.label, hs)
+            true
+          }
+        })
+        .grouped(neo4jImportBatchSize)
+        .flatMap(groupedNodes => {
+          aggregateNodesByLabel(groupedNodes).map({
+            case (label, nodes) => (label, ingestBatchOfNodes(nodes, createSession, label))
+          })
+        })
+        .foldLeft(new RefToIdMapping())((acc, mapping) => {
+          acc.addMappings(mapping._1, mapping._2)
+          acc
+        })
+
+      batchImportRelations(relations, refToIdMapping)
+    }
+  }
 }
