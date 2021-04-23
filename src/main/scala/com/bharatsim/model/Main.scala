@@ -7,9 +7,10 @@ import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.dsl.SyntaxHelpers._
 import com.bharatsim.engine.execution.Simulation
+import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
-import com.bharatsim.engine.intervention.IntervalBasedIntervention
+import com.bharatsim.engine.intervention.{IntervalBasedIntervention, Intervention}
 import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
@@ -29,6 +30,7 @@ object Main extends LazyLogging {
 
     try {
       addLockdown
+      vaccination
 
       createSchedules()
 
@@ -60,6 +62,24 @@ object Main extends LazyLogging {
     } finally {
       teardown()
     }
+  }
+
+  private def vaccination(implicit context: Context): Unit = {
+    val interventionName = "vaccination"
+    val intervention: Intervention = IntervalBasedIntervention(interventionName, 2, 12, _ => (), context => {
+      val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person")
+
+      populationIterable.foreach(node => if (biasedCoinToss(Disease.vaccinationProbability)) {
+        val person = node.as[Person]
+        if ((person.isSusceptible || person.isExposed) && !person.isVaccinated) {
+          person.updateParam("vaccinationStatus", true)
+          person.updateParam("betaMultiplier", person.betaMultiplier * Disease.betaMultiplier)
+          person.updateParam("gammaMultiplier", Disease.vaccinatedGammaMultiplier)
+        }
+      })
+    })
+
+    registerIntervention(intervention)
   }
 
   private def addLockdown(implicit context: Context): Unit = {
@@ -173,6 +193,10 @@ object Main extends LazyLogging {
     val isEmployee:Boolean = officeId > 0
     val isStudent:Boolean = schoolId > 0
 
+    val betaMultiplier = 1.0
+//    val gammaMultiplier = if (age > ageLimit) 0.1 else 0.4
+    val gammaMultiplier = 0
+
     val citizen: Person = Person(
       citizenId,
       age,
@@ -185,7 +209,9 @@ object Main extends LazyLogging {
       lat,
       long,
       isEmployee,
-      isStudent
+      isStudent,
+      betaMultiplier,
+      gammaMultiplier
     )
 
     setCitizenInitialState(context, citizen)

@@ -17,4 +17,11 @@ object Disease extends Dynamics {
   final val deathRate = 0.02
   final val dt = 1.toDouble / 24.toDouble
   final val inverse_dt = 24.toDouble / 1.toDouble
+
+  //  Does not have any effect, can be used to model reduced chances of catching an infection due to masking or such other interventions
+  final val betaMultiplier = 1.0
+  final val transmissionReduction = 0.8
+
+  final val vaccinationProbability = 0.05
+  final val vaccinatedGammaMultiplier = 1.0
 }

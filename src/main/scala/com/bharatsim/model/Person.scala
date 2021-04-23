@@ -1,11 +1,9 @@
 package com.bharatsim.model
 
-import com.bharatsim.engine.Context
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.models.{Network, StatefulAgent}
-import com.bharatsim.model.DayUtil.isEOD
 import com.bharatsim.model.InfectionSeverity.{Mild, Severe}
 import com.bharatsim.model.InfectionStatus._
 import com.bharatsim.model.diseaseState._
@@ -22,7 +20,10 @@ case class Person(
     lat: String,
     long: String,
     isEmployee: Boolean,
-    isStudent: Boolean
+    isStudent: Boolean,
+    betaMultiplier: Double,
+    gammaMultiplier: Double,
+    vaccinationStatus: Boolean = false
 ) extends StatefulAgent {
 
   def decodeNode(classType: String, node: GraphNode): Network = {
@@ -51,6 +52,10 @@ case class Person(
   def isRecovered: Boolean = activeState.isInstanceOf[RecoveredState]
 
   def isDeceased: Boolean = activeState.isInstanceOf[DeceasedState]
+
+  def isVaccinated: Boolean = this.vaccinationStatus
+
+  def vaccinate(): Unit = updateParam("vaccinationStatus", true)
 
   addRelation[House]("STAYS_AT")
   addRelation[Office]("WORKS_AT")
