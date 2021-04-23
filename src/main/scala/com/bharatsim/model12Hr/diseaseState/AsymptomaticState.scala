@@ -1,12 +1,12 @@
-package com.bharatsim.model.diseaseState
+package com.bharatsim.model12Hr.diseaseState
 
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.models.StatefulAgent
-import com.bharatsim.model.InfectionStatus.Asymptomatic
-import com.bharatsim.model.{Disease, Person}
+import com.bharatsim.model12Hr.InfectionStatus.Asymptomatic
+import com.bharatsim.model12Hr.{Disease, Person}
 
 case class AsymptomaticState(asymptomaticDuration: Double) extends State {
 

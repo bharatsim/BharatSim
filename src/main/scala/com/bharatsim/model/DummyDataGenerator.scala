@@ -1,4 +1,3 @@
-
 package com.bharatsim.model
 
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
@@ -48,7 +47,7 @@ object DummyDataGenerator {
     val schoolId = if (isStudent) random.between(1, totalSchools + 1) else 0
     val publicTransport = if (biasedCoinToss(PUBLIC_TRANSPORT_FRACTION)) 1 else 0
     val isEssentialWorker = if (isEmployee && biasedCoinToss(ESSENTIAL_WORKER_FRACTION)) 1 else 0
-    val violatesLockdown:Double = random.between(0.0, 1.0)
+    val violatesLockdown: Double = random.between(0.0, 1.0)
     val scale = math pow (10, 1)
     val village_town = "some_village"
     val latitude = Random.nextFloat()
@@ -82,7 +81,7 @@ object DummyDataGenerator {
     generateRow(1)
   }
 
-  def main(): Unit = {
+  def main(m: Array[String]): Unit = {
     generate()
   }
 }

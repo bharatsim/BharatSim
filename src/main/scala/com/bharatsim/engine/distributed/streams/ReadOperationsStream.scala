@@ -10,9 +10,10 @@ import akka.stream.{OverflowStrategy, QueueOfferResult}
 import com.bharatsim.engine.graph.neo4j.queryBatching.{GroupQuery, QueryWithPromise}
 import com.bharatsim.engine.{ApplicationConfig, ApplicationConfigFactory}
 import com.typesafe.scalalogging.LazyLogging
+import org.neo4j.driver.SessionConfig.builder
 import org.neo4j.driver.internal.InternalRecord
-import org.neo4j.driver.{Driver, Record}
-
+import org.neo4j.driver.{AccessMode, Bookmark, Driver, Record}
+import org.neo4j.driver.summary.ResultSummary
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration.{Duration, DurationInt}
@@ -26,6 +27,13 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
 
   private val config: ApplicationConfig = ApplicationConfigFactory.config
 
+  private var sessionConfig = builder().withDefaultAccessMode(AccessMode.READ).build()
+
+  def setBookMarks(bookmarks: List[Bookmark]) = {
+    logger.info("setting bookmarks {}", bookmarks)
+    this.sessionConfig = builder().withDefaultAccessMode(AccessMode.READ).withBookmarks(bookmarks.asJava).build()
+  }
+
   private val sourceQueue = Source
     .queue[QueryWithPromise](config.processBatchSize * 2, OverflowStrategy.backpressure, config.processBatchSize)
     .groupedWithin(Int.MaxValue, config.readWaitTime.millisecond)
@@ -35,10 +43,13 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
         val resultList = groupedQueries
           .map(gq => {
             try {
-              val s = neo4jConnection.session()
-              val result = s.run(gq.query, gq.props).list()
+              val s = neo4jConnection.session(sessionConfig)
+              val st = new Date().getTime
+              val result = s.run(gq.query, gq.props)
+              val resultList = result.list()
+              val et = new Date().getTime
               s.close()
-              GQResult(result, gq)
+              GQResult(resultList, gq, et - st)
             } catch {
               case ex: Throwable =>
                 logger.info("failed query {} with ex{}", gq.query, ex)
@@ -59,7 +70,7 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
             val promises = gq.promises
             val query = gq.query
             val props = gq.props.get("propsList").asInstanceOf[java.util.Collection[Object]]
-            logger.info("Read finished {} for promise size {} for Id {} ", records.size, promises.size)
+            logger.info("Read finished {} in time {} ms ", records.size, gqResult.time)
             val result = records.iterator
             promises.foreach(p => {
               try {

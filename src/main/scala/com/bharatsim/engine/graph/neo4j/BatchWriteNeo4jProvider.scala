@@ -36,6 +36,7 @@ private[engine] class BatchWriteNeo4jProvider(
   val readOperations = new ReadOperationsStream(neo4jConnection)(actorSystem)
   def setBookmarks(bookmarks: List[DBBookmark]) = {
     this.bookmarks = bookmarks.map(b => Bookmark.from(b.values))
+    readOperations.setBookMarks(this.bookmarks)
   }
 
   override def createSession: Session = {
@@ -50,7 +51,7 @@ private[engine] class BatchWriteNeo4jProvider(
                    |optional match (p)-[:FSM_STATE]->(q) with p, q
                    |return {props: properties(p), labels: labels(p), id: id(p)} as node,  {props: properties(q), labels: labels(q), id: id(q)} as state""".stripMargin
 
-    val session = neo4jConnection.session()
+    val session = createSession
 
     val nodes = session.readTransaction((tx: Transaction) => {
 
@@ -236,7 +237,7 @@ private[engine] class BatchWriteNeo4jProvider(
   }
 
   def fetchNodeIds(label: String, skip: Int, limit: Int): List[NodeId] = {
-    val session = neo4jConnection.session()
+    val session = createSession
 
     val nodes: Iterable[NodeId] = session.readTransaction((tx: Transaction) => {
 

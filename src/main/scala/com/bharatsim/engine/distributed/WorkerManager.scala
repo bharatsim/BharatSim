@@ -2,6 +2,7 @@ package com.bharatsim.engine.distributed
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
+import ch.qos.logback.classic.LoggerContext
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.WorkerManager._
 import com.bharatsim.engine.distributed.actors.Barrier.WorkFinished
@@ -13,7 +14,6 @@ import com.bharatsim.engine.execution.AgentExecutor
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.graph.neo4j.BatchWriteNeo4jProvider
 import com.typesafe.scalalogging.LazyLogging
-import org.neo4j.driver.Bookmark
 
 import scala.util.{Failure, Success}
 
@@ -63,6 +63,7 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
             Behaviors.same
 
           case StartOfNewTick(updatedContext, bookmarks, replyTo) =>
+            logger.info("Start Tick {}", updatedContext.currentTick)
             simulationContext.setCurrentStep(updatedContext.currentTick)
             simulationContext.setActiveIntervention(updatedContext.activeIntervention)
             simulationContext.perTickCache.clear()
@@ -73,12 +74,13 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
             Behaviors.same
 
           case ExecutePendingWrites(replyTo) =>
+            logger.info("Start Write for tick {}", simulationContext.getCurrentStep)
             simulationContext.graphProvider
               .asInstanceOf[BatchWriteNeo4jProvider]
               .executePendingWrites(context.system)
               .onComplete {
                 case Success(bookmark) =>
-                  logger.info("Pending writes executed")
+                  logger.info("Pending writes executed for tick {}", simulationContext.getCurrentStep)
                   replyTo ! WorkFinished(DBBookmark(bookmark.values()))
               }(context.executionContext)
 

@@ -1,4 +1,4 @@
-package com.bharatsim.model
+package com.bharatsim.model12Hr
 
 import com.bharatsim.engine.ContextBuilder._
 import com.bharatsim.engine._
@@ -8,19 +8,21 @@ import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.dsl.SyntaxHelpers._
 import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
-import com.bharatsim.engine.intervention.IntervalBasedIntervention
 import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
-import com.bharatsim.model.InfectionSeverity.{Mild, Severe}
-import com.bharatsim.model.InfectionStatus._
-import com.bharatsim.model.diseaseState._
+import com.bharatsim.model12Hr.InfectionSeverity.{Mild, Severe}
+import com.bharatsim.model12Hr.InfectionStatus._
+import com.bharatsim.model12Hr.diseaseState._
 import com.typesafe.scalalogging.LazyLogging
 
 object Main2 extends LazyLogging {
   private val TOTAL_PUBLIC_PLACES = ApplicationConfigFactory.config.publicPlaceCount
   private var lastPublicPlaceId = 1
-  private val initialInfectedFraction = 0.3
+  private val initialInfectedFraction = 0.04
+
+  val myTick: ScheduleUnit = new ScheduleUnit(1)
+  val myDay: ScheduleUnit = new ScheduleUnit(myTick * 2)
 
   def main(args: Array[String]): Unit = {
     var beforeCount = 0
@@ -28,14 +30,13 @@ object Main2 extends LazyLogging {
 
     distributedSimulation.ingestData { implicit context =>
       context.setDynamics(Disease)
-      ingestCSVData("input.csv", csvDataExtractor)
+      ingestCSVData("local/input.csv", csvDataExtractor)
     }
 
     distributedSimulation.defineSimulation { implicit context =>
       context.setDynamics(Disease)
-      addLockdown
 
-      createSchedules()
+      createBasicSchedule()
 
       registerAction(
         StopSimulation,
@@ -57,7 +58,7 @@ object Main2 extends LazyLogging {
       registerState[SusceptibleState]
 
       SimulationListenerRegistry.register(
-        new CsvOutputGenerator("src/main/resources/output.csv", new SEIROutputSpec(context))
+        new CsvOutputGenerator("src/main/resources/12hr_model_output.csv", new SEIROutputSpec(context))
       )
     }
 
@@ -69,129 +70,34 @@ object Main2 extends LazyLogging {
     distributedSimulation.run()
   }
 
-  private def addLockdown(implicit context: Context): Unit = {
+  private def createBasicSchedule()(implicit context: Context): Unit = {
+    val basicSchedule = (myDay, myTick)
+      .add[House](0, 0)
+      .add[Office](1, 1)
 
-    val interventionName = "lockdown"
-    val intervention = IntervalBasedIntervention(interventionName, 20, 530)
-
-    val lockdownSchedule = (Day, Hour).add[House](0, 23)
-
-    registerIntervention(intervention)
     registerSchedules(
       (
-        lockdownSchedule,
-        (agent: Agent, context: Context) => {
-          val isEssentialWorker = agent.asInstanceOf[Person].isEssentialWorker
-          val violateLockdown = agent.asInstanceOf[Person].violateLockdown
-          val isLockdown = context.activeInterventionNames.contains(interventionName)
-          val isSeverelyInfected = agent.asInstanceOf[Person].isSevereInfected
-          isLockdown && !(isEssentialWorker || violateLockdown || isSeverelyInfected)
-        },
+        basicSchedule,
+        (agent: Agent, _: Context) => agent.asInstanceOf[Person].id > 0,
         1
       )
-    )
-  }
-
-  private def createSchedules()(implicit context: Context): Unit = {
-    val employeeScheduleOnWeekDays = (Day, Hour)
-      .add[House](0, 8)
-      .add[Office](9, 18)
-      .add[House](19, 23)
-
-    val employeeScheduleOnWeekEnd = (Day, Hour)
-      .add[House](0, 16)
-      .add[PublicPlace](17, 18)
-      .add[House](19, 23)
-
-    val employeeSchedule = (Week, Day)
-      .add(employeeScheduleOnWeekDays, 0, 4)
-      .add(employeeScheduleOnWeekEnd, 5, 6)
-
-    val employeeScheduleWithPublicTransport = (Day, Hour)
-      .add[House](0, 8)
-      .add[Transport](9, 10)
-      .add[Office](11, 18)
-      .add[Transport](19, 20)
-      .add[House](21, 23)
-
-    val studentScheduleOnWeekDay = (Day, Hour)
-      .add[House](0, 8)
-      .add[School](9, 15)
-      .add[House](16, 16)
-      .add[PublicPlace](17, 18)
-      .add[House](19, 23)
-
-    val studentScheduleOnWeekEnd = (Day, Hour)
-      .add[House](0, 16)
-      .add[PublicPlace](17, 18)
-      .add[House](19, 23)
-
-    val studentSchedule = (Week, Day)
-      .add(studentScheduleOnWeekDay, 0, 4)
-      .add(studentScheduleOnWeekEnd, 5, 6)
-
-    val hospitalizedScheduleForDay = (Day, Hour)
-      .add[Hospital](0, 23)
-
-    val hospitalizedSchedule = (Week, Day)
-      .add(hospitalizedScheduleForDay, 0, 6)
-
-    val mildSymptomaticScheduleForDay = (Day, Hour)
-      .add[House](0, 23)
-
-    val mildSymptomaticSchedule = (Week, Day)
-      .add(mildSymptomaticScheduleForDay, 0, 6)
-
-    registerSchedules(
-      (
-        hospitalizedSchedule,
-        (agent: Agent, _: Context) => agent.asInstanceOf[Person].isSevereInfected,
-        2
-      ),
-      (mildSymptomaticSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isMildInfected, 3),
-      (
-        employeeScheduleWithPublicTransport,
-        (agent: Agent, _: Context) => agent.asInstanceOf[Person].takesPublicTransport,
-        4
-      ),
-      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isEmployee, 5),
-      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isStudent, 6)
     )
   }
 
   private def csvDataExtractor(map: Map[String, String])(implicit context: Context): GraphData = {
 
     val citizenId = map("Agent_ID").toLong
-    val age = map("Age").toInt
-    val takesPublicTransport = map("PublicTransport_Jobs").toInt == 1
-    val isEssentialWorker = map("essential_worker").toInt == 1
-    val violateLockdown = map("Adherence_to_Intervention").toFloat >= 0.5
+
     val initialInfectionState = if (biasedCoinToss(initialInfectedFraction)) "InfectedMild" else "Susceptible"
-    val villageTown = map("VillTownName")
-    val lat = map("H_Lat")
-    val long = map("H_Lon")
 
     val homeId = map("HHID").toLong
-    val schoolId = map("school_id").toLong
     val officeId = map("WorkPlaceID").toLong
     val publicPlaceId = generatePublicPlaceId()
 
-    val isEmployee: Boolean = officeId > 0
-    val isStudent: Boolean = schoolId > 0
-
     val citizen: Person = Person(
       citizenId,
-      age,
       InfectionStatus.withName(initialInfectionState),
-      0,
-      takesPublicTransport,
-      isEssentialWorker,
-      violateLockdown,
-      villageTown,
-      lat,
-      long,
-      isEmployee,
-      isStudent
+      0
     )
 
     setCitizenInitialState(context, citizen)
@@ -208,32 +114,12 @@ object Main2 extends LazyLogging {
     graphData.addNode(publicPlaceId, PublicPlace(publicPlaceId))
     graphData.addRelations(staysAt, memberOf, visits, hosts)
 
-    if (isEmployee) {
-      val office = Office(officeId)
-      val worksAt = Relation[Person, Office](citizenId, "WORKS_AT", officeId)
-      val employerOf = Relation[Office, Person](officeId, "EMPLOYER_OF", citizenId)
+    val office = Office(officeId)
+    val worksAt = Relation[Person, Office](citizenId, "WORKS_AT", officeId)
+    val employerOf = Relation[Office, Person](officeId, "EMPLOYER_OF", citizenId)
 
-      graphData.addNode(officeId, office)
-      graphData.addRelations(worksAt, employerOf)
-    } else {
-      val school = School(schoolId)
-      val studiesAt = Relation[Person, School](citizenId, "STUDIES_AT", schoolId)
-      val studentOf = Relation[School, Person](schoolId, "STUDENT_OF", citizenId)
-
-      graphData.addNode(schoolId, school)
-      graphData.addRelations(studiesAt, studentOf)
-    }
-
-    if (takesPublicTransport) {
-      val transportId = 1
-      val transport = Transport(transportId)
-      val takes = Relation[Person, Transport](citizenId, citizen.getRelation[Transport]().get, transportId)
-      val carries = Relation[Transport, Person](transportId, transport.getRelation[Person]().get, citizenId)
-
-      graphData.addNode(transportId, transport)
-      graphData.addRelations(takes, carries)
-    }
-
+    graphData.addNode(officeId, office)
+    graphData.addRelations(worksAt, employerOf)
     if (initialInfectionState == InfectedSevere.toString) {
       val hospitalId = 1
       val hospital = Hospital(1)

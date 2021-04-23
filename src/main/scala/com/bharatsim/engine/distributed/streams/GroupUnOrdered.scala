@@ -7,6 +7,7 @@ import akka.stream.scaladsl.Source
 import com.bharatsim.engine.graph.neo4j.queryBatching.{GroupQuery, QueryWithPromise}
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Record
+import org.neo4j.driver.summary.ResultSummary
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -14,7 +15,7 @@ import scala.concurrent.Promise
 import scala.jdk.CollectionConverters.IterableHasAsJava
 
 case class GQ(query: String, props: util.Map[String, Object], promises: Iterable[Promise[Record]])
-case class GQResult(records: util.List[Record], gq: GQ)
+case class GQResult(records: util.List[Record], gq: GQ, time: Long)
 case class GQResultSource(source: Source[GQResult, NotUsed], size: Int)
 
 case class GroupUnOrdered(queries: Iterable[QueryWithPromise], label: String = "Read") extends LazyLogging {

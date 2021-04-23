@@ -13,6 +13,7 @@ class PreTickActions(context: Context) extends LazyLogging {
     invokeInterventionActions()
 
     context.perTickCache.clear()
+    logger.info("done PreTickAction for tick {}", tick)
   }
 
   private def invokeInterventionActions(): Unit = {

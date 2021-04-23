@@ -2,7 +2,7 @@
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS z} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS z} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -11,7 +11,7 @@
         <file> log-${timestamp}.log </file>
         <append>true</append>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS z} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS z} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 

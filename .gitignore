@@ -3,3 +3,7 @@ out
 target
 output.csv
 GIS_output.csv
+!citizen.csv
+*.csv
+*.log
+/local

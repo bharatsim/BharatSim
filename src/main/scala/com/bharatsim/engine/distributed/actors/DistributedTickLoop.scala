@@ -59,19 +59,21 @@ class DistributedTickLoop(
           Behaviors.same
 
         case BarrierReply(r) =>
-          context.log.info("Finished executing pending writes")
+          context.log.info("Finished executing pending writes for tick {}", simulationContext.getCurrentStep)
           r match {
             case BarrierFinished(bookmarks) => {
               postTickActions.execute()
               Tick(currentTick + 1, bookmarks)
             }
+            case _ =>
+              postTickActions.execute()
+              Tick(currentTick + 1)
           }
-          postTickActions.execute()
-          Tick(currentTick + 1)
+
       }
 
     private def executePendingWrites(): Unit = {
-      context.log.info("Started executing pending writes")
+      context.log.info("Started executing pending writes for tick {}", simulationContext.getCurrentStep)
       val f = simulationContext.graphProvider
         .asInstanceOf[BatchWriteNeo4jProvider]
         .executePendingWrites(actorContext.system)
