@@ -126,6 +126,12 @@ class Neo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Matcher
       count shouldBe 1
     }
 
+    "count Neighbors with unmatched condition" in {
+      val (rameshId, _) = createFriendship()
+      val count = graphProvider.neighborCount(rameshId, "FRIEND", "name" equ "Stranger");
+      count shouldBe 0
+    }
+
     "count Neighbors without specifying condition" in {
       val (rameshId, _) = createFriendship()
       val count = graphProvider.neighborCount(rameshId, "FRIEND");

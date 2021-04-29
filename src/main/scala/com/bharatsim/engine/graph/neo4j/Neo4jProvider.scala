@@ -182,7 +182,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
         val result = tx.run(
           s"""MATCH (n) where id(n) = $$nodeId with n
              |MATCH (n)-[:$label]->(o) $whereClause
-             |RETURN count(n) as matchingCount
+             |RETURN count(o) as matchingCount
              |""".stripMargin,
           parameters(paramList: _*)
         )
