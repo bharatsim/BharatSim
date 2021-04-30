@@ -52,6 +52,7 @@ class ApplicationConfig {
   lazy val neo4jImportBatchSize: Int = neo4jConfig.getInt("neo4j-import-batch-size")
   lazy val writeParallelism: Int = neo4jConfig.getInt("write-parallelism")
   lazy val readParallelism: Int = neo4jConfig.getInt("read-parallelism")
+  lazy val readBatchSize: Int = neo4jConfig.getInt("read-batch-size")
   lazy val readWaitTime: Int = neo4jConfig.getInt("read-wait-time")
   lazy val queryGroupSize: Int = neo4jConfig.getInt("query-group-size")
   lazy val preProcessGroupCount: Int = neo4jConfig.getInt("pre-process-group-count")

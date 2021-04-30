@@ -36,7 +36,7 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
 
   private val sourceQueue = Source
     .queue[QueryWithPromise](config.processBatchSize * 2, OverflowStrategy.backpressure, config.processBatchSize)
-    .groupedWithin(Int.MaxValue, config.readWaitTime.millisecond)
+    .groupedWithin(config.readBatchSize, config.readWaitTime.millisecond)
     .mapAsyncUnordered(config.readParallelism)(group => Future { GroupUnOrdered(group).prepareGroups() })
     .mapAsyncUnordered(config.readParallelism)(groupedQueries => {
       Future {
