@@ -22,6 +22,6 @@ object Disease extends Dynamics {
   final val betaMultiplier = 1.0
   final val transmissionReduction = 0.8
 
-  final val vaccinationProbability = 0.05
-  final val vaccinatedGammaMultiplier = 1.0
+  final val vaccinationRate = 0.05
+  final val vaccinatedGammaFractionalIncrease = 1.0
 }

@@ -69,12 +69,12 @@ object Main extends LazyLogging {
     val intervention: Intervention = IntervalBasedIntervention(interventionName, 2, 12, _ => (), context => {
       val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person")
 
-      populationIterable.foreach(node => if (biasedCoinToss(Disease.vaccinationProbability)) {
+      populationIterable.foreach(node => if (biasedCoinToss(Disease.vaccinationRate)) {
         val person = node.as[Person]
         if ((person.isSusceptible || person.isExposed) && !person.isVaccinated) {
           person.updateParam("vaccinationStatus", true)
           person.updateParam("betaMultiplier", person.betaMultiplier * Disease.betaMultiplier)
-          person.updateParam("gammaMultiplier", Disease.vaccinatedGammaMultiplier)
+          person.updateParam("gammaMultiplier", Disease.vaccinatedGammaFractionalIncrease)
         }
       })
     })
@@ -279,12 +279,14 @@ object Main extends LazyLogging {
     )
     val severeInfectionPercentage = context.dynamics.asInstanceOf[Disease.type].severeInfectedPopulationPercentage
     val exposedDuration = context.dynamics.asInstanceOf[Disease.type].exposedDurationProbabilityDistribution.sample()
+    val asymptomaticDuration = context.dynamics.asInstanceOf[Disease.type].asymptomaticDurationProbabilityDistribution.sample()
     val preSymptomaticDuration = context.dynamics.asInstanceOf[Disease.type].presymptomaticDurationProbabilityDistribution.sample()
     val mildSymptomaticDuration = context.dynamics.asInstanceOf[Disease.type].mildSymptomaticDurationProbabilityDistribution.sample()
     val severeSymptomaticDuration = context.dynamics.asInstanceOf[Disease.type].severeSymptomaticDurationProbabilityDistribution.sample()
     initialState match {
       case "Susceptible"    => citizen.setInitialState(SusceptibleState())
       case "Exposed"        => citizen.setInitialState(ExposedState(severeInfectionPercentage, isAsymptomatic, exposedDuration))
+      case "Asymptomatic"   => citizen.setInitialState(AsymptomaticState(asymptomaticDuration))
       case "PreSymptomatic" => citizen.setInitialState(PreSymptomaticState(Mild, preSymptomaticDuration))
       case "InfectedMild"   => citizen.setInitialState(InfectedState(Mild, mildSymptomaticDuration))
       case "InfectedSevere" => citizen.setInitialState(InfectedState(Severe, severeSymptomaticDuration))
