@@ -38,6 +38,10 @@ object Guardian extends LazyLogging {
         logger.info("Ingestion started")
         simulationDefinition.ingestionStep(simulationContext)
         logger.info("Ingestion finished")
+        if (config.ingestionOnly) {
+          CoordinatedShutdown(context.system).run(UserInitiatedShutdown)
+          return
+        }
       }
 
       simulationDefinition.simulationBody(simulationContext)

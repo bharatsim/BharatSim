@@ -17,6 +17,7 @@ class ApplicationConfig {
   lazy val processBatchSize: Int = config.getInt("bharatsim.engine.distributed.process-batch-size")
 
   lazy val disableIngestion: Boolean = config.getBoolean("bharatsim.engine.debug.disable-ingestion")
+  lazy val ingestionOnly: Boolean = config.getBoolean("bharatsim.engine.debug.ingestion-only")
 
   lazy val role: Role.Value = Role.withName(clusterConfig.getStringList("akka.cluster.roles").get(0))
 
