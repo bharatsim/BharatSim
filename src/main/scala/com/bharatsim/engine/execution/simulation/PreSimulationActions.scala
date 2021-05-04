@@ -12,26 +12,14 @@ class PreSimulationActions(context: Context) {
     executeStateEnterActions()
   }
 
-  def processByParts(): Unit = {
-    @tailrec
-    def fetchAllNodes(label: String, skip: Int, limit: Int): Unit = {
-      val nodes = context.graphProvider.fetchNodesWithSkipAndLimit(label, Map.empty, skip, limit)
-
+  private def executeStateEnterActions(): Unit = {
+    context.agentLabels.foreach(label => {
+      val nodes = context.graphProvider.fetchNodes(label, Map.empty[String, Any])
       nodes.foreach {
         case statefulAgent: StatefulAgent =>
           statefulAgent.activeState.enterAction(context, statefulAgent)
         case _ =>
       }
-
-      if (nodes.nonEmpty) {
-        fetchAllNodes(label, skip + nodes.size, limit)
-      }
-    }
-
-    context.agentLabels.foreach(label => fetchAllNodes(label, 0, 1000))
-  }
-
-  private def executeStateEnterActions(): Unit = {
-    processByParts()
+    })
   }
 }
