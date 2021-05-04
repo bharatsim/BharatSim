@@ -16,7 +16,6 @@ import scala.jdk.CollectionConverters.IterableHasAsJava
 
 case class GQ(query: String, props: util.Map[String, Object], promises: Iterable[Promise[Record]])
 case class GQResult(records: util.List[Record], gq: GQ, time: Long)
-case class GQResultSource(source: Source[GQResult, NotUsed], size: Int)
 
 case class GroupUnOrdered(queries: Iterable[QueryWithPromise], label: String = "Read") extends LazyLogging {
   private val groups = mutable.HashMap.empty[String, GroupQuery]

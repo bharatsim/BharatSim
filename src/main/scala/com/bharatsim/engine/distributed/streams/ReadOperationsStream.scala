@@ -38,56 +38,45 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
     .queue[QueryWithPromise](config.processBatchSize * 2, OverflowStrategy.backpressure, config.processBatchSize)
     .groupedWithin(config.readBatchSize, config.readWaitTime.millisecond)
     .mapAsyncUnordered(config.readParallelism)(group => Future { GroupUnOrdered(group).prepareGroups() })
-    .mapAsyncUnordered(config.readParallelism)(groupedQueries => {
+    .flatMapConcat(groupedQueries => Source(groupedQueries.toList))
+    .mapAsyncUnordered(config.readParallelism)(gq => {
       Future {
-        val resultList = groupedQueries
-          .map(gq => {
-            try {
-              val s = neo4jConnection.session(sessionConfig)
-              val st = new Date().getTime
-              val result = s.run(gq.query, gq.props)
-              val resultList = result.list()
-              val et = new Date().getTime
-              s.close()
-              GQResult(resultList, gq, et - st)
-            } catch {
-              case ex: Throwable =>
-                logger.info("failed query {} with ex{}", gq.query, ex)
-                throw ex;
-            }
-          })
-          .toList
-
-        GQResultSource(Source(resultList), resultList.size)
+        try {
+          val s = neo4jConnection.session(sessionConfig)
+          val st = new Date().getTime
+          val result = s.run(gq.query, gq.props)
+          val resultList = result.list()
+          val et = new Date().getTime
+          s.close()
+          GQResult(resultList, gq, et - st)
+        } catch {
+          case ex: Throwable =>
+            logger.info("failed query {} with ex{}", gq.query, ex)
+            throw ex;
+        }
       }
     })
-    .toMat(Sink.foreachAsync(config.readParallelism)((sourceResult: GQResultSource) => {
+    .toMat(Sink.foreachAsync(config.readParallelism)((gqResult: GQResult) => {
       Future {
-        sourceResult.source.runWith(Sink.foreachAsync(sourceResult.size)((gqResult: GQResult) => {
-          Future {
-            val records = gqResult.records
-            val gq = gqResult.gq
-            val promises = gq.promises
-            val query = gq.query
-            val props = gq.props.get("propsList").asInstanceOf[java.util.Collection[Object]]
-            logger.info("Read finished {} in time {} ms ", records.size, gqResult.time)
-            val result = records.iterator
-            promises.foreach(p => {
-              try {
-                if (result.hasNext) {
-                  p.success(result.next())
-                } else {
-                  logger.info("got No results ")
-                  //            throw new Error("no result")
-                  //            System.exit(1)
-                  p.success(new InternalRecord(java.util.List.of[String](), Array()))
-                }
-              } catch {
-                case ex: Throwable => logger.info("Failed assinging promis")
-              }
-            })
+        val records = gqResult.records
+        val gq = gqResult.gq
+        val promises = gq.promises
+        val query = gq.query
+        val props = gq.props.get("propsList").asInstanceOf[java.util.Collection[Object]]
+        logger.info("Read finished {} in time {} ms ", records.size, gqResult.time)
+        val result = records.iterator
+        promises.foreach(p => {
+          try {
+            if (result.hasNext) {
+              p.success(result.next())
+            } else {
+              logger.info("got No results ")
+              p.success(new InternalRecord(java.util.List.of[String](), Array()))
+            }
+          } catch {
+            case ex: Throwable => logger.info("Failed assinging promis")
           }
-        }))
+        })
       }
     }))(Keep.left)
     .run()
