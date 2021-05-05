@@ -26,7 +26,7 @@ object Main extends LazyLogging {
   private val initialInfectedFraction = 0.3
 
   def main(args: Array[String]): Unit = {
-    implicit val context: Context = Context()
+    implicit val context: Context = Simulation.init()
     context.setDynamics(Disease)
     try {
       Simulation.init()

@@ -1,5 +1,9 @@
 package com.bharatsim.engine.graph
 
+import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.{ActorSystem, DispatcherSelector}
+import akka.stream.scaladsl.Source
+import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.basicConversions.BasicConversions
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
@@ -9,9 +13,13 @@ import com.bharatsim.engine.graph.patternMatcher.{EmptyPattern, MatchPattern}
 import com.bharatsim.engine.models.Node
 import com.bharatsim.engine.utils.Utils.fetchClassName
 import com.github.tototoshi.csv.CSVReader
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.mutable
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.reflect.ClassTag
+import scala.util.{Failure, Success}
 
 /**
   * Representation of node data from the data store
@@ -57,7 +65,7 @@ case class PartialGraphNode(nodeLabel: String, id: NodeId, params: Map[String, A
 /**
   * GraphProvider interface allows to perform CRUD operations on underlying data store
   */
-trait GraphProvider {
+trait GraphProvider extends LazyLogging {
   /* CRUD */
 
   /**
@@ -75,7 +83,8 @@ trait GraphProvider {
 
     val nodeExpander = new NodeExpander
     val data = nodeExpander.expand[T](label, id, x)
-    val refToIdMapping = batchImportNodes(data._nodes)
+    val refToIdMapping = new RefToIdMapping()
+    batchImportNodes(data._nodes, refToIdMapping)
     refToIdMapping.addMapping(label, id, id)
     batchImportRelations(data._relations, refToIdMapping)
 
@@ -117,21 +126,47 @@ trait GraphProvider {
     */
   private[engine] def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
     if (mapper.isDefined) {
-      val nodes = mutable.ListBuffer.empty[CsvNode]
-      val relations = mutable.ListBuffer.empty[Relation]
+      val config = ApplicationConfigFactory.config
+      val refToIdMapping = new RefToIdMapping()
 
-      CSVReader.open(csvPath).toStreamWithHeaders.foreach(row => {
-        val data = mapper.get.apply(row)
-        nodes.addAll(data._nodes)
-        relations.addAll(data._relations)
+      val csvRows = CSVReader.open(csvPath).iteratorWithHeaders.to(LazyList)
+
+      val blockingIODispatcher = DispatcherSelector.fromConfig("akka.actor.default-blocking-io-dispatcher")
+      implicit val actorSystem = ActorSystem(Behaviors.empty[Any], "Ingestion")
+      implicit val ec: ExecutionContext = actorSystem.dispatchers.lookup(blockingIODispatcher)
+      val f = Source(csvRows)
+        .mapAsync(config.ingestionMapParallelism)(row => {
+          Future {
+            mapper.get.apply(row)
+          }
+        })
+        .grouped(config.ingestionBatchSize)
+        .map((graphDataList) => {
+          val nodes = mutable.ListBuffer.empty[CsvNode]
+          val relations = mutable.ListBuffer.empty[Relation]
+          graphDataList.foreach((data) => {
+            nodes.addAll(data._nodes)
+            relations.addAll(data._relations)
+          })
+          (nodes, relations)
+        })
+        .runForeach((groupedData) => {
+          batchImportNodes(groupedData._1, refToIdMapping)
+          batchImportRelations(groupedData._2, refToIdMapping)
+        })
+
+      f.onComplete({
+        case Failure(ex) => {
+          logger.error("Ingestion Failed : {}", ex.getMessage);
+          throw ex;
+        }
+        case Success(value) => actorSystem.terminate()
       })
-
-      val refToIdMapping = batchImportNodes(nodes)
-      batchImportRelations(relations, refToIdMapping)
+      Await.ready(f, Duration.Inf)
     }
   }
 
-  private[engine] def batchImportNodes(node: IterableOnce[CsvNode]): RefToIdMapping
+  private[engine] def batchImportNodes(node: IterableOnce[CsvNode], refToIdMapping: RefToIdMapping) = {}
 
   private[engine] def batchImportRelations(relations: IterableOnce[Relation], refToIdMapping: RefToIdMapping)
 
@@ -160,7 +195,8 @@ trait GraphProvider {
   def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode]
 
   // TODO: Implement for other all stores
-  def fetchNodesWithSkipAndLimit(label: String, params: Map[String, Any], skip: Int, limit: Int): Iterable[GraphNode] = Iterable.empty
+  def fetchNodesWithSkipAndLimit(label: String, params: Map[String, Any], skip: Int, limit: Int): Iterable[GraphNode] =
+    Iterable.empty
 
   /**
     * Fetch all the nodes with matching label and parameters
@@ -183,7 +219,8 @@ trait GraphProvider {
       label: String,
       select: Set[String],
       where: MatchPattern = EmptyPattern(),
-      skip: Int = 0, limit: Int = Int.MaxValue
+      skip: Int = 0,
+      limit: Int = Int.MaxValue
   ): Iterable[PartialGraphNode] = Iterable.empty
 
   private[engine] def fetchById(id: NodeId): Option[GraphNode] = None

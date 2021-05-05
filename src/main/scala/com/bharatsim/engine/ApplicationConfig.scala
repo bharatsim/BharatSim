@@ -15,6 +15,8 @@ class ApplicationConfig {
 
   lazy val nodeFetchBatchSize: Int = config.getInt("bharatsim.engine.distributed.node-fetch-batch-size")
   lazy val processBatchSize: Int = config.getInt("bharatsim.engine.distributed.process-batch-size")
+  lazy val ingestionBatchSize: Int = config.getInt("bharatsim.engine.ingestion.batch-size")
+  lazy val ingestionMapParallelism: Int = config.getInt("bharatsim.engine.ingestion.map-parallelism")
 
   lazy val disableIngestion: Boolean = config.getBoolean("bharatsim.engine.debug.disable-ingestion")
   lazy val ingestionOnly: Boolean = config.getBoolean("bharatsim.engine.debug.ingestion-only")
@@ -50,7 +52,6 @@ class ApplicationConfig {
   lazy val neo4jUsername: String = neo4jConfig.getString("username")
   lazy val neo4jPass: String = neo4jConfig.getString("password")
   lazy val neo4jConnectionPoolSize: Int = neo4jConfig.getInt("connection-pool-size")
-  lazy val neo4jImportBatchSize: Int = neo4jConfig.getInt("neo4j-import-batch-size")
   lazy val writeParallelism: Int = neo4jConfig.getInt("write-parallelism")
   lazy val readParallelism: Int = neo4jConfig.getInt("read-parallelism")
   lazy val readBatchSize: Int = neo4jConfig.getInt("read-batch-size")

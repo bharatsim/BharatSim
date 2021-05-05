@@ -99,8 +99,11 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
 
   override def shutdown(): Unit = {}
 
-  override private[engine] def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
-    graphOperations.writeOperations.batchImportNodes(batchOfNodes)
+  override private[engine] def batchImportNodes(
+      batchOfNodes: IterableOnce[CsvNode],
+      refToIdMapping: RefToIdMapping
+  ): Unit = {
+    graphOperations.writeOperations.batchImportNodes(batchOfNodes, refToIdMapping)
   }
 
   override private[engine] def batchImportRelations(

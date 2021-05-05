@@ -62,14 +62,17 @@ private[engine] class GraphProviderImpl(graphOperations: GraphOperations) extend
 
   override def shutdown(): Unit = {}
 
-  override private[engine] def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
-    graphOperations.writeOperations.batchImportNodes(batchOfNodes)
+  override private[engine] def batchImportNodes(
+      batchOfNodes: IterableOnce[CsvNode],
+      refToIdMapping: RefToIdMapping
+  ): Unit = {
+    graphOperations.writeOperations.batchImportNodes(batchOfNodes, refToIdMapping)
   }
 
   override private[engine] def batchImportRelations(
-                                                     relations: IterableOnce[Relation],
-                                                     refToIdMapping: RefToIdMapping
-                                                   ): Unit = {
+      relations: IterableOnce[Relation],
+      refToIdMapping: RefToIdMapping
+  ): Unit = {
     graphOperations.writeOperations.batchImportRelations(relations, refToIdMapping)
   }
 }

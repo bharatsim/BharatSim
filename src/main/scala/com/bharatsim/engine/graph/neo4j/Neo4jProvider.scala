@@ -3,12 +3,10 @@ import java.util
 import java.util.concurrent.TimeUnit
 
 import com.bharatsim.engine.ApplicationConfigFactory
-import com.bharatsim.engine.ApplicationConfigFactory.config.neo4jImportBatchSize
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph._
-import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
+import com.bharatsim.engine.graph.ingestion.{CsvNode, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
-import com.github.tototoshi.csv.CSVReader
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.Values.{parameters, value}
 import org.neo4j.driver.{AuthTokens, Config, GraphDatabase, Record, Session, Transaction}
@@ -333,20 +331,20 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
 
   override def shutdown(): Unit = neo4jConnection.close()
 
-  override private[engine] def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
+  override private[engine] def batchImportNodes(batchOfNodes: IterableOnce[CsvNode], refToIdMapping: RefToIdMapping) = {
     val session = createSession
 
-    val refToIdMapping = aggregateNodesByLabel(batchOfNodes.iterator)
+    aggregateNodesByLabel(batchOfNodes.iterator)
       .map({
         case (label, nodes) => (label, ingestBatchOfNodes(nodes, session, label))
       })
-      .foldLeft(new RefToIdMapping())((acc, mapping) => {
+      .foldLeft(refToIdMapping)((acc, mapping) => {
         acc.addMappings(mapping._1, mapping._2)
         acc
       })
 
     session.close()
-    refToIdMapping
+
   }
 
   private def ingestBatchOfNodes(nodes: Iterable[CsvNode], session: Session, label: String): Seq[(Long, NodeId)] = {
@@ -394,7 +392,7 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
       relations: IterableOnce[Relation],
       refToIdMapping: RefToIdMapping
   ): Unit = {
-    relations.iterator.grouped(neo4jImportBatchSize).foreach(ingestRelationshipBatch(_, refToIdMapping))
+    ingestRelationshipBatch(relations, refToIdMapping)
   }
 
   private def ingestRelationshipBatch(relations: IterableOnce[Relation], refToIdMapping: RefToIdMapping) = {
@@ -436,44 +434,4 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
       })
       .iterator
 
-  override private[engine] def ingestFromCsv(
-      csvPath: String,
-      mapper: Option[Function[Map[String, String], GraphData]]
-  ): Unit = {
-    if (mapper.isDefined) {
-      val relations = mutable.ListBuffer.empty[Relation]
-
-      val seenNodes = mutable.HashMap.empty[String, mutable.HashSet[Long]]
-      val refToIdMapping = CSVReader
-        .open(csvPath)
-        .toStreamWithHeaders
-        .flatMap(row => {
-          val data = mapper.get.apply(row)
-          relations.addAll(data._relations)
-          data._nodes
-        })
-        .filter(node => {
-          if (seenNodes.contains(node.label) && seenNodes(node.label).contains(node.uniqueRef)) {
-            false
-          } else {
-            val hs = seenNodes.getOrElse(node.label, mutable.HashSet.empty[Long])
-            hs.add(node.uniqueRef)
-            seenNodes.put(node.label, hs)
-            true
-          }
-        })
-        .grouped(neo4jImportBatchSize)
-        .flatMap(groupedNodes => {
-          aggregateNodesByLabel(groupedNodes).map({
-            case (label, nodes) => (label, ingestBatchOfNodes(nodes, createSession, label))
-          })
-        })
-        .foldLeft(new RefToIdMapping())((acc, mapping) => {
-          acc.addMappings(mapping._1, mapping._2)
-          acc
-        })
-
-      batchImportRelations(relations, refToIdMapping)
-    }
-  }
 }

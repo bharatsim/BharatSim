@@ -82,9 +82,7 @@ class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGener
     buffer.nodes.clear()
     buffer.indexedNodes.clear()
   }
-
-  def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
-    val refToIdMapping = new RefToIdMapping
+  def batchImportNodes(batchOfNodes: IterableOnce[CsvNode], refToIdMapping: RefToIdMapping): Unit = {
     batchOfNodes.iterator
       .foreach(node => {
         if (!refToIdMapping.hasReference(node.uniqueRef, node.label)) {
@@ -92,8 +90,6 @@ class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGener
           refToIdMapping.addMapping(node.label, node.uniqueRef, nodeId)
         }
       })
-
-    refToIdMapping
   }
 
   def batchImportRelations(relations: IterableOnce[Relation], refToIdMapping: RefToIdMapping): Unit = {
@@ -125,13 +121,16 @@ class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGener
   }
 
   private def filterNodesByMatchingParams(label: String, params: Map[String, Any]) = {
-    buffer.nodes(label).values.filter(node => {
-      params
-        .map(kv => {
-          val value = node.fetchParam(kv._1)
-          value.isDefined && value.get == kv._2
-        })
-        .reduce((a, b) => a && b)
-    })
+    buffer
+      .nodes(label)
+      .values
+      .filter(node => {
+        params
+          .map(kv => {
+            val value = node.fetchParam(kv._1)
+            value.isDefined && value.get == kv._2
+          })
+          .reduce((a, b) => a && b)
+      })
   }
 }

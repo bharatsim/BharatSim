@@ -102,7 +102,7 @@ class ActorBasedGraphProvider(dataActorRef: ActorRef[DBQuery])(implicit val syst
     AwaitedResult(ref => DeleteAll(ref)).await()
   }
 
-  override private[engine] def batchImportNodes(node: IterableOnce[CsvNode]) = ???
+  override private[engine] def batchImportNodes(node: IterableOnce[CsvNode], refToIdMapping: RefToIdMapping) = ???
 
   override private[engine] def batchImportRelations(
       relations: IterableOnce[Relation],
