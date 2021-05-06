@@ -1,5 +1,7 @@
 package com.bharatsim.engine.graph
 
+import java.util.concurrent.atomic.AtomicInteger
+
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorSystem, DispatcherSelector}
 import akka.stream.scaladsl.Source
@@ -128,7 +130,7 @@ trait GraphProvider extends LazyLogging {
     if (mapper.isDefined) {
       val config = ApplicationConfigFactory.config
       val refToIdMapping = new RefToIdMapping()
-
+      val batchCounter = new AtomicInteger(0)
       val csvRows = CSVReader.open(csvPath).iteratorWithHeaders.to(LazyList)
 
       val blockingIODispatcher = DispatcherSelector.fromConfig("akka.actor.default-blocking-io-dispatcher")
@@ -145,7 +147,7 @@ trait GraphProvider extends LazyLogging {
           val nodes = mutable.ListBuffer.empty[CsvNode]
           val relations = mutable.ListBuffer.empty[Relation]
           graphDataList.foreach((data) => {
-            nodes.addAll(data._nodes)
+            nodes.addAll(data._nodes.filter(node => !refToIdMapping.hasReference(node.uniqueRef, node.label)))
             relations.addAll(data._relations)
           })
           (nodes, relations)
@@ -153,6 +155,7 @@ trait GraphProvider extends LazyLogging {
         .runForeach((groupedData) => {
           batchImportNodes(groupedData._1, refToIdMapping)
           batchImportRelations(groupedData._2, refToIdMapping)
+          logger.info("Ingested batch number {}", batchCounter.incrementAndGet())
         })
 
       f.onComplete({
