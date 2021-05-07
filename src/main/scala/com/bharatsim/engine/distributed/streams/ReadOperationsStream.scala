@@ -36,25 +36,27 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
   }
 
   @tailrec
-  private def retryAbleTransaction(gq: GQ, retryAttempt: Int = 1): GQResult = {
+  private def retryAbleTransaction(gq: GQ, retryAttempt: Int = 1, withTimeout: Boolean = true): GQResult = {
     try {
       val session = neo4jConnection.session(sessionConfig)
       val st = new Date().getTime
 
+      val currentTransactionConfig = if (withTimeout) transactionConfig else TransactionConfig.empty()
       val resultList = session.readTransaction(
         (tx: Transaction) => {
           val res = tx.run(gq.query, gq.props)
           res.list();
         },
-        transactionConfig
+        currentTransactionConfig
       )
       val et = new Date().getTime
       session.close()
       if (retryAttempt > 1) {
         logger.info(
-          "successful retry attempt {} with time {} for query  * {}  [Size = {}] ",
+          "successful retry attempt: {} , time: {}, timeout: {}, for query  * {}  [Size = {}] ",
           retryAttempt,
           et - st,
+          withTimeout,
           gq.query,
           gq.promises.size
         )
@@ -68,7 +70,8 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
             gq.query,
             gq.promises.size
           )
-          throw clientEx
+          retryAbleTransaction(gq, retryAttempt + 1, false)
+          //          throw clientEx
         } else {
           retryAbleTransaction(gq, retryAttempt + 1)
         }
