@@ -1,9 +1,8 @@
 package com.bharatsim.engine.distributed
 
-import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.Behavior
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop
-import com.bharatsim.engine.distributed.store.ActorBasedStore.DBQuery
 import com.bharatsim.engine.execution.simulation.{PostSimulationActions, PreSimulationActions}
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 import com.typesafe.scalalogging.LazyLogging

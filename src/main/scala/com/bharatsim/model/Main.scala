@@ -9,6 +9,7 @@ import com.bharatsim.engine.dsl.SyntaxHelpers._
 import com.bharatsim.engine.execution.Simulation
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.fsm.State
+import com.bharatsim.engine.graph.custom.BufferedGraphWithAutoSync
 import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.intervention.{IntervalBasedIntervention, Intervention}
@@ -29,7 +30,6 @@ object Main extends LazyLogging {
     implicit val context: Context = Simulation.init()
     context.setDynamics(Disease)
     try {
-      Simulation.init()
 
       addLockdown
       vaccination

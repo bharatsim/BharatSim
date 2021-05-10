@@ -42,11 +42,8 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
                 skip,
                 simulationContext.getCurrentStep
               )
-              val behaviourControl = new BehaviourControl(simulationContext)
-              val stateControl = new StateControl(simulationContext)
-              val agentExecutor = new AgentExecutor(behaviourControl, stateControl)
-              new AgentProcessingStream(label, agentExecutor, simulationContext)(context.system)
-                .startWithState(nodeIds)
+              new AgentProcessingStream(label, simulationContext)(context.system)
+                .start(nodeIds)
                 .onComplete {
                   case Success(_)  => sender ! FetchWork(context.self)
                   case Failure(ex) => ex.printStackTrace()

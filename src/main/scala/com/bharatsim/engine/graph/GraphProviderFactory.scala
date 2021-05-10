@@ -4,6 +4,7 @@ import java.net.URI
 
 import akka.actor.typed.ActorSystem
 import com.bharatsim.engine.ApplicationConfigFactory
+import com.bharatsim.engine.graph.custom.BufferedGraphWithAutoSync
 import com.bharatsim.engine.graph.neo4j.{BatchWriteNeo4jProvider, Neo4jConfig, Neo4jProvider}
 
 private[engine] object GraphProviderFactory {
@@ -11,7 +12,7 @@ private[engine] object GraphProviderFactory {
   private lazy val config = ApplicationConfigFactory.config
 
   def init(): Unit = {
-    graphProvider = new Neo4jProvider(makeNeo4jConfig())
+    graphProvider = BufferedGraphWithAutoSync()
   }
 
   def initLazyNeo4j(system: ActorSystem[Nothing]): Unit = {
