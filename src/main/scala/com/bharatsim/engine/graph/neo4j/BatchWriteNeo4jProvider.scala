@@ -3,11 +3,9 @@ package com.bharatsim.engine.graph.neo4j
 import java.util
 import java.util.Date
 import java.util.concurrent.ConcurrentLinkedDeque
-import java.util.concurrent.atomic.AtomicInteger
 
 import akka.actor.typed.ActorSystem
 import com.bharatsim.engine.distributed.DBBookmark
-import com.bharatsim.engine.distributed.streams.{ReadOperationsStream, WriteOperationsStream}
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion.GraphData
@@ -20,7 +18,6 @@ import org.neo4j.driver.{Bookmark, Record, Session, Transaction}
 
 import scala.annotation.tailrec
 import scala.concurrent.duration.Duration.Inf
-import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 import scala.jdk.CollectionConverters.{IterableHasAsJava, ListHasAsScala, MapHasAsJava, MapHasAsScala}
 import scala.util.{Failure, Success}
@@ -88,7 +85,7 @@ private[engine] class BatchWriteNeo4jProvider(
                    |RETURN collect({props: properties(o), id: id(o), labels: labels(o) }) as toNodes , uuid """.stripMargin
 
     val promisedRecord = Promise[Record]()
-    val substituableQuery = SubstituableQuery(query, parameters("nodeId", nodeId).asMap())
+    val substituableQuery = SubstitutableQuery(query, parameters("nodeId", nodeId).asMap())
     val enqueTime = readOperations.enqueue(
       QueryWithPromise(
         substituableQuery,
@@ -113,7 +110,6 @@ private[engine] class BatchWriteNeo4jProvider(
           case Success(value)     => logger.info("timeout promise succeded now ex {}", value)
         })(ExecutionContext.global)
         throw ex
-//        List.empty
     }
   }
 
@@ -127,7 +123,7 @@ private[engine] class BatchWriteNeo4jProvider(
                    |""".stripMargin
 
     val promisedRecord = Promise[Record]()
-    val substituableQuery = SubstituableQuery(query, parameters(paramList: _*).asMap())
+    val substituableQuery = SubstitutableQuery(query, parameters(paramList: _*).asMap())
     val enqueTime = readOperations.enqueue(
       QueryWithPromise(
         substituableQuery,
@@ -141,10 +137,8 @@ private[engine] class BatchWriteNeo4jProvider(
 
     } catch {
       case ex: Throwable =>
-        logger.info("failed for  node {}, ex {} enque time", nodeId, ex.getMessage, enqueTime)
-//        ex.printStackTrace()
+        logger.info("failed for  node {}, ex {} enqueue time", nodeId, ex.getMessage, enqueTime)
         throw ex
-//        0
     }
   }
 
@@ -161,7 +155,7 @@ private[engine] class BatchWriteNeo4jProvider(
     val promisedRecord = Promise[Record]()
     queryQueue.push(
       QueryWithPromise(
-        SubstituableQuery(
+        SubstitutableQuery(
           s"""OPTIONAL MATCH (node1) WHERE id(node1) = props.nodeId1
           |OPTIONAL MATCH (node2) WHERE id(node2) = props.nodeId2
           |CREATE (node1)-[:$label]-> (node2)""".stripMargin,
@@ -175,7 +169,7 @@ private[engine] class BatchWriteNeo4jProvider(
   override def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = {
     queryQueue.push(
       QueryWithPromise(
-        SubstituableQuery(
+        SubstitutableQuery(
           {
             val expandedProps = toMatchCriteria("n", "props", props, ",")
             s"""OPTIONAL MATCH (n) where id(n) = props.nodeId
@@ -195,7 +189,7 @@ private[engine] class BatchWriteNeo4jProvider(
   override def deleteNode(nodeId: NodeId): Unit = {
     queryQueue.push(
       QueryWithPromise(
-        SubstituableQuery(
+        SubstitutableQuery(
           s"""OPTIONAL MATCH (n) where id(n) = props.nodeId
                                      |DETACH DELETE n""".stripMargin,
           parameters("nodeId", nodeId).asMap()
@@ -208,7 +202,7 @@ private[engine] class BatchWriteNeo4jProvider(
   override def deleteRelationship(from: NodeId, label: String, to: NodeId): Unit = {
     queryQueue.push(
       QueryWithPromise(
-        SubstituableQuery(
+        SubstitutableQuery(
           s"""OPTIONAL MATCH (node1) where id(node1) = props.from
              |OPTIONAL MATCH (node2) where id(node2) = props.to
              |OPTIONAL MATCH (node1)-[rel:$label]->(node2)
@@ -223,7 +217,7 @@ private[engine] class BatchWriteNeo4jProvider(
   override def deleteNodes(label: String, props: Map[String, Any]): Unit = {
     queryQueue.push(
       QueryWithPromise(
-        SubstituableQuery(
+        SubstitutableQuery(
           {
             val matchCriteria = toMatchCriteria("n", "props", props, "AND")
             s"""OPTIONAL MATCH (n:$label) WHERE $matchCriteria
@@ -255,7 +249,7 @@ private[engine] class BatchWriteNeo4jProvider(
 
   def executeWrite(query: String, params: java.util.HashMap[String, Object]): Future[Record] = {
     val p = Promise[Record]()
-    queryQueue.push(QueryWithPromise(SubstituableQuery(query, params), p))
+    queryQueue.push(QueryWithPromise(SubstitutableQuery(query, params), p))
     p.future
   }
 

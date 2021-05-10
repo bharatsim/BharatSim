@@ -49,7 +49,7 @@ class DistributedTickLoop(
           } else {
             preTickActions.execute(currentTick)
             notifyWorkersNewTick()
-            new WorkDistributorV2(workerList, context.self, simulationContext)
+            new WorkDistributor(workerList, context.self, simulationContext)
               .init(context)
             Behaviors.same
           }

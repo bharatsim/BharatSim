@@ -6,12 +6,12 @@ import akka.actor.typed.{ActorRef, Behavior}
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.{CborSerializable, WorkerManager}
 import com.bharatsim.engine.distributed.WorkerManager.{NoWork, Work}
-import com.bharatsim.engine.distributed.actors.WorkDistributorV2._
+import com.bharatsim.engine.distributed.actors.WorkDistributor._
 
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-class WorkDistributorV2(
+class WorkDistributor(
     workers: Array[ActorRef[WorkerManager.Command]],
     tickLoop: ActorRef[DistributedTickLoop.Command],
     simulationContext: Context
@@ -79,14 +79,14 @@ class WorkDistributorV2(
   def init(system: ActorContext[_]): Unit = {
     if (labels.hasNext) {
       val actor = system.spawn(self(labels.next(), 0), "distributor")
-      actor ! WorkDistributorV2.Start()
+      actor ! WorkDistributor.Start()
     } else {
       tickLoop ! DistributedTickLoop.ReadsFinished
     }
   }
 }
 
-object WorkDistributorV2 {
+object WorkDistributor {
   sealed trait Command extends CborSerializable
 
   case class Start() extends Command

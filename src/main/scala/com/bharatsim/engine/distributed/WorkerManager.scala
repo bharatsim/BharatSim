@@ -7,8 +7,8 @@ import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.WorkerManager._
 import com.bharatsim.engine.distributed.actors.Barrier.WorkFinished
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.ContextUpdateDone
-import com.bharatsim.engine.distributed.actors.WorkDistributorV2.{AckNoWork, ExhaustedFor, FetchWork}
-import com.bharatsim.engine.distributed.actors.{Barrier, WorkDistributorV2}
+import com.bharatsim.engine.distributed.actors.WorkDistributor.{AckNoWork, ExhaustedFor, FetchWork}
+import com.bharatsim.engine.distributed.actors.{Barrier, WorkDistributor}
 import com.bharatsim.engine.distributed.streams.AgentProcessingStream
 import com.bharatsim.engine.execution.AgentExecutor
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
@@ -88,7 +88,7 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
         }
     }
 
-  def waitForChildren(distributor: ActorRef[WorkDistributorV2.Command]): Behavior[Command] =
+  def waitForChildren(distributor: ActorRef[WorkDistributor.Command]): Behavior[Command] =
     Behaviors.receivePartial {
       case (context, BarrierReply(_)) =>
         context.log.info("All children finished")
@@ -104,9 +104,9 @@ object WorkerManager {
       bookmarks: List[DBBookmark],
       replyTo: ActorRef[ContextUpdateDone]
   ) extends Command
-  case class Work(label: String, skip: Int, limit: Int, sender: ActorRef[WorkDistributorV2.Command]) extends Command
-  case class NoWork(confirmTo: ActorRef[WorkDistributorV2.Command]) extends Command
-  case class ChildrenFinished(distributor: ActorRef[WorkDistributorV2.Command]) extends Command
+  case class Work(label: String, skip: Int, limit: Int, sender: ActorRef[WorkDistributor.Command]) extends Command
+  case class NoWork(confirmTo: ActorRef[WorkDistributor.Command]) extends Command
+  case class ChildrenFinished(distributor: ActorRef[WorkDistributor.Command]) extends Command
   case class ExecutePendingWrites(replyTo: ActorRef[Barrier.Request]) extends Command
   case class BarrierReply(barrierMessage: Barrier.Reply) extends Command
 }

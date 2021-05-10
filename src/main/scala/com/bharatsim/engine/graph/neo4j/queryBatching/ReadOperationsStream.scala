@@ -1,4 +1,4 @@
-package com.bharatsim.engine.distributed.streams
+package com.bharatsim.engine.graph.neo4j.queryBatching
 
 import java.time
 import java.util.Date
@@ -6,13 +6,12 @@ import java.util.Date
 import akka.actor.typed.{ActorSystem, DispatcherSelector}
 import akka.stream.scaladsl.{Keep, Sink, Source}
 import akka.stream.{OverflowStrategy, QueueOfferResult}
-import com.bharatsim.engine.graph.neo4j.queryBatching.QueryWithPromise
 import com.bharatsim.engine.{ApplicationConfig, ApplicationConfigFactory}
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.SessionConfig.builder
-import org.neo4j.driver.internal.InternalRecord
 import org.neo4j.driver._
 import org.neo4j.driver.exceptions.ClientException
+import org.neo4j.driver.internal.InternalRecord
 
 import scala.annotation.tailrec
 import scala.concurrent.duration.{Duration, DurationInt}
@@ -36,7 +35,11 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
   }
 
   @tailrec
-  private def retryAbleTransaction(gq: GQ, retryAttempt: Int = 1, withTimeout: Boolean = true): GQResult = {
+  private def retryAbleTransaction(
+      gq: GroupedQuery,
+      retryAttempt: Int = 1,
+      withTimeout: Boolean = true
+  ): GroupedQueryResult = {
     try {
       val session = neo4jConnection.session(sessionConfig)
       val st = new Date().getTime
@@ -61,7 +64,7 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
           gq.promises.size
         )
       }
-      GQResult(resultList, gq, et - st)
+      GroupedQueryResult(resultList, gq, et - st)
     } catch {
       case clientEx: ClientException => {
         if (retryAttempt == config.readTransactionMaxRetry) {
@@ -84,7 +87,7 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
   private val sourceQueue = Source
     .queue[QueryWithPromise](config.processBatchSize * 2, OverflowStrategy.backpressure, config.processBatchSize)
     .groupedWithin(config.readBatchSize, config.readWaitTime.millisecond)
-    .mapAsyncUnordered(config.readParallelism)(group => Future { GroupUnOrdered(group).prepareGroups() })
+    .mapAsyncUnordered(config.readParallelism)(group => Future { UnorderedGroup(group).prepareGroups() })
     .flatMapConcat(groupedQueries => Source(groupedQueries.toList))
     .mapAsyncUnordered(config.readParallelism)(gq => {
       Future {
@@ -97,10 +100,10 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
         }
       }
     })
-    .toMat(Sink.foreachAsync(config.readParallelism)((gqResult: GQResult) => {
+    .toMat(Sink.foreachAsync(config.readParallelism)((gqResult: GroupedQueryResult) => {
       Future {
         val records = gqResult.records
-        val gq = gqResult.gq
+        val gq = gqResult.groupedQuery
         val promises = gq.promises
         val query = gq.query
         val props = gq.props.get("propsList").asInstanceOf[java.util.Collection[Object]]
@@ -133,14 +136,14 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
   def enqueue(query: QueryWithPromise): Long = {
 
     val st = new Date().getTime
-    val p = sourceQueue.offer(query)
-//
-    p.onComplete({
+    val eventualOfferResult = sourceQueue.offer(query)
+
+    eventualOfferResult.onComplete({
       case Success(value)     => if (value != QueueOfferResult.enqueued) logger.info("success enqueue {}", value)
       case Failure(exception) => logger.info("failed to enqueue")
     })
 
-    val result = Await.result(p, Duration.Inf)
+    val result = Await.result(eventualOfferResult, Duration.Inf)
 
     val diff = new Date().getTime - st
     if (diff > 500) {

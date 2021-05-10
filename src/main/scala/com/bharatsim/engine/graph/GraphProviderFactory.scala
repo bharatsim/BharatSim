@@ -6,7 +6,6 @@ import akka.actor.typed.{ActorRef, ActorSystem}
 import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.distributed.store.ActorBasedStore.DBQuery
 import com.bharatsim.engine.distributed.store.{ActorBasedGraphProvider, ActorBasedStore}
-import com.bharatsim.engine.distributed.streams.ReadOperationsStream
 import com.bharatsim.engine.graph.neo4j.{BatchWriteNeo4jProvider, Neo4jConfig, Neo4jProvider}
 
 private[engine] object GraphProviderFactory {
