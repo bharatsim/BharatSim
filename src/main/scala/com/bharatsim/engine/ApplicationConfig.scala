@@ -10,7 +10,6 @@ class ApplicationConfig {
   lazy val countBatchSize: Int = config.getInt("bharatsim.engine.distributed.count-batch-size")
   lazy val publicPlaceCount: Int = config.getInt("bharatsim.engine.execution.public-places-count")
 
-  lazy val storeActorCount: Int = config.getInt("bharatsim.engine.distributed.data-store-node.actor-count")
   lazy val workerActorCount: Int = config.getInt("bharatsim.engine.distributed.worker-node.actor-count")
 
   lazy val nodeFetchBatchSize: Int = config.getInt("bharatsim.engine.distributed.node-fetch-batch-size")
@@ -35,9 +34,6 @@ class ApplicationConfig {
 
   val simulationSteps: Int = config.getInt("bharatsim.engine.execution.simulation-steps")
 
-  def hasDataStoreRole(): Boolean = {
-    executionMode == Distributed && role == Role.DataStore
-  }
   def hasEngineMainRole(): Boolean = {
     executionMode == Distributed && role == Role.EngineMain
   }

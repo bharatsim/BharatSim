@@ -2,10 +2,8 @@ package com.bharatsim.engine.graph
 
 import java.net.URI
 
-import akka.actor.typed.{ActorRef, ActorSystem}
+import akka.actor.typed.ActorSystem
 import com.bharatsim.engine.ApplicationConfigFactory
-import com.bharatsim.engine.distributed.store.ActorBasedStore.DBQuery
-import com.bharatsim.engine.distributed.store.{ActorBasedGraphProvider, ActorBasedStore}
 import com.bharatsim.engine.graph.neo4j.{BatchWriteNeo4jProvider, Neo4jConfig, Neo4jProvider}
 
 private[engine] object GraphProviderFactory {
@@ -14,14 +12,6 @@ private[engine] object GraphProviderFactory {
 
   def init(): Unit = {
     graphProvider = new Neo4jProvider(makeNeo4jConfig())
-  }
-
-  def init(dataStoreRef: ActorRef[DBQuery], system: ActorSystem[Nothing]): Unit = {
-    graphProvider = new ActorBasedGraphProvider(dataStoreRef)(system)
-  }
-
-  def initDataStore(): Unit = {
-    graphProvider = ActorBasedStore.graphProvider
   }
 
   def initLazyNeo4j(system: ActorSystem[Nothing]): Unit = {
