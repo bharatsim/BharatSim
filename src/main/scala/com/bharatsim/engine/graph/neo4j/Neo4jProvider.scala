@@ -122,25 +122,6 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
     nodes.asScala
   }
 
-  override def fetchNodesWithSkipAndLimit(
-      label: String,
-      params: Map[String, Any],
-      skip: Int,
-      limit: Int
-  ): Iterable[GraphNode] = {
-    val session = createSession
-
-    val nodes: util.List[GraphNode] = session.readTransaction((tx: Transaction) => {
-      val paramsMapJava = params.map(kv => (kv._1, value(kv._2))).asJava
-
-      val result = tx.run(makeMatchNodeQuery(label, params, Some(skip), Some(limit)), value(paramsMapJava))
-
-      result.list[GraphNode](record => extractGraphNode(label, record))
-    })
-    session.close()
-    nodes.asScala
-  }
-
   override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
     val patternWithParams = PatternMaker.from(matchPattern, "a")
 
@@ -199,26 +180,6 @@ private[engine] class Neo4jProvider(config: Neo4jConfig) extends GraphProvider w
 
         result.single().get("matchingCount").asInt()
       })
-
-    session.close()
-    retValue
-  }
-
-  override def fetchById(id: NodeId): Option[GraphNode] = {
-    val session = createSession
-
-    val retValue = session.readTransaction((tx: Transaction) => {
-
-      val result = tx.run("""MATCH (n) where id(n)=$id
-          |return labels(n) as nodeLabels, properties(n) AS node, id(n) AS nodeId""".stripMargin, parameters("id", id))
-
-      if (result.hasNext) {
-        val record = result.next()
-        Some(extractGraphNode("", record))
-      } else {
-        None
-      }
-    })
 
     session.close()
     retValue

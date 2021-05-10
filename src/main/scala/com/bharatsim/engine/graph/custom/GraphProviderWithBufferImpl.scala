@@ -3,22 +3,14 @@ package com.bharatsim.engine.graph.custom
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
-import com.bharatsim.engine.graph.{GraphNode, GraphProvider, PartialGraphNode}
+import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
 
 import scala.collection.concurrent.TrieMap
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 private[engine] class GraphProviderWithBufferImpl(private var graphOperations: GraphOperations) extends GraphProvider {
-  private val ingestedCsvs: mutable.ListBuffer[String] = ListBuffer.empty
   override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
     super.ingestFromCsv(csvPath, mapper)
-    ingestedCsvs.addOne(csvPath)
     syncBuffers()
-  }
-
-  def isIngested(csvPath: String): Boolean = {
-    ingestedCsvs.contains(csvPath)
   }
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
     graphOperations.writeOperations.createRelationship(node1, label, node2)
@@ -38,31 +30,6 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
 
   override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
     graphOperations.readOperations.fetchNodes(label, matchPattern)
-  }
-
-  override def fetchNodesWithSkipAndLimit(
-      label: String,
-      params: Map[String, Any],
-      skip: Int,
-      limit: Int
-  ): Iterable[GraphNode] = {
-    graphOperations.readOperations.fetchNodes(label, params, skip, limit)
-  }
-
-  // TODO implement for other data store implementations as well
-  override def fetchNodesSelect(
-      label: String,
-      select: Set[String],
-      where: MatchPattern,
-      skip: Int,
-      limit: Int
-  ): Iterable[PartialGraphNode] = {
-    graphOperations.readOperations.fetchNodesSelect(label, select, where, skip, limit)
-  }
-
-  // TODO implement for other data store implementations as well
-  override def fetchById(id: NodeId): Option[GraphNode] = {
-    graphOperations.readOperations.fetchByNodeId(id)
   }
 
   override def fetchCount(label: String, matchPattern: MatchPattern): Int = {

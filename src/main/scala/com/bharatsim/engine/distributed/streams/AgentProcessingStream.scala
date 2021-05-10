@@ -22,16 +22,6 @@ class AgentProcessingStream(label: String, simulationContext: Context)(implicit
   private val behaviourControl = new BehaviourControl(simulationContext)
   private val stateControl = new DistributeStateControl(simulationContext)
 
-  def fetch(agentId: NodeId): Future[Agent] =
-    Future {
-      val gn = simulationContext.graphProvider
-        .asInstanceOf[BatchNeo4jProvider]
-        .fetchById(agentId)
-        .get
-      val decoder = simulationContext.agentTypes(label)
-      gn.as(decoder)
-    }
-
   def decode(gn: GraphNode): Future[Agent] =
     Future {
       val decoder = simulationContext.agentTypes(label)
