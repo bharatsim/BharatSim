@@ -133,9 +133,8 @@ trait GraphProvider extends LazyLogging {
       val batchCounter = new AtomicInteger(0)
       val csvRows = CSVReader.open(csvPath).iteratorWithHeaders.to(LazyList)
 
-      val blockingIODispatcher = DispatcherSelector.fromConfig("akka.actor.default-blocking-io-dispatcher")
       implicit val actorSystem = ActorSystem(Behaviors.empty[Any], "Ingestion")
-      implicit val ec: ExecutionContext = actorSystem.dispatchers.lookup(blockingIODispatcher)
+      implicit val ec: ExecutionContext = actorSystem.dispatchers.lookup(DispatcherSelector.blocking())
       val f = Source(csvRows)
         .mapAsync(config.ingestionMapParallelism)(row => {
           Future {

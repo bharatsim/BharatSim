@@ -20,8 +20,7 @@ import scala.jdk.CollectionConverters.IterableHasAsJava
 import scala.util.{Failure, Success}
 
 class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: ActorSystem[_]) extends LazyLogging {
-  private implicit val ec: ExecutionContext =
-    actorSystem.dispatchers.lookup(DispatcherSelector.fromConfig("dispatchers.data-store-blocking"))
+  private implicit val ec: ExecutionContext = actorSystem.dispatchers.lookup(DispatcherSelector.blocking())
 
   private val config: ApplicationConfig = ApplicationConfigFactory.config
 

@@ -7,7 +7,7 @@ import com.bharatsim.engine.execution.AgentExecutor
 import com.bharatsim.engine.execution.control.{BehaviourControl, DistributeStateControl, StateControl}
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.neo4j.BatchWriteNeo4jProvider
+import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
 import com.bharatsim.engine.models.{Agent, StatefulAgent}
 import com.bharatsim.engine.{ApplicationConfigFactory, Context}
 
@@ -25,7 +25,7 @@ class AgentProcessingStream(label: String, simulationContext: Context)(implicit
   def fetch(agentId: NodeId): Future[Agent] =
     Future {
       val gn = simulationContext.graphProvider
-        .asInstanceOf[BatchWriteNeo4jProvider]
+        .asInstanceOf[BatchNeo4jProvider]
         .fetchById(agentId)
         .get
       val decoder = simulationContext.agentTypes(label)

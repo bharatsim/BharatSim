@@ -22,14 +22,14 @@ object Guardian extends LazyLogging {
     val cluster = Cluster(context.system)
 
     if (cluster.selfMember.hasRole(Worker.toString)) {
-      GraphProviderFactory.initLazyNeo4j(context.system)
+      GraphProviderFactory.initLazyNeo4j()
       val simulationContext = Context()
       simulationDefinition.simulationBody(simulationContext)
       createWorker(context, simulationContext)
     }
 
     if (cluster.selfMember.hasRole(EngineMain.toString)) {
-      GraphProviderFactory.initLazyNeo4j(context.system)
+      GraphProviderFactory.initLazyNeo4j()
       val simulationContext = Context()
 
       if (config.disableIngestion) {

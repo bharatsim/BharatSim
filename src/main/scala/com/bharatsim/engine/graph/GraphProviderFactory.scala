@@ -2,10 +2,9 @@ package com.bharatsim.engine.graph
 
 import java.net.URI
 
-import akka.actor.typed.ActorSystem
 import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.graph.custom.BufferedGraphWithAutoSync
-import com.bharatsim.engine.graph.neo4j.{BatchWriteNeo4jProvider, Neo4jConfig, Neo4jProvider}
+import com.bharatsim.engine.graph.neo4j.{BatchNeo4jProvider, Neo4jConfig}
 
 private[engine] object GraphProviderFactory {
   private var graphProvider: GraphProvider = null
@@ -15,8 +14,8 @@ private[engine] object GraphProviderFactory {
     graphProvider = BufferedGraphWithAutoSync()
   }
 
-  def initLazyNeo4j(system: ActorSystem[Nothing]): Unit = {
-    graphProvider = new BatchWriteNeo4jProvider(makeNeo4jConfig(), config.writeParallelism, system)
+  def initLazyNeo4j(): Unit = {
+    graphProvider = new BatchNeo4jProvider(makeNeo4jConfig())
   }
 
   private def makeNeo4jConfig() = {

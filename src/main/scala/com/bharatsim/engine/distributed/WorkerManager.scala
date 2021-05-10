@@ -12,7 +12,7 @@ import com.bharatsim.engine.distributed.actors.{Barrier, WorkDistributor}
 import com.bharatsim.engine.distributed.streams.AgentProcessingStream
 import com.bharatsim.engine.execution.AgentExecutor
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
-import com.bharatsim.engine.graph.neo4j.BatchWriteNeo4jProvider
+import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.{Failure, Success}
@@ -31,7 +31,7 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
             )
 
             val nodeIds = simulationContext.graphProvider
-              .asInstanceOf[BatchWriteNeo4jProvider]
+              .asInstanceOf[BatchNeo4jProvider]
               .fetchWithStates(label, skip, limit)
 
             if (nodeIds.nonEmpty) {
@@ -65,7 +65,7 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
             simulationContext.setActiveIntervention(updatedContext.activeIntervention)
             simulationContext.perTickCache.clear()
             simulationContext.graphProvider
-              .asInstanceOf[BatchWriteNeo4jProvider]
+              .asInstanceOf[BatchNeo4jProvider]
               .setBookmarks(bookmarks)
             replyTo ! ContextUpdateDone()
             Behaviors.same
@@ -73,8 +73,8 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
           case ExecutePendingWrites(replyTo) =>
             logger.info("Start Write for tick {}", simulationContext.getCurrentStep)
             simulationContext.graphProvider
-              .asInstanceOf[BatchWriteNeo4jProvider]
-              .executePendingWrites(context.system)
+              .asInstanceOf[BatchNeo4jProvider]
+              .executePendingWrites()
               .onComplete {
                 case Success(bookmark) =>
                   logger.info("Pending writes executed for tick {}", simulationContext.getCurrentStep)

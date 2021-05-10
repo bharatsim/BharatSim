@@ -14,7 +14,7 @@ import com.bharatsim.engine.distributed.actors.DistributedTickLoop._
 import com.bharatsim.engine.distributed.{CborSerializable, ContextData, DBBookmark}
 import com.bharatsim.engine.execution.simulation.PostSimulationActions
 import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
-import com.bharatsim.engine.graph.neo4j.BatchWriteNeo4jProvider
+import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
 
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.duration.{Duration, DurationInt}
@@ -33,7 +33,7 @@ class DistributedTickLoop(
     private implicit val scheduler: Scheduler = context.system.scheduler
     private val workerList = fetchAvailableWorkers(context)
     simulationContext.graphProvider
-      .asInstanceOf[BatchWriteNeo4jProvider]
+      .asInstanceOf[BatchNeo4jProvider]
       .setBookmarks(bookmarks)
     actorContext.self ! CurrentTick
 
@@ -75,8 +75,8 @@ class DistributedTickLoop(
     private def executePendingWrites(): Unit = {
       context.log.info("Started executing pending writes for tick {}", simulationContext.getCurrentStep)
       val f = simulationContext.graphProvider
-        .asInstanceOf[BatchWriteNeo4jProvider]
-        .executePendingWrites(actorContext.system)
+        .asInstanceOf[BatchNeo4jProvider]
+        .executePendingWrites()
       val bookmark = Await.result(f, Inf)
       val adaptedToBarrierReply = actorContext.messageAdapter(response => BarrierReply(response))
       val barrier =

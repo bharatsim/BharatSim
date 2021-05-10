@@ -1,7 +1,7 @@
 package com.bharatsim.engine.execution.control
 
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.graph.neo4j.BatchWriteNeo4jProvider
+import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
 import com.bharatsim.engine.models.StatefulAgent
 import org.neo4j.driver.Record
 import scala.jdk.CollectionConverters.MapHasAsJava
@@ -23,7 +23,7 @@ class DistributeStateControl(context: Context) {
       queryParams.put("agentId", statefulAgent.internalId.asInstanceOf[Object])
       queryParams.put("nodeParams", transition.serializedState(state).asJava)
       context.graphProvider
-        .asInstanceOf[BatchWriteNeo4jProvider]
+        .asInstanceOf[BatchNeo4jProvider]
         .executeWrite(
           s"""MATCH (s) where id(s) = props.stateId
              |DETACH DELETE s with 0 as something, props

@@ -5,12 +5,15 @@ import java.util.Date
 import java.util.concurrent.ConcurrentLinkedDeque
 
 import akka.actor.typed.ActorSystem
+import akka.actor.typed.scaladsl.Behaviors
+import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.distributed.DBBookmark
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion.GraphData
 import com.bharatsim.engine.graph.neo4j.queryBatching._
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
+import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.SessionConfig.builder
 import org.neo4j.driver.Values.parameters
@@ -22,13 +25,10 @@ import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 import scala.jdk.CollectionConverters.{IterableHasAsJava, ListHasAsScala, MapHasAsJava, MapHasAsScala}
 import scala.util.{Failure, Success}
 
-private[engine] class BatchWriteNeo4jProvider(
-    config: Neo4jConfig,
-    writeParallelism: Int,
-    actorSystem: ActorSystem[_]
-) extends Neo4jProvider(config)
-    with LazyLogging {
+private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvider(config) with LazyLogging {
 
+  val actorSystem: ActorSystem[_] =
+    ActorSystem(Behaviors.empty[Any], "BatchNeo4jProvider")
   private var bookmarks = List.empty[Bookmark]
   val readOperations = new ReadOperationsStream(neo4jConnection)(actorSystem)
   def setBookmarks(bookmarks: List[DBBookmark]) = {
@@ -253,7 +253,7 @@ private[engine] class BatchWriteNeo4jProvider(
     p.future
   }
 
-  def executePendingWrites(actorSystem: ActorSystem[_], lastBookmark: Option[Bookmark] = None): Future[Bookmark] = {
+  def executePendingWrites(lastBookmark: Option[Bookmark] = None): Future[Bookmark] = {
     logger.info("pending writes count {}", queryQueue.size)
     @tailrec
     def collect(
@@ -273,7 +273,7 @@ private[engine] class BatchWriteNeo4jProvider(
         Inf
       )
     if (queryQueue.isEmpty) Future(newBookmark)(actorSystem.executionContext)
-    else executePendingWrites(actorSystem, Some(newBookmark))
+    else executePendingWrites(Some(newBookmark))
   }
 
   override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
