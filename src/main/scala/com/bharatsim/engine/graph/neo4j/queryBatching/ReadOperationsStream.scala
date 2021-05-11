@@ -25,62 +25,10 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
   private val config: ApplicationConfig = ApplicationConfigFactory.config
 
   private var sessionConfig = builder().withDefaultAccessMode(AccessMode.READ).build()
-  private val transactionConfig =
-    TransactionConfig.builder().withTimeout(time.Duration.ofSeconds(config.readTransactionTimeout)).build()
 
   def setBookMarks(bookmarks: List[Bookmark]) = {
     logger.info("setting bookmarks {}", bookmarks)
     this.sessionConfig = builder().withDefaultAccessMode(AccessMode.READ).withBookmarks(bookmarks.asJava).build()
-  }
-
-  @tailrec
-  private def retryAbleTransaction(
-      gq: GroupedQuery,
-      retryAttempt: Int = 1,
-      withTimeout: Boolean = true
-  ): GroupedQueryResult = {
-    try {
-      val session = neo4jConnection.session(sessionConfig)
-      val st = new Date().getTime
-
-      val currentTransactionConfig = if (withTimeout) transactionConfig else TransactionConfig.empty()
-      val resultList = session.readTransaction(
-        (tx: Transaction) => {
-          val res = tx.run(gq.query, gq.props)
-          res.list();
-        },
-        currentTransactionConfig
-      )
-      val et = new Date().getTime
-      session.close()
-      if (retryAttempt > 1) {
-        logger.info(
-          "successful retry attempt: {} , time: {}, timeout: {}, for query  * {}  [Size = {}] ",
-          retryAttempt,
-          et - st,
-          withTimeout,
-          gq.query,
-          gq.promises.size
-        )
-      }
-      GroupedQueryResult(resultList, gq, et - st)
-    } catch {
-      case clientEx: ClientException => {
-        if (retryAttempt == config.readTransactionMaxRetry) {
-          logger.info(
-            "all retry failed please increase timeout for query  * {}  [Size = {}] ",
-            gq.query,
-            gq.promises.size
-          )
-          retryAbleTransaction(gq, retryAttempt + 1, false)
-          //          throw clientEx
-        } else {
-          retryAbleTransaction(gq, retryAttempt + 1)
-        }
-      }
-
-      case ex => throw ex;
-    }
   }
 
   private val sourceQueue = Source
@@ -91,7 +39,16 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
     .mapAsyncUnordered(config.readParallelism)(gq => {
       Future {
         try {
-          retryAbleTransaction(gq)
+          val session = neo4jConnection.session(sessionConfig)
+          val st = new Date().getTime
+
+          val resultList = session.readTransaction((tx: Transaction) => {
+            val res = tx.run(gq.query, gq.props)
+            res.list();
+          })
+          val et = new Date().getTime
+          session.close()
+          GroupedQueryResult(resultList, gq, et - st)
         } catch {
           case ex: Throwable =>
             logger.info("failed query {} with ex{}", gq.query, ex)
