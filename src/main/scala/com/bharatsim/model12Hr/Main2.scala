@@ -71,16 +71,17 @@ object Main2 extends LazyLogging {
   }
 
   private def createBasicSchedule()(implicit context: Context): Unit = {
-    val basicSchedule = (myDay, myTick)
+    val employeeSchedule = (myDay, myTick)
       .add[House](0, 0)
       .add[Office](1, 1)
 
+    val studentSchedule = (myDay, myTick)
+      .add[House](0, 0)
+      .add[School](1, 1)
+
     registerSchedules(
-      (
-        basicSchedule,
-        (agent: Agent, _: Context) => agent.asInstanceOf[Person].id > 0,
-        1
-      )
+      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isEmployee, 3),
+      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isStudent, 4)
     )
   }
 
@@ -92,13 +93,13 @@ object Main2 extends LazyLogging {
 
     val homeId = map("HHID").toLong
     val officeId = map("WorkPlaceID").toLong
+    val schoolId = map("school_id").toLong
     val publicPlaceId = generatePublicPlaceId()
 
-    val citizen: Person = Person(
-      citizenId,
-      InfectionStatus.withName(initialInfectionState),
-      0
-    )
+    val isEmployee: Boolean = officeId > 0
+    val isStudent: Boolean = schoolId > 0
+
+    val citizen: Person = Person(citizenId, InfectionStatus.withName(initialInfectionState), 0, isEmployee, isStudent)
 
     setCitizenInitialState(context, citizen)
 
@@ -114,12 +115,23 @@ object Main2 extends LazyLogging {
     graphData.addNode(publicPlaceId, PublicPlace(publicPlaceId))
     graphData.addRelations(staysAt, memberOf, visits, hosts)
 
-    val office = Office(officeId)
-    val worksAt = Relation[Person, Office](citizenId, "WORKS_AT", officeId)
-    val employerOf = Relation[Office, Person](officeId, "EMPLOYER_OF", citizenId)
+    if (isEmployee) {
+      val office = Office(officeId)
+      val worksAt = Relation[Person, Office](citizenId, "WORKS_AT", officeId)
+      val employerOf = Relation[Office, Person](officeId, "EMPLOYER_OF", citizenId)
+      graphData.addNode(officeId, office)
+      graphData.addRelations(worksAt, employerOf)
+    }
 
-    graphData.addNode(officeId, office)
-    graphData.addRelations(worksAt, employerOf)
+    if (isStudent) {
+      val school = School(schoolId)
+      val studiesAt = Relation[Person, School](citizenId, "STUDIES_AT", schoolId)
+      val studentOf = Relation[School, Person](schoolId, "STUDENT_OF", citizenId)
+
+      graphData.addNode(schoolId, school)
+      graphData.addRelations(studiesAt, studentOf)
+    }
+
     if (initialInfectionState == InfectedSevere.toString) {
       val hospitalId = 1
       val hospital = Hospital(1)

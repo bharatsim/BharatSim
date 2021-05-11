@@ -11,7 +11,9 @@ import com.bharatsim.model12Hr.diseaseState._
 case class Person(
     id: Long,
     infectionState: InfectionStatus,
-    infectedAtTick: Int
+    infectedAtTick: Int,
+    isEmployee: Boolean,
+    isStudent: Boolean
 ) extends StatefulAgent {
 
   def decodeNode(classType: String, node: GraphNode): Network = {
