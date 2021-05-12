@@ -9,7 +9,8 @@ import akka.cluster.typed.Cluster
 import com.bharatsim.engine.ApplicationConfigFactory.config
 import com.bharatsim.engine.distributed.Role._
 import com.bharatsim.engine.graph.GraphProviderFactory
-import com.bharatsim.engine.{Context, SimulationDefinition}
+import com.bharatsim.engine.Context
+import com.bharatsim.engine.execution.SimulationDefinition
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.concurrent.{ExecutionContext, Future}

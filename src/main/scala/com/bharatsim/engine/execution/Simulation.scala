@@ -69,16 +69,9 @@ object Simulation {
     val postSimulationActions = new PostSimulationActions(context)
 
     if (applicationConfig.executionMode == ActorBased) {
-      val preTickActions = new PreTickActions(context)
-      val postTickActions = new PostTickActions(context)
       val eventualDone =
         new ActorBackedSimulation(
-          applicationConfig,
-          preSimulationActions,
-          postSimulationActions,
-          preTickActions,
-          agentExecutor,
-          postTickActions
+          applicationConfig
         ).run(context)
       Await.ready(eventualDone, Duration.Inf)
     } else {

@@ -1,19 +1,14 @@
 package com.bharatsim.engine
 
-import akka.actor.typed.ActorSystem
-import com.bharatsim.engine.distributed.Guardian
-import com.typesafe.config.ConfigFactory
+import com.bharatsim.engine.execution.executors.{ActorBasedExecutor, DefaultExecutor, DistributedExecutor}
+import com.bharatsim.engine.execution.{SimulationDefinition, SimulationExecutor}
 import com.typesafe.scalalogging.LazyLogging
-
-import scala.concurrent.{Await, ExecutionContext}
-import scala.concurrent.duration.Duration.Inf
-import scala.util.{Failure, Success}
 
 class DistributedSimulation extends LazyLogging {
   private var ingestionStep: Context => Unit = _ => {}
   private var simulationBody: Context => Unit = _ => {}
   private var onComplete: Context => Unit = _ => {}
-
+  private val executionMode = ApplicationConfigFactory.config.executionMode
   def ingestData(f: (Context) => Unit): Unit = {
     ingestionStep = f
   }
@@ -22,16 +17,22 @@ class DistributedSimulation extends LazyLogging {
     simulationBody = f
   }
 
-  def run(): Unit = {
-    val simulationDef = SimulationDefinition(ingestionStep, simulationBody, onComplete)
-    val config = ConfigFactory.load("cluster").withFallback(ConfigFactory.load())
-
-    ActorSystem[Nothing](Guardian(simulationDef), "Cluster", config)
-  }
-
   def onCompleteSimulation(f: Context => Unit): Unit = {
     onComplete = f
   }
-}
 
-case class SimulationDefinition(ingestionStep: Context => Unit, simulationBody: Context => Unit, onComplete: Context => Unit)
+  private def getExecutor: SimulationExecutor = {
+    logger.info("Execution mode {}", executionMode)
+    executionMode match {
+      case Distributed => new DistributedExecutor
+      case ActorBased  => new ActorBasedExecutor
+      case _           => new DefaultExecutor
+    }
+  }
+
+  def run(): Unit = {
+    val simulationDef = SimulationDefinition(ingestionStep, simulationBody, onComplete)
+    getExecutor.execute(simulationDef)
+  }
+
+}

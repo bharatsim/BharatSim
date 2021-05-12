@@ -1,20 +1,12 @@
 package com.bharatsim.engine.graph.custom
 
-import com.bharatsim.engine.graph.{GraphNode, PartialGraphNode}
+import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.immutable._
 
 private[engine] case class InternalNode(label: String, id: NodeId, params: HashMap[String, Any]) extends LazyLogging {
-  def reduceWith(select: Set[String]): PartialGraphNode = {
-    val selectedProps = select.map(k => {
-      if(k == "id") (k, id)
-      else (k, params.getOrElse(k, null))
-    }).toMap
-
-    PartialGraphNode(label, id, selectedProps)
-  }
 
   private var relationships: HashMap[String, HashSet[NodeId]] = HashMap.empty
 

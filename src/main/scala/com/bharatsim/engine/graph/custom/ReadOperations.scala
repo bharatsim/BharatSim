@@ -1,6 +1,6 @@
 package com.bharatsim.engine.graph.custom
 
-import com.bharatsim.engine.graph.{GraphNode, PartialGraphNode}
+import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.patternMatcher.{EmptyPattern, MatchPattern}
 import com.typesafe.scalalogging.LazyLogging
@@ -8,7 +8,6 @@ import com.typesafe.scalalogging.LazyLogging
 import scala.collection.mutable
 
 class ReadOperations(buffer: Buffer) extends LazyLogging {
-  val labelledNodes: Map[String, Iterable[InternalNode]] = buffer.nodes.map(kv => (kv._1, kv._2.values)).toMap
   def clearAll(): Unit = {
     buffer.nodes.clear()
     buffer.indexedNodes.clear()
@@ -16,11 +15,11 @@ class ReadOperations(buffer: Buffer) extends LazyLogging {
 
   def fetchNode(label: String, params: Map[String, Any] = Map.empty): Option[GraphNode] = {
     if (params.isEmpty) {
-      if (labelledNodes.contains(label) && labelledNodes(label).nonEmpty) {
-        Some(labelledNodes(label).head.toGraphNode)
+      if (buffer.nodes.contains(label) && buffer.nodes(label).nonEmpty) {
+        Some(buffer.nodes(label).head._2.toGraphNode)
       } else None
     } else {
-      if (labelledNodes.contains(label) && labelledNodes(label).nonEmpty) {
+      if (buffer.nodes.contains(label) && buffer.nodes(label).nonEmpty) {
         val list = filterNodesByMatchingParams(label = label, params = params)
         if (list.nonEmpty) Some(list.head.toGraphNode)
         else None
@@ -30,24 +29,11 @@ class ReadOperations(buffer: Buffer) extends LazyLogging {
 
   def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode] = {
     if (params.isEmpty) {
-      if (labelledNodes.contains(label) && labelledNodes(label).nonEmpty) labelledNodes(label).map(_.toGraphNode)
+      if (buffer.nodes.contains(label) && buffer.nodes(label).nonEmpty) buffer.nodes(label).values.map(_.toGraphNode)
       else List.empty
     } else {
-      if (labelledNodes.contains(label) && labelledNodes(label).nonEmpty) {
+      if (buffer.nodes.contains(label) && buffer.nodes(label).nonEmpty) {
         filterNodesByMatchingParams(label = label, params = params).map(_.toGraphNode)
-      } else List.empty
-    }
-  }
-
-
-  def fetchNodes(label: String, params: Map[String, Any], skip: Int, limit: Int): Iterable[GraphNode] = {
-    if (params.isEmpty) {
-      if (labelledNodes.contains(label) && labelledNodes(label).nonEmpty)
-        labelledNodes(label).slice(skip, skip + limit).map(_.toGraphNode)
-      else List.empty
-    } else {
-      if (labelledNodes.contains(label) && labelledNodes(label).nonEmpty) {
-        filterNodesByMatchingParams(label = label, params = params).slice(skip, skip + limit).map(_.toGraphNode)
       } else List.empty
     }
   }
@@ -56,22 +42,10 @@ class ReadOperations(buffer: Buffer) extends LazyLogging {
     filterByPattern(label, matchPattern).map(_.toGraphNode)
   }
 
-  def fetchNodesSelect(
-      label: String,
-      select: Set[String],
-      where: MatchPattern,
-      skip: Int,
-      limit: Int
-  ): Iterable[PartialGraphNode] = {
-    filterByPattern(label, where).slice(skip, skip + limit).map(_.reduceWith(select))
-  }
-
-  def fetchByNodeId(id: NodeId): Option[GraphNode] = buffer.indexedNodes.get(id).map(_.toGraphNode)
-
   def fetchCount(label: String, matchPattern: MatchPattern): Int = {
-    labelledNodes
+    buffer.nodes
       .getOrElse(label, List.empty)
-      .count(nodesForLable => matchPattern.eval(nodesForLable.params))
+      .count(nodesForLable => matchPattern.eval(nodesForLable._2.params))
   }
 
   def fetchNeighborsOf(nodeId: NodeId, allLabels: List[String]): Iterable[GraphNode] = {
@@ -104,10 +78,9 @@ class ReadOperations(buffer: Buffer) extends LazyLogging {
   }
 
   private def filterByPattern(label: String, matchPattern: MatchPattern): Iterable[InternalNode] = {
-    if (labelledNodes.contains(label) && labelledNodes(label).nonEmpty) {
-      if(matchPattern == EmptyPattern()) {
-        labelledNodes(label)
-      } else labelledNodes(label).filter(node => matchPattern.eval(node.params))
+    if (buffer.nodes.contains(label) && buffer.nodes(label).nonEmpty) {
+      val values = buffer.nodes(label).values
+      if (matchPattern == EmptyPattern()) values else values.filter(node => matchPattern.eval(node.params))
     } else List.empty
   }
 
