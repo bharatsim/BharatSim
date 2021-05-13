@@ -25,6 +25,7 @@ libraryDependencies += "org.neo4j.test" % "neo4j-harness" % "4.0.0" % Test
 libraryDependencies += "com.github.tototoshi" %% "scala-csv" % "1.3.6"
 libraryDependencies += "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.39.3" % "test"
 libraryDependencies += "com.dimafeng" %% "testcontainers-scala-neo4j" % "0.39.3" % "test"
+libraryDependencies += "com.lightbend.akka" %% "akka-stream-alpakka-csv" % "2.0.2"
 
 Compile / doc / scalacOptions := Seq("-skip-packages", "com.bharatsim.model")
 

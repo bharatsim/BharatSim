@@ -1,10 +1,12 @@
 package com.bharatsim.engine.graph
 
+import java.nio.file.Paths
 import java.util.concurrent.atomic.AtomicInteger
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorSystem, DispatcherSelector}
-import akka.stream.scaladsl.Source
+import akka.stream.alpakka.csv.scaladsl.{CsvParsing, CsvToMap}
+import akka.stream.scaladsl.FileIO
 import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.basicConversions.BasicConversions
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
@@ -14,7 +16,6 @@ import com.bharatsim.engine.graph.ingestion._
 import com.bharatsim.engine.graph.patternMatcher.{EmptyPattern, MatchPattern}
 import com.bharatsim.engine.models.Node
 import com.bharatsim.engine.utils.Utils.fetchClassName
-import com.github.tototoshi.csv.CSVReader
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.mutable
@@ -131,11 +132,13 @@ trait GraphProvider extends LazyLogging {
       val config = ApplicationConfigFactory.config
       val refToIdMapping = new RefToIdMapping()
       val batchCounter = new AtomicInteger(0)
-      val csvRows = CSVReader.open(csvPath).iteratorWithHeaders.to(LazyList)
 
       implicit val actorSystem = ActorSystem(Behaviors.empty[Any], "Ingestion")
       implicit val ec: ExecutionContext = actorSystem.dispatchers.lookup(DispatcherSelector.blocking())
-      val f = Source(csvRows)
+      val f = FileIO
+        .fromPath(Paths.get(csvPath))
+        .via(CsvParsing.lineScanner())
+        .via(CsvToMap.toMapAsStrings())
         .mapAsync(config.ingestionMapParallelism)(row => {
           Future {
             mapper.get.apply(row)
