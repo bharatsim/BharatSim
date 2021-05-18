@@ -12,6 +12,7 @@ class DefaultExecutor extends SimulationExecutor {
     val maxSteps = context.simulationConfig.simulationSteps
     val executionMode = ApplicationConfigFactory.config.executionMode
     val executorContext = new ExecutorContext(context)
+    val actions = executorContext.actions
     @tailrec
     def loop(currentStep: Int): Unit = {
       val endOfSimulation = currentStep > maxSteps || context.stopSimulation
@@ -20,9 +21,9 @@ class DefaultExecutor extends SimulationExecutor {
         val tick = new Tick(
           currentStep,
           context,
-          executorContext.preTickActions,
+          actions.preTick,
           executorContext.agentExecutor,
-          executorContext.postTickActions
+          actions.postTick
         )
         tick.preStepActions()
 
@@ -36,10 +37,10 @@ class DefaultExecutor extends SimulationExecutor {
     }
 
     try {
-      executorContext.preSimulationActions.execute()
+      actions.preSimulation.execute()
       loop(1)
     } finally {
-      executorContext.postSimulationActions.execute()
+      actions.postSimulation.execute()
     }
   }
 

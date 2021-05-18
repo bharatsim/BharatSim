@@ -1,96 +1,67 @@
 package com.bharatsim.engine.distributed.actors
 
-import akka.actor.Address
-import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
+import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
-import com.bharatsim.engine.Context
-import com.bharatsim.engine.distributed.{CborSerializable, WorkerManager}
-import com.bharatsim.engine.distributed.WorkerManager.{NoWork, Work}
+import com.bharatsim.engine.distributed.WorkerManager.Work
+import com.bharatsim.engine.distributed.actors.Barrier.{NotifyOnBarrierFinished, WorkFinished}
 import com.bharatsim.engine.distributed.actors.WorkDistributor._
-
-import scala.annotation.tailrec
-import scala.collection.mutable
+import com.bharatsim.engine.distributed.{CborSerializable, WorkerManager}
 
 class WorkDistributor(
-    workers: Array[ActorRef[WorkerManager.Command]],
-    tickLoop: ActorRef[DistributedTickLoop.Command],
-    simulationContext: Context
-) {
-  private val labels = simulationContext.agentLabels.iterator
-  private val limit = simulationContext.simulationConfig.countBatchSize
-  private val finishedWorkers = mutable.HashSet.empty[Address]
+    context: ActorContext[Command],
+    barrier: ActorRef[Barrier.Request],
+    workers: List[ActorRef[WorkerManager.Command]],
+    work: DistributableWork
+) extends AbstractBehavior(context) {
 
-  def self(label: String, skip: Int, endOfWork: Boolean = false): Behavior[Command] =
-    Behaviors.setup { context =>
-      def handleStart(label: String): Behavior[Command] = {
-        @tailrec
-        def sendToAll(
-            workerIterator: Iterator[ActorRef[WorkerManager.Command]],
-            skipRec: Int
-        ): Behavior[Command] = {
-          if (workerIterator.hasNext) {
-            val cur = workerIterator.next()
-            cur ! Work(label, skipRec, limit, context.self)
-            sendToAll(workerIterator, skipRec + limit)
-          } else {
-            self(label, skipRec)
-          }
-        }
+  private def sendWorkToAll(): Behavior[Command] = {
+    val pendingWork = workers.foldLeft(work) { (pendingWork, worker) =>
+      worker ! Work(pendingWork.agentLabel, pendingWork.finishedCount, pendingWork.batchSize, context.self)
+      pendingWork.nextBatch
+    }
+    new WorkDistributor(context, barrier, workers, pendingWork)
+  }
 
-        sendToAll(workers.iterator, skip)
+  override def onMessage(msg: Command): Behavior[Command] = {
+    msg match {
+      case Start => {
+        barrier ! NotifyOnBarrierFinished(context.messageAdapter(_ => Stop))
+        sendWorkToAll()
       }
+      case AgentLabelExhausted(exhausted) =>
+        if (!work.isComplete && work.agentLabel == exhausted) {
+          val nextWork = work.nextAgentLabel
+          new WorkDistributor(context, barrier, workers, nextWork)
+        } else Behaviors.same
 
-      def handleFetch(
-          label: String,
-          skip: Int,
-          limit: Int,
-          endOfWork: Boolean,
-          sendTo: ActorRef[WorkerManager.Command]
-      ): Behavior[Command] = {
-        if (endOfWork) {
-          sendTo ! NoWork(context.self)
+      case FetchWork(sendTo: ActorRef[WorkerManager.Command]) =>
+        if (work.isComplete) {
+          barrier ! WorkFinished()
           Behaviors.same
         } else {
-          sendTo ! Work(label, skip, limit, context.self)
-          self(label, skip + limit)
+          sendTo ! Work(work.agentLabel, work.finishedCount, work.batchSize, context.self)
+          val nextWork = work.nextBatch
+          new WorkDistributor(context, barrier, workers, nextWork)
         }
-      }
-
-      Behaviors.receiveMessage {
-        case Start() => handleStart(label)
-        case ExhaustedFor(exhausted) =>
-          if (!endOfWork) {
-            if (label == exhausted) {
-              if (labels.hasNext) self(labels.next(), 0)
-              else self("", 0, endOfWork = true)
-            } else Behaviors.same
-          } else Behaviors.same
-        case FetchWork(sendTo: ActorRef[WorkerManager.Command]) =>
-          handleFetch(label, skip, limit, endOfWork, sendTo)
-        case AckNoWork(from) =>
-          finishedWorkers.add(from.path.address)
-          if (finishedWorkers.size == workers.length) {
-            tickLoop ! DistributedTickLoop.ReadsFinished
-            Behaviors.stopped
-          } else Behaviors.same
-      }
-    }
-
-  def init(system: ActorContext[_]): Unit = {
-    if (labels.hasNext) {
-      val actor = system.spawn(self(labels.next(), 0), "distributor")
-      actor ! WorkDistributor.Start()
-    } else {
-      tickLoop ! DistributedTickLoop.ReadsFinished
+      case Stop => Behaviors.stopped
     }
   }
+
 }
 
 object WorkDistributor {
-  sealed trait Command extends CborSerializable
+  def apply(
+      barrier: ActorRef[Barrier.Request],
+      workers: List[ActorRef[WorkerManager.Command]],
+      work: DistributableWork
+  ): Behavior[Command] =
+    Behaviors.setup { context =>
+      new WorkDistributor(context, barrier, workers, work)
+    }
 
-  case class Start() extends Command
+  sealed trait Command extends CborSerializable
+  case object Start extends Command
   case class FetchWork(sendTo: ActorRef[WorkerManager.Command]) extends Command
-  case class ExhaustedFor(label: String) extends Command
-  case class AckNoWork(from: ActorRef[WorkerManager.Command]) extends Command
+  case class AgentLabelExhausted(label: String) extends Command
+  case object Stop extends Command
 }

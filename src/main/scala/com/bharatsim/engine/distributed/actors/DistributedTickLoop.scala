@@ -1,130 +1,101 @@
 package com.bharatsim.engine.distributed.actors
 
 import akka.actor.CoordinatedShutdown
-import akka.actor.typed.receptionist.Receptionist
-import akka.actor.typed.scaladsl.AskPattern.Askable
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
-import akka.actor.typed.{ActorRef, Behavior, Scheduler}
-import akka.util.Timeout
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.distributed.Guardian.{UserInitiatedShutdown, workerServiceKey}
-import com.bharatsim.engine.distributed.WorkerManager.{ExecutePendingWrites, StartOfNewTick}
-import com.bharatsim.engine.distributed.actors.Barrier.BarrierFinished
+import com.bharatsim.engine.distributed.Guardian.UserInitiatedShutdown
+import com.bharatsim.engine.distributed.actors.Barrier.{BarrierFinished, WorkFinished}
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop._
-import com.bharatsim.engine.distributed.{CborSerializable, ContextData, DBBookmark}
-import com.bharatsim.engine.execution.simulation.PostSimulationActions
-import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
+import com.bharatsim.engine.distributed.{CborSerializable, DBBookmark}
+import com.bharatsim.engine.execution.actions.Actions
 import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
+import com.typesafe.scalalogging.LazyLogging
 
-import scala.concurrent.duration.Duration.Inf
-import scala.concurrent.duration.{Duration, DurationInt}
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 class DistributedTickLoop(
+    actorContext: ActorContext[Command],
     simulationContext: Context,
-    preTickActions: PreTickActions,
-    postTickActions: PostTickActions,
-    postSimulationActions: PostSimulationActions
-) {
+    actions: Actions,
+    currentTick: Int,
+    bookmarks: List[DBBookmark],
+    workerCoordinator: WorkerCoordinator
+) extends AbstractBehavior(actorContext)
+    with LazyLogging {
 
-  class Tick(actorContext: ActorContext[Command], currentTick: Int, bookmarks: List[DBBookmark])
-      extends AbstractBehavior(actorContext) {
-    private implicit val seconds: Timeout = 3.seconds
-    private implicit val scheduler: Scheduler = context.system.scheduler
-    private val workerList = fetchAvailableWorkers(context)
-    simulationContext.graphProvider
-      .asInstanceOf[BatchNeo4jProvider]
-      .setBookmarks(bookmarks)
-    actorContext.self ! CurrentTick
+  star()
 
-    override def onMessage(msg: Command): Behavior[Command] =
-      msg match {
-        case CurrentTick =>
-          val endOfSimulation =
-            currentTick > simulationContext.simulationConfig.simulationSteps || simulationContext.stopSimulation
-          if (endOfSimulation) {
-            postSimulationActions.execute()
-            CoordinatedShutdown(context.system).run(UserInitiatedShutdown)
-            Behaviors.stopped
-          } else {
-            preTickActions.execute(currentTick)
-            notifyWorkersNewTick()
-            new WorkDistributor(workerList, context.self, simulationContext)
-              .init(context)
-            Behaviors.same
-          }
+  override def onMessage(msg: Command): Behavior[Command] =
+    msg match {
+      case ExecuteWrites =>
+        executePendingWrites()
+        Behaviors.same
 
-        case ReadsFinished =>
-          executePendingWrites()
-          Behaviors.same
+      case WriteFinished(bookmarks) =>
+        context.log.info("Finished executing pending writes for tick {}", simulationContext.getCurrentStep)
+        actions.postTick.execute()
+        DistributedTickLoop(simulationContext, actions, currentTick + 1, bookmarks, workerCoordinator)
+    }
 
-        case BarrierReply(r) =>
-          context.log.info("Finished executing pending writes for tick {}", simulationContext.getCurrentStep)
-          r match {
-            case BarrierFinished(bookmarks) => {
-              postTickActions.execute()
-              Tick(currentTick + 1, bookmarks)
-            }
-            case _ =>
-              postTickActions.execute()
-              Tick(currentTick + 1)
-          }
+  private def isEndOfSimulation =
+    currentTick > simulationContext.simulationConfig.simulationSteps || simulationContext.stopSimulation
 
-      }
+  private def star() = {
+    simulationContext.graphProvider.asInstanceOf[BatchNeo4jProvider].setBookmarks(bookmarks)
 
-    private def executePendingWrites(): Unit = {
-      context.log.info("Started executing pending writes for tick {}", simulationContext.getCurrentStep)
-      val f = simulationContext.graphProvider
-        .asInstanceOf[BatchNeo4jProvider]
-        .executePendingWrites()
-      val bookmark = Await.result(f, Inf)
-      val adaptedToBarrierReply = actorContext.messageAdapter(response => BarrierReply(response))
+    if (isEndOfSimulation) {
+      actions.postSimulation.execute()
+      CoordinatedShutdown(context.system).run(UserInitiatedShutdown)
+    } else {
+      actions.preTick.execute(currentTick)
+      workerCoordinator.initTick(context, simulationContext, bookmarks)
+      val adaptedReply = actorContext.messageAdapter[BarrierFinished](_ => ExecuteWrites)
       val barrier =
-        context.spawn(
-          Barrier(0, Some(workerList.length), adaptedToBarrierReply, List(DBBookmark(bookmark.values()))),
-          "write-barrier"
-        )
-      workerList.foreach(worker => worker ! ExecutePendingWrites(barrier))
+        context.spawn(Barrier(0, workerCoordinator.workerCount, adaptedReply), s"${WORK_BARRIER}-${currentTick}")
+      workerCoordinator.startWork(context, simulationContext, barrier)
     }
+  }
 
-    private def notifyWorkersNewTick(): Unit = {
-      Await.result(
-        Future.foldLeft(
-          workerList.map(worker =>
-            worker.ask((replyTo: ActorRef[ContextUpdateDone]) => {
-              val updatedContext =
-                ContextData(simulationContext.getCurrentStep, simulationContext.activeInterventionNames)
-              StartOfNewTick(updatedContext, bookmarks, replyTo)
-            })
-          )
-        )()((_, _) => ())(ExecutionContext.global),
-        Inf
-      )
-    }
+  private def executePendingWrites(): Unit = {
+    context.log.info("Started executing pending writes for tick {}", simulationContext.getCurrentStep)
+    val eventualLocalBookmark = simulationContext.graphProvider
+      .asInstanceOf[BatchNeo4jProvider]
+      .executePendingWrites()
 
-    private def fetchAvailableWorkers(context: ActorContext[Command]) = {
-      Await.result(
-        context.system.receptionist.ask[Receptionist.Listing](replyTo => Receptionist.find(workerServiceKey, replyTo)),
-        Duration.Inf
-      ) match {
-        case workerServiceKey.Listing(listings) => listings.toArray
+    val adaptedReply = actorContext.messageAdapter[BarrierFinished](response => WriteFinished(response.bookmarks))
+    val barrier =
+      context.spawn(Barrier(0, workerCoordinator.workerCount + 1, adaptedReply), s"${WRITE_BARRIER}-${currentTick}")
+
+    workerCoordinator.notifyExecuteWrites(barrier)
+
+    eventualLocalBookmark.onComplete({
+      case Success(bookmark: DBBookmark) => {
+        barrier ! WorkFinished(Some(bookmark))
       }
-    }
+      case Failure(exception) =>
+    })(context.executionContext)
   }
 
-  object Tick {
-    def apply(currentTick: Int, bookmarks: List[DBBookmark] = List.empty): Behavior[Command] = {
-      Behaviors.setup(context => new Tick(context, currentTick, bookmarks))
-    }
-  }
 }
 
 object DistributedTickLoop {
+  def apply(
+      simContext: Context,
+      actions: Actions,
+      currentTick: Int,
+      bookmarks: List[DBBookmark] = List.empty,
+      workerCoordinator: WorkerCoordinator = new WorkerCoordinator()
+  ): Behavior[Command] = {
+    Behaviors.setup(context =>
+      new DistributedTickLoop(context, simContext, actions, currentTick, bookmarks, workerCoordinator)
+    )
+  }
+  val WORK_BARRIER = "work-barrier"
+  val WRITE_BARRIER = "write-barrier"
 
   sealed trait Command extends CborSerializable
-  case object CurrentTick extends Command
-  case object ReadsFinished extends Command
-  case class BarrierReply(message: Barrier.Reply) extends Command
-
+  case object ExecuteWrites extends Command
+  case class WriteFinished(bookmarks: List[DBBookmark]) extends Command
   case class ContextUpdateDone() extends CborSerializable
 }

@@ -1,10 +1,14 @@
 package com.bharatsim.engine.execution
 
 import com.bharatsim.engine._
+import com.bharatsim.engine.execution.actions.{
+  PostSimulationActions,
+  PostTickActions,
+  PreSimulationActions,
+  PreTickActions
+}
 import com.bharatsim.engine.execution.actorbased.ActorBackedSimulation
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
-import com.bharatsim.engine.execution.simulation.{PostSimulationActions, PreSimulationActions}
-import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 import com.bharatsim.engine.graph.GraphProviderFactory
 import com.typesafe.scalalogging.LazyLogging
 

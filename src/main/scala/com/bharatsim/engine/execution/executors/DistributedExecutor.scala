@@ -8,6 +8,6 @@ import com.typesafe.config.ConfigFactory
 class DistributedExecutor extends SimulationExecutor {
   override def execute(simulationDefinition: SimulationDefinition): Unit = {
     val config = ConfigFactory.load("cluster").withFallback(ConfigFactory.load())
-    ActorSystem[Nothing](Guardian(simulationDefinition), "BSCluster", config)
+    ActorSystem[Nothing](Guardian(simulationDefinition), "Cluster", config)
   }
 }

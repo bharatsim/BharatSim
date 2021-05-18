@@ -14,6 +14,7 @@ class ApplicationConfig {
 
   lazy val nodeFetchBatchSize: Int = config.getInt("bharatsim.engine.distributed.node-fetch-batch-size")
   lazy val processBatchSize: Int = config.getInt("bharatsim.engine.distributed.process-batch-size")
+  lazy val askTimeout: Int = config.getInt("bharatsim.engine.distributed.ask-timeout")
   lazy val ingestionBatchSize: Int = config.getInt("bharatsim.engine.ingestion.batch-size")
   lazy val ingestionMapParallelism: Int = config.getInt("bharatsim.engine.ingestion.map-parallelism")
 

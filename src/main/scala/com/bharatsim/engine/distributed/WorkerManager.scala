@@ -2,16 +2,13 @@ package com.bharatsim.engine.distributed
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
-import ch.qos.logback.classic.LoggerContext
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.WorkerManager._
 import com.bharatsim.engine.distributed.actors.Barrier.WorkFinished
 import com.bharatsim.engine.distributed.actors.DistributedTickLoop.ContextUpdateDone
-import com.bharatsim.engine.distributed.actors.WorkDistributor.{AckNoWork, ExhaustedFor, FetchWork}
+import com.bharatsim.engine.distributed.actors.WorkDistributor.{AgentLabelExhausted, FetchWork}
 import com.bharatsim.engine.distributed.actors.{Barrier, WorkDistributor}
 import com.bharatsim.engine.distributed.streams.AgentProcessingStream
-import com.bharatsim.engine.execution.AgentExecutor
-import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
 import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
 import com.typesafe.scalalogging.LazyLogging
 
@@ -50,14 +47,10 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
                 }(context.executionContext)
               Behaviors.same
             } else {
-              sender ! ExhaustedFor(label)
+              sender ! AgentLabelExhausted(label)
               sender ! FetchWork(context.self)
               Behaviors.same
             }
-
-          case NoWork(confirmTo) =>
-            confirmTo ! AckNoWork(context.self)
-            Behaviors.same
 
           case StartOfNewTick(updatedContext, bookmarks, replyTo) =>
             logger.info("Start Tick {}", updatedContext.currentTick)
@@ -78,7 +71,7 @@ class WorkerManager(simulationContext: Context) extends LazyLogging {
               .onComplete {
                 case Success(bookmark) =>
                   logger.info("Pending writes executed for tick {}", simulationContext.getCurrentStep)
-                  replyTo ! WorkFinished(DBBookmark(bookmark.values()))
+                  replyTo ! WorkFinished(Some(bookmark))
               }(context.executionContext)
 
             Behaviors.same
@@ -102,7 +95,6 @@ object WorkerManager {
       replyTo: ActorRef[ContextUpdateDone]
   ) extends Command
   case class Work(label: String, skip: Int, limit: Int, sender: ActorRef[WorkDistributor.Command]) extends Command
-  case class NoWork(confirmTo: ActorRef[WorkDistributor.Command]) extends Command
   case class ChildrenFinished(distributor: ActorRef[WorkDistributor.Command]) extends Command
   case class ExecutePendingWrites(replyTo: ActorRef[Barrier.Request]) extends Command
   case class BarrierReply(barrierMessage: Barrier.Reply) extends Command

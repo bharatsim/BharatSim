@@ -1,19 +1,19 @@
 package com.bharatsim.engine.execution
 
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
+import com.bharatsim.engine.execution.actions.{PostTickActions, PreTickActions}
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.parallel.CollectionConverters.IterableIsParallelizable
 import scala.collection.parallel.{ExecutionContextTaskSupport, TaskSupport}
 
 class Tick(
-            tick: Int,
-            context: Context,
-            preTickActions: PreTickActions,
-            agentExecutor: AgentExecutor,
-            postTickActions: PostTickActions
-          ) extends LazyLogging {
+    tick: Int,
+    context: Context,
+    preTickActions: PreTickActions,
+    agentExecutor: AgentExecutor,
+    postTickActions: PostTickActions
+) extends LazyLogging {
   def preStepActions(): Unit = {
     preTickActions.execute(tick)
   }

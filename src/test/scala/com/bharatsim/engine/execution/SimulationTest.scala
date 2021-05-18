@@ -5,8 +5,8 @@ import com.bharatsim.engine.actions.StopSimulation
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.cache.PerTickCache
 import com.bharatsim.engine.execution.SimulationTest.graphNodeStudent
+import com.bharatsim.engine.execution.actions.{PostSimulationActions, PreSimulationActions}
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
-import com.bharatsim.engine.execution.simulation.{PostSimulationActions, PreSimulationActions}
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
 import com.bharatsim.engine.testModels.Employee.employeeBehaviour
 import com.bharatsim.engine.testModels.Student
@@ -39,7 +39,13 @@ class SimulationTest extends AnyWordSpec with MockitoSugar with BeforeAndAfterEa
 
       registerAgent[Student]
 
-      new Simulation(context, mock[ApplicationConfig], agentExecutor, mock[PreSimulationActions], mock[PostSimulationActions]).run()
+      new Simulation(
+        context,
+        mock[ApplicationConfig],
+        agentExecutor,
+        mock[PreSimulationActions],
+        mock[PostSimulationActions]
+      ).run()
 
       verify(behaviourControl, times(2)).executeFor(graphNodeStudent.as[Student])
     }
@@ -60,7 +66,13 @@ class SimulationTest extends AnyWordSpec with MockitoSugar with BeforeAndAfterEa
         registerAgent[Student]
         registerAction(StopSimulation, c => c.getCurrentStep == 3)
 
-        new Simulation(context, mock[ApplicationConfig], agentExecutor, mock[PreSimulationActions], mock[PostSimulationActions]).run()
+        new Simulation(
+          context,
+          mock[ApplicationConfig],
+          agentExecutor,
+          mock[PreSimulationActions],
+          mock[PostSimulationActions]
+        ).run()
 
         verify(behaviourControl, times(3)).executeFor(graphNodeStudent.as[Student])
       }

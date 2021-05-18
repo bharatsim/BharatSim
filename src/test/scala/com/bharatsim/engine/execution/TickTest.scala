@@ -2,7 +2,7 @@ package com.bharatsim.engine.execution
 
 import com.bharatsim.engine._
 import com.bharatsim.engine.execution.NodeWithDecoder.GenericNodeWithDecoder
-import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
+import com.bharatsim.engine.execution.actions.{PostTickActions, PreTickActions}
 import org.mockito.MockitoSugar.{mock, verify, when}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

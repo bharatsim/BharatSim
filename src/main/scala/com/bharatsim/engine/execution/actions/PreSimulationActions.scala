@@ -1,10 +1,8 @@
-package com.bharatsim.engine.execution.simulation
+package com.bharatsim.engine.execution.actions
 
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.listeners.SimulationListenerRegistry
 import com.bharatsim.engine.models.StatefulAgent
-
-import scala.annotation.tailrec
 
 class PreSimulationActions(context: Context) {
   def execute(): Unit = {

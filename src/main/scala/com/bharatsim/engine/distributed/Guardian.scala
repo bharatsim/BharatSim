@@ -16,7 +16,7 @@ import com.typesafe.scalalogging.LazyLogging
 import scala.concurrent.{ExecutionContext, Future}
 
 object Guardian extends LazyLogging {
-  val workerServiceKey: ServiceKey[WorkerManager.Command] =
+  val workerServiceId: ServiceKey[WorkerManager.Command] =
     ServiceKey[WorkerManager.Command]("Worker")
 
   private def start(context: ActorContext[Nothing], simulationDefinition: SimulationDefinition): Unit = {
@@ -60,7 +60,7 @@ object Guardian extends LazyLogging {
   private def createWorker(context: ActorContext[Nothing], simulationContext: Context): Unit = {
     val workerManager = context.spawn(new WorkerManager(simulationContext).default(), "worker-manager")
 
-    context.system.receptionist ! Receptionist.register(workerServiceKey, workerManager)
+    context.system.receptionist ! Receptionist.register(workerServiceId, workerManager)
   }
 
   private def createMain(context: ActorContext[Nothing], simulationContext: Context): Unit = {

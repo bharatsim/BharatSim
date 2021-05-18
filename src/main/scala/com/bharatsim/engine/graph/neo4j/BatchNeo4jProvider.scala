@@ -253,7 +253,7 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
     p.future
   }
 
-  def executePendingWrites(lastBookmark: Option[Bookmark] = None): Future[Bookmark] = {
+  def executePendingWrites(lastBookmark: Option[Bookmark] = None): Future[DBBookmark] = {
     logger.info("pending writes count {}", queryQueue.size)
     @tailrec
     def collect(
@@ -272,7 +272,7 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
         new WriteOperationsStream(neo4jConnection)(actorSystem).write(writeOperations, lastBookmark),
         Inf
       )
-    if (queryQueue.isEmpty) Future(newBookmark)(actorSystem.executionContext)
+    if (queryQueue.isEmpty) Future(DBBookmark(newBookmark.values()))(actorSystem.executionContext)
     else executePendingWrites(Some(newBookmark))
   }
 

@@ -4,7 +4,7 @@ version := "0.1"
 
 scalaVersion := "2.13.3"
 
-val AkkaVersion = "2.6.10"
+val AkkaVersion = "2.6.14"
 libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion
 libraryDependencies += "com.typesafe.akka" %% "akka-cluster-typed" % AkkaVersion
 libraryDependencies += "com.typesafe.akka" %% "akka-serialization-jackson" % AkkaVersion
@@ -26,6 +26,7 @@ libraryDependencies += "com.github.tototoshi" %% "scala-csv" % "1.3.6"
 libraryDependencies += "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.39.3" % "test"
 libraryDependencies += "com.dimafeng" %% "testcontainers-scala-neo4j" % "0.39.3" % "test"
 libraryDependencies += "com.lightbend.akka" %% "akka-stream-alpakka-csv" % "2.0.2"
+libraryDependencies += "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test
 
 Compile / doc / scalacOptions := Seq("-skip-packages", "com.bharatsim.model")
 
