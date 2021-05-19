@@ -1,14 +1,11 @@
-package com.bharatsim.engine.distributed.actors
+package com.bharatsim.engine.distributed.engineMain
 
-import akka.actor.testkit.typed.Effect
-import akka.actor.testkit.typed.scaladsl.TestInbox
-import akka.actor.testkit.typed.scaladsl.{ActorTestKit, BehaviorTestKit}
-import akka.actor.typed.scaladsl.Behaviors
-import com.bharatsim.engine.distributed.WorkerManager
-import com.bharatsim.engine.distributed.WorkerManager.Work
-import com.bharatsim.engine.distributed.actors.Barrier.{NotifyOnBarrierFinished, WorkFinished}
-import com.bharatsim.engine.distributed.actors.WorkDistributor.{AgentLabelExhausted, FetchWork, Start, Stop}
-import org.scalatest.{BeforeAndAfterAll}
+import akka.actor.testkit.typed.scaladsl.{ActorTestKit, BehaviorTestKit, TestInbox}
+import com.bharatsim.engine.distributed.WorkerActor
+import com.bharatsim.engine.distributed.WorkerActor.Work
+import com.bharatsim.engine.distributed.engineMain.Barrier.{NotifyOnBarrierFinished, WorkFinished}
+import com.bharatsim.engine.distributed.engineMain.WorkDistributor.{AgentLabelExhausted, FetchWork, Start}
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -16,8 +13,8 @@ class WorkDistributorTest extends AnyFunSpec with BeforeAndAfterAll with Matcher
   val testKit = ActorTestKit()
 
   val barrier = testKit.createTestProbe[Barrier.Request]()
-  val worker1 = testKit.createTestProbe[WorkerManager.Command]()
-  val worker2 = testKit.createTestProbe[WorkerManager.Command]()
+  val worker1 = testKit.createTestProbe[WorkerActor.Command]()
+  val worker2 = testKit.createTestProbe[WorkerActor.Command]()
   val batchSize = 1
   val agentLabels = List("A1", "A2")
   val distributableWork = new DistributableWork(agentLabels, batchSize)
@@ -28,8 +25,8 @@ class WorkDistributorTest extends AnyFunSpec with BeforeAndAfterAll with Matcher
   describe("Start") {
     it("should distribute work to all available worker") {
       val workDistributor =
-        testKit.spawn(WorkDistributor(barrier.ref, List(worker1.ref, worker2.ref), distributableWork))
-      workDistributor ! Start
+        testKit.spawn(WorkDistributor(barrier.ref, distributableWork))
+      workDistributor ! Start(List(worker1.ref, worker2.ref))
 
       worker1.expectMessage(Work(agentLabels.head, 0, batchSize, workDistributor))
       worker2.expectMessage(Work(agentLabels.head, 1, batchSize, workDistributor))
@@ -37,10 +34,10 @@ class WorkDistributorTest extends AnyFunSpec with BeforeAndAfterAll with Matcher
     }
     it("should register with barrier and stop on barrier finished") {
       val barrierInbox = TestInbox[Barrier.Request]()
-      val worker = TestInbox[WorkerManager.Command]()
+      val worker = TestInbox[WorkerActor.Command]()
       val workDistributorTestKit =
-        BehaviorTestKit(WorkDistributor(barrierInbox.ref, List(worker.ref), distributableWork))
-      workDistributorTestKit.run(Start)
+        BehaviorTestKit(WorkDistributor(barrierInbox.ref, distributableWork))
+      workDistributorTestKit.run(Start(List(worker.ref)))
       val message = barrierInbox.receiveMessage().asInstanceOf[NotifyOnBarrierFinished]
       message.toRef ! Barrier.BarrierFinished(List.empty)
       workDistributorTestKit.runOne()
@@ -50,7 +47,7 @@ class WorkDistributorTest extends AnyFunSpec with BeforeAndAfterAll with Matcher
   describe("FetchWork") {
     it("should send next available work to worker") {
       val workDistributor =
-        testKit.spawn(WorkDistributor(barrier.ref, List(worker1.ref, worker2.ref), distributableWork))
+        testKit.spawn(WorkDistributor(barrier.ref, distributableWork))
       workDistributor ! FetchWork(worker1.ref)
       workDistributor ! FetchWork(worker2.ref)
 
@@ -66,7 +63,7 @@ class WorkDistributorTest extends AnyFunSpec with BeforeAndAfterAll with Matcher
     it("should notify barrier when all the work is distributed") {
       val emptyDistributableWork = new DistributableWork(List.empty, batchSize)
       val workDistributor =
-        testKit.spawn(WorkDistributor(barrier.ref, List(worker1.ref, worker2.ref), emptyDistributableWork))
+        testKit.spawn(WorkDistributor(barrier.ref, emptyDistributableWork))
       workDistributor ! FetchWork(worker1.ref)
 
       barrier.expectMessageType[NotifyOnBarrierFinished]
@@ -78,7 +75,7 @@ class WorkDistributorTest extends AnyFunSpec with BeforeAndAfterAll with Matcher
   describe("AgentLabelExhausted") {
     it("should switch to the next available label for distribution") {
       val workDistributor =
-        testKit.spawn(WorkDistributor(barrier.ref, List(worker1.ref, worker2.ref), distributableWork))
+        testKit.spawn(WorkDistributor(barrier.ref, distributableWork))
 
       workDistributor ! AgentLabelExhausted(distributableWork.agentLabel)
 
@@ -90,7 +87,7 @@ class WorkDistributorTest extends AnyFunSpec with BeforeAndAfterAll with Matcher
     it("should not switch label when requested with old label") {
       val alreadyOnNextLabel = distributableWork.nextAgentLabel
       val workDistributor =
-        testKit.spawn(WorkDistributor(barrier.ref, List(worker1.ref, worker2.ref), alreadyOnNextLabel))
+        testKit.spawn(WorkDistributor(barrier.ref, alreadyOnNextLabel))
 
       workDistributor ! AgentLabelExhausted(agentLabels.head)
 
@@ -103,8 +100,7 @@ class WorkDistributorTest extends AnyFunSpec with BeforeAndAfterAll with Matcher
   describe("Stop") {
     it("should stop the actor") {
       val workDistributor =
-        BehaviorTestKit(WorkDistributor(barrier.ref, List(worker1.ref, worker2.ref), distributableWork))
-
+        BehaviorTestKit(WorkDistributor(barrier.ref, distributableWork))
       workDistributor.run(WorkDistributor.Stop)
       workDistributor.isAlive shouldBe false
     }

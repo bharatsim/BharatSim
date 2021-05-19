@@ -2,20 +2,21 @@ package com.bharatsim.engine.graph
 
 import java.net.URI
 
-import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.graph.custom.BufferedGraphWithAutoSync
 import com.bharatsim.engine.graph.neo4j.{BatchNeo4jProvider, Neo4jConfig}
+import com.bharatsim.engine.{ApplicationConfigFactory, Distributed}
 
 private[engine] object GraphProviderFactory {
-  private var graphProvider: GraphProvider = null
+  private var graphProvider: Option[GraphProvider] = None
   private lazy val config = ApplicationConfigFactory.config
 
   def init(): Unit = {
-    graphProvider = BufferedGraphWithAutoSync()
-  }
-
-  def initLazyNeo4j(): Unit = {
-    graphProvider = new BatchNeo4jProvider(makeNeo4jConfig())
+    if (graphProvider.isEmpty) {
+      config.executionMode match {
+        case Distributed => graphProvider = Some(new BatchNeo4jProvider(makeNeo4jConfig()))
+        case _           => graphProvider = Some(BufferedGraphWithAutoSync())
+      }
+    }
   }
 
   private def makeNeo4jConfig() = {
@@ -23,10 +24,10 @@ private[engine] object GraphProviderFactory {
   }
 
   def get: GraphProvider = {
-    graphProvider
+    graphProvider.get
   }
 
   def testOverride(gp: GraphProvider): Unit = {
-    graphProvider = gp
+    graphProvider = Some(gp)
   }
 }

@@ -1,4 +1,4 @@
-package com.bharatsim.engine.distributed.actors
+package com.bharatsim.engine.distributed.engineMain
 
 class DistributableWork(agentLabels: List[String], val batchSize: Int, val finishedCount: Int = 0) {
   def agentLabel: String = agentLabels.head

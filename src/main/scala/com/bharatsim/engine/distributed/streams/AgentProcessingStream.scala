@@ -3,11 +3,8 @@ package com.bharatsim.engine.distributed.streams
 import akka.Done
 import akka.actor.typed.ActorSystem
 import akka.stream.scaladsl.Source
-import com.bharatsim.engine.execution.AgentExecutor
-import com.bharatsim.engine.execution.control.{BehaviourControl, DistributeStateControl, StateControl}
+import com.bharatsim.engine.execution.control.{BehaviourControl, DistributeStateControl}
 import com.bharatsim.engine.graph.GraphNode
-import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
 import com.bharatsim.engine.models.{Agent, StatefulAgent}
 import com.bharatsim.engine.{ApplicationConfigFactory, Context}
 
@@ -22,13 +19,7 @@ class AgentProcessingStream(label: String, simulationContext: Context)(implicit
   private val behaviourControl = new BehaviourControl(simulationContext)
   private val stateControl = new DistributeStateControl(simulationContext)
 
-  def decode(gn: GraphNode): Future[Agent] =
-    Future {
-      val decoder = simulationContext.agentTypes(label)
-      gn.as(decoder)
-    }
-
-  def decodeAndAssignState(gn: GraphNode, state: Option[GraphNode]): Future[Agent] =
+  private def decodeAndAssignState(gn: GraphNode, state: Option[GraphNode]): Future[Agent] =
     Future {
       val decoder = simulationContext.agentTypes(label)
       val agent = gn.as(decoder)
@@ -41,13 +32,13 @@ class AgentProcessingStream(label: String, simulationContext: Context)(implicit
       agent
     }
 
-  def processBehaviour(a: Agent): Future[Agent] =
+  private def processBehaviour(a: Agent): Future[Agent] =
     Future {
       behaviourControl.executeFor(a)
       a
     }
 
-  def processState(a: Agent): Future[Unit] =
+  private def processState(a: Agent): Future[Unit] =
     Future({
       a match {
         case agent: StatefulAgent => stateControl.executeFor(agent)

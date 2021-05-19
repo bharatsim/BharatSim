@@ -1,9 +1,9 @@
-package com.bharatsim.engine.distributed.actors
+package com.bharatsim.engine.distributed.engineMain
 import java.util
 
 import akka.actor.testkit.typed.scaladsl.{BehaviorTestKit, TestInbox}
 import com.bharatsim.engine.distributed.DBBookmark
-import com.bharatsim.engine.distributed.actors.Barrier.{NotifyOnBarrierFinished, Stop, WorkFinished}
+import com.bharatsim.engine.distributed.engineMain.Barrier.{NotifyOnBarrierFinished, Stop, WorkFinished}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers

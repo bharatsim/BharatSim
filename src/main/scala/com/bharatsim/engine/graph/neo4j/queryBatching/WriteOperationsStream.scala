@@ -4,7 +4,7 @@ import java.util.Date
 
 import akka.actor.typed.ActorSystem
 import akka.stream.scaladsl.Source
-import com.bharatsim.engine.ApplicationConfigFactory.config.{preProcessGroupCount, queryGroupSize}
+import com.bharatsim.engine.ApplicationConfigFactory.config
 import org.neo4j.driver.SessionConfig.builder
 import org.neo4j.driver.internal.InternalRecord
 import org.neo4j.driver.{Bookmark, Driver}
@@ -22,8 +22,8 @@ class WriteOperationsStream(neo4jConnection: Driver)(implicit actorSystem: Actor
       else neo4jConnection.session()
 
     Source(operations)
-      .grouped(queryGroupSize)
-      .mapAsync(preProcessGroupCount)(group => Future(OrderedGroup(group).prepare()))
+      .grouped(config.queryGroupSize)
+      .mapAsync(config.preProcessGroupCount)(group => Future(OrderedGroup(group).prepare()))
       .flatMapConcat(list =>
         Source(
           list
