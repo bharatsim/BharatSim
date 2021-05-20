@@ -1,21 +1,20 @@
-package com.bharatsim.engine.distributed
+package com.bharatsim.engine.distributed.engineMain
 
 import akka.Done
 import akka.actor.CoordinatedShutdown
 import akka.actor.CoordinatedShutdown.Reason
 import akka.actor.testkit.typed.scaladsl.{ActorTestKit, BehaviorTestKit}
 import akka.actor.typed.ActorSystem
-import com.bharatsim.engine.{ApplicationConfig, ApplicationConfigFactory, Context}
 import com.bharatsim.engine.distributed.Guardian.UserInitiatedShutdown
-import com.bharatsim.engine.distributed.engineMain.WorkerCoordinator
 import com.bharatsim.engine.execution.SimulationDefinition
 import com.bharatsim.engine.graph.GraphProviderFactory
 import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
+import com.bharatsim.engine.{ApplicationConfig, ApplicationConfigFactory, Context}
+import org.mockito.Mockito.clearInvocations
 import org.mockito.{ArgumentCaptor, ArgumentMatchersSugar, MockitoSugar}
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
-import org.mockito.Mockito.clearInvocations
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -76,7 +75,9 @@ class EngineMainActorTest
       verify(ingestionStep)(contextCaptor.capture())
       val context = contextCaptor.getValue.asInstanceOf[Context]
       CoordinatedShutdown(actorTestKit.system).run(UserInitiatedShutdown)
+      Await.ready(actorTestKit.system.whenTerminated, Duration.Inf)
       verify(onComplete)(context)
+
     }
 
     it("should not do ingestion when ingestion is disabled") {

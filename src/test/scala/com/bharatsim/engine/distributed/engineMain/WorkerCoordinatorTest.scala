@@ -4,11 +4,11 @@ import akka.actor.testkit.typed.scaladsl.ActorTestKit
 import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.scaladsl.Behaviors
 import com.bharatsim.engine.Context
-import com.bharatsim.engine.distributed.WorkerManager.workerServiceId
-import com.bharatsim.engine.distributed.WorkerActor.{ExecutePendingWrites, StartOfNewTick}
-import com.bharatsim.engine.distributed.engineMain.DistributedTickLoop.ContextUpdateDone
+import com.bharatsim.engine.distributed.engineMain.DistributedTickLoop.StartOfNewTickAck
 import com.bharatsim.engine.distributed.engineMain.WorkDistributor.Start
-import com.bharatsim.engine.distributed.{ContextData, DBBookmark, WorkerActor}
+import com.bharatsim.engine.distributed.worker.WorkerActor
+import com.bharatsim.engine.distributed.worker.WorkerActor.{ExecutePendingWrites, StartOfNewTick, workerServiceId}
+import com.bharatsim.engine.distributed.{ContextData, DBBookmark}
 import com.bharatsim.engine.graph.GraphProviderFactory
 import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
 import org.mockito.MockitoSugar
@@ -31,7 +31,7 @@ class WorkerCoordinatorTest
 
   val mockedWorkerBehavior = Behaviors.receiveMessage[WorkerActor.Command] { msg =>
     msg match {
-      case StartOfNewTick(_, _, replyTo) => replyTo ! ContextUpdateDone()
+      case StartOfNewTick(_, _, replyTo) => replyTo ! StartOfNewTickAck()
       case _                             =>
     }
     Behaviors.same

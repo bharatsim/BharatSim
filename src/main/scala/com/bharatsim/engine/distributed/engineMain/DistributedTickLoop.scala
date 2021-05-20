@@ -110,5 +110,5 @@ object DistributedTickLoop {
   sealed trait Command extends CborSerializable
   case object ExecuteWrites extends Command
   case class WriteFinished(bookmarks: List[DBBookmark]) extends Command
-  case class ContextUpdateDone() extends CborSerializable
+  case class StartOfNewTickAck() extends CborSerializable
 }

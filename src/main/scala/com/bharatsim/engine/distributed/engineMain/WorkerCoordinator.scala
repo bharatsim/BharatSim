@@ -4,10 +4,10 @@ import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.{ActorRef, ActorSystem, Scheduler}
 import akka.util.Timeout
-import com.bharatsim.engine.distributed.WorkerManager.workerServiceId
-import com.bharatsim.engine.distributed.WorkerActor.{ExecutePendingWrites, StartOfNewTick}
-import com.bharatsim.engine.distributed.engineMain.DistributedTickLoop.ContextUpdateDone
-import com.bharatsim.engine.distributed.{ContextData, DBBookmark, WorkerActor}
+import com.bharatsim.engine.distributed.engineMain.DistributedTickLoop.StartOfNewTickAck
+import com.bharatsim.engine.distributed.worker.WorkerActor
+import com.bharatsim.engine.distributed.worker.WorkerActor.{ExecutePendingWrites, StartOfNewTick, workerServiceId}
+import com.bharatsim.engine.distributed.{ContextData, DBBookmark}
 import com.bharatsim.engine.{ApplicationConfigFactory, Context}
 
 import scala.concurrent.duration.Duration.Inf
@@ -57,7 +57,7 @@ class WorkerCoordinator() {
     Await.result(
       Future.foldLeft(
         workerList.map(worker =>
-          worker.ask((replyTo: ActorRef[ContextUpdateDone]) => {
+          worker.ask((replyTo: ActorRef[StartOfNewTickAck]) => {
             StartOfNewTick(updatedContext, bookmarks, replyTo)
           })
         )

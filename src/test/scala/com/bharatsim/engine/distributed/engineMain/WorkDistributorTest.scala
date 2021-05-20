@@ -1,10 +1,10 @@
 package com.bharatsim.engine.distributed.engineMain
 
 import akka.actor.testkit.typed.scaladsl.{ActorTestKit, BehaviorTestKit, TestInbox}
-import com.bharatsim.engine.distributed.WorkerActor
-import com.bharatsim.engine.distributed.WorkerActor.Work
 import com.bharatsim.engine.distributed.engineMain.Barrier.{NotifyOnBarrierFinished, WorkFinished}
 import com.bharatsim.engine.distributed.engineMain.WorkDistributor.{AgentLabelExhausted, FetchWork, Start}
+import com.bharatsim.engine.distributed.worker.WorkerActor
+import com.bharatsim.engine.distributed.worker.WorkerActor.Work
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers

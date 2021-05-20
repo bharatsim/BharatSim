@@ -2,10 +2,11 @@ package com.bharatsim.engine.distributed.engineMain
 
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
-import com.bharatsim.engine.distributed.WorkerActor.Work
+import com.bharatsim.engine.distributed.CborSerializable
 import com.bharatsim.engine.distributed.engineMain.Barrier.{NotifyOnBarrierFinished, WorkFinished}
 import com.bharatsim.engine.distributed.engineMain.WorkDistributor._
-import com.bharatsim.engine.distributed.{CborSerializable, WorkerActor}
+import com.bharatsim.engine.distributed.worker.WorkerActor
+import com.bharatsim.engine.distributed.worker.WorkerActor.Work
 
 class WorkDistributor(
     context: ActorContext[Command],
@@ -27,8 +28,8 @@ class WorkDistributor(
         barrier ! NotifyOnBarrierFinished(context.messageAdapter(_ => Stop))
         sendWorkToAll(workers)
       }
-      case AgentLabelExhausted(exhausted) =>
-        if (!work.isComplete && work.agentLabel == exhausted) {
+      case AgentLabelExhausted(label) =>
+        if (!work.isComplete && work.agentLabel == label) {
           val nextWork = work.nextAgentLabel
           new WorkDistributor(context, barrier, nextWork)
         } else Behaviors.same
