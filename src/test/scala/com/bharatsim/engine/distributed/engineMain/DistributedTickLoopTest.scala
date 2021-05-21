@@ -8,14 +8,13 @@ import akka.actor.testkit.typed.scaladsl.{ActorTestKit, BehaviorTestKit, TestInb
 import akka.actor.typed.ActorSystem
 import akka.{Done, MockAdapterMsg}
 import com.bharatsim.engine.Context
+import com.bharatsim.engine.distributed.DBBookmark
 import com.bharatsim.engine.distributed.Guardian.UserInitiatedShutdown
 import com.bharatsim.engine.distributed.engineMain.Barrier.WorkFinished
 import com.bharatsim.engine.distributed.engineMain.DistributedTickLoop._
 import com.bharatsim.engine.distributed.engineMain.WorkDistributor.{AgentLabelExhausted, FetchWork}
-import com.bharatsim.engine.distributed.DBBookmark
 import com.bharatsim.engine.distributed.worker.WorkerActor
 import com.bharatsim.engine.execution.actions._
-import com.bharatsim.engine.graph.GraphProviderFactory
 import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
 import org.mockito.{ArgumentMatchersSugar, InOrder, Mockito, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
@@ -33,14 +32,11 @@ class DistributedTickLoopTest
     with ArgumentMatchersSugar {
 
   val mockGraphProvider = mock[BatchNeo4jProvider]
-  GraphProviderFactory.testOverride(mockGraphProvider)
 
   val localBookmark = DBBookmark(java.util.Set.of("localBK"))
   val workerCoordinator = mock[WorkerCoordinator]
 
-  val context = spy(Context())
-
-  val actions = mockActions()
+  val context = spy(Context(mockGraphProvider))
 
   val workerCount = 1
   val bookmarks = List(DBBookmark(java.util.Set.of("b1")))
@@ -81,6 +77,7 @@ class DistributedTickLoopTest
   describe("Start Tick") {
 
     it("should start the work for tick") {
+      val actions = mockActions()
       val testKit = BehaviorTestKit(DistributedTickLoop(context, actions, tick, bookmarks, workerCoordinator))
 
       val effects = testKit.retrieveAllEffects()
@@ -102,6 +99,7 @@ class DistributedTickLoopTest
     }
 
     it("should stop at the end of simulation and terminate actor system") {
+      val actions = mockActions()
       val testKit = ActorTestKit()
       val lastTick = context.simulationConfig.simulationSteps + 1
       val coordinatedShutdownMonitor = spyLambda((reason: Reason) => "");
@@ -130,6 +128,7 @@ class DistributedTickLoopTest
     }
 
     it("should execute writes after work is finish") {
+      val actions = mockActions()
       val testKit = BehaviorTestKit(DistributedTickLoop(context, actions, tick, bookmarks, workerCoordinator))
 
       val worker = TestInbox[WorkerActor.Command]()
@@ -160,7 +159,8 @@ class DistributedTickLoopTest
     }
 
     it("should skip work distribution when there are no agent labels") {
-      val context = spy(Context())
+      val actions = mockActions()
+      val context = spy(Context(mockGraphProvider))
       when(context.agentLabels).thenReturn(List.empty)
       val testKit = BehaviorTestKit(DistributedTickLoop(context, actions, tick, bookmarks, workerCoordinator))
 
@@ -173,6 +173,7 @@ class DistributedTickLoopTest
   describe("Execute Writes") {
 
     it("should start executing writes") {
+      val actions = mockActions()
       val testKit = BehaviorTestKit(DistributedTickLoop(context, actions, tick, bookmarks, workerCoordinator))
 
       testKit.run(ExecuteWrites)
@@ -184,6 +185,7 @@ class DistributedTickLoopTest
     }
 
     it("should finish works when all worker are done") {
+      val actions = mockActions()
       val testKit = BehaviorTestKit(DistributedTickLoop(context, actions, tick, bookmarks, workerCoordinator))
       val workerBookmark = DBBookmark(java.util.Set.of("wbk1"))
       testKit.run(ExecuteWrites)
@@ -213,6 +215,7 @@ class DistributedTickLoopTest
   describe("Write Finished") {
 
     it("should switch to next tick") {
+      val actions = mockActions()
       val testKit = BehaviorTestKit(DistributedTickLoop(context, actions, tick, bookmarks, workerCoordinator))
       val bookmarkAfterTickFinished = List(DBBookmark(java.util.Set.of("Tick1 bookmarks")))
 

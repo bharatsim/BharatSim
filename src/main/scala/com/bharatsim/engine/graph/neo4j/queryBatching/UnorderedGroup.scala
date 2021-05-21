@@ -11,7 +11,7 @@ import scala.jdk.CollectionConverters.IterableHasAsJava
 case class UnorderedGroup(queries: Iterable[QueryWithPromise], label: String = "Read") extends LazyLogging {
   private val groups = mutable.HashMap.empty[String, GroupQueryHolder]
 
-  def prepareGroups(): Iterable[GroupedQuery] = {
+  def prepare(): Iterable[GroupedQuery] = {
     logger.info("grouping started for size {}", queries.size)
     queries.foreach(query => {
       val groupQuery =

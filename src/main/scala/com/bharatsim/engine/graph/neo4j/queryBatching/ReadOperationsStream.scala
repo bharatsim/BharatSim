@@ -1,6 +1,5 @@
 package com.bharatsim.engine.graph.neo4j.queryBatching
 
-import java.time
 import java.util.Date
 
 import akka.actor.typed.{ActorSystem, DispatcherSelector}
@@ -10,10 +9,8 @@ import com.bharatsim.engine.{ApplicationConfig, ApplicationConfigFactory}
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.SessionConfig.builder
 import org.neo4j.driver._
-import org.neo4j.driver.exceptions.ClientException
 import org.neo4j.driver.internal.InternalRecord
 
-import scala.annotation.tailrec
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.jdk.CollectionConverters.IterableHasAsJava
@@ -34,7 +31,7 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
   private val sourceQueue = Source
     .queue[QueryWithPromise](config.processBatchSize * 2, OverflowStrategy.backpressure, config.processBatchSize)
     .groupedWithin(config.readBatchSize, config.readWaitTime.millisecond)
-    .mapAsyncUnordered(config.readParallelism)(group => Future { UnorderedGroup(group).prepareGroups() })
+    .mapAsyncUnordered(config.readParallelism)(group => Future { UnorderedGroup(group).prepare() })
     .flatMapConcat(groupedQueries => Source(groupedQueries.toList))
     .mapAsyncUnordered(config.readParallelism)(gq => {
       Future {
@@ -61,8 +58,6 @@ class ReadOperationsStream(val neo4jConnection: Driver)(implicit actorSystem: Ac
         val records = gqResult.records
         val gq = gqResult.groupedQuery
         val promises = gq.promises
-        val query = gq.query
-        val props = gq.props.get("propsList").asInstanceOf[java.util.Collection[Object]]
         logger.info("Read finished {} in time {} ms ", records.size, gqResult.time)
         val result = records.iterator
         promises.foreach(p => {

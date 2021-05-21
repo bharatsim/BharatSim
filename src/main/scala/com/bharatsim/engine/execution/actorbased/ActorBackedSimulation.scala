@@ -2,26 +2,23 @@ package com.bharatsim.engine.execution.actorbased
 
 import akka.Done
 import akka.actor.typed.ActorSystem
-import com.bharatsim.engine.execution.AgentExecutor
-import com.bharatsim.engine.execution.actions.{PreSimulationActions, PreTickActions}
+import com.bharatsim.engine.Context
 import com.bharatsim.engine.execution.actorbased.actors.TickLoop
 import com.bharatsim.engine.execution.executors.ExecutorContext
-import com.bharatsim.engine.{ApplicationConfig, Context}
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class ActorBackedSimulation(applicationConfig: ApplicationConfig) extends LazyLogging {
+class ActorBackedSimulation() extends LazyLogging {
   def run(context: Context): Future[Done] = {
-    val executorContext = new ExecutorContext(context)
-    val actions = executorContext.actions
+    val (agentExecutor, actions) = new ExecutorContext().prepare(context)
     actions.preSimulation.execute()
     val tickLoop = new TickLoop(
       context,
-      applicationConfig,
+      context.simulationConfig,
       actions.preTick,
-      executorContext.agentExecutor,
+      agentExecutor,
       actions.postTick
     )
     val actorSystem = ActorSystem(tickLoop.Tick(1), "ticks-loop")

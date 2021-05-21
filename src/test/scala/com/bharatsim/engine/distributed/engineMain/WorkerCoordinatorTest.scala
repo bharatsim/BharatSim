@@ -9,7 +9,6 @@ import com.bharatsim.engine.distributed.engineMain.WorkDistributor.Start
 import com.bharatsim.engine.distributed.worker.WorkerActor
 import com.bharatsim.engine.distributed.worker.WorkerActor.{ExecutePendingWrites, StartOfNewTick, workerServiceId}
 import com.bharatsim.engine.distributed.{ContextData, DBBookmark}
-import com.bharatsim.engine.graph.GraphProviderFactory
 import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
 import org.mockito.MockitoSugar
 import org.scalatest.funspec.AnyFunSpec
@@ -23,10 +22,10 @@ class WorkerCoordinatorTest
     with Matchers
     with MockitoSugar {
   val testKit = ActorTestKit()
-  val mockGraphProvider = mock[BatchNeo4jProvider]
-  GraphProviderFactory.testOverride(mockGraphProvider)
+
   val workDistributor = testKit.createTestProbe[WorkDistributor.Command]()
-  val context = Context()
+  val mockGraphProvider = mock[BatchNeo4jProvider]
+  val context = Context(mockGraphProvider)
   val bookmarks = List(DBBookmark(java.util.Set.of("bk")))
 
   val mockedWorkerBehavior = Behaviors.receiveMessage[WorkerActor.Command] { msg =>

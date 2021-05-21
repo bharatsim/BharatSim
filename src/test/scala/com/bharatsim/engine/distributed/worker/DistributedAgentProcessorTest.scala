@@ -6,8 +6,8 @@ import com.bharatsim.engine.ContextBuilder._
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.execution.control.{BehaviourControl, DistributeStateControl}
+import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
-import com.bharatsim.engine.graph.{GraphNode, GraphProviderFactory}
 import com.bharatsim.engine.testModels.TestFSM.IdleState
 import com.bharatsim.engine.testModels.{StatefulPerson, Student}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
@@ -21,9 +21,8 @@ class DistributedAgentProcessorTest
     with AnyFunSuiteLike
     with MockitoSugar
     with ArgumentMatchersSugar {
-  val mockGraphProvider = mock[BatchNeo4jProvider]
-  GraphProviderFactory.testOverride(mockGraphProvider)
   test("should process given agent") {
+    val mockGraphProvider = mock[BatchNeo4jProvider]
 
     val statefulPersonNode = GraphNode("StatefulPerson", 1L, Map("name" -> "abc", "age" -> 1))
     val stateNode = GraphNode("IdleState", 2L, Map("idleFor" -> 1))
@@ -31,7 +30,7 @@ class DistributedAgentProcessorTest
 
     val agentsWithState = List((statefulPersonNode, Some(stateNode)), (studentNode, None))
     val agentProcessor = new DistributedAgentProcessor()
-    implicit val context = Context()
+    implicit val context = Context(mockGraphProvider)
 
     val statefulPerson = statefulPersonNode.as[StatefulPerson]
     val student = studentNode.as[Student]

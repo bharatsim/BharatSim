@@ -35,7 +35,7 @@ class DistributeStateControl(context: Context) {
         )
         .onComplete {
           case x: scala.util.Success[Record] =>
-            val nodeId = x.value.get("newStateId").asInt()
+            val nodeId = x.value.get("newStateId").asLong()
 
             state.setId(nodeId)
             state.enterAction(context, statefulAgent)

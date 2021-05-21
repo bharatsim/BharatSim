@@ -32,7 +32,7 @@ class GuardianTest
 
   val workerMonitor = spyLambda((simDef: SimulationDefinition) => {})
   class MockWorker extends WorkerActor {
-    override def start(simDef: SimulationDefinition): Behavior[WorkerActor.Command] = {
+    override def start(simDef: SimulationDefinition, context: Context): Behavior[WorkerActor.Command] = {
       Behaviors.setup { context =>
         workerMonitor(simDef)
         context.system.terminate()
@@ -45,6 +45,7 @@ class GuardianTest
     override def start(
         simulationDefinition: SimulationDefinition,
         system: ActorSystem[_],
+        context: Context,
         workerCoordinator: WorkerCoordinator
     ): Behavior[DistributedTickLoop.Command] = {
 

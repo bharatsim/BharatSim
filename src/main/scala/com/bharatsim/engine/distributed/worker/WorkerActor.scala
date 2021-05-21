@@ -12,7 +12,6 @@ import com.bharatsim.engine.distributed.worker.WorkerActor._
 import com.bharatsim.engine.distributed.{CborSerializable, ContextData, DBBookmark}
 import com.bharatsim.engine.execution.SimulationDefinition
 import com.bharatsim.engine.execution.control.{BehaviourControl, DistributeStateControl}
-import com.bharatsim.engine.graph.GraphProviderFactory
 import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
 import com.typesafe.scalalogging.LazyLogging
 
@@ -84,10 +83,8 @@ class WorkerActor(agentProcessor: DistributedAgentProcessor = new DistributedAge
         Behaviors.same
     }
 
-  def start(simulationDefinition: SimulationDefinition): Behavior[Command] =
+  def start(simulationDefinition: SimulationDefinition, simulationContext: Context = Context()): Behavior[Command] =
     Behaviors.setup { context =>
-      GraphProviderFactory.init()
-      val simulationContext = Context()
       simulationDefinition.simulationBody(simulationContext)
       context.system.receptionist ! Receptionist.register(workerServiceId, context.self)
       workerBehaviour(context, simulationContext)

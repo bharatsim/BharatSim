@@ -12,10 +12,10 @@ import com.bharatsim.engine.distributed.engineMain.{Barrier, DistributedTickLoop
 import com.bharatsim.engine.distributed.worker.WorkerActor.{ExecutePendingWrites, StartOfNewTick, Work, workerServiceId}
 import com.bharatsim.engine.distributed.{ContextData, DBBookmark}
 import com.bharatsim.engine.execution.SimulationDefinition
+import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
-import com.bharatsim.engine.graph.{GraphNode, GraphProviderFactory}
 import org.mockito.Mockito.clearInvocations
-import org.mockito.{ArgumentCaptor, ArgumentMatchersSugar, MockitoSugar}
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
@@ -30,7 +30,6 @@ class WorkerActorTest
     with ArgumentMatchersSugar {
 
   val mockGraphProvider = mock[BatchNeo4jProvider]
-  GraphProviderFactory.testOverride(mockGraphProvider)
 
   val ingestionStep = spyLambda((context: Context) => {})
   val body = spyLambda((context: Context) => {})
@@ -38,7 +37,7 @@ class WorkerActorTest
   val simDef = SimulationDefinition(ingestionStep, body, onComplete)
 
   val mockAgentProcessor = mock[DistributedAgentProcessor]
-
+  val context = Context(mockGraphProvider)
   val agentLabel = "testLabel"
   val skip = 0
   val limit = 10
@@ -57,31 +56,22 @@ class WorkerActorTest
     reset(mockAgentProcessor)
   }
 
-  private def captorContext(): Context = {
-    val contextCaptor = ArgumentCaptor.forClass(classOf[Context])
-    verify(body)(contextCaptor.capture())
-    contextCaptor.getValue.asInstanceOf[Context]
-  }
   describe("Start") {
 
     it("should register self with receptionist") {
-      val workerActor = new WorkerActor(mockAgentProcessor).start(simDef)
+      val workerActor = new WorkerActor(mockAgentProcessor).start(simDef, context)
       val workerTestKit = BehaviorTestKit(workerActor)
       workerTestKit.receptionistInbox().expectMessage(Receptionist.register(workerServiceId, workerTestKit.ref))
     }
 
     it("should only execute simulation body") {
-      val workerActor = new WorkerActor(mockAgentProcessor).start(simDef)
+      val workerActor = new WorkerActor(mockAgentProcessor).start(simDef, context)
 
       BehaviorTestKit(workerActor)
 
-      val contextCaptor = ArgumentCaptor.forClass(classOf[Context])
-
       verify(ingestionStep, never)(any[Context])
       verify(onComplete, never)(any[Context])
-      verify(body)(contextCaptor.capture())
-      val context = contextCaptor.getValue.asInstanceOf[Context]
-      context.graphProvider shouldBe mockGraphProvider
+      verify(body)(context)
     }
   }
   describe("worker behaviour") {
@@ -89,10 +79,9 @@ class WorkerActorTest
     describe("Work") {
       it("should execute given work") {
         val workDistributorInbox = TestInbox[WorkDistributor.Command]()
-        val workerActor = new WorkerActor(mockAgentProcessor).start(simDef)
+        val workerActor = new WorkerActor(mockAgentProcessor).start(simDef, context)
         val workerTestKit = BehaviorTestKit(workerActor)
         workerTestKit.run(Work(agentLabel, skip, limit, workDistributorInbox.ref))
-        val context = captorContext()
         verify(mockAgentProcessor).process(eqTo(agentWithState), eqTo(context), any[DistributedAgentExecutor])(
           any[ActorSystem[_]]
         )
@@ -102,7 +91,7 @@ class WorkerActorTest
       it("should request next work when there are no agent left for current label") {
         val exhaustedLabel = "exhaustedLabel"
         val workDistributorInbox = TestInbox[WorkDistributor.Command]()
-        val workerActor = new WorkerActor(mockAgentProcessor).start(simDef)
+        val workerActor = new WorkerActor(mockAgentProcessor).start(simDef, context)
         when(mockGraphProvider.fetchWithStates(exhaustedLabel, skip, limit)).thenReturn(List.empty)
 
         val workerTestKit = BehaviorTestKit(workerActor)
@@ -118,12 +107,11 @@ class WorkerActorTest
 
       it("should update context and bookmark") {
         val tickLoop = TestInbox[DistributedTickLoop.StartOfNewTickAck]()
-        val workerActor = new WorkerActor(mockAgentProcessor).start(simDef)
+        val workerActor = new WorkerActor(mockAgentProcessor).start(simDef, context)
         val workerTestKit = BehaviorTestKit(workerActor)
         val contextData = ContextData(10, Set("test"))
         val bookmarks = List(DBBookmark(java.util.Set.of("BK1")))
         workerTestKit.run(StartOfNewTick(contextData, bookmarks, tickLoop.ref))
-        val context = captorContext()
         tickLoop.expectMessage(StartOfNewTickAck())
         verify(mockGraphProvider).setBookmarks(bookmarks)
         context.getCurrentStep shouldBe contextData.currentTick
@@ -134,7 +122,7 @@ class WorkerActorTest
     describe("Execute Writes") {
       it("should execute pending writes and reply with bookmarks") {
         val barrier = TestInbox[Barrier.Request]()
-        val workerActor = new WorkerActor(mockAgentProcessor).start(simDef)
+        val workerActor = new WorkerActor(mockAgentProcessor).start(simDef, context)
         val bookmark = DBBookmark(java.util.Set.of("BK1"))
 
         when(mockGraphProvider.executePendingWrites(any)).thenReturn(Future.successful(bookmark))

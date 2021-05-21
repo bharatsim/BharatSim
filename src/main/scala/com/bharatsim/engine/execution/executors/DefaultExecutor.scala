@@ -6,13 +6,13 @@ import com.bharatsim.engine.{ApplicationConfigFactory, CollectionBased, Context}
 
 import scala.annotation.tailrec
 
-class DefaultExecutor extends SimulationExecutor {
+class DefaultExecutor(executorContext: ExecutorContext = new ExecutorContext(), context: Context = Context())
+    extends SimulationExecutor {
 
   def runSimulation(context: Context) = {
     val maxSteps = context.simulationConfig.simulationSteps
-    val executionMode = ApplicationConfigFactory.config.executionMode
-    val executorContext = new ExecutorContext(context)
-    val actions = executorContext.actions
+    val executionMode = context.simulationConfig.executionMode
+    val (agentExecutor, actions) = executorContext.prepare(context)
     @tailrec
     def loop(currentStep: Int): Unit = {
       val endOfSimulation = currentStep > maxSteps || context.stopSimulation
@@ -22,7 +22,7 @@ class DefaultExecutor extends SimulationExecutor {
           currentStep,
           context,
           actions.preTick,
-          executorContext.agentExecutor,
+          agentExecutor,
           actions.postTick
         )
         tick.preStepActions()
@@ -45,8 +45,7 @@ class DefaultExecutor extends SimulationExecutor {
   }
 
   override def execute(simulationDefinition: SimulationDefinition): Unit = {
-    GraphProviderFactory.init()
-    val context = Context()
+
     simulationDefinition.ingestionStep(context)
     simulationDefinition.simulationBody(context)
     runSimulation(context)

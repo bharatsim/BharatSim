@@ -6,14 +6,12 @@ import java.util.concurrent.ConcurrentLinkedDeque
 
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
-import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.distributed.DBBookmark
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion.GraphData
 import com.bharatsim.engine.graph.neo4j.queryBatching._
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
-import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.SessionConfig.builder
 import org.neo4j.driver.Values.parameters
@@ -228,23 +226,6 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
         Promise()
       )
     )
-  }
-
-  def fetchNodeIds(label: String, skip: Int, limit: Int): List[NodeId] = {
-    val session = createSession
-
-    val nodes: Iterable[NodeId] = session.readTransaction((tx: Transaction) => {
-
-      val result = tx.run(
-        s"""OPTIONAL MATCH (n:$label) return id(n) as nodeId
-                             |SKIP $$skip LIMIT $$limit""".stripMargin,
-        parameters("skip", skip, "limit", limit)
-      )
-
-      result.list().asScala.map(record => record.get("nodeId").asLong())
-    })
-    session.close()
-    nodes.toList
   }
 
   def executeWrite(query: String, params: java.util.HashMap[String, Object]): Future[Record] = {

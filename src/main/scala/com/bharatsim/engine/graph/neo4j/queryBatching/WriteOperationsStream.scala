@@ -27,11 +27,11 @@ class WriteOperationsStream(neo4jConnection: Driver)(implicit actorSystem: Actor
       .flatMapConcat(list =>
         Source(
           list
-            .map(x => {
+            .map(groupedQuery => {
               val st = new Date().getTime
-              val result = session.run(x.query, x.props).list()
+              val result = session.run(groupedQuery.query, groupedQuery.props).list()
               val et = new Date().getTime
-              GroupedQueryResult(result, x, et - st)
+              GroupedQueryResult(result, groupedQuery, et - st)
             })
             .toList
         )

@@ -87,11 +87,13 @@ object Context {
 
   /** Creator method for Context
     */
-  def apply(): Context = {
-    val applicationConfig: ApplicationConfig = ApplicationConfigFactory.config
+  def apply(
+      graphProvider: GraphProvider = GraphProviderFactory.get,
+      applicationConfig: ApplicationConfig = ApplicationConfigFactory.config
+  ): Context = {
     val perTickCache: PerTickCache =
       buildCache(applicationConfig)
-    new Context(GraphProviderFactory.get, applicationConfig, perTickCache)
+    new Context(graphProvider, applicationConfig, perTickCache)
   }
 
   private def buildCache(applicationConfig: ApplicationConfig) = {

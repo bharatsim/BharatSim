@@ -9,7 +9,6 @@ import com.bharatsim.engine.execution.actions.{
 }
 import com.bharatsim.engine.execution.actorbased.ActorBackedSimulation
 import com.bharatsim.engine.execution.control.{BehaviourControl, StateControl}
-import com.bharatsim.engine.graph.GraphProviderFactory
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.annotation.tailrec
@@ -61,7 +60,6 @@ object Simulation {
   private val applicationConfig: ApplicationConfig = ApplicationConfigFactory.config
 
   def init(): Context = {
-    GraphProviderFactory.init()
     Context()
   }
 
@@ -74,9 +72,7 @@ object Simulation {
 
     if (applicationConfig.executionMode == ActorBased) {
       val eventualDone =
-        new ActorBackedSimulation(
-          applicationConfig
-        ).run(context)
+        new ActorBackedSimulation().run(context)
       Await.ready(eventualDone, Duration.Inf)
     } else {
       val simulation =
