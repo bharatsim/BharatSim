@@ -1,6 +1,7 @@
 package com.bharatsim.engine.execution.simulation
 
 import com.bharatsim.engine.Context
+import com.bharatsim.engine.execution.actions.PreSimulationActions
 import com.bharatsim.engine.listeners.{SimulationListener, SimulationListenerRegistry}
 import org.mockito.MockitoSugar.{mock, verify, when}
 import org.scalatest.wordspec.AnyWordSpec
@@ -11,7 +12,7 @@ class PreSimulationActionsTest extends AnyWordSpec {
       val mockListener = mock[SimulationListener]
       SimulationListenerRegistry.register(mockListener)
       val context: Context = mock[Context]
-      when(context.registeredNodesWithDecoder).thenReturn(List.empty)
+      when(context.agentLabels).thenReturn(List.empty)
 
       new PreSimulationActions(context).execute()
 

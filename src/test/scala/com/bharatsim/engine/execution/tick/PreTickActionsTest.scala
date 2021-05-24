@@ -1,9 +1,11 @@
 package com.bharatsim.engine.execution.tick
 
 import com.bharatsim.engine.cache.PerTickCache
+import com.bharatsim.engine.execution.actions.PreTickActions
 import com.bharatsim.engine.graph.GraphProvider
 import com.bharatsim.engine.intervention.{Intervention, Interventions}
-import com.bharatsim.engine.{Context, Dynamics, SimulationConfig}
+import com.bharatsim.engine.{ApplicationConfig, Context, Dynamics}
+import org.mockito.Mockito
 import org.mockito.MockitoSugar.{mock, verify, when}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -113,10 +115,12 @@ class PreTickActionsTest extends AnyWordSpec with Matchers {
   }
 
   private def getContext(
-                          steps: Int,
-                          mockGraphProvider: GraphProvider = mock[GraphProvider],
-                          perTickCache: PerTickCache = mock[PerTickCache]
-                        ) = {
-    new Context(mockGraphProvider, new Dynamics, SimulationConfig(steps), perTickCache)
+      steps: Int,
+      mockGraphProvider: GraphProvider = mock[GraphProvider],
+      perTickCache: PerTickCache = mock[PerTickCache]
+  ) = {
+    val config = mock[ApplicationConfig]
+    Mockito.when(config.simulationSteps).thenReturn(steps)
+    new Context(mockGraphProvider, config, perTickCache)
   }
 }

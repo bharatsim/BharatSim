@@ -10,12 +10,6 @@ import com.typesafe.scalalogging.LazyLogging
 import scala.collection.mutable
 
 private[engine] class GraphProviderImpl(graphOperations: GraphOperations) extends GraphProvider with LazyLogging {
-  override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
-    graphOperations.writeOperations.ingestFromCsv(csvPath, mapper)
-  }
-
-  private[engine] override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
-
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
     graphOperations.writeOperations.createRelationship(node1, label, node2)
   }
@@ -31,8 +25,6 @@ private[engine] class GraphProviderImpl(graphOperations: GraphOperations) extend
   override def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode] = {
     graphOperations.readOperations.fetchNodes(label, params)
   }
-
-  override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
   override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
     graphOperations.readOperations.fetchNodes(label, matchPattern)
@@ -54,9 +46,6 @@ private[engine] class GraphProviderImpl(graphOperations: GraphOperations) extend
     graphOperations.writeOperations.updateNode(nodeId, props)
   }
 
-  override def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit =
-    updateNode(nodeId, (prop :: props.toList).toMap)
-
   override def deleteNode(nodeId: NodeId): Unit = {
     graphOperations.writeOperations.deleteNode(nodeId)
   }
@@ -73,14 +62,17 @@ private[engine] class GraphProviderImpl(graphOperations: GraphOperations) extend
 
   override def shutdown(): Unit = {}
 
-  override private[engine] def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
-    graphOperations.writeOperations.batchImportNodes(batchOfNodes)
+  override private[engine] def batchImportNodes(
+      batchOfNodes: IterableOnce[CsvNode],
+      refToIdMapping: RefToIdMapping
+  ): Unit = {
+    graphOperations.writeOperations.batchImportNodes(batchOfNodes, refToIdMapping)
   }
 
   override private[engine] def batchImportRelations(
-                                                     relations: IterableOnce[Relation],
-                                                     refToIdMapping: RefToIdMapping
-                                                   ): Unit = {
+      relations: IterableOnce[Relation],
+      refToIdMapping: RefToIdMapping
+  ): Unit = {
     graphOperations.writeOperations.batchImportRelations(relations, refToIdMapping)
   }
 }

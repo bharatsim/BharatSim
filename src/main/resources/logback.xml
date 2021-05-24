@@ -2,11 +2,23 @@
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS z} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS z} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+
+    <timestamp key="timestamp" datePattern="yyyyMMdd"/>
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file> log-${timestamp}.log </file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS z} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender" neverBLock="true">
         <appender-ref ref="STDOUT" />
+<!--        <appender-ref ref="FILE" />-->
+
         <neverBlock>false</neverBlock>
         <queueSize>512</queueSize>
     </appender>

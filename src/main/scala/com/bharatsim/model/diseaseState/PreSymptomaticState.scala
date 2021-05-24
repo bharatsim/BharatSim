@@ -16,7 +16,9 @@ case class PreSymptomaticState(infectionSeverity: InfectionSeverity, preSymptoma
   }
 
   def checkForInfectionSeverity(context: Context, agent: StatefulAgent): Boolean = {
-    if (context.getCurrentStep >= agent.asInstanceOf[Person].infectedAtTick + preSymptomaticDuration * Disease.inverse_dt) {
+    if (
+      context.getCurrentStep >= agent.asInstanceOf[Person].infectedAtTick + preSymptomaticDuration * Disease.inverse_dt
+    ) {
       return true
     }
     false

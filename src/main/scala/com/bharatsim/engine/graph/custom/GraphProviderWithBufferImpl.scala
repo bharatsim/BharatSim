@@ -1,26 +1,17 @@
 package com.bharatsim.engine.graph.custom
 
-import com.bharatsim.engine.Context
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.bharatsim.engine.graph.{GraphNode, GraphProvider}
-import com.bharatsim.engine.listeners.{SimulationListener, SimulationListenerRegistry}
 
 import scala.collection.concurrent.TrieMap
 
-private[engine] class GraphProviderWithBufferImpl(private var graphOperations: GraphOperations)
-  extends GraphProvider
-    with SimulationListener {
-  SimulationListenerRegistry.register(this)
-
+private[engine] class GraphProviderWithBufferImpl(private var graphOperations: GraphOperations) extends GraphProvider {
   override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
-    graphOperations.writeOperations.ingestFromCsv(csvPath, mapper)
+    super.ingestFromCsv(csvPath, mapper)
     syncBuffers()
   }
-
-  private[engine] override def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
-
   override def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
     graphOperations.writeOperations.createRelationship(node1, label, node2)
   }
@@ -36,8 +27,6 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
   override def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode] = {
     graphOperations.readOperations.fetchNodes(label, params)
   }
-
-  override def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
   override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
     graphOperations.readOperations.fetchNodes(label, matchPattern)
@@ -59,9 +48,6 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
     graphOperations.writeOperations.updateNode(nodeId, props)
   }
 
-  override def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit =
-    updateNode(nodeId, (prop :: props.toList).toMap)
-
   override def deleteNode(nodeId: NodeId): Unit = {
     graphOperations.writeOperations.deleteNode(nodeId)
   }
@@ -80,30 +66,23 @@ private[engine] class GraphProviderWithBufferImpl(private var graphOperations: G
 
   override def shutdown(): Unit = {}
 
-  override private[engine] def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
-    graphOperations.writeOperations.batchImportNodes(batchOfNodes)
+  override private[engine] def batchImportNodes(
+      batchOfNodes: IterableOnce[CsvNode],
+      refToIdMapping: RefToIdMapping
+  ): Unit = {
+    graphOperations.writeOperations.batchImportNodes(batchOfNodes, refToIdMapping)
   }
 
   override private[engine] def batchImportRelations(
-                                                     relations: IterableOnce[Relation],
-                                                     refToIdMapping: RefToIdMapping
-                                                   ): Unit = {
+      relations: IterableOnce[Relation],
+      refToIdMapping: RefToIdMapping
+  ): Unit = {
     graphOperations.writeOperations.batchImportRelations(relations, refToIdMapping)
   }
 
   private[engine] def syncBuffers(): Unit = {
     graphOperations = graphOperations.asInstanceOf[BufferedGraph].syncBuffers()
   }
-
-  override def onSimulationStart(context: Context): Unit = {}
-
-  override def onStepStart(context: Context): Unit = {
-    syncBuffers()
-  }
-
-  override def onStepEnd(context: Context): Unit = {}
-
-  override def onSimulationEnd(context: Context): Unit = {}
 }
 
 object GraphProviderWithBufferImpl {

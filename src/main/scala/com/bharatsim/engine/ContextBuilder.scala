@@ -2,6 +2,8 @@ package com.bharatsim.engine
 
 import com.bharatsim.engine.actions.{Action, ConditionalAction}
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
+import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
+import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.graph.ingestion.GraphData
 import com.bharatsim.engine.intervention.Intervention
 import com.bharatsim.engine.models.Agent
@@ -62,7 +64,12 @@ object ContextBuilder {
     */
   def registerAgent[T <: Agent: ClassTag](implicit decoder: BasicMapDecoder[T], context: Context): Unit = {
     val label = Utils.fetchClassName[T]
-    context.agentTypes.addOne(LabelWithDecoder(label, decoder))
+    context.agentTypes.put(label, decoder)
+  }
+
+  def registerState[T <: State: ClassTag](implicit encoder: BasicMapEncoder[T], decoder: BasicMapDecoder[T]): Unit = {
+    val className = Utils.fetchClassName[T]
+    State.saveSerde(className)
   }
 
   /**

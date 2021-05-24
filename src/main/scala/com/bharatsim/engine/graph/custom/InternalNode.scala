@@ -1,19 +1,20 @@
 package com.bharatsim.engine.graph.custom
 
+import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.{GraphNode, GraphNodeImpl}
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.immutable._
 
 private[engine] case class InternalNode(label: String, id: NodeId, params: HashMap[String, Any]) extends LazyLogging {
+
   private var relationships: HashMap[String, HashSet[NodeId]] = HashMap.empty
 
   private var incoming = HashMap.empty[String, HashSet[NodeId]]
 
   def fetchIncoming: Map[String, HashSet[NodeId]] = incoming
 
-  def toGraphNode: GraphNode = new GraphNodeImpl(label, id, params.toMap)
+  def toGraphNode: GraphNode = GraphNode(label, id, params)
 
   def fetchParam(key: String): Option[Any] = params.get(key)
 

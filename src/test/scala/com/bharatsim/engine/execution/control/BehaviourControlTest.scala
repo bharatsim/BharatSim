@@ -4,7 +4,7 @@ import com.bharatsim.engine.cache.PerTickCache
 import com.bharatsim.engine.graph.GraphProvider
 import com.bharatsim.engine.testModels.Student
 import com.bharatsim.engine.testModels.Student.{studentBehaviour1, studentBehaviour2}
-import com.bharatsim.engine.{Context, Dynamics, SimulationConfig}
+import com.bharatsim.engine.{ApplicationConfig, Context, Dynamics}
 import org.mockito.Mockito.clearInvocations
 import org.mockito.MockitoSugar.mock
 import org.mockito.{InOrder, Mockito}
@@ -27,7 +27,9 @@ class BehaviourControlTest extends AnyWordSpec with BeforeAndAfterEach {
   }
 
   private def getContext(steps: Int, mockGraphProvider: GraphProvider = mock[GraphProvider], perTickCache: PerTickCache = mock[PerTickCache]) = {
-    new Context(mockGraphProvider, new Dynamics, SimulationConfig(steps), perTickCache)
+    val config = mock[ApplicationConfig]
+    Mockito.when(config.simulationSteps).thenReturn(steps)
+    new Context(mockGraphProvider, config, perTickCache)
   }
 
   override protected def beforeEach(): Unit = {

@@ -2,37 +2,34 @@ package com.bharatsim.engine.execution.actorbased
 
 import akka.Done
 import akka.actor.typed.ActorSystem
-import com.bharatsim.engine.execution.AgentExecutor
+import com.bharatsim.engine.Context
 import com.bharatsim.engine.execution.actorbased.actors.TickLoop
-import com.bharatsim.engine.execution.simulation.{PostSimulationActions, PreSimulationActions}
-import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
-import com.bharatsim.engine.{ApplicationConfig, Context}
+import com.bharatsim.engine.execution.executors.ExecutorContext
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class ActorBackedSimulation(
-                             applicationConfig: ApplicationConfig,
-                             preSimulationActions: PreSimulationActions,
-                             postSimulationActions: PostSimulationActions,
-                             preTickActions: PreTickActions,
-                             agentExecutor: AgentExecutor,
-                             postTickActions: PostTickActions
-                           ) extends LazyLogging {
+class ActorBackedSimulation() extends LazyLogging {
   def run(context: Context): Future[Done] = {
-    preSimulationActions.execute()
-
-    val tickLoop = new TickLoop(context, applicationConfig, preTickActions, agentExecutor, postTickActions)
+    val (agentExecutor, actions) = new ExecutorContext().prepare(context)
+    actions.preSimulation.execute()
+    val tickLoop = new TickLoop(
+      context,
+      context.simulationConfig,
+      actions.preTick,
+      agentExecutor,
+      actions.postTick
+    )
     val actorSystem = ActorSystem(tickLoop.Tick(1), "ticks-loop")
     val executionContext = ExecutionContext.global
     actorSystem.whenTerminated.andThen {
       case Failure(exception) =>
         logger.error("Error occurred while executing simulation using actor system: {}", exception.getMessage)
-        postSimulationActions.execute()
+        actions.postSimulation.execute()
       case Success(_) =>
         logger.info("Finished running simulation")
-        postSimulationActions.execute()
+        actions.postSimulation.execute()
     }(executionContext)
   }
 }

@@ -9,24 +9,6 @@ import com.typesafe.scalalogging.LazyLogging
 import scala.collection.{immutable, mutable}
 
 class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGenerator: IdGenerator) extends LazyLogging {
-  def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
-    val reader = CSVReader.open(csvPath)
-    val records = reader.allWithHeaders()
-
-    if (mapper.isDefined) {
-      val batchOfNodes = mutable.ListBuffer.empty[CsvNode]
-      val batchOfRelations = mutable.ListBuffer.empty[Relation]
-      records.foreach(row => {
-        val graphData = mapper.get.apply(row)
-        batchOfNodes.addAll(graphData._nodes)
-        batchOfRelations.addAll(graphData._relations)
-      })
-
-      val refToIdMapping = batchImportNodes(batchOfNodes)
-      batchImportRelations(batchOfRelations, refToIdMapping)
-    }
-  }
-
   def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
     val nodeFrom = buffer.indexedNodes.get(node1)
     val nodeTo = buffer.indexedNodes.get(node2)
@@ -100,9 +82,7 @@ class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGener
     buffer.nodes.clear()
     buffer.indexedNodes.clear()
   }
-
-  def batchImportNodes(batchOfNodes: IterableOnce[CsvNode]): RefToIdMapping = {
-    val refToIdMapping = new RefToIdMapping
+  def batchImportNodes(batchOfNodes: IterableOnce[CsvNode], refToIdMapping: RefToIdMapping): Unit = {
     batchOfNodes.iterator
       .foreach(node => {
         if (!refToIdMapping.hasReference(node.uniqueRef, node.label)) {
@@ -110,8 +90,6 @@ class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGener
           refToIdMapping.addMapping(node.label, node.uniqueRef, nodeId)
         }
       })
-
-    refToIdMapping
   }
 
   def batchImportRelations(relations: IterableOnce[Relation], refToIdMapping: RefToIdMapping): Unit = {
@@ -143,13 +121,16 @@ class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGener
   }
 
   private def filterNodesByMatchingParams(label: String, params: Map[String, Any]) = {
-    buffer.nodes(label).values.filter(node => {
-      params
-        .map(kv => {
-          val value = node.fetchParam(kv._1)
-          value.isDefined && value.get == kv._2
-        })
-        .reduce((a, b) => a && b)
-    })
+    buffer
+      .nodes(label)
+      .values
+      .filter(node => {
+        params
+          .map(kv => {
+            val value = node.fetchParam(kv._1)
+            value.isDefined && value.get == kv._2
+          })
+          .reduce((a, b) => a && b)
+      })
   }
 }

@@ -1,5 +1,13 @@
 package com.bharatsim.engine.graph
 
+import java.nio.file.Paths
+import java.util.concurrent.atomic.AtomicInteger
+
+import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.{ActorSystem, DispatcherSelector}
+import akka.stream.alpakka.csv.scaladsl.{CsvParsing, CsvToMap}
+import akka.stream.scaladsl.FileIO
+import com.bharatsim.engine.ApplicationConfigFactory
 import com.bharatsim.engine.basicConversions.BasicConversions
 import com.bharatsim.engine.basicConversions.decoders.BasicMapDecoder
 import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
@@ -8,33 +16,38 @@ import com.bharatsim.engine.graph.ingestion._
 import com.bharatsim.engine.graph.patternMatcher.{EmptyPattern, MatchPattern}
 import com.bharatsim.engine.models.Node
 import com.bharatsim.engine.utils.Utils.fetchClassName
+import com.typesafe.scalalogging.LazyLogging
 
+import scala.collection.mutable
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.reflect.ClassTag
+import scala.util.{Failure, Success}
 
 /**
   * Representation of node data from the data store
   */
-trait GraphNode {
+case class GraphNode(nodeLabel: String, id: NodeId, params: Map[String, Any] = Map.empty) {
 
   /**
     * label of the node
     */
-  def label: String
+  def label: String = nodeLabel
 
   /** Id of the node */
-  def Id: NodeId
+  def Id: NodeId = id
 
   /**
     * Additional parameter associated with node
     */
-  def getParams: Map[String, Any]
+  def getParams: Map[String, Any] = params
 
   /**
     *  gets the data from the node
     * @param key parameter name
     * @return value of the parameter
     */
-  def apply(key: String): Option[Any]
+  def apply(key: String): Option[Any] = params.get(key)
 
   /**
     * Decodes the GraphNode to the node instance in the model
@@ -50,22 +63,12 @@ trait GraphNode {
   }
 }
 
-object GraphNode {
-  def apply(nodeLabel: String, id: NodeId, params: Map[String, Any] = Map.empty): GraphNode = new GraphNode() {
-    override def label: String = nodeLabel
-
-    override def Id: NodeId = id
-
-    override def getParams: Map[String, Any] = params
-
-    override def apply(key: String): Option[Any] = params.get(key)
-  }
-}
+case class PartialGraphNode(nodeLabel: String, id: NodeId, params: Map[String, Any])
 
 /**
   * GraphProvider interface allows to perform CRUD operations on underlying data store
   */
-trait GraphProvider {
+trait GraphProvider extends LazyLogging {
   /* CRUD */
 
   /**
@@ -83,7 +86,8 @@ trait GraphProvider {
 
     val nodeExpander = new NodeExpander
     val data = nodeExpander.expand[T](label, id, x)
-    val refToIdMapping = batchImportNodes(data._nodes)
+    val refToIdMapping = new RefToIdMapping()
+    batchImportNodes(data._nodes, refToIdMapping)
     refToIdMapping.addMapping(label, id, id)
     batchImportRelations(data._relations, refToIdMapping)
 
@@ -106,7 +110,7 @@ trait GraphProvider {
     * @param props is data associated with Node.
     * @return a node id of newly created Node.
     */
-  private[engine] def createNode(label: String, props: (String, Any)*): NodeId
+  private[engine] def createNode(label: String, props: (String, Any)*): NodeId = createNode(label, props.toMap)
 
   /**
     * Crate one way relation or connection between node
@@ -123,9 +127,51 @@ trait GraphProvider {
     * @param csvPath is path to the CSV
     * @param mapper  is function that map a csv row to Nodes and Relations
     */
-  def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit
+  private[engine] def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
+    if (mapper.isDefined) {
+      val config = ApplicationConfigFactory.config
+      val refToIdMapping = new RefToIdMapping()
+      val batchCounter = new AtomicInteger(0)
 
-  private[engine] def batchImportNodes(node: IterableOnce[CsvNode]): RefToIdMapping
+      implicit val actorSystem = ActorSystem(Behaviors.empty[Any], "Ingestion")
+      implicit val ec: ExecutionContext = actorSystem.dispatchers.lookup(DispatcherSelector.blocking())
+      val f = FileIO
+        .fromPath(Paths.get(csvPath))
+        .via(CsvParsing.lineScanner())
+        .via(CsvToMap.toMapAsStrings())
+        .mapAsync(config.ingestionMapParallelism)(row => {
+          Future {
+            mapper.get.apply(row)
+          }
+        })
+        .grouped(config.ingestionBatchSize)
+        .map((graphDataList) => {
+          val nodes = mutable.ListBuffer.empty[CsvNode]
+          val relations = mutable.ListBuffer.empty[Relation]
+          graphDataList.foreach((data) => {
+            nodes.addAll(data._nodes.filter(node => !refToIdMapping.hasReference(node.uniqueRef, node.label)))
+            relations.addAll(data._relations)
+          })
+          (nodes, relations)
+        })
+        .runForeach((groupedData) => {
+          batchImportNodes(groupedData._1, refToIdMapping)
+          batchImportRelations(groupedData._2, refToIdMapping)
+          logger.info("Ingested batch number {}", batchCounter.incrementAndGet())
+        })
+
+      f.onComplete({
+        case Failure(ex) => {
+          logger.error("Ingestion Failed : {}", ex.getMessage);
+          throw ex;
+        }
+        case Success(value) => actorSystem.terminate()
+      })
+      Await.ready(f, Duration.Inf)
+    }
+  }
+
+  private[engine] def batchImportNodes(node: IterableOnce[CsvNode], refToIdMapping: RefToIdMapping) = {}
 
   private[engine] def batchImportRelations(relations: IterableOnce[Relation], refToIdMapping: RefToIdMapping)
 
@@ -160,7 +206,7 @@ trait GraphProvider {
     * @param params is data parameter of node to find
     * @return all the matching nodes
     */
-  def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode]
+  def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
 
   /**
     * Gets all the nodes that matches the criteria
@@ -210,7 +256,8 @@ trait GraphProvider {
     * @param prop updated data
     * @param props additional updated data
     */
-  def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit
+  def updateNode(nodeId: NodeId, prop: (String, Any), props: (String, Any)*): Unit =
+    updateNode(nodeId, (prop :: props.toList).toMap)
 
   /**
     * delete the node.

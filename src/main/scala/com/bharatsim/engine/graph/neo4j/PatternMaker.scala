@@ -1,5 +1,6 @@
 package com.bharatsim.engine.graph.neo4j
 
+import com.bharatsim.engine.basicConversions.BasicValue
 import com.bharatsim.engine.graph.patternMatcher._
 
 case class PatternWithParams(pattern: String, params: Map[String, Any])
@@ -48,19 +49,40 @@ private[engine] object PatternMaker {
     }
   }
 
-  private def condition(mc: MatchCondition, variable: String, generatedVariable: String, propsPrefix: Option[String]): PatternWithParams = {
-    val valueVariable = if(propsPrefix.isDefined) s"""${propsPrefix.get}.$generatedVariable""" else s"""$$$generatedVariable"""
+  private def condition(
+      mc: MatchCondition,
+      variable: String,
+      generatedVariable: String,
+      propsPrefix: Option[String]
+  ): PatternWithParams = {
+    val valueVariable =
+      if (propsPrefix.isDefined) s"""${propsPrefix.get}.$generatedVariable""" else s"""$$$generatedVariable"""
     mc match {
       case Equals(b, key) =>
-        PatternWithParams(s"$variable.$key = $valueVariable", Map(generatedVariable -> b.get))
+        PatternWithParams(
+          s"$variable.$key = $valueVariable",
+          Map(generatedVariable -> b)
+        )
       case LessThan(b, key) =>
-        PatternWithParams(s"$variable.$key < $valueVariable", Map(generatedVariable -> b.get))
+        PatternWithParams(
+          s"$variable.$key < $valueVariable",
+          Map(generatedVariable -> b)
+        )
       case GreaterThan(b, key) =>
-        PatternWithParams(s"$variable.$key > $valueVariable", Map(generatedVariable -> b.get))
+        PatternWithParams(
+          s"$variable.$key > $valueVariable",
+          Map(generatedVariable -> b)
+        )
       case LessThanEquals(b, key) =>
-        PatternWithParams(s"$variable.$key <= $valueVariable", Map(generatedVariable -> b.get))
+        PatternWithParams(
+          s"$variable.$key <= $valueVariable",
+          Map(generatedVariable -> b)
+        )
       case GreaterThanEquals(b, key) =>
-        PatternWithParams(s"$variable.$key >= $valueVariable", Map(generatedVariable -> b.get))
+        PatternWithParams(
+          s"$variable.$key >= $valueVariable",
+          Map(generatedVariable -> b)
+        )
     }
   }
 }

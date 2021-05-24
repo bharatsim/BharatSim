@@ -4,19 +4,19 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
 import com.bharatsim.engine.execution.AgentExecutor
 import com.bharatsim.engine.execution.NodeWithDecoder.GenericNodeWithDecoder
+import com.bharatsim.engine.execution.actions.{PostTickActions, PreTickActions}
 import com.bharatsim.engine.execution.actorbased.RoundRobinStrategy
 import com.bharatsim.engine.execution.actorbased.actors.AgentProcessor.{NotifyCompletion, UnitOfWork}
 import com.bharatsim.engine.execution.actorbased.actors.TickLoop.{Command, CurrentTick, UnitOfWorkFinished}
-import com.bharatsim.engine.execution.tick.{PostTickActions, PreTickActions}
 import com.bharatsim.engine.{ApplicationConfig, Context}
 
 class TickLoop(
-                simulationContext: Context,
-                applicationConfig: ApplicationConfig,
-                preTickActions: PreTickActions,
-                agentExecutor: AgentExecutor,
-                postTickActions: PostTickActions
-              ) {
+    simulationContext: Context,
+    applicationConfig: ApplicationConfig,
+    preTickActions: PreTickActions,
+    agentExecutor: AgentExecutor,
+    postTickActions: PostTickActions
+) {
 
   class Tick(actorContext: ActorContext[Command], currentTick: Int) extends AbstractBehavior(actorContext) {
 
@@ -50,7 +50,7 @@ class TickLoop(
     private def getOrCreateChildActor(actorName: String): ActorRef[AgentProcessor.Command] = {
       actorContext.child(actorName) match {
         case Some(value: ActorRef[AgentProcessor.Command]) => value
-        case None => actorContext.spawn(AgentProcessor(agentExecutor), actorName)
+        case None                                          => actorContext.spawn(AgentProcessor(agentExecutor), actorName)
       }
     }
   }
@@ -62,7 +62,7 @@ class TickLoop(
   }
 
   class TickBarrier(actorContext: ActorContext[Command], currentTick: Int, totalUnits: Int, finishedUnits: Int)
-    extends AbstractBehavior(actorContext) {
+      extends AbstractBehavior(actorContext) {
     override def onMessage(msg: TickLoop.Command): Behavior[Command] =
       msg match {
         case UnitOfWorkFinished =>

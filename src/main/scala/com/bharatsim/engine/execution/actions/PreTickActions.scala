@@ -1,4 +1,4 @@
-package com.bharatsim.engine.execution.tick
+package com.bharatsim.engine.execution.actions
 
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.listeners.SimulationListenerRegistry
@@ -13,6 +13,7 @@ class PreTickActions(context: Context) extends LazyLogging {
     invokeInterventionActions()
 
     context.perTickCache.clear()
+    logger.info("done PreTickAction for tick {}", tick)
   }
 
   private def invokeInterventionActions(): Unit = {
