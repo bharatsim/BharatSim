@@ -2,7 +2,7 @@ package com.bharatsim.engine.execution.executors
 
 import akka.actor.typed.ActorSystem
 import com.bharatsim.engine.distributed.Guardian
-import com.bharatsim.engine.execution.{SimulationDefinition, SimulationExecutor}
+import com.bharatsim.engine.execution.SimulationDefinition
 import com.typesafe.config.ConfigFactory
 
 class DistributedExecutor(guardian: Guardian = new Guardian()) extends SimulationExecutor {

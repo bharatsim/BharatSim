@@ -23,6 +23,21 @@ class TickTest extends AnyWordSpec with Matchers {
       verify(agentExecutor).execute(node2)
     }
   }
+  "execParallel" should {
+    "invoke execution of all registered agents" in {
+      val agentExecutor = mock[AgentExecutor]
+      val context = mock[Context]
+      val node1 = mock[GenericNodeWithDecoder]
+      val node2 = mock[GenericNodeWithDecoder]
+      when(context.registeredNodesWithDecoder).thenReturn(List(node1, node2))
+
+      val step = new Tick(1, context, mock[PreTickActions], agentExecutor, mock[PostTickActions])
+      step.execParallel()
+
+      verify(agentExecutor).execute(node1)
+      verify(agentExecutor).execute(node2)
+    }
+  }
 
   "preStepActions" should {
     "invoke pre tick actions for current tick" in {

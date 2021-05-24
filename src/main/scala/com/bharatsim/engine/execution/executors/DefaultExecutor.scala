@@ -1,6 +1,6 @@
 package com.bharatsim.engine.execution.executors
 
-import com.bharatsim.engine.execution.{SimulationDefinition, SimulationExecutor, Tick}
+import com.bharatsim.engine.execution.{SimulationDefinition, Tick}
 import com.bharatsim.engine.graph.GraphProviderFactory
 import com.bharatsim.engine.{ApplicationConfigFactory, CollectionBased, Context}
 
