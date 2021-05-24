@@ -1,6 +1,6 @@
 package com.bharatsim.model
 
-import com.bharatsim.engine.ContextBuilder._
+import com.bharatsim.engine.ContextBuilder.{ingestCSVData, _}
 import com.bharatsim.engine._
 import com.bharatsim.engine.actions.StopSimulation
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
@@ -8,8 +8,6 @@ import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.dsl.SyntaxHelpers._
 import com.bharatsim.engine.execution.Simulation
 import com.bharatsim.engine.graph.GraphNode
-import com.bharatsim.engine.fsm.State
-import com.bharatsim.engine.graph.custom.BufferedGraphWithAutoSync
 import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.intervention.{IntervalBasedIntervention, Intervention}
@@ -27,10 +25,17 @@ object Main extends LazyLogging {
   private val initialInfectedFraction = 0.3
 
   def main(args: Array[String]): Unit = {
-    implicit val context: Context = Simulation.init()
-    context.setDynamics(Disease)
-    try {
+    var beforeCount = 0
 
+    val simulation = Simulation()
+    simulation.ingestData { implicit context =>
+      context.setDynamics(Disease)
+      ingestCSVData("input.csv", csvDataExtractor)
+      logger.debug("Ingestion done")
+    }
+
+    simulation.defineSimulation { implicit context =>
+      context.setDynamics(Disease)
       addLockdown
       vaccination
 
@@ -43,11 +48,16 @@ object Main extends LazyLogging {
         }
       )
 
-      ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
-      logger.debug("Ingestion done")
-      val beforeCount = getInfectedCount(context)
+      beforeCount = getInfectedCount(context)
 
       registerAgent[Person]
+      registerState[AsymptomaticState]
+      registerState[DeceasedState]
+      registerState[ExposedState]
+      registerState[InfectedState]
+      registerState[PreSymptomaticState]
+      registerState[RecoveredState]
+      registerState[SusceptibleState]
 
       SimulationListenerRegistry.register(
         new CsvOutputGenerator("src/main/resources/output.csv", new SEIROutputSpec(context))
@@ -56,14 +66,19 @@ object Main extends LazyLogging {
         new CsvOutputGenerator("src/main/resources/GIS_output.csv", new GISOutputSpec(context))
       )
 
-      val startTime = System.currentTimeMillis()
-      Simulation.run()
-      val endTime = System.currentTimeMillis()
-      logger.info("Total time: {} s", (endTime - startTime) / 1000)
+    }
+
+    simulation.onCompleteSimulation { implicit context =>
       printStats(beforeCount)
-    } finally {
+
       teardown()
     }
+
+    val startTime = System.currentTimeMillis()
+    simulation.run()
+    val endTime = System.currentTimeMillis()
+    logger.info("Total time: {} s", (endTime - startTime) / 1000)
+
   }
 
   private def vaccination(implicit context: Context): Unit = {
@@ -203,7 +218,7 @@ object Main extends LazyLogging {
     val isStudent: Boolean = schoolId > 0
 
     val betaMultiplier = 1.0
-//    val gammaMultiplier = if (age > ageLimit) 0.1 else 0.4
+    //    val gammaMultiplier = if (age > ageLimit) 0.1 else 0.4
     val gammaMultiplier = 0
 
     val citizen: Person = Person(

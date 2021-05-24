@@ -6,7 +6,7 @@ import com.bharatsim.engine.actions.StopSimulation
 import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.dsl.SyntaxHelpers._
-import com.bharatsim.engine.execution.DistributedSimulation
+import com.bharatsim.engine.execution.Simulation
 import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerRegistry}
@@ -27,7 +27,7 @@ object Main2 extends LazyLogging {
 
   def main(args: Array[String]): Unit = {
     var beforeCount = 0
-    val distributedSimulation = DistributedSimulation()
+    val distributedSimulation = Simulation()
 
     distributedSimulation.ingestData { implicit context =>
       context.setDynamics(Disease)
