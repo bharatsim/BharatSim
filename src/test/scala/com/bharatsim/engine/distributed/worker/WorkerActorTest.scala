@@ -4,7 +4,7 @@ import akka.Done
 import akka.actor.testkit.typed.scaladsl.{BehaviorTestKit, TestInbox}
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.receptionist.Receptionist
-import com.bharatsim.engine.Context
+import com.bharatsim.engine.{ApplicationConfig, Context}
 import com.bharatsim.engine.distributed.engineMain.Barrier.WorkFinished
 import com.bharatsim.engine.distributed.engineMain.DistributedTickLoop.StartOfNewTickAck
 import com.bharatsim.engine.distributed.engineMain.WorkDistributor.{AgentLabelExhausted, FetchWork}
@@ -37,14 +37,15 @@ class WorkerActorTest
   val simDef = SimulationDefinition(ingestionStep, body, onComplete)
 
   val mockAgentProcessor = mock[DistributedAgentProcessor]
-  val context = Context(mockGraphProvider)
+  val mockApplicationConfig = mock[ApplicationConfig]
+  val context = Context(mockGraphProvider, mockApplicationConfig)
   val agentLabel = "testLabel"
   val skip = 0
   val limit = 10
   val agentWithState = List((mock[GraphNode], Some(mock[GraphNode])))
   override def beforeEach() = {
     when(mockGraphProvider.fetchWithStates(agentLabel, skip, limit)).thenReturn(agentWithState)
-
+    when(mockApplicationConfig.hasWorkerRole()).thenReturn(true)
     when(mockAgentProcessor.process(any, any, any)(any)).thenReturn(Future.successful(Done))
 
   }

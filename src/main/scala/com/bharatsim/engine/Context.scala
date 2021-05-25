@@ -59,7 +59,7 @@ class Context(
     * @return Set of intervention names that are active at the current tick
     */
   def activeInterventionNames: Set[String] = {
-    if (ApplicationConfigFactory.config.hasWorkerRole()) {
+    if (simulationConfig.hasWorkerRole()) {
       return proxyActiveInterventions
     }
     interventions.activeNames

@@ -33,7 +33,7 @@ Compile / doc / scalacOptions := Seq("-skip-packages", "com.bharatsim.model")
 Test / fork := true
 
 coverageEnabled := true
-coverageExcludedPackages := "com\\.bharatsim\\.model.*"
+coverageExcludedPackages := "com\\.bharatsim\\.model.*;com\\.bharatsim\\.examples.*"
 
 assemblyMergeStrategy in assembly := {
   case PathList("META-INF", xs @ _*) => MergeStrategy.discard

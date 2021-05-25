@@ -24,7 +24,7 @@ class DistributedTickLoop(
 ) extends AbstractBehavior(actorContext)
     with LazyLogging {
 
-  star()
+  start()
 
   override def onMessage(msg: Command): Behavior[Command] =
     msg match {
@@ -41,7 +41,7 @@ class DistributedTickLoop(
   private def isEndOfSimulation =
     currentTick > simulationContext.simulationConfig.simulationSteps || simulationContext.stopSimulation
 
-  private def star(): Unit = {
+  private def start(): Unit = {
     simulationContext.graphProvider.asInstanceOf[BatchNeo4jProvider].setBookmarks(bookmarks)
 
     if (isEndOfSimulation) {
