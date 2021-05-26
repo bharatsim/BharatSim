@@ -4,7 +4,7 @@ import com.bharatsim.engine.cache.PerTickCache
 import com.bharatsim.engine.execution.actions.PreTickActions
 import com.bharatsim.engine.graph.GraphProvider
 import com.bharatsim.engine.intervention.{Intervention, Interventions}
-import com.bharatsim.engine.{ApplicationConfig, Context, Dynamics}
+import com.bharatsim.engine.{ApplicationConfig, Context}
 import org.mockito.Mockito
 import org.mockito.MockitoSugar.{mock, verify, when}
 import org.scalatest.matchers.should.Matchers

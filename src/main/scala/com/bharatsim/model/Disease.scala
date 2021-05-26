@@ -1,9 +1,8 @@
 package com.bharatsim.model
 
-import com.bharatsim.engine.Dynamics
 import com.bharatsim.engine.distributions.LogNormal
 
-object Disease extends Dynamics {
+object Disease {
   final val asymptomaticPopulationPercentage = 0.3
   final val severeInfectedPopulationPercentage = 0.3
 

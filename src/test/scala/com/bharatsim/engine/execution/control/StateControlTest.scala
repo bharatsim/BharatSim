@@ -12,7 +12,7 @@ import com.bharatsim.engine.models.StatefulAgent
 import com.bharatsim.engine.models.StatefulAgent.STATE_RELATIONSHIP
 import com.bharatsim.engine.testModels.StatefulPerson
 import com.bharatsim.engine.testModels.TestFSM.{IdleState, NoTransitionState, StateWithTransition}
-import com.bharatsim.engine.{ApplicationConfig, Context, Dynamics}
+import com.bharatsim.engine.{ApplicationConfig, Context}
 import org.mockito.MockitoSugar.mock
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers

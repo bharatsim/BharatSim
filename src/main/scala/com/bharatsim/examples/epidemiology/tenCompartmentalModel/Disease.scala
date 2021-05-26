@@ -1,11 +1,10 @@
 package com.bharatsim.examples.epidemiology.tenCompartmentalModel
 
-import com.bharatsim.engine.Dynamics
 import com.bharatsim.engine.distributions.LogNormal
 
 import scala.collection.immutable.HashMap
 
-object Disease extends Dynamics {
+object Disease {
 
   final val beta: Double = 0.5
 
