@@ -53,10 +53,10 @@ case class ExposedState(
 
   private def getNextCompartmentDuration(context: Context): Double = {
     if (isAsymptomatic) {
-      return (context.dynamics.asInstanceOf[Disease.type].asymptomaticDurationProbabilityDistribution.sample()
+      return (Disease.asymptomaticDurationProbabilityDistribution.sample()
         + exposedDuration)
     }
-    context.dynamics.asInstanceOf[Disease.type].presymptomaticDurationProbabilityDistribution.sample() + exposedDuration
+    Disease.presymptomaticDurationProbabilityDistribution.sample() + exposedDuration
   }
 
   addTransition(

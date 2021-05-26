@@ -29,13 +29,11 @@ object Main extends LazyLogging {
 
     val simulation = Simulation()
     simulation.ingestData { implicit context =>
-      context.setDynamics(Disease)
       ingestCSVData("input.csv", csvDataExtractor)
       logger.debug("Ingestion done")
     }
 
     simulation.defineSimulation { implicit context =>
-      context.setDynamics(Disease)
       addLockdown
       vaccination
 
@@ -299,18 +297,18 @@ object Main extends LazyLogging {
   private def setCitizenInitialState(context: Context, citizen: Person): Unit = {
     val initialState = citizen.infectionState.toString
     val isAsymptomatic: Boolean = biasedCoinToss(
-      context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage
+      Disease.asymptomaticPopulationPercentage
     )
-    val severeInfectionPercentage = context.dynamics.asInstanceOf[Disease.type].severeInfectedPopulationPercentage
-    val exposedDuration = context.dynamics.asInstanceOf[Disease.type].exposedDurationProbabilityDistribution.sample()
+    val severeInfectionPercentage = Disease.severeInfectedPopulationPercentage
+    val exposedDuration = Disease.exposedDurationProbabilityDistribution.sample()
     val asymptomaticDuration =
-      context.dynamics.asInstanceOf[Disease.type].asymptomaticDurationProbabilityDistribution.sample()
+      Disease.asymptomaticDurationProbabilityDistribution.sample()
     val preSymptomaticDuration =
-      context.dynamics.asInstanceOf[Disease.type].presymptomaticDurationProbabilityDistribution.sample()
+      Disease.presymptomaticDurationProbabilityDistribution.sample()
     val mildSymptomaticDuration =
-      context.dynamics.asInstanceOf[Disease.type].mildSymptomaticDurationProbabilityDistribution.sample()
+      Disease.mildSymptomaticDurationProbabilityDistribution.sample()
     val severeSymptomaticDuration =
-      context.dynamics.asInstanceOf[Disease.type].severeSymptomaticDurationProbabilityDistribution.sample()
+      Disease.severeSymptomaticDurationProbabilityDistribution.sample()
     initialState match {
       case "Susceptible" => citizen.setInitialState(SusceptibleState())
       case "Exposed" =>

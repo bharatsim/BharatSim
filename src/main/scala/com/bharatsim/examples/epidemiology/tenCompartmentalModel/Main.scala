@@ -57,15 +57,12 @@ object Main extends LazyLogging {
     var beforeCount = 0
     val simulation = Simulation()
     simulation.ingestData { implicit context =>
-      context.setDynamics(Disease)
       ingestCSVData("input.csv", csvDataExtractor)
 
       logger.debug("Ingestion done")
     }
 
     simulation.defineSimulation { implicit context =>
-      context.setDynamics(Disease)
-
       ingestedPopulation = context.graphProvider.fetchCount("Person", EmptyPattern())
       addLockdown
       vaccination
@@ -409,18 +406,13 @@ object Main extends LazyLogging {
 
   private def setCitizenInitialState(context: Context, citizen: Person): Unit = {
     val initialState = citizen.infectionState.toString
-    val exposedDuration = context.dynamics.asInstanceOf[Disease.type].exposedDurationProbabilityDistribution.sample()
+    val exposedDuration = Disease.exposedDurationProbabilityDistribution.sample()
     //    TODO: Add the change to master - Jayanta / Philip
-    val asymptomaticDuration =
-      context.dynamics.asInstanceOf[Disease.type].asymptomaticDurationProbabilityDistribution.sample()
-    val preSymptomaticDuration =
-      context.dynamics.asInstanceOf[Disease.type].presymptomaticDurationProbabilityDistribution.sample()
-    val mildSymptomaticDuration =
-      context.dynamics.asInstanceOf[Disease.type].mildSymptomaticDurationProbabilityDistribution.sample()
-    val severeSymptomaticDuration =
-      context.dynamics.asInstanceOf[Disease.type].severeSymptomaticDurationProbabilityDistribution.sample()
-    val hospitalizedDuration =
-      context.dynamics.asInstanceOf[Disease.type].criticalSymptomaticDurationProbabilityDistribution.sample()
+    val asymptomaticDuration = Disease.asymptomaticDurationProbabilityDistribution.sample()
+    val preSymptomaticDuration = Disease.presymptomaticDurationProbabilityDistribution.sample()
+    val mildSymptomaticDuration = Disease.mildSymptomaticDurationProbabilityDistribution.sample()
+    val severeSymptomaticDuration = Disease.severeSymptomaticDurationProbabilityDistribution.sample()
+    val hospitalizedDuration = Disease.criticalSymptomaticDurationProbabilityDistribution.sample()
     initialState match {
       case "Susceptible"    => citizen.setInitialState(SusceptibleState())
       case "Exposed"        => citizen.setInitialState(ExposedState(exposedDuration))

@@ -14,8 +14,8 @@ case class SusceptibleState() extends State {
 
   def shouldInfect(context: Context, agent: StatefulAgent): Boolean = {
     if (agent.activeState == SusceptibleState()) {
-      val infectionRate = context.dynamics.asInstanceOf[Disease.type].infectionRate
-      val dt = context.dynamics.asInstanceOf[Disease.type].dt
+      val infectionRate = Disease.infectionRate
+      val dt = Disease.dt
 
       val schedule = context.fetchScheduleFor(agent).get
 
@@ -61,9 +61,9 @@ case class SusceptibleState() extends State {
     when = shouldInfect,
     to = context =>
       ExposedState(
-        context.dynamics.asInstanceOf[Disease.type].severeInfectedPopulationPercentage,
-        biasedCoinToss(context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage),
-        context.dynamics.asInstanceOf[Disease.type].exposedDurationProbabilityDistribution.sample()
+        Disease.severeInfectedPopulationPercentage,
+        biasedCoinToss(Disease.asymptomaticPopulationPercentage),
+        Disease.exposedDurationProbabilityDistribution.sample()
       )
   )
 }

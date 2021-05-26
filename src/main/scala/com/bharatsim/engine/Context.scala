@@ -28,7 +28,6 @@ class Context(
   type AgentDecoder = BasicMapDecoder[_ <: Agent]
   private[engine] val agentTypes: mutable.HashMap[String, AgentDecoder] = mutable.HashMap.empty
   private[engine] var currentStep = 0
-  var dynamics: Dynamics = null
   private[engine] val actions: ListBuffer[ConditionalAction] = ListBuffer.empty
   private[engine] var stopSimulation = false
   private[engine] val interventions = new Interventions()
@@ -42,10 +41,6 @@ class Context(
     */
   def fetchScheduleFor(agent: Agent): Option[Schedule] = {
     schedules.get(agent, this)
-  }
-
-  def setDynamics(d: Dynamics): Unit = {
-    dynamics = d
   }
 
   /**

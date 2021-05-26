@@ -33,7 +33,7 @@ case class InfectedState(severity: InfectionSeverity, infectedDuration: Double) 
 
   def checkForDeceased(context: Context, agent: StatefulAgent): Boolean = {
     if (agent.asInstanceOf[Person].isSevereInfected && checkInfectionLastDay(context, agent)) {
-      if (biasedCoinToss(context.dynamics.asInstanceOf[Disease.type].deathRate)) {
+      if (biasedCoinToss(Disease.deathRate)) {
         return true
       }
     }

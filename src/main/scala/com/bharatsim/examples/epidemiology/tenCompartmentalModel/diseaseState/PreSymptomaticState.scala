@@ -26,15 +26,9 @@ case class PreSymptomaticState(infectionSeverity: InfectionSeverity, preSymptoma
 
   private def getInfectionDuration(context: Context, infectionSeverity: InfectionSeverity): Double = {
     if (infectionSeverity == Mild) {
-      return (context.dynamics
-        .asInstanceOf[Disease.type]
-        .mildSymptomaticDurationProbabilityDistribution
-        .sample() + preSymptomaticDuration)
+      return (Disease.mildSymptomaticDurationProbabilityDistribution.sample() + preSymptomaticDuration)
     }
-    context.dynamics
-      .asInstanceOf[Disease.type]
-      .severeSymptomaticDurationProbabilityDistribution
-      .sample() + preSymptomaticDuration
+    Disease.severeSymptomaticDurationProbabilityDistribution.sample() + preSymptomaticDuration
   }
 
   addTransition(

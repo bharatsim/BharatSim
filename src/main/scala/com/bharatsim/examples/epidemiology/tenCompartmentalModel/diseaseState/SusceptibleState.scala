@@ -14,8 +14,8 @@ case class SusceptibleState() extends State {
   //    TODO: Add the change to master - Jayanta / Philip
   def shouldBeInfected(context: Context, agent: StatefulAgent): Boolean = {
     if (agent.activeState == SusceptibleState()) {
-      val infectionRate = context.dynamics.asInstanceOf[Disease.type].beta
-      val dt = context.dynamics.asInstanceOf[Disease.type].dt
+      val infectionRate = Disease.beta
+      val dt = Disease.dt
 
       val schedule = context.fetchScheduleFor(agent).get
 

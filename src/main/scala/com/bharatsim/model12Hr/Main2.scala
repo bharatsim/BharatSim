@@ -30,13 +30,10 @@ object Main2 extends LazyLogging {
     val distributedSimulation = Simulation()
 
     distributedSimulation.ingestData { implicit context =>
-      context.setDynamics(Disease)
       ingestCSVData("local/input.csv", csvDataExtractor)
     }
 
     distributedSimulation.defineSimulation { implicit context =>
-      context.setDynamics(Disease)
-
       createBasicSchedule()
 
       registerAction(
@@ -154,16 +151,16 @@ object Main2 extends LazyLogging {
   private def setCitizenInitialState(context: Context, citizen: Person): Unit = {
     val initialState = citizen.infectionState.toString
     val isAsymptomatic: Boolean = biasedCoinToss(
-      context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage
+      Disease.asymptomaticPopulationPercentage
     )
-    val severeInfectionPercentage = context.dynamics.asInstanceOf[Disease.type].severeInfectedPopulationPercentage
-    val exposedDuration = context.dynamics.asInstanceOf[Disease.type].exposedDurationProbabilityDistribution.sample()
+    val severeInfectionPercentage = Disease.severeInfectedPopulationPercentage
+    val exposedDuration = Disease.exposedDurationProbabilityDistribution.sample()
     val preSymptomaticDuration =
-      context.dynamics.asInstanceOf[Disease.type].presymptomaticDurationProbabilityDistribution.sample()
+      Disease.presymptomaticDurationProbabilityDistribution.sample()
     val mildSymptomaticDuration =
-      context.dynamics.asInstanceOf[Disease.type].mildSymptomaticDurationProbabilityDistribution.sample()
+      Disease.mildSymptomaticDurationProbabilityDistribution.sample()
     val severeSymptomaticDuration =
-      context.dynamics.asInstanceOf[Disease.type].severeSymptomaticDurationProbabilityDistribution.sample()
+      Disease.severeSymptomaticDurationProbabilityDistribution.sample()
     initialState match {
       case "Susceptible" => citizen.setInitialState(SusceptibleState())
       case "Exposed" =>

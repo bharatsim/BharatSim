@@ -29,7 +29,6 @@ object Main extends LazyLogging {
     val simulation = Simulation()
 
     simulation.ingestData(implicit context => {
-      context.setDynamics(Disease)
       ingestCSVData("citizen10k.csv", csvDataExtractor)
       logger.debug("Ingestion done")
     })

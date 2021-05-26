@@ -15,8 +15,8 @@ case class SusceptibleState(var gammaMultiplier: Double = 0.0) extends State {
   def shouldInfect(context: Context, agent: StatefulAgent): Boolean = {
     if (agent.activeState == SusceptibleState()) {
       gammaMultiplier = agent.asInstanceOf[Person].gammaMultiplier
-      val infectionRate = context.dynamics.asInstanceOf[Disease.type].infectionRate
-      val dt = context.dynamics.asInstanceOf[Disease.type].dt
+      val infectionRate = Disease.infectionRate
+      val dt = Disease.dt
 
       val schedule = context.fetchScheduleFor(agent).get
 
@@ -43,14 +43,13 @@ case class SusceptibleState(var gammaMultiplier: Double = 0.0) extends State {
   }
 
   private def fetchFromStore(decodedPlace: Network): Double = {
-    val infectedPattern = ("infectionState" equ InfectedMild) or ("infectionState" equ InfectedSevere) or ("infectionState" equ Asymptomatic) or ("infectionState" equ PreSymptomatic)
+    val infectedPattern =
+      ("infectionState" equ InfectedMild) or ("infectionState" equ InfectedSevere) or ("infectionState" equ Asymptomatic) or ("infectionState" equ PreSymptomatic)
     val total = decodedPlace.getConnectionCount(decodedPlace.getRelation[Person]().get)
     val infectedUnvaccinated = decodedPlace
-      .getConnectionCount(decodedPlace.getRelation[Person]().get,
-        ("vaccinationStatus" equ false) and infectedPattern)
+      .getConnectionCount(decodedPlace.getRelation[Person]().get, ("vaccinationStatus" equ false) and infectedPattern)
     val infectedVaccinated = decodedPlace
-      .getConnectionCount(decodedPlace.getRelation[Person]().get,
-        ("vaccinationStatus" equ true) and infectedPattern)
+      .getConnectionCount(decodedPlace.getRelation[Person]().get, ("vaccinationStatus" equ true) and infectedPattern)
 
     if (total == 0.0)
       return 0.0
@@ -63,10 +62,12 @@ case class SusceptibleState(var gammaMultiplier: Double = 0.0) extends State {
     when = shouldInfect,
     to = context =>
       ExposedState(
-        context.dynamics.asInstanceOf[Disease.type].severeInfectedPopulationPercentage,
-        biasedCoinToss(context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage
-          + this.gammaMultiplier * context.dynamics.asInstanceOf[Disease.type].asymptomaticPopulationPercentage),
-        context.dynamics.asInstanceOf[Disease.type].exposedDurationProbabilityDistribution.sample()
+        Disease.severeInfectedPopulationPercentage,
+        biasedCoinToss(
+          Disease.asymptomaticPopulationPercentage
+            + this.gammaMultiplier * Disease.asymptomaticPopulationPercentage
+        ),
+        Disease.exposedDurationProbabilityDistribution.sample()
       )
   )
 }
