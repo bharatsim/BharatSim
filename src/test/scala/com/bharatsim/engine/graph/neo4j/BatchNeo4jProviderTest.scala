@@ -4,7 +4,6 @@ import java.net.URI
 import java.util
 
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
-import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.testModels.{TestCitizen, TestHome}
@@ -17,6 +16,8 @@ import org.scalatest.wordspec.AnyWordSpec
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsScala}
 
 class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Matchers with ForAllTestContainer {
@@ -45,7 +46,7 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
       val label = "FRIEND"
       graphProvider.createRelationship(rameshId, label, sureshId);
 
-      graphProvider.executePendingWrites()
+      Await.ready(graphProvider.executePendingWrites(), Duration.Inf)
       val result = neo4jConnection
         .session()
         .readTransaction[Int]((tx: Transaction) => {
@@ -127,7 +128,7 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
       val (rameshId, _) = createPerson()
 
       graphProvider.deleteNode(rameshId)
-      graphProvider.executePendingWrites()
+      Await.ready(graphProvider.executePendingWrites(), Duration.Inf)
       val result: List[Int] = neo4jConnection
         .session()
         .readTransaction(x => {
@@ -143,7 +144,7 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
       val (rameshId, _) = createPerson()
 
       graphProvider.deleteNodes("Person", Map(("name", "Ramesh")))
-      graphProvider.executePendingWrites()
+      Await.ready(graphProvider.executePendingWrites(), Duration.Inf)
 
       val result: List[Int] = neo4jConnection
         .session()
@@ -160,7 +161,7 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
     "delete relation between nodes" in {
       val (rameshId, sureshId) = createFriendship()
       graphProvider.deleteRelationship(rameshId, "FRIEND", sureshId)
-      graphProvider.executePendingWrites()
+      Await.ready(graphProvider.executePendingWrites(), Duration.Inf)
 
       val result: Int = neo4jConnection
         .session()
@@ -179,7 +180,7 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
     "delete all the data " in {
       createPerson()
       graphProvider.deleteAll()
-      graphProvider.executePendingWrites()
+      Await.ready(graphProvider.executePendingWrites(), Duration.Inf)
 
       val personCount: Int = neo4jConnection
         .session()
@@ -197,7 +198,7 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
       val (rameshId, _) = createPerson()
       graphProvider.updateNode(rameshId, Map(("age", 33)))
       graphProvider.updateNode(rameshId, ("city", "mumbai"), ("height", 5))
-      graphProvider.executePendingWrites()
+      Await.ready(graphProvider.executePendingWrites(), Duration.Inf)
 
       val result: ListBuffer[mutable.Map[String, AnyRef]] = neo4jConnection
         .session()

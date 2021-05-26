@@ -236,6 +236,12 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
 
   def executePendingWrites(lastBookmark: Option[Bookmark] = None): Future[DBBookmark] = {
     logger.info("pending writes count {}", queryQueue.size)
+    val promise = Promise[DBBookmark]()
+    executeAllWritesAsync(lastBookmark, promise)
+    promise.future
+  }
+
+  private def executeAllWritesAsync(lastBookmark: Option[Bookmark], promise: Promise[DBBookmark]): Unit = {
     @tailrec
     def collect(
         q: ConcurrentLinkedDeque[QueryWithPromise],
@@ -248,13 +254,14 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
     }
 
     val writeOperations = collect(queryQueue)
-    val newBookmark =
-      Await.result(
-        new WriteOperationsStream(neo4jConnection)(actorSystem).write(writeOperations, lastBookmark),
-        Inf
-      )
-    if (queryQueue.isEmpty) Future(DBBookmark(newBookmark.values()))(actorSystem.executionContext)
-    else executePendingWrites(Some(newBookmark))
+
+    val eventualWriteFinish =
+      new WriteOperationsStream(neo4jConnection)(actorSystem).write(writeOperations, lastBookmark)
+    eventualWriteFinish.onComplete({
+      case Success(newBookmark) =>
+        if (queryQueue.isEmpty) promise.success(DBBookmark(newBookmark.values()))
+        else executeAllWritesAsync(Some(newBookmark), promise)
+    })(actorSystem.executionContext)
   }
 
   override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
