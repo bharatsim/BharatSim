@@ -5,6 +5,7 @@ import java.util
 
 import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.ingestion.{GraphData, Relation}
+import com.bharatsim.engine.graph.patternMatcher.EmptyPattern
 import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.testModels.{TestCitizen, TestHome}
 import com.dimafeng.testcontainers.{ForAllTestContainer, Neo4jContainer}
@@ -34,7 +35,11 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
   }
 
   override def afterEach(): Unit = {
-    graphProvider.deleteAll()
+    val session = neo4jConnection.session()
+    session.writeTransaction(tx => {
+      tx.run("Match (n) detach delete n")
+    })
+    session.close()
   }
 
   "createRelation" should {
@@ -97,6 +102,63 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
           person.getParams("name") shouldBe "Suresh"
           state.label shouldBe stateLabel
       }
+    }
+  }
+
+  "fetchNode" should {
+    val label = "Person"
+    "fetch node matching parameter" in {
+      createPerson()
+      val person = graphProvider.fetchNode(label, Map(("name", "Suresh"))).get;
+      person.getParams("age") shouldBe 25
+    }
+
+    "fetch first node when parameter is empty" in {
+      createPerson()
+      val person = graphProvider.fetchNode(label, Map.empty).get;
+      person.getParams("name") shouldBe "Ramesh"
+    }
+  }
+
+  "fetch nodes" should {
+    val label = "Person"
+    "fetch multiple node matching parameter" in {
+      createPerson()
+      val result1 = graphProvider.fetchNodes(label, Map(("name", "Suresh")));
+      val result2 = graphProvider.fetchNodes(label, ("name", "Suresh"));
+      result1.map(_.getParams("name")) should contain theSameElementsAs List("Suresh")
+      result2.map(_.getParams("name")) should contain theSameElementsAs List("Suresh")
+    }
+
+    "fetch all nodes when parameter is empty" in {
+      createPerson()
+      val result = graphProvider.fetchNodes(label, Map.empty[String, Any]);
+      result.map(_.getParams("name")) should contain theSameElementsAs List("Ramesh", "Suresh")
+    }
+
+    "fetch multiple node with pattern match" in {
+      createPerson()
+      val result = graphProvider.fetchNodes(label, "name" equ "Suresh");
+      result.map(_.getParams("name")) should contain theSameElementsAs List("Suresh")
+    }
+    "fetch all nodes when empty pattern" in {
+      createPerson()
+      val result = graphProvider.fetchNodes(label, EmptyPattern());
+      result.map(_.getParams("name")) should contain theSameElementsAs List("Ramesh", "Suresh")
+    }
+  }
+
+  "fetch count" should {
+    val label = "Person"
+    "fetch node count for matching pattern" in {
+      createPerson()
+      val count = graphProvider.fetchCount(label, "name" equ "Suresh");
+      count shouldBe 1
+    }
+    "fetch all node count when pattern is Empty" in {
+      createPerson()
+      val count = graphProvider.fetchCount(label, EmptyPattern());
+      count shouldBe 2
     }
   }
 

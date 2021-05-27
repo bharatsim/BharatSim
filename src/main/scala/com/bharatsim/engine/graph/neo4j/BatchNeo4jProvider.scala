@@ -9,7 +9,6 @@ import akka.actor.typed.scaladsl.Behaviors
 import com.bharatsim.engine.distributed.DBBookmark
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.GraphProvider.NodeId
-import com.bharatsim.engine.graph.ingestion.GraphData
 import com.bharatsim.engine.graph.neo4j.queryBatching._
 import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.typesafe.scalalogging.LazyLogging
@@ -39,6 +38,79 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
   }
 
   private val queryQueue = new ConcurrentLinkedDeque[QueryWithPromise]();
+  private def makeMatchNodeQuery(label: String, params: Map[String, Any], limit: Option[Int] = None): String = {
+    val limitClause = if (limit.isDefined) s"LIMIT ${limit.get}" else ""
+    val matchCriteria = toMatchCriteria("n", "props", params, "and")
+    val whereClause = if (params.nonEmpty) s"WHERE $matchCriteria" else ""
+    s"""OPTIONAL MATCH (n:$label) $whereClause  with n, uuid
+         | RETURN collect({props: properties(n), id: id(n), labels: labels(n) }) as nodes , uuid $limitClause""".stripMargin
+  }
+
+  override def fetchNode(label: String, params: Map[String, Any]): Option[GraphNode] = {
+    val promisedRecord = Promise[Record]()
+    val substitutableQuery =
+      SubstitutableQuery(makeMatchNodeQuery(label, params, Some(1)), params.asInstanceOf[Map[String, Object]].asJava)
+    val enqueueTime = readOperations.enqueue(
+      QueryWithPromise(
+        substitutableQuery,
+        promisedRecord
+      )
+    )
+    val record = Await.result(promisedRecord.future, Inf)
+    val node = record.get("nodes").asList().asScala.headOption
+    if (node.isDefined) Some(extractGraphNode(node.get.asInstanceOf[util.Map[String, Object]])) else None
+  }
+
+  override def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode] = {
+    val promisedRecord = Promise[Record]()
+    val substitutableQuery =
+      SubstitutableQuery(makeMatchNodeQuery(label, params, None), params.asInstanceOf[Map[String, Object]].asJava)
+    val enqueueTime = readOperations.enqueue(
+      QueryWithPromise(
+        substitutableQuery,
+        promisedRecord
+      )
+    )
+    val record = Await.result(promisedRecord.future, Inf)
+    record.get("nodes").asList().asScala.map(v => extractGraphNode(v.asInstanceOf[util.Map[String, Object]]))
+  }
+
+  override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
+    val patternWithParams = PatternMaker.from(matchPattern, "n", Some("props"))
+    val whereClause = if (patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
+    val query = s"""OPTIONAL MATCH (n:$label) $whereClause with n, uuid
+                     | RETURN collect({props: properties(n), id: id(n), labels: labels(n) }) as nodes , uuid """.stripMargin
+    val promisedRecord = Promise[Record]()
+    val substitutableQuery =
+      SubstitutableQuery(query, patternWithParams.params.asInstanceOf[Map[String, Object]].asJava)
+    val enqueueTime = readOperations.enqueue(
+      QueryWithPromise(
+        substitutableQuery,
+        promisedRecord
+      )
+    )
+    val record = Await.result(promisedRecord.future, Inf)
+    record.get("nodes").asList().asScala.map(v => extractGraphNode(v.asInstanceOf[util.Map[String, Object]]))
+
+  }
+
+  override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
+    val patternWithParams = PatternMaker.from(matchPattern, "n", Some("props"))
+    val whereClause = if (patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
+    val query = s"""OPTIONAL MATCH (n:$label) $whereClause with n, uuid
+                   | RETURN count(n) as matchCount , uuid """.stripMargin
+    val promisedRecord = Promise[Record]()
+    val substitutableQuery =
+      SubstitutableQuery(query, patternWithParams.params.asInstanceOf[Map[String, Object]].asJava)
+    val enqueueTime = readOperations.enqueue(
+      QueryWithPromise(
+        substitutableQuery,
+        promisedRecord
+      )
+    )
+    val record = Await.result(promisedRecord.future, Inf)
+    record.get("matchCount").asInt(0)
+  }
 
   def fetchWithStates(label: String, skip: Int, limit: Int): Iterable[(GraphNode, Option[GraphNode])] = {
     val st = new Date().getTime
@@ -228,6 +300,16 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
     )
   }
 
+  override def deleteAll(): Unit = {
+    val query = "OPTIONAL MATCH (n) detach delete n"
+    queryQueue.push(
+      QueryWithPromise(
+        SubstitutableQuery(query),
+        Promise()
+      )
+    )
+  }
+
   def executeWrite(query: String, params: java.util.HashMap[String, Object]): Future[Record] = {
     val p = Promise[Record]()
     queryQueue.push(QueryWithPromise(SubstitutableQuery(query, params), p))
@@ -264,7 +346,4 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
     })(actorSystem.executionContext)
   }
 
-  override def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
-    super.ingestFromCsv(csvPath, mapper)
-  }
 }
