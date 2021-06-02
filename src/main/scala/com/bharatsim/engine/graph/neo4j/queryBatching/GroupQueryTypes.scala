@@ -19,4 +19,7 @@ case class GroupQueryHolder(
 )
 case class QueryWithPromise(query: SubstitutableQuery, promise: Promise[Record])
 case class GroupedQuery(query: String, props: util.Map[String, Object], promises: Iterable[Promise[Record]])
-case class GroupedQueryResult(records: util.List[Record], groupedQuery: GroupedQuery, time: Long)
+trait GroupedQueryResult
+case class GroupedQueryRecords(records: util.List[Record], groupedQuery: GroupedQuery, time: Long)
+    extends GroupedQueryResult
+case class GroupedQueryError(error: Throwable, groupedQuery: GroupedQuery) extends GroupedQueryResult

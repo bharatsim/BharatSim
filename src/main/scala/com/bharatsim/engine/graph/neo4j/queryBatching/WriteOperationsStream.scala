@@ -1,18 +1,20 @@
 package com.bharatsim.engine.graph.neo4j.queryBatching
 
-import java.util.Date
-
 import akka.actor.typed.ActorSystem
 import akka.stream.scaladsl.Source
-import com.bharatsim.engine.ApplicationConfigFactory.config
+import com.bharatsim.engine.ApplicationConfig
+import com.bharatsim.engine.ApplicationConfigFactory
 import org.neo4j.driver.SessionConfig.builder
 import org.neo4j.driver.internal.InternalRecord
-import org.neo4j.driver.{Bookmark, Driver}
+import org.neo4j.driver.{AccessMode, Bookmark, Driver}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class WriteOperationsStream(neo4jConnection: Driver)(implicit actorSystem: ActorSystem[_]) {
+class WriteOperationsStream(neo4jConnection: Driver, config: ApplicationConfig = ApplicationConfigFactory.config)(
+    implicit actorSystem: ActorSystem[_]
+) {
   private implicit val executionContext: ExecutionContext = actorSystem.executionContext
+  val retryableTransaction = new RetryableTransaction(config.maxQueryRetry)
 
   def write(operations: List[QueryWithPromise], bookmark: Option[Bookmark] = None): Future[Bookmark] = {
 
@@ -28,16 +30,13 @@ class WriteOperationsStream(neo4jConnection: Driver)(implicit actorSystem: Actor
         Source(
           list
             .map(groupedQuery => {
-              val st = new Date().getTime
-              val result = session.writeTransaction((tx) => { tx.run(groupedQuery.query, groupedQuery.props).list() })
-              val et = new Date().getTime
-              GroupedQueryResult(result, groupedQuery, et - st)
+              retryableTransaction.run(groupedQuery, session, AccessMode.WRITE)
             })
             .toList
         )
       )
       .runForeach {
-        case gqResult: GroupedQueryResult =>
+        case gqResult: GroupedQueryRecords =>
           val records = gqResult.records
           val promises = gqResult.groupedQuery.promises
           val result = records.iterator
@@ -48,6 +47,10 @@ class WriteOperationsStream(neo4jConnection: Driver)(implicit actorSystem: Actor
               promise.success(new InternalRecord(java.util.List.of[String](), Array()))
             }
           })
+        case gqError: GroupedQueryError =>
+          val promises = gqError.groupedQuery.promises
+          promises.foreach(promise => { promise.failure(gqError.error) })
+          throw gqError.error // write promises are not awaited, need to throw explicitly
       }
       .map { _ =>
         val bookmark = session.lastBookmark()

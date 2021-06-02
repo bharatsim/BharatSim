@@ -10,7 +10,7 @@ class ActorBasedExecutor(actorBackedSimulation: ActorBackedSimulation = new Acto
     extends DefaultExecutor {
   override def runSimulation(context: Context): Unit = {
     val eventualDone = actorBackedSimulation.run(context)
-    Await.ready(eventualDone, Duration.Inf)
+    Await.result(eventualDone, Duration.Inf)
   }
 
 }

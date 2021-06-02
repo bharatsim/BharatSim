@@ -129,6 +129,7 @@ trait GraphProvider extends LazyLogging {
     */
   private[engine] def ingestFromCsv(csvPath: String, mapper: Option[Function[Map[String, String], GraphData]]): Unit = {
     if (mapper.isDefined) {
+      logger.info("Ingestion Started");
       val config = ApplicationConfigFactory.config
       val refToIdMapping = new RefToIdMapping()
       val batchCounter = new AtomicInteger(0)
@@ -162,12 +163,15 @@ trait GraphProvider extends LazyLogging {
 
       f.onComplete({
         case Failure(ex) => {
-          logger.error("Ingestion Failed : {}", ex.getMessage);
-          throw ex;
+          logger.error("Ingestion Failed : {}", ex.toString);
+          actorSystem.terminate()
         }
-        case Success(value) => actorSystem.terminate()
+        case Success(value) => {
+          logger.info("Ingestion Finished");
+          actorSystem.terminate()
+        }
       })
-      Await.ready(f, Duration.Inf)
+      Await.result(f, Duration.Inf)
     }
   }
 

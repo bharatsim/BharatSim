@@ -34,7 +34,7 @@ case class OrderedGroup(queries: Iterable[QueryWithPromise], label: String = "Wr
         GroupedQuery(s"$unwindStatement${gq.query}", listProps, gq.promises)
       })
 
-    logger.info("{} grouped {} into {}", label, queries.size, groupedQueries.size)
+    logger.debug("{} grouped {} into {}", label, queries.size, groupedQueries.size)
     groupedQueries
   }
 }

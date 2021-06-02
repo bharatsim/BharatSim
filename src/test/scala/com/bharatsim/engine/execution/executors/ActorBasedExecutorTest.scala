@@ -25,4 +25,16 @@ class ActorBasedExecutorTest extends AnyFunSuite with MockitoSugar with Matchers
     verify(mockActorBackedSimulation).run(context)
     agentBasedExecutor shouldBe a[DefaultExecutor]
   }
+  test("should Escalate the exception") {
+    val mockActorBackedSimulation = mock[ActorBackedSimulation]
+    val exception = new Exception("TestError")
+    when(mockActorBackedSimulation.run(any[Context])).thenReturn(Future.failed(exception))
+    def mockFn() = spyLambda((context: Context) => {})
+    val simDef = SimulationDefinition(mockFn(), mockFn(), mockFn())
+    val agentBasedExecutor = new ActorBasedExecutor(mockActorBackedSimulation)
+
+    val thrown: Exception = the[Exception] thrownBy (agentBasedExecutor.execute(simDef))
+    thrown.getMessage shouldBe exception.getMessage
+
+  }
 }

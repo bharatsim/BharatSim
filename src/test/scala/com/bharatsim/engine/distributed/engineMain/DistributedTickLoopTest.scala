@@ -10,9 +10,9 @@ import akka.{Done, MockAdapterMsg}
 import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.DBBookmark
 import com.bharatsim.engine.distributed.Guardian.UserInitiatedShutdown
-import com.bharatsim.engine.distributed.engineMain.Barrier.WorkFinished
+import com.bharatsim.engine.distributed.engineMain.Barrier.{WorkErrored, WorkFinished}
 import com.bharatsim.engine.distributed.engineMain.DistributedTickLoop._
-import com.bharatsim.engine.distributed.engineMain.WorkDistributor.{AgentLabelExhausted, FetchWork}
+import com.bharatsim.engine.distributed.engineMain.WorkDistributor.{AgentLabelExhausted, FetchWork, WorkFailed}
 import com.bharatsim.engine.distributed.worker.WorkerActor
 import com.bharatsim.engine.execution.actions._
 import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
@@ -66,12 +66,20 @@ class DistributedTickLoopTest
     actions
   }
 
-  private def getGetChildActor(effects: Seq[Effect], name: String, tick: Int = 1) = {
+  private def getChildActor(effects: Seq[Effect], name: String, tick: Int = 1) = {
     effects
       .find({
         case Spawned(_, childName, _) => childName == s"${name}-${tick}"
         case _                        => false
       })
+  }
+  private def getBarrierAdaptor(effects: Seq[Effect], index: Int = 0) = {
+    effects
+      .filter({
+        case _: MessageAdapter[Barrier.Reply, DistributedTickLoop.Command] => true
+        case _                                                             => false
+      })(index)
+      .asInstanceOf[MessageAdapter[Barrier.Reply, DistributedTickLoop.Command]]
   }
 
   describe("Start Tick") {
@@ -83,7 +91,7 @@ class DistributedTickLoopTest
       val effects = testKit.retrieveAllEffects()
 
       val workDistributor: Spawned[WorkDistributor.Command] =
-        getGetChildActor(effects, WORK_DISTRIBUTOR).get.asInstanceOf[Spawned[WorkDistributor.Command]]
+        getChildActor(effects, WORK_DISTRIBUTOR).get.asInstanceOf[Spawned[WorkDistributor.Command]]
 
       val order: InOrder = Mockito.inOrder(actions.preSimulation, actions.preTick)
       order.verify(actions.preSimulation).execute()
@@ -100,23 +108,13 @@ class DistributedTickLoopTest
 
     it("should stop at the end of simulation and terminate actor system") {
       val actions = mockActions()
-      val testKit = ActorTestKit()
       val lastTick = context.simulationConfig.simulationSteps + 1
-      val coordinatedShutdownMonitor = spyLambda((reason: Reason) => "");
-      val coordinatedShutdown = CoordinatedShutdown(testKit.system)
-      coordinatedShutdown
-        .addTask(CoordinatedShutdown.PhaseBeforeServiceUnbind, "test") { () =>
-          Future {
-            coordinatedShutdownMonitor(coordinatedShutdown.getShutdownReason().get)
-            Done
-          }(ExecutionContext.global)
-        }
 
-      testKit.spawn(DistributedTickLoop(context, actions, lastTick, bookmarks, workerCoordinator))
+      val tickLoopTestKit =
+        BehaviorTestKit(DistributedTickLoop(context, actions, lastTick, bookmarks, workerCoordinator))
 
-      Await.ready(testKit.system.whenTerminated, Duration.Inf)
+      tickLoopTestKit.selfInbox().expectMessage(ShutdownSystem(SIMULATION_FINISHED, tickLoopTestKit.ref))
 
-      verify(coordinatedShutdownMonitor)(UserInitiatedShutdown)
       verify(mockGraphProvider).setBookmarks(bookmarks)
       verify(actions.postSimulation).execute()
       verify(workerCoordinator, times(0)).initTick(
@@ -124,7 +122,6 @@ class DistributedTickLoopTest
         eqTo(context),
         eqTo(bookmarks)
       )
-      testKit.shutdownTestKit()
     }
 
     it("should execute writes after work is finish") {
@@ -134,21 +131,18 @@ class DistributedTickLoopTest
       val worker = TestInbox[WorkerActor.Command]()
       val effects = testKit.retrieveAllEffects()
       val barrierWorkBarrier: Spawned[Barrier.Request] =
-        getGetChildActor(effects, WORK_BARRIER).get.asInstanceOf[Spawned[Barrier.Request]]
+        getChildActor(effects, WORK_BARRIER).get.asInstanceOf[Spawned[Barrier.Request]]
 
       val workDistributor: Spawned[WorkDistributor.Command] =
-        getGetChildActor(effects, WORK_DISTRIBUTOR).get.asInstanceOf[Spawned[WorkDistributor.Command]]
+        getChildActor(effects, WORK_DISTRIBUTOR).get.asInstanceOf[Spawned[WorkDistributor.Command]]
 
-      val barrierAdaptor = effects
-        .filter(_.isInstanceOf[MessageAdapter[Barrier.BarrierFinished, DistributedTickLoop.Command]])
-        .head
-        .asInstanceOf[MessageAdapter[Barrier.BarrierFinished, DistributedTickLoop.Command]]
+      val barrierAdaptor = getBarrierAdaptor(effects)
 
       testKit.selfInbox().hasMessages shouldBe false
 
-      val workerTestKit = testKit.childTestKit(workDistributor.ref)
-      workerTestKit.run(AgentLabelExhausted(agentLabels.head))
-      workerTestKit.run(FetchWork(worker.ref))
+      val workerDistributorTestKit = testKit.childTestKit(workDistributor.ref)
+      workerDistributorTestKit.run(AgentLabelExhausted(agentLabels.head))
+      workerDistributorTestKit.run(FetchWork(worker.ref))
       testKit.childTestKit(barrierWorkBarrier.ref).runOne()
       testKit.selfInbox().hasMessages shouldBe true
 
@@ -168,6 +162,35 @@ class DistributedTickLoopTest
       testKit.selfInbox().receiveMessage() shouldBe ExecuteWrites
     }
 
+    it("should shutdown when worker reports error") {
+      val actions = mockActions()
+      val reason = "Test Reason"
+
+      val testKit = BehaviorTestKit(DistributedTickLoop(context, actions, tick, bookmarks, workerCoordinator))
+
+      val worker = TestInbox[WorkerActor.Command]()
+      val effects = testKit.retrieveAllEffects()
+      val barrierWorkBarrier: Spawned[Barrier.Request] =
+        getChildActor(effects, WORK_BARRIER).get.asInstanceOf[Spawned[Barrier.Request]]
+
+      val workDistributor: Spawned[WorkDistributor.Command] =
+        getChildActor(effects, WORK_DISTRIBUTOR).get.asInstanceOf[Spawned[WorkDistributor.Command]]
+
+      val barrierAdaptor = getBarrierAdaptor(effects)
+
+      testKit.selfInbox().hasMessages shouldBe false
+
+      val workerDistributorTestKit = testKit.childTestKit(workDistributor.ref)
+      workerDistributorTestKit.run(WorkFailed(reason, worker.ref))
+      testKit.childTestKit(barrierWorkBarrier.ref).runOne()
+      testKit.selfInbox().hasMessages shouldBe true
+
+      val receivedMessage = testKit.selfInbox().receiveAll().head.asInstanceOf[Any]
+
+      val msgToAdapt = MockAdapterMsg[Barrier.BarrierAborted](receivedMessage).getMessage()
+      barrierAdaptor.adapt(msgToAdapt) shouldBe ShutdownSystem(reason, worker.ref)
+    }
+
   }
 
   describe("Execute Writes") {
@@ -179,7 +202,7 @@ class DistributedTickLoopTest
       testKit.run(ExecuteWrites)
       val effects = testKit.retrieveAllEffects()
       val barrierWriteBarrier: Spawned[Barrier.Request] =
-        getGetChildActor(effects, WRITE_BARRIER).get.asInstanceOf[Spawned[Barrier.Request]]
+        getChildActor(effects, WRITE_BARRIER).get.asInstanceOf[Spawned[Barrier.Request]]
 
       verify(workerCoordinator).executeWrites(barrierWriteBarrier.ref)
     }
@@ -193,22 +216,57 @@ class DistributedTickLoopTest
 
       testKit.selfInbox().hasMessages shouldBe false
       val barrierWriteBarrier: Spawned[Barrier.Request] =
-        getGetChildActor(effects, WRITE_BARRIER).get.asInstanceOf[Spawned[Barrier.Request]]
+        getChildActor(effects, WRITE_BARRIER).get.asInstanceOf[Spawned[Barrier.Request]]
       val barrierTestKit = testKit.childTestKit(barrierWriteBarrier.ref)
       barrierTestKit.runOne()
       barrierTestKit.run(WorkFinished(Some(workerBookmark)))
       testKit.selfInbox().hasMessages shouldBe true
-      testKit.selfInbox().hasMessages shouldBe true
       barrierTestKit.isAlive shouldBe false
 
-      val barrierAdaptor = effects
-        .filter(_.isInstanceOf[MessageAdapter[Barrier.BarrierFinished, DistributedTickLoop.Command]])
-        .last
-        .asInstanceOf[MessageAdapter[Barrier.BarrierFinished, DistributedTickLoop.Command]]
+      val barrierAdaptor = getBarrierAdaptor(effects, 1)
       val receivedMessage = testKit.selfInbox().receiveAll().head.asInstanceOf[Any]
 
       val msgToAdapt = MockAdapterMsg[Barrier.BarrierFinished](receivedMessage).getMessage()
       barrierAdaptor.adapt(msgToAdapt) shouldBe WriteFinished(List(workerBookmark, localBookmark))
+    }
+
+    it("should initiate shutdown on error form local write") {
+      val actions = mockActions()
+      val exception = new Exception("Error")
+      when(mockGraphProvider.executePendingWrites(any)).thenReturn(Future.failed(exception))
+      val testKit = BehaviorTestKit(DistributedTickLoop(context, actions, tick, bookmarks, workerCoordinator))
+      testKit.run(ExecuteWrites)
+      testKit
+        .selfInbox()
+        .expectMessage(ShutdownSystem(s"ExecutePendingWrites Failed ${exception.toString}", testKit.ref))
+    }
+
+    it("should initiate shutdown on error form worker") {
+      val actions = mockActions()
+      val workerInbox = TestInbox()
+      val reason = "Test Reason"
+      val testKit = BehaviorTestKit(DistributedTickLoop(context, actions, tick, bookmarks, workerCoordinator))
+
+      testKit.run(ExecuteWrites)
+
+      val effects = testKit.retrieveAllEffects()
+
+      testKit.selfInbox().hasMessages shouldBe false
+
+      val barrierWriteBarrier: Spawned[Barrier.Request] =
+        getChildActor(effects, WRITE_BARRIER).get.asInstanceOf[Spawned[Barrier.Request]]
+
+      val barrierTestKit = testKit.childTestKit(barrierWriteBarrier.ref)
+      barrierTestKit.runOne()
+      barrierTestKit.run(WorkErrored(reason, workerInbox.ref))
+      testKit.selfInbox().hasMessages shouldBe true
+      barrierTestKit.isAlive shouldBe false
+
+      val barrierAdaptor = getBarrierAdaptor(effects, 1)
+      val receivedMessage = testKit.selfInbox().receiveAll().head.asInstanceOf[Any]
+
+      val msgToAdapt = MockAdapterMsg[Barrier.BarrierAborted](receivedMessage).getMessage()
+      barrierAdaptor.adapt(msgToAdapt) shouldBe ShutdownSystem(reason, workerInbox.ref)
     }
   }
 
@@ -223,7 +281,7 @@ class DistributedTickLoopTest
 
       val effects = testKit.retrieveAllEffects()
       val workDistributor: Spawned[WorkDistributor.Command] =
-        getGetChildActor(effects, WORK_DISTRIBUTOR, 2).get.asInstanceOf[Spawned[WorkDistributor.Command]]
+        getChildActor(effects, WORK_DISTRIBUTOR, 2).get.asInstanceOf[Spawned[WorkDistributor.Command]]
       verify(mockGraphProvider).setBookmarks(bookmarkAfterTickFinished)
       verify(actions.preTick).execute(tick + 1)
       verify(workerCoordinator).initTick(
@@ -232,6 +290,35 @@ class DistributedTickLoopTest
         eqTo(bookmarkAfterTickFinished)
       )
       verify(workerCoordinator).startWork(workDistributor.ref)
+    }
+  }
+
+  describe("ShutdownSystem") {
+    it("should notify shutdown to all workers and do coordinated shutdown") {
+      val actions = mockActions()
+      val testKit = ActorTestKit()
+      val coordinatedShutdownMonitor = spyLambda((reason: Reason) => "");
+      val coordinatedShutdown = CoordinatedShutdown(testKit.system)
+      coordinatedShutdown
+        .addTask(CoordinatedShutdown.PhaseBeforeServiceUnbind, "test") { () =>
+          Future {
+            coordinatedShutdownMonitor(coordinatedShutdown.getShutdownReason().get)
+            Done
+          }(ExecutionContext.global)
+        }
+
+      val testProb = testKit.createTestProbe()
+      val tickLoop = testKit.spawn(DistributedTickLoop(context, actions, tick, bookmarks, workerCoordinator))
+
+      val reason = "Test Reason"
+
+      tickLoop ! ShutdownSystem(reason, testProb.ref)
+
+      Await.ready(testKit.system.whenTerminated, Duration.Inf)
+
+      verify(coordinatedShutdownMonitor)(UserInitiatedShutdown)
+      verify(workerCoordinator).triggerShutdown(reason, testProb.ref)
+      testKit.shutdownTestKit()
     }
   }
 }

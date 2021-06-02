@@ -12,7 +12,6 @@ case class UnorderedGroup(queries: Iterable[QueryWithPromise], label: String = "
   private val groups = mutable.HashMap.empty[String, GroupQueryHolder]
 
   def prepare(): Iterable[GroupedQuery] = {
-    logger.info("grouping started for size {}", queries.size)
     queries.foreach(query => {
       val groupQuery =
         groups.getOrElseUpdate(
@@ -29,7 +28,7 @@ case class UnorderedGroup(queries: Iterable[QueryWithPromise], label: String = "
       GroupedQuery(s"$unwindStatement${queryHolder.query}", listProps, queryHolder.promises)
     })
 
-    logger.info("{} grouped {} into {}", label, queries.size, groupedQueries.size)
+    logger.debug("{} grouped {} into {}", label, queries.size, groupedQueries.size)
     groupedQueries
   }
 }

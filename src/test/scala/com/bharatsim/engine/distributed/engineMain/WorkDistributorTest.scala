@@ -1,8 +1,8 @@
 package com.bharatsim.engine.distributed.engineMain
 
 import akka.actor.testkit.typed.scaladsl.{ActorTestKit, BehaviorTestKit, TestInbox}
-import com.bharatsim.engine.distributed.engineMain.Barrier.{NotifyOnBarrierFinished, WorkFinished}
-import com.bharatsim.engine.distributed.engineMain.WorkDistributor.{AgentLabelExhausted, FetchWork, Start}
+import com.bharatsim.engine.distributed.engineMain.Barrier.{NotifyOnBarrierFinished, WorkErrored, WorkFinished}
+import com.bharatsim.engine.distributed.engineMain.WorkDistributor.{AgentLabelExhausted, FetchWork, Start, WorkFailed}
 import com.bharatsim.engine.distributed.worker.WorkerActor
 import com.bharatsim.engine.distributed.worker.WorkerActor.Work
 import org.scalatest.BeforeAndAfterAll
@@ -72,6 +72,16 @@ class WorkDistributorTest extends AnyFunSpec with BeforeAndAfterAll with Matcher
     }
   }
 
+  describe("WorkFailed") {
+    it("should notify barrier on workFailed") {
+      val workDistributor =
+        testKit.spawn(WorkDistributor(barrier.ref, distributableWork))
+      val reason = "Test Reason"
+      workDistributor ! WorkFailed(reason, worker1.ref)
+      barrier.expectMessage(WorkErrored(reason, worker1.ref))
+      testKit.stop(workDistributor)
+    }
+  }
   describe("AgentLabelExhausted") {
     it("should switch to the next available label for distribution") {
       val workDistributor =

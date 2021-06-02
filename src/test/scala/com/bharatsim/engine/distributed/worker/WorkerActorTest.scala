@@ -1,26 +1,30 @@
 package com.bharatsim.engine.distributed.worker
 
 import akka.Done
-import akka.actor.testkit.typed.scaladsl.{BehaviorTestKit, TestInbox}
+import akka.actor.CoordinatedShutdown
+import akka.actor.CoordinatedShutdown.Reason
+import akka.actor.testkit.typed.scaladsl.{ActorTestKit, BehaviorTestKit, TestInbox}
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.receptionist.Receptionist
-import com.bharatsim.engine.{ApplicationConfig, Context}
-import com.bharatsim.engine.distributed.engineMain.Barrier.WorkFinished
+import com.bharatsim.engine.distributed.Guardian.UserInitiatedShutdown
+import com.bharatsim.engine.distributed.engineMain.Barrier.{WorkErrored, WorkFinished}
 import com.bharatsim.engine.distributed.engineMain.DistributedTickLoop.StartOfNewTickAck
-import com.bharatsim.engine.distributed.engineMain.WorkDistributor.{AgentLabelExhausted, FetchWork}
+import com.bharatsim.engine.distributed.engineMain.WorkDistributor.{AgentLabelExhausted, FetchWork, WorkFailed}
 import com.bharatsim.engine.distributed.engineMain.{Barrier, DistributedTickLoop, WorkDistributor}
-import com.bharatsim.engine.distributed.worker.WorkerActor.{ExecutePendingWrites, StartOfNewTick, Work, workerServiceId}
+import com.bharatsim.engine.distributed.worker.WorkerActor._
 import com.bharatsim.engine.distributed.{ContextData, DBBookmark}
 import com.bharatsim.engine.execution.SimulationDefinition
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
+import com.bharatsim.engine.{ApplicationConfig, Context}
 import org.mockito.Mockito.clearInvocations
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class WorkerActorTest
     extends AnyFunSpec
@@ -103,6 +107,21 @@ class WorkerActorTest
         workDistributorInbox.expectMessage(AgentLabelExhausted(exhaustedLabel))
         workDistributorInbox.expectMessage(FetchWork(workerTestKit.ref))
       }
+
+      it("should send work failed on error") {
+        val workDistributorInbox = TestInbox[WorkDistributor.Command]()
+        val mockAgentProcessorWithError = mock[DistributedAgentProcessor]
+        val exception = new Exception("Error")
+        when(mockAgentProcessorWithError.process(any, any, any)(any)).thenReturn(Future.failed(exception))
+
+        val workerActor = new WorkerActor(mockAgentProcessorWithError).start(simDef, context)
+        val workerTestKit = BehaviorTestKit(workerActor)
+        workerTestKit.run(Work(agentLabel, skip, limit, workDistributorInbox.ref))
+
+        workDistributorInbox.expectMessage(
+          WorkFailed(s"Agent Processing Failed ${exception.toString}", workerTestKit.ref)
+        )
+      }
     }
     describe("StartOfNewTick") {
 
@@ -132,6 +151,40 @@ class WorkerActorTest
         workerTestKit.run(ExecutePendingWrites(barrier.ref))
         verify(mockGraphProvider).executePendingWrites()
         barrier.expectMessage(WorkFinished(Some(bookmark)))
+      }
+
+      it("should send work errored on error") {
+        val barrier = TestInbox[Barrier.Request]()
+        val workerActor = new WorkerActor(mockAgentProcessor).start(simDef, context)
+        val exception = new Exception("Error")
+        when(mockGraphProvider.executePendingWrites(any)).thenReturn(Future.failed(exception))
+        val workerTestKit = BehaviorTestKit(workerActor)
+
+        workerTestKit.run(ExecutePendingWrites(barrier.ref))
+        barrier.expectMessage(WorkErrored(s"ExecutePendingWrites Failed ${exception.toString}", workerTestKit.ref))
+      }
+    }
+
+    describe("Shutdown") {
+      it("should do a coordinated shutdown") {
+        val testKit = ActorTestKit()
+        val coordinatedShutdownMonitor = spyLambda((reason: Reason) => "");
+        val coordinatedShutdown = CoordinatedShutdown(testKit.system)
+        coordinatedShutdown
+          .addTask(CoordinatedShutdown.PhaseBeforeServiceUnbind, "test") { () =>
+            Future {
+              coordinatedShutdownMonitor(coordinatedShutdown.getShutdownReason().get)
+              Done
+            }(ExecutionContext.global)
+          }
+        val workerActor = new WorkerActor(mockAgentProcessor)
+        val workerActorRef = testKit.spawn(workerActor.start(simDef, context))
+        val testProb = testKit.createTestProbe()
+
+        workerActorRef ! Shutdown("Test Reason", testProb.ref)
+        Await.ready(testKit.system.whenTerminated, Duration.Inf)
+        verify(coordinatedShutdownMonitor)(UserInitiatedShutdown)
+
       }
     }
 

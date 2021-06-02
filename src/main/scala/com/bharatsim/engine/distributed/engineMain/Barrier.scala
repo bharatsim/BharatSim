@@ -9,7 +9,7 @@ object Barrier extends LazyLogging {
   def apply(
       finished: Int,
       workSize: Int,
-      replyFinishTo: ActorRef[BarrierFinished],
+      replyFinishTo: ActorRef[Reply],
       bookmarks: List[DBBookmark] = List.empty,
       additionalListeners: List[ActorRef[BarrierFinished]] = List.empty
   ): Behavior[Request] =
@@ -26,12 +26,18 @@ object Barrier extends LazyLogging {
       case NotifyOnBarrierFinished(toRef) =>
         Barrier(finished, workSize, replyFinishTo, bookmarks, toRef :: additionalListeners)
 
+      case WorkErrored(error, origin) =>
+        replyFinishTo ! BarrierAborted(error, origin)
+        Behaviors.stopped
+
       case Stop() => Behaviors.stopped
     }
   sealed trait Request extends CborSerializable
   case class WorkFinished(result: Option[DBBookmark] = None) extends Request
+  case class WorkErrored(error: String, origin: ActorRef[_]) extends Request
   case class Stop() extends Request
   case class NotifyOnBarrierFinished(toRef: ActorRef[BarrierFinished]) extends Request
   sealed trait Reply extends CborSerializable
   case class BarrierFinished(bookmarks: List[DBBookmark]) extends Reply
+  case class BarrierAborted(error: String, origin: ActorRef[_]) extends Reply
 }

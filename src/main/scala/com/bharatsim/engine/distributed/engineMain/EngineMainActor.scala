@@ -23,11 +23,9 @@ class EngineMainActor() extends LazyLogging {
 
     val config = simulationContext.simulationConfig
     if (config.disableIngestion) {
-      logger.info("ingestion skipped")
+      logger.info("Ingestion skipped")
     } else {
-      logger.info("Ingestion started")
       simulationDefinition.ingestionStep(simulationContext)
-      logger.info("Ingestion finished")
       if (config.ingestionOnly) {
         CoordinatedShutdown(system).run(UserInitiatedShutdown)
         return Behaviors.stopped

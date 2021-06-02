@@ -6,7 +6,12 @@ import akka.actor.typed.{ActorRef, ActorSystem, Scheduler}
 import akka.util.Timeout
 import com.bharatsim.engine.distributed.engineMain.DistributedTickLoop.StartOfNewTickAck
 import com.bharatsim.engine.distributed.worker.WorkerActor
-import com.bharatsim.engine.distributed.worker.WorkerActor.{ExecutePendingWrites, StartOfNewTick, workerServiceId}
+import com.bharatsim.engine.distributed.worker.WorkerActor.{
+  ExecutePendingWrites,
+  StartOfNewTick,
+  Shutdown,
+  workerServiceId
+}
 import com.bharatsim.engine.distributed.{ContextData, DBBookmark}
 import com.bharatsim.engine.{ApplicationConfigFactory, Context}
 
@@ -64,6 +69,10 @@ class WorkerCoordinator() {
       )()((_, _) => ())(ExecutionContext.global),
       Inf
     )
+  }
+
+  def triggerShutdown(reason: String, origin: ActorRef[_]) = {
+    workerList.foreach(_ ! Shutdown(reason, origin))
   }
 
 }

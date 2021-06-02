@@ -17,8 +17,9 @@ import org.neo4j.driver.Values.parameters
 import org.neo4j.driver.{Bookmark, Record, Session, Transaction}
 
 import scala.annotation.tailrec
+import scala.concurrent.duration.Duration
 import scala.concurrent.duration.Duration.Inf
-import scala.concurrent.{Await, ExecutionContext, Future, Promise}
+import scala.concurrent.{Await, Future, Promise}
 import scala.jdk.CollectionConverters.{IterableHasAsJava, ListHasAsScala, MapHasAsJava, MapHasAsScala}
 import scala.util.{Failure, Success}
 
@@ -50,7 +51,7 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
     val promisedRecord = Promise[Record]()
     val substitutableQuery =
       SubstitutableQuery(makeMatchNodeQuery(label, params, Some(1)), params.asInstanceOf[Map[String, Object]].asJava)
-    val enqueueTime = readOperations.enqueue(
+    readOperations.enqueue(
       QueryWithPromise(
         substitutableQuery,
         promisedRecord
@@ -65,7 +66,7 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
     val promisedRecord = Promise[Record]()
     val substitutableQuery =
       SubstitutableQuery(makeMatchNodeQuery(label, params, None), params.asInstanceOf[Map[String, Object]].asJava)
-    val enqueueTime = readOperations.enqueue(
+    readOperations.enqueue(
       QueryWithPromise(
         substitutableQuery,
         promisedRecord
@@ -83,7 +84,7 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
     val promisedRecord = Promise[Record]()
     val substitutableQuery =
       SubstitutableQuery(query, patternWithParams.params.asInstanceOf[Map[String, Object]].asJava)
-    val enqueueTime = readOperations.enqueue(
+    readOperations.enqueue(
       QueryWithPromise(
         substitutableQuery,
         promisedRecord
@@ -102,7 +103,7 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
     val promisedRecord = Promise[Record]()
     val substitutableQuery =
       SubstitutableQuery(query, patternWithParams.params.asInstanceOf[Map[String, Object]].asJava)
-    val enqueueTime = readOperations.enqueue(
+    readOperations.enqueue(
       QueryWithPromise(
         substitutableQuery,
         promisedRecord
@@ -140,7 +141,7 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
     session.close()
     val end = new Date().getTime
 
-    logger.info("fetchWithStates  label {}  skip {} limit {} time {}", label, skip, limit, end - st)
+    logger.debug("fetchWithStates  label {}  skip {} limit {} time {}", label, skip, limit, end - st)
 
     nodes.toList
 
@@ -156,31 +157,21 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
 
     val promisedRecord = Promise[Record]()
     val substituableQuery = SubstitutableQuery(query, parameters("nodeId", nodeId).asMap())
-    val enqueTime = readOperations.enqueue(
+    readOperations.enqueue(
       QueryWithPromise(
         substituableQuery,
         promisedRecord
       )
     )
 
-    try {
-      val record = Await.result(promisedRecord.future, Inf)
-      record
-        .get("toNodes")
-        .asList()
-        .asScala
-        .filter(v => Option(v.asInstanceOf[util.Map[String, Object]].get("id")).isDefined)
-        .map(v => extractGraphNode(v.asInstanceOf[util.Map[String, Object]]))
+    val record = Await.result(promisedRecord.future, Inf)
+    record
+      .get("toNodes")
+      .asList()
+      .asScala
+      .filter(v => Option(v.asInstanceOf[util.Map[String, Object]].get("id")).isDefined)
+      .map(v => extractGraphNode(v.asInstanceOf[util.Map[String, Object]]))
 
-    } catch {
-      case ex: Throwable =>
-        logger.info("failed  record with nodeid {} enquetime {}", nodeId, enqueTime)
-        promisedRecord.future.onComplete({
-          case Failure(exception) => logger.info("timeout promise failed now ex {}", exception)
-          case Success(value)     => logger.info("timeout promise succeded now ex {}", value)
-        })(ExecutionContext.global)
-        throw ex
-    }
   }
 
   override def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int = {
@@ -194,22 +185,15 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
 
     val promisedRecord = Promise[Record]()
     val substituableQuery = SubstitutableQuery(query, parameters(paramList: _*).asMap())
-    val enqueTime = readOperations.enqueue(
+    readOperations.enqueue(
       QueryWithPromise(
         substituableQuery,
         promisedRecord
       )
     )
-    try {
-      val record = Await.result(promisedRecord.future, Inf)
+    val record = Await.result(promisedRecord.future, Inf)
 
-      record.get("matchingCount").asInt(0)
-
-    } catch {
-      case ex: Throwable =>
-        logger.info("failed for  node {}, ex {} enqueue time", nodeId, ex.getMessage, enqueTime)
-        throw ex
-    }
+    record.get("matchingCount").asInt(0)
   }
 
   private def extractGraphNode(map: java.util.Map[String, Object]) = {
@@ -317,7 +301,7 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
   }
 
   def executePendingWrites(lastBookmark: Option[Bookmark] = None): Future[DBBookmark] = {
-    logger.info("pending writes count {}", queryQueue.size)
+    logger.debug("Pending writes count {}", queryQueue.size)
     val promise = Promise[DBBookmark]()
     executeAllWritesAsync(lastBookmark, promise)
     promise.future
@@ -343,7 +327,13 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
       case Success(newBookmark) =>
         if (queryQueue.isEmpty) promise.success(DBBookmark(newBookmark.values()))
         else executeAllWritesAsync(Some(newBookmark), promise)
+      case Failure(exception) => promise.failure(exception)
     })(actorSystem.executionContext)
   }
 
+  override def shutdown() {
+    readOperations.close()
+    Await.ready(executePendingWrites(), Duration.Inf)
+    super.shutdown()
+  }
 }

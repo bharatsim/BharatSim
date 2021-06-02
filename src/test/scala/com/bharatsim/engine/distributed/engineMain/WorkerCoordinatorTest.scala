@@ -7,7 +7,12 @@ import com.bharatsim.engine.Context
 import com.bharatsim.engine.distributed.engineMain.DistributedTickLoop.StartOfNewTickAck
 import com.bharatsim.engine.distributed.engineMain.WorkDistributor.Start
 import com.bharatsim.engine.distributed.worker.WorkerActor
-import com.bharatsim.engine.distributed.worker.WorkerActor.{ExecutePendingWrites, StartOfNewTick, workerServiceId}
+import com.bharatsim.engine.distributed.worker.WorkerActor.{
+  ExecutePendingWrites,
+  Shutdown,
+  StartOfNewTick,
+  workerServiceId
+}
 import com.bharatsim.engine.distributed.{ContextData, DBBookmark}
 import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
 import org.mockito.MockitoSugar
@@ -87,6 +92,18 @@ class WorkerCoordinatorTest
       workerProbe.expectMessageType[StartOfNewTick]
       coordinator.executeWrites(barrier.ref)
       workerProbe.expectMessage(ExecutePendingWrites(barrier.ref))
+    }
+  }
+
+  describe("trigger shutdown") {
+    it("should notify workers to shutdown") {
+      val reason = "Test Reason"
+      val coordinator = new WorkerCoordinator()
+      coordinator.initTick(testKit.system, context, bookmarks)
+      val testProb = testKit.createTestProbe()
+      workerProbe.expectMessageType[StartOfNewTick]
+      coordinator.triggerShutdown(reason, testProb.ref)
+      workerProbe.expectMessage(Shutdown(reason, testProb.ref))
     }
   }
 

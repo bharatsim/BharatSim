@@ -4,9 +4,10 @@ import com.bharatsim.engine.Context
 import com.bharatsim.engine.graph.neo4j.BatchNeo4jProvider
 import com.bharatsim.engine.models.StatefulAgent
 import org.neo4j.driver.Record
-import scala.jdk.CollectionConverters.MapHasAsJava
 
+import scala.jdk.CollectionConverters.MapHasAsJava
 import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success}
 
 class DistributeStateControl(context: Context) {
   def executeFor(statefulAgent: StatefulAgent): Unit = {
@@ -34,11 +35,12 @@ class DistributeStateControl(context: Context) {
           queryParams
         )
         .onComplete {
-          case x: scala.util.Success[Record] =>
-            val nodeId = x.value.get("newStateId").asLong()
-
+          case Success(value: Record) =>
+            val nodeId = value.get("newStateId").asLong()
             state.setId(nodeId)
             state.enterAction(context, statefulAgent)
+          case Failure(exception) => throw exception
+
         }(ExecutionContext.global)
     }
   }

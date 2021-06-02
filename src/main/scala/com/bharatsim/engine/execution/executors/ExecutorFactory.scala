@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.LazyLogging
 class ExecutorFactory(config: ApplicationConfig = ApplicationConfigFactory.config) extends LazyLogging {
 
   def getExecutor(): SimulationExecutor = {
-    logger.info("Execution mode {}", config.executionMode)
+    logger.debug("Execution mode {}", config.executionMode)
     config.executionMode match {
       case Distributed => new DistributedExecutor
       case ActorBased  => new ActorBasedExecutor

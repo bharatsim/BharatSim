@@ -55,4 +55,5 @@ class ApplicationConfig {
   lazy val readWaitTime: Int = neo4jConfig.getInt("read-wait-time")
   lazy val queryGroupSize: Int = neo4jConfig.getInt("query-group-size")
   lazy val preProcessGroupCount: Int = neo4jConfig.getInt("pre-process-group-count")
+  lazy val maxQueryRetry: Int = neo4jConfig.getInt("max_query_retry")
 }

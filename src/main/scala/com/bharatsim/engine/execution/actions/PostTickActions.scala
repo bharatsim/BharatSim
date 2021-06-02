@@ -9,7 +9,7 @@ class PostTickActions(context: Context) extends LazyLogging {
     SimulationListenerRegistry.notifyStepEnd(context)
 
     invokeActions()
-    logger.info("done PostTickAction for tick {}", context.getCurrentStep)
+    logger.debug("Done PostTickAction for tick {}", context.getCurrentStep)
   }
 
   private def invokeActions(): Unit = {

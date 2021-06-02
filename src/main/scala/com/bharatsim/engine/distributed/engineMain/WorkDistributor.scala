@@ -3,7 +3,7 @@ package com.bharatsim.engine.distributed.engineMain
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
 import com.bharatsim.engine.distributed.CborSerializable
-import com.bharatsim.engine.distributed.engineMain.Barrier.{NotifyOnBarrierFinished, WorkFinished}
+import com.bharatsim.engine.distributed.engineMain.Barrier.{NotifyOnBarrierFinished, WorkErrored, WorkFinished}
 import com.bharatsim.engine.distributed.engineMain.WorkDistributor._
 import com.bharatsim.engine.distributed.worker.WorkerActor
 import com.bharatsim.engine.distributed.worker.WorkerActor.Work
@@ -43,6 +43,9 @@ class WorkDistributor(
           val nextWork = work.nextBatch
           new WorkDistributor(context, barrier, nextWork)
         }
+      case WorkFailed(error, origin) =>
+        barrier ! WorkErrored(error, origin)
+        Behaviors.same
       case Stop => Behaviors.stopped
     }
   }
@@ -62,5 +65,6 @@ object WorkDistributor {
   case class Start(workers: List[ActorRef[WorkerActor.Command]]) extends Command
   case class FetchWork(sendTo: ActorRef[WorkerActor.Command]) extends Command
   case class AgentLabelExhausted(label: String) extends Command
+  case class WorkFailed(error: String, origin: ActorRef[_]) extends Command
   case object Stop extends Command
 }
