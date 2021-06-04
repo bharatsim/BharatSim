@@ -24,8 +24,8 @@ class WriteOperationsStream(neo4jConnection: Driver, config: ApplicationConfig =
       else neo4jConnection.session()
 
     Source(operations)
-      .grouped(config.queryGroupSize)
-      .mapAsync(config.preProcessGroupCount)(group => Future(OrderedGroup(group).prepare()))
+      .grouped(config.writeBatchSize)
+      .mapAsync(config.writeParallelism)(group => Future(OrderedGroup(group).prepare()))
       .flatMapConcat(list =>
         Source(
           list

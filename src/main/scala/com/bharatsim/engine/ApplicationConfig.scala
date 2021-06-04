@@ -7,19 +7,15 @@ class ApplicationConfig {
   private lazy val config = ConfigFactory.load()
   private lazy val clusterConfig = ConfigFactory.load("cluster.conf")
 
-  lazy val countBatchSize: Int = config.getInt("bharatsim.engine.distributed.count-batch-size")
-  lazy val publicPlaceCount: Int = config.getInt("bharatsim.engine.execution.public-places-count")
+  lazy val workBatchSize: Int = config.getInt("bharatsim.engine.distributed.work-batch-size")
 
-  lazy val workerActorCount: Int = config.getInt("bharatsim.engine.distributed.worker-node.actor-count")
-
-  lazy val nodeFetchBatchSize: Int = config.getInt("bharatsim.engine.distributed.node-fetch-batch-size")
-  lazy val processBatchSize: Int = config.getInt("bharatsim.engine.distributed.process-batch-size")
+  lazy val agentProcessParallelism: Int = config.getInt("bharatsim.engine.distributed.agent-process-parallelism")
   lazy val askTimeout: Int = config.getInt("bharatsim.engine.distributed.ask-timeout")
   lazy val ingestionBatchSize: Int = config.getInt("bharatsim.engine.ingestion.batch-size")
   lazy val ingestionMapParallelism: Int = config.getInt("bharatsim.engine.ingestion.map-parallelism")
 
-  lazy val disableIngestion: Boolean = config.getBoolean("bharatsim.engine.debug.disable-ingestion")
-  lazy val ingestionOnly: Boolean = config.getBoolean("bharatsim.engine.debug.ingestion-only")
+  lazy val disableIngestion: Boolean = config.getBoolean("bharatsim.engine.distributed.debug.disable-ingestion")
+  lazy val ingestionOnly: Boolean = config.getBoolean("bharatsim.engine.distributed.debug.ingestion-only")
 
   lazy val role: Role.Value = Role.withName(clusterConfig.getStringList("akka.cluster.roles").get(0))
 
@@ -53,7 +49,6 @@ class ApplicationConfig {
   lazy val readParallelism: Int = neo4jConfig.getInt("read-parallelism")
   lazy val readBatchSize: Int = neo4jConfig.getInt("read-batch-size")
   lazy val readWaitTime: Int = neo4jConfig.getInt("read-wait-time")
-  lazy val queryGroupSize: Int = neo4jConfig.getInt("query-group-size")
-  lazy val preProcessGroupCount: Int = neo4jConfig.getInt("pre-process-group-count")
+  lazy val writeBatchSize: Int = neo4jConfig.getInt("write-batch-size")
   lazy val maxQueryRetry: Int = neo4jConfig.getInt("max_query_retry")
 }

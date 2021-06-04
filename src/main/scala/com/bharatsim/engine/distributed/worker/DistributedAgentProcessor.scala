@@ -21,18 +21,18 @@ class DistributedAgentProcessor() {
     val stateControl = agentExecutor.stateControl
     implicit val executionContext: ExecutionContextExecutor = system.executionContext
     Source(nodes.toList)
-      .mapAsyncUnordered(config.processBatchSize)(nodeWithState =>
+      .mapAsyncUnordered(config.agentProcessParallelism)(nodeWithState =>
         Future {
           decodeAndAssignState(nodeWithState._1, nodeWithState._2, simulationContext)
         }
       )
-      .mapAsyncUnordered(config.processBatchSize)({ agent =>
+      .mapAsyncUnordered(config.agentProcessParallelism)({ agent =>
         Future {
           behaviourControl.executeFor(agent)
           agent
         }
       })
-      .mapAsyncUnordered(config.processBatchSize)(agent => Future { processState(stateControl, agent) })
+      .mapAsyncUnordered(config.agentProcessParallelism)(agent => Future { processState(stateControl, agent) })
       .run()
   }
 

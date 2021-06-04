@@ -18,7 +18,7 @@ import com.bharatsim.model12Hr.diseaseState._
 import com.typesafe.scalalogging.LazyLogging
 
 object Main2 extends LazyLogging {
-  private val TOTAL_PUBLIC_PLACES = ApplicationConfigFactory.config.publicPlaceCount
+  private val TOTAL_PUBLIC_PLACES = 100
   private var lastPublicPlaceId = 1
   private val initialInfectedFraction = 0.04
 

@@ -58,7 +58,7 @@ class DistributedTickLoop(
     actions.preTick.execute(currentTick)
     workerCoordinator.initTick(context.system, simulationContext, bookmarks)
     val distributableWork =
-      new DistributableWork(simulationContext.agentLabels.toList, simulationContext.simulationConfig.countBatchSize)
+      new DistributableWork(simulationContext.agentLabels.toList, simulationContext.simulationConfig.workBatchSize)
     if (distributableWork.isComplete) {
       context.self ! DistributedTickLoop.ExecuteWrites
       return
