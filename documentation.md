@@ -2,6 +2,16 @@ Welcome to the BharatSim Documentation!
 
 ## About BharatSim
 
+To analyze and predict behaviour of complex events such as COVID19 pandemic, one needs an ability to create hypothetical scenarios and simulate them iteratively. Agent based modeling is a technique which is used to create such models. As the domain itself is complex, building & implementing these agent based models is even more challenging.
+Good models would help us predict the timing of potential surges in health care requirements, making it easier to allocate resources in a timely manner. They would also enable us to compare the merits of different non-pharmaceutical interventions as the epidemic proceeds, while helping us understand, say, the role of underlying asymptomatic infections in spreading the disease.
+Models developed for other countries will simply not take into account the many complexities such as its unique demographics, the patchy state of health care, stratified social structures and complex ecological gradients of India. The inputs that are required for such modelling must be collated from multiple sources, including imperfect and not easily usable government data, requiring both local knowledge and considerable experience in how to gather and interpret them. Hence the need for an epidemic modelling framework tailored to Indian needs, with potential applications beyond its immediate use for COVID-19 modelling.
+
+BharatSim is a framework which helps model developers to build large scale agent based models considering the above challenges in the Indian context. BharatSim's vision is to build an India scale agent based framework that would enable modellers from various fields of study like epidemiology, disaster management, economics, etc to advise policy makers and institutions. BharatSim will allow researchers and modelers to build a distributed, multi-scale agent based simulation framework to help envision the disease spread of COVID19 in India, devise and visualize different interventions strategies in a way to advice policy makers for micro level decision making in controlling the epidemic. No other framework in India is generic enough and scalable enough in this context.
+
+The framework has two parts:
+1. Simulation engine - This component allows modeller to specify and simulate the model & is responsible for running the simulations.
+2. Visualization engine - This component would accept Simulation engine output and would help users to visualize it by means of creating different graphs and charts.
+
 #### Key features of BharatSim are:
 BharatSim is network based simulation framework developed with three goals in mind which together makes it unique:
 1. Flexibility: For being a social simulation framework, a researcher can develop models across disciplines such as epidemiology, economics, climate change, and so on,
@@ -46,6 +56,8 @@ For ex. Name, Age of an Agent.
 Behaviours are executed on every step of the simulation.
 
 #### Network
+Network is formed when two or more agents are connected with each other. For example, persons who stays at same place or goes to same office they will form a network.
+Network has three component Agents, Network And Relation between an Agent and Network.
  
 #### Schedule
    Schedules are the activities an Agent would perform at give point in time in the simulation.
@@ -230,11 +242,31 @@ Behaviours are executed on every step of the simulation.
 
 ## Synthetic population
 
+Synthetic population represents a set of synthetic agents that share a common geographic, social or biological characteristic. For example, we can have a synthetic population for a district and they would share Census measurements of that district.
+Data and attributes of the synthetic agents are synthesised by integrating a diverse set of data sources(e.g., Census, IHDS, NSS etc.) and using models for interpolation and extrapolation of data.
+These agents are “similar” to real individuals but not identical to any individual in the population. Thus individual attributes are based on real-world collected data. The correlations between the synthetic data sets “agree” with the measured correlations of the real world data.
+Source: https://nssac.bii.virginia.edu/~swarup/synthetic_population_tutorial/AAMAS_2016_generating_synthetic_populations_for_social_modeling_full_tutorial.pdf
+
 ## Visualizing model output
+
+Visualization engine/tool would accept Simulation engine output and would help users to visualize it by means of creating different graphs and charts.
+Visualization engine/tool provides various abilities such as :
+
+1. Data Import Ex. Simulation Engine output in CSV format
+2. Data file Management  Ex. Add, edit, delete
+3. Plot Widgets Ex. Line, Bar charts, Histogram
+4. Geo map Ex. Heatmap and Choropleth
+5. Project & Dashboard Management
+6. Auto Save for Dashboard
+7. Widget management & Configuration
+8. Export Widget (PNG)
 
 ## Examples - User testimonials
 
 ## Help & FAQs
+1. Usage Questions
+2. Conceptual Questions
+3. Common Questions
 
 ## Contributing to BharatSim
 
