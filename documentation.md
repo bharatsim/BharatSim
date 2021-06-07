@@ -38,6 +38,13 @@ For example, In an epidemic model, an individual could catch an infection while 
 3. API Documentation
     1. Run ``sbt doc``
     2. Generated documentation should be in ``target/scala-2.13/api/index.html``
+4. Package
+    1. Run ``sbt assembly`` to create independent jar. 
+    2. Generated jar should be at ``target/scala-2.13/engine-assembly-0.1.jar``
+    3. The jar should be run as follows
+        ``java -DSIMULATION_STEPS=100 -cp target/scala-2.13/engine-assembly-0.1.jar <the_main_class> ``.
+        For ex. The main class can be com.bharatsim.examples.epidemiology.sir.Main
+    
 
 ## Framework Key Concepts
 #### Agent 
@@ -239,6 +246,44 @@ Network has three component Agents, Network And Relation between an Agent and Ne
    Examples are listed in `com.bharatsim.examples` package. Each example can be executed by running `main` method from `Main.scala` class in each of the example. Details about each example are as follows:
    1.  `com.bharatsim.examples.epidemiology.sir` : Basic compartmental SIR model. It has two types of agents, employees and students. Each of the agent spends 12 hours at home and then 12 hours at school or office based on their type. The population is seeded with 1% infection and simulation continues until infected count becomes 0 or maximum number of steps as defined by application config, are reached. The output is written to output file specified while instantiating `CsvOutputGenerator`.  
     
+
+## Distribute Setup
+There are two modes an application has to run in distributed setup
+
+1. EngineMain
+2. Worker 
+
+#### EngineMain
+ The EngineMain is plays coordinator role in distributed setup. hence, there must be only one instance of application running  as EngineMain role in the setup.
+
+Engine performs following tasks:
+   1. Distribution of work and coordination between of workers
+   2. Ingestion of data
+   3. Execution of Interventions
+   4. Execution of Simulation Listeners
+    
+ 
+#### Workers
+   Worker does the majority of work need for execution of simulation. There can be multiple instances of worker in the setup.
+   The worker executes all the Agents Behaviours and State transitions.
+   
+
+#### Database
+   The Distributed setup uses [Neo4j](https://neo4j.com/) as database. The [Clustering](https://neo4j.com/docs/operations-manual/current/clustering/)  available in Enterprise version of Neo4j should be used for better performance. Though the Community and Desktop/developer version of Neo4j is also supported. 
+   
+#### Configurations
+   The following configurations need to be set for application to run in distributed mode.
+   * bharatsim.engine.execution="distributed"
+   * ROLES.0="EngineMain" or ROLES.0="Worker"
+   * HOSTNAME=<host_name_or_ip_address>
+   * PORT=<port_for_application> 
+   * SEED_NODES.0="akka://Cluster@<host_name_or_ip_address_for_seed>:<port>" (put the Ip address of first node to start in the cluster)
+   * bharatsim.engine.db.neo4j.uri="neo4j://<ip_address_of_neo4j>:<port_of_neo4j>
+   * bharatsim.engine.db.neo4j.username 
+   * bharatsim.engine.db.neo4j.password
+   
+   Please take a look at `reference.conf` for additional configurations. These configurations are set as system property. For example,
+   `Java -Dbharatsim.engine.execution="distributed" -DROLES.0="EngineMain -DHOSTNAME="localhost" -DPORT="25250" `
 
 ## Synthetic population
 
