@@ -133,7 +133,7 @@ Network has three component Agents, Network And Relation between an Agent and Ne
     ```scala
        simulation.defineSimulation(implicit context => {
          createSchedules()
-         creaetIntervention()
+         createIntervention()
        
          registerAction(
            StopSimulation,
@@ -219,7 +219,7 @@ Network has three component Agents, Network And Relation between an Agent and Ne
         ```scala
         import com.bharatsim.engine.intervention.Intervention
         
-       private def creaetIntervention(implicit context: Context): Unit = {
+       private def createIntervention(implicit context: Context): Unit = {
             val shouldActivate = (context: Context) => context.getCurrentStep == 5
             val shouldDeactivate = (context: Context) => context.getCurrentStep == 10
             
