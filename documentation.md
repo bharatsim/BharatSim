@@ -99,6 +99,12 @@ For ex. Name, Age of an Agent.
        This is the behaviour that agent exhibit during simulation. For ex. let's say, Modeller is modelling a person who is student, then student would have behaviour patterns like going to school, playing with friend. etc.
 Behaviours are executed on every step of the simulation.
 
+#### Stateful Agent
+Stateful Agents are agents but they follow Finite State Machine (FSM). There can be multiple states, with defined state transition. An agent can be in only one state at a time.
+   * **enterAction**: This code would be executed only once, when an agent enters a state.
+   * **perTickAction**: This code would be executed for all the ticks the agent is in this particular state.
+   * **addTransition**: Defines what should be next state and then when the transition to the next step happen. In case of multiple transitions, the first one to evaluate to true is executed.
+
 #### Network
 Network is formed when two or more agents are connected with each other. For example, persons who stays at same place or goes to same office they will form a network.
 Network has three component Agents, Network And Relation between an Agent and Network.
@@ -108,6 +114,12 @@ Network has three component Agents, Network And Relation between an Agent and Ne
    Using schedule, modeller can specify which Network that agent belongs to at any given point of time in the simulation.
 #### Interventions
   Interventions are events which get activated when the provided condition is satisfied. 
+
+#### Order of Per tick executions
+1. Actions which are registered in Main using `registerAction`. If there are multiple such actions registered, those would be executed in the order of declaration.
+2. Intervention related actions in an order of intervention invocation.
+3. Agent behaviours which are registered using `addBehaviour` construct. In case of multiple behaviours, those would be executed in the order of declaration. In case of `StatefulAgent` it would be `perTickActions` followed by `addTransition`.
+4. Actions defined in `SimulationListenerRegistry` are executed.
     
 - Each intervention is identified uniquely by the **name** of an intervention.
 - Each intervention needs to have an **activation condition** and a **condition to deactivate**.
@@ -311,6 +323,29 @@ Visualization engine/tool provides various abilities such as :
 1. Usage Questions
 2. Conceptual Questions
 3. Common Questions
+
+## Troubleshooting
+1. Compile time error with `Could not find implicit value for parameter [encoder],[decoder], [serializer], [deserializer]`: Import for default encoders and decoders are missing which needs to be added.
+    ```scala
+        import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
+        import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
+    ```
+2. Getting `java.util.NoSuchElementException: None.get` exception while running the simulation model: There can be multiple reasons for the same. But one such potential reason being the way relations are specified. e.x. If we are modeling `Person stays in House` use case, then we need to add two relations while csv ingestion, and one each in Person and House class.
+    E.x. In data ingestion
+    ```scala
+        val staysAt = Relation[Person, House](citizenId, "STAYS_AT", homeId)
+        val memberOf = Relation[House, Person](homeId, "HOUSES", citizenId)
+        ...
+        graphData.addRelations(staysAt, memberOf)
+    ```
+    In Person class:
+    ```scala
+        addRelation[House]("STAYS_AT")
+    ```
+    And similarly in House class:
+    ```scala
+        addRelation[Person]("HOUSES")
+    ```
 
 ## Contributing to BharatSim
 
