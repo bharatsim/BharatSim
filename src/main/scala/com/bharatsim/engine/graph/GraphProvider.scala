@@ -294,6 +294,10 @@ trait GraphProvider extends LazyLogging {
     * close the connection with data store
     */
   def shutdown(): Unit
+
+  private[engine] def clearData(): Unit = {
+    deleteAll()
+  }
 }
 
 object GraphProvider {

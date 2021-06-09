@@ -45,7 +45,7 @@ class DefaultExecutor(executorContext: ExecutorContext = new ExecutorContext(), 
   }
 
   override def execute(simulationDefinition: SimulationDefinition): Unit = {
-
+    context.graphProvider.clearData()
     simulationDefinition.ingestionStep(context)
     simulationDefinition.simulationBody(context)
     runSimulation(context)

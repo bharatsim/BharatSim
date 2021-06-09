@@ -255,6 +255,23 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
     }
   }
 
+  "clearData" should {
+    "should clear data Immediately " in {
+      createPerson()
+      graphProvider.clearData()
+
+      val personCount: Int = neo4jConnection
+        .session()
+        .readTransaction(x => {
+          val nodeCount = x.run("MATCH (p) return count(p) as matchCount").single().get("matchCount").asInt()
+          val relationCount = x.run("MATCH ()-[r]-() return count(r) as matchCount").single().get("matchCount").asInt()
+          nodeCount + relationCount
+        })
+
+      personCount shouldBe 0
+    }
+  }
+
   "updateNode" should {
     "update the node parameters" in {
       val (rameshId, _) = createPerson()

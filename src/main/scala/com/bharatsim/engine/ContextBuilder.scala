@@ -22,8 +22,11 @@ object ContextBuilder {
     * @param more additional [[Schedule]], condition and priority tuples.
     * @param context instance of [[Context]] for the simulation
     */
-  def registerSchedules(s1: (Schedule, (Agent, Context) => Boolean, Int), more: (Schedule, (Agent, Context) => Boolean, Int)*)(
-      implicit context: Context
+  def registerSchedules(
+      s1: (Schedule, (Agent, Context) => Boolean, Int),
+      more: (Schedule, (Agent, Context) => Boolean, Int)*
+  )(implicit
+      context: Context
   ): Unit = {
     val allSchedules = s1 :: more.toList
     allSchedules.foreach(sc => context.schedules.add(sc._1, sc._2, sc._3))
@@ -44,13 +47,13 @@ object ContextBuilder {
   }
 
   /**
-   * Clean the data and close the connection with database
-   *
-   * @param cleanData Defaults to true, can be overridden if data cleaning needs to be avoided
-   * @param context   instance of [[Context]] for the simulation
-   */
+    * Clean the data and close the connection with database
+    *
+    * @param cleanData Defaults to true, can be overridden if data cleaning needs to be avoided
+    * @param context   instance of [[Context]] for the simulation
+    */
   def teardown(cleanData: Boolean = true)(implicit context: Context): Unit = {
-    if (cleanData) context.graphProvider.deleteAll()
+    if (cleanData) context.graphProvider.clearData()
     context.graphProvider.shutdown()
   }
 

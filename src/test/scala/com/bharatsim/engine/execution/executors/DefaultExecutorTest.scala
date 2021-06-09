@@ -52,6 +52,7 @@ class DefaultExecutorTest
 
   private def prepareInOrder(simDef: SimulationDefinition, actions: Actions, behaviourControl: BehaviourControl) = {
     Mockito.inOrder(
+      mockGraphProvider,
       simDef.ingestionStep,
       simDef.simulationBody,
       simDef.onComplete,
@@ -86,6 +87,7 @@ class DefaultExecutorTest
     new DefaultExecutor(mockExecutorContext, context).execute(simDef)
 
     val orderedVerify = prepareInOrder(simDef, actions, behaviourControl)
+    orderedVerify.verify(mockGraphProvider).clearData()
     orderedVerify.verify(simDef.ingestionStep)(context)
     orderedVerify.verify(simDef.simulationBody)(context)
     orderedVerify.verify(actions.preSimulation).execute()

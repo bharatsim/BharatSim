@@ -20,7 +20,7 @@ class EngineMainActor() extends LazyLogging {
       simulationContext: Context = Context(),
       workerCoordinator: WorkerCoordinator = new WorkerCoordinator
   ): Behavior[DistributedTickLoop.Command] = {
-
+    simulationContext.graphProvider.clearData()
     val config = simulationContext.simulationConfig
     if (config.disableIngestion) {
       logger.info("Ingestion skipped")

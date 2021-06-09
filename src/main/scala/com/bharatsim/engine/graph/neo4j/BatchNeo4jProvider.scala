@@ -17,7 +17,6 @@ import org.neo4j.driver.Values.parameters
 import org.neo4j.driver.{Bookmark, Record, Session, Transaction}
 
 import scala.annotation.tailrec
-import scala.concurrent.duration.Duration
 import scala.concurrent.duration.Duration.Inf
 import scala.concurrent.{Await, Future, Promise}
 import scala.jdk.CollectionConverters.{IterableHasAsJava, ListHasAsScala, MapHasAsJava, MapHasAsScala}
@@ -331,9 +330,30 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
     })(actorSystem.executionContext)
   }
 
+  private def deleteAllImmediate(deleteQuery: String): Unit = {
+    val deleteCount: Int = createSession.writeTransaction(tx => {
+      val result = tx.run(deleteQuery)
+      result.single().get("deletedCount").asInt()
+    })
+    if (deleteCount > 0) {
+      deleteAllImmediate(deleteQuery)
+    }
+  }
+
+  override def clearData(): Unit = {
+    logger.debug("Cleanup started for neo4j")
+    val DELETE_BATCH_SIZE = 10_000
+    val queryDeleteNodes =
+      s"Optional match (n) with n limit ${DELETE_BATCH_SIZE} detach delete n return count(n) as deletedCount"
+    val queryDeleteRelations =
+      s"Optional match ()-[r]-() with r limit ${DELETE_BATCH_SIZE} delete r return count(r) as deletedCount"
+    deleteAllImmediate(queryDeleteRelations)
+    deleteAllImmediate(queryDeleteNodes)
+    logger.debug("Cleanup Done for neo4j")
+  }
+
   override def shutdown() {
     readOperations.close()
-    Await.ready(executePendingWrites(), Duration.Inf)
     super.shutdown()
   }
 }

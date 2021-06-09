@@ -54,6 +54,7 @@ class EngineMainActorTest
 
       BehaviorTestKit(engineMain)
 
+      verify(mockGraphProvider).clearData()
       verify(ingestionStep)(context)
       verify(body)(context)
       verify(onComplete, never)(any[Context])
