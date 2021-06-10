@@ -76,8 +76,8 @@ EngineMain performs following tasks:
    * PORT=<port_for_application>
    * SEED_NODES.0="akka://Cluster@<host_name_or_ip_address_for_seed>:<port>" (Ip address of first node to start in the cluster)
    * bharatsim.engine.db.neo4j.uri="neo4j://<ip_address_of_neo4j>:<port_of_neo4j>
-   * bharatsim.engine.db.neo4j.username
-   * bharatsim.engine.db.neo4j.password
+   * bharatsim.engine.db.neo4j.username=<neo4j_username>
+   * bharatsim.engine.db.neo4j.password=<neo4j_password>
 
    Please take a look at `reference.conf` for additional configurations. These configurations are set as system property. For example,
    `Java -Dbharatsim.engine.execution="distributed" -DROLES.0="EngineMain -DHOSTNAME="localhost" -DPORT="25250" `
@@ -114,13 +114,6 @@ Network has three component Agents, Network And Relation between an Agent and Ne
    Using schedule, modeller can specify which Network that agent belongs to at any given point of time in the simulation.
 #### Interventions
   Interventions are events which get activated when the provided condition is satisfied. 
-
-#### Order of Per tick executions
-1. Actions which are registered in Main using `registerAction`. If there are multiple such actions registered, those would be executed in the order of declaration.
-2. Intervention related actions in an order of intervention invocation.
-3. Agent behaviours which are registered using `addBehaviour` construct. In case of multiple behaviours, those would be executed in the order of declaration. In case of `StatefulAgent` it would be `perTickActions` followed by `addTransition`.
-4. Actions defined in `SimulationListenerRegistry` are executed.
-    
 - Each intervention is identified uniquely by the **name** of an intervention.
 - Each intervention needs to have an **activation condition** and a **condition to deactivate**.
 > activation condition and deactivation condition are `boolean` decisions
@@ -133,7 +126,15 @@ Network has three component Agents, Network And Relation between an Agent and Ne
 #### Output
    For generating output in CSV file format the BharatSim framework provides interface `CSVSpecs`.
     The Modeller has to implement this interface in order to specify **Headers** and **Rows** data.
-    
+
+## Order of Per tick executions
+
+  1. `onStepStart` of all the `SimulationListener` from `SimulationListenerRegistry` in order of registration. 
+  2. Intervention registered using `registerIntervention` in an order of intervention invocation.
+  3. Agent behaviours which are registered using `addBehaviour` construct. In case of multiple behaviours, those would be executed in the order of declaration. In case of `StatefulAgent` it would be agents behaviours followed by state transition defined using `addTransition`.
+  4. Actions which are registered in Main using `registerAction`. If there are multiple such actions registered, those would be executed in the order of declaration.
+  5. `onStepEnd` of all the `SimulationListener` from `SimulationListenerRegistry` in order of registration.
+ 
 ## Quick Start Guide
 1. Create Simulation instance : Simulation instance would be created with max number of ticks as specified in `bharatsim.engine.executionsimulation-steps` in `application.conf` file
     
@@ -347,6 +348,14 @@ Visualization engine/tool provides various abilities such as :
         addRelation[Person]("HOUSES")
     ```
 
+3. Getting `java.util.NoSuchElementException: key not found: [int]` exception: Please check the schedule definition. This exception can potentially be caused if schedule is not defined contiguously and if there are empty slots in the schedule. e.x. 24 Hours schedule definition where there's slot 9 to 10 is missing.
+      
+   ```scala
+          val employeeScheduleOnWeekDays = (Day, Hour)
+             .add[House](0, 8)
+             .add[Office](10, 18)
+             .add[House](19, 23)
+   ```
 ## Contributing to BharatSim
 
 ## Disclaimer
