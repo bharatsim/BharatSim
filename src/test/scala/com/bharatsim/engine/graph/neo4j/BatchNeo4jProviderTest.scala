@@ -118,6 +118,11 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
       val person = graphProvider.fetchNode(label, Map.empty).get;
       person.getParams("name") shouldBe "Ramesh"
     }
+    "should return None when no matching record found" in {
+      createPerson()
+      val person = graphProvider.fetchNode(label, Map("name" -> "non-existing-name"));
+      person shouldBe None
+    }
   }
 
   "fetch nodes" should {
@@ -135,6 +140,11 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
       val result = graphProvider.fetchNodes(label, Map.empty[String, Any]);
       result.map(_.getParams("name")) should contain theSameElementsAs List("Ramesh", "Suresh")
     }
+    "should return empty when no records matches to params" in {
+      createPerson()
+      val result = graphProvider.fetchNodes(label, ("name", "non-existing-name"));
+      result shouldBe empty
+    }
 
     "fetch multiple node with pattern match" in {
       createPerson()
@@ -145,6 +155,12 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
       createPerson()
       val result = graphProvider.fetchNodes(label, EmptyPattern());
       result.map(_.getParams("name")) should contain theSameElementsAs List("Ramesh", "Suresh")
+    }
+
+    "should return empty when no records matches to pattern" in {
+      createPerson()
+      val results = graphProvider.fetchNodes(label, "name" equ "non-existing-name");
+      results shouldBe empty
     }
   }
 

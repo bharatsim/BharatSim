@@ -57,7 +57,11 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
       )
     )
     val record = Await.result(promisedRecord.future, Inf)
-    val node = record.get("nodes").asList().asScala.headOption
+    val node = record
+      .get("nodes")
+      .asList()
+      .asScala
+      .find(v => Option(v.asInstanceOf[util.Map[String, Object]].get("id")).isDefined)
     if (node.isDefined) Some(extractGraphNode(node.get.asInstanceOf[util.Map[String, Object]])) else None
   }
 
@@ -72,14 +76,19 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
       )
     )
     val record = Await.result(promisedRecord.future, Inf)
-    record.get("nodes").asList().asScala.map(v => extractGraphNode(v.asInstanceOf[util.Map[String, Object]]))
+    record
+      .get("nodes")
+      .asList()
+      .asScala
+      .filter(v => Option(v.asInstanceOf[util.Map[String, Object]].get("id")).isDefined)
+      .map(v => extractGraphNode(v.asInstanceOf[util.Map[String, Object]]))
   }
 
   override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
     val patternWithParams = PatternMaker.from(matchPattern, "n", Some("props"))
     val whereClause = if (patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
     val query = s"""OPTIONAL MATCH (n:$label) $whereClause with n, uuid
-                     | RETURN collect({props: properties(n), id: id(n), labels: labels(n) }) as nodes , uuid """.stripMargin
+                     | RETURN collect({props: properties(n), id: id(n), labels: labels(n) }) as nodes ,count(n) as nodeCount, uuid """.stripMargin
     val promisedRecord = Promise[Record]()
     val substitutableQuery =
       SubstitutableQuery(query, patternWithParams.params.asInstanceOf[Map[String, Object]].asJava)
@@ -90,7 +99,12 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
       )
     )
     val record = Await.result(promisedRecord.future, Inf)
-    record.get("nodes").asList().asScala.map(v => extractGraphNode(v.asInstanceOf[util.Map[String, Object]]))
+    record
+      .get("nodes")
+      .asList()
+      .asScala
+      .filter(v => Option(v.asInstanceOf[util.Map[String, Object]].get("id")).isDefined)
+      .map(v => extractGraphNode(v.asInstanceOf[util.Map[String, Object]]))
 
   }
 
