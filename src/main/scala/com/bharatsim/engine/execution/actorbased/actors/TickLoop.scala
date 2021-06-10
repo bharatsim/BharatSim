@@ -6,8 +6,13 @@ import com.bharatsim.engine.execution.AgentExecutor
 import com.bharatsim.engine.execution.NodeWithDecoder.GenericNodeWithDecoder
 import com.bharatsim.engine.execution.actions.{PostTickActions, PreTickActions}
 import com.bharatsim.engine.execution.actorbased.RoundRobinStrategy
-import com.bharatsim.engine.execution.actorbased.actors.AgentProcessor.{NotifyCompletion, UnitOfWork}
-import com.bharatsim.engine.execution.actorbased.actors.TickLoop.{Command, CurrentTick, UnitOfWorkFinished}
+import com.bharatsim.engine.execution.actorbased.actors.AgentProcessor.UnitOfWork
+import com.bharatsim.engine.execution.actorbased.actors.TickLoop.{
+  Command,
+  CurrentTick,
+  UnitOfWorkFailed,
+  UnitOfWorkFinished
+}
 import com.bharatsim.engine.{ApplicationConfig, Context}
 
 class TickLoop(
@@ -39,8 +44,7 @@ class TickLoop(
               val actorName = s"processing-actor-${roundRobinStrategy.next}"
               val processingActor = getOrCreateChildActor(actorName)
 
-              processingActor ! UnitOfWork(nodeWithDecoder)
-              processingActor ! NotifyCompletion(actorContext.self)
+              processingActor ! UnitOfWork(nodeWithDecoder, actorContext.self)
             })
 
             TickBarrier(currentTick, nodesWithDecoders.size, 0)
@@ -72,6 +76,7 @@ class TickLoop(
           } else {
             TickBarrier(currentTick, totalUnits, finishedUnits + 1)
           }
+        case UnitOfWorkFailed(exception) => throw exception
       }
   }
 
@@ -90,5 +95,6 @@ object TickLoop {
   case object CurrentTick extends Command
 
   case object UnitOfWorkFinished extends Command
+  case class UnitOfWorkFailed(exception: Throwable) extends Command
 
 }
