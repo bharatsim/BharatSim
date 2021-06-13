@@ -131,8 +131,8 @@ Network has three component Agents, Network And Relation between an Agent and Ne
 
   1. `onStepStart` of all the `SimulationListener` from `SimulationListenerRegistry` in order of registration. 
   2. Intervention registered using `registerIntervention` in an order of intervention invocation.
-  3. Agent behaviours which are registered using `addBehaviour` construct. In case of multiple behaviours, those would be executed in the order of declaration. In case of `StatefulAgent` it would be agents behaviours followed by state transition defined using `addTransition`.
-  4. Actions which are registered in Main using `registerAction`. If there are multiple such actions registered, those would be executed in the order of declaration.
+  3. Agent behaviours which are registered using `addBehaviour` construct. In case of multiple behaviours, these would be executed in the order of declaration. In case of `StatefulAgent` it would be agents behaviours followed by state transition defined using `addTransition`.
+  4. Actions which are registered in Main using `registerAction`. If there are multiple such actions registered, these would be executed in the order of declaration.
   5. `onStepEnd` of all the `SimulationListener` from `SimulationListenerRegistry` in order of registration.
  
 ## Quick Start Guide
@@ -294,7 +294,7 @@ Network has three component Agents, Network And Relation between an Agent and Ne
 
 ## Using examples
    Examples are listed in `com.bharatsim.examples` package. Each example can be executed by running `main` method from `Main.scala` class in each of the example. Details about each example are as follows:
-   1.  `com.bharatsim.examples.epidemiology.sir` : Basic compartmental SIR model. It has two types of agents, employees and students. Each of the agent spends 12 hours at home and then 12 hours at school or office based on their type. The population is seeded with 1% infection and simulation continues until infected count becomes 0 or maximum number of steps as defined by application config, are reached. The output is written to output file specified while instantiating `CsvOutputGenerator`.  
+   1.  `com.bharatsim.examples.epidemiology.sir` : Basic compartmental SIR model. It has two types of agents; employees and students. Each of the agent spends 12 hours at home and then 12 hours at school or office based on their type. The population is seeded with 1% infection and simulation continues until infected count becomes 0 or maximum number of steps as defined by application config are reached. The output is written to output file specified while instantiating `CsvOutputGenerator`.  
     
 
 ## Synthetic population
@@ -331,7 +331,7 @@ Visualization engine/tool provides various abilities such as :
         import com.bharatsim.engine.basicConversions.decoders.DefaultDecoders._
         import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
     ```
-2. Getting `java.util.NoSuchElementException: None.get` exception while running the simulation model: There can be multiple reasons for the same. But one such potential reason being the way relations are specified. e.x. If we are modeling `Person stays in House` use case, then we need to add two relations while csv ingestion, and one each in Person and House class.
+2. Getting `java.util.NoSuchElementException: None.get` exception while running the simulation model: There can be multiple reasons for the same but one such potential reason being the way relations are specified. e.x. if we are modeling `Person stays in House` use case, then we need to add two relations while csv ingestion, and one each in Person and House class.
     E.x. In data ingestion
     ```scala
         val staysAt = Relation[Person, House](citizenId, "STAYS_AT", homeId)
@@ -348,7 +348,7 @@ Visualization engine/tool provides various abilities such as :
         addRelation[Person]("HOUSES")
     ```
 
-3. Getting `java.util.NoSuchElementException: key not found: [int]` exception: Please check the schedule definition. This exception can potentially be caused if schedule is not defined contiguously and if there are empty slots in the schedule. e.x. 24 Hours schedule definition where there's slot 9 to 10 is missing.
+3. Getting `java.util.NoSuchElementException: key not found: [int]` exception: Please check the schedule definition. This exception can potentially be caused when schedule is not defined continuously and if there are empty slots in the schedule. e.x. 24 Hours schedule definition where there's slot 9 to 10 is missing.
       
    ```scala
           val employeeScheduleOnWeekDays = (Day, Hour)
