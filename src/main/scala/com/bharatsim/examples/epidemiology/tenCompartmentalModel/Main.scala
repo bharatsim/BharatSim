@@ -1,6 +1,7 @@
 package com.bharatsim.examples.epidemiology.tenCompartmentalModel
 
 import java.util.Date
+import java.util.concurrent.atomic.AtomicInteger
 
 import com.bharatsim.engine.ContextBuilder._
 import com.bharatsim.engine._
@@ -17,10 +18,10 @@ import com.bharatsim.engine.intervention.{Intervention, SingleInvocationInterven
 import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerRegistry}
 import com.bharatsim.engine.models.Agent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
+import com.bharatsim.engine.utils.StreamUtil
 import com.bharatsim.examples.epidemiology.tenCompartmentalModel.InfectionSeverity.{Mild, Severe}
 import com.bharatsim.examples.epidemiology.tenCompartmentalModel.InfectionStatus._
 import com.bharatsim.examples.epidemiology.tenCompartmentalModel.diseaseState._
-
 import com.typesafe.scalalogging.LazyLogging
 
 object Main extends LazyLogging {
@@ -29,7 +30,7 @@ object Main extends LazyLogging {
   //  TODO: Update initial infections - Jayanta / Philip
   private val initialInfectedFraction = 0.01
   private var ingestedPopulation = 0
-  private var vaccinesAdministered = 0
+  private val vaccinesAdministered = new AtomicInteger(0)
   private var vaccinationStarted = 0
 
   private val myTick: ScheduleUnit = new ScheduleUnit(1)
@@ -123,7 +124,7 @@ object Main extends LazyLogging {
     }
     val firstTimeExecution = (context: Context) => interventionActivatedAt = context.getCurrentStep
     val deActivationCondition = (context: Context) => {
-      vaccinesAdministered >= ingestedPopulation
+      vaccinesAdministered.get() >= ingestedPopulation
     }
 
     val intervention: Intervention = SingleInvocationIntervention(
@@ -134,24 +135,20 @@ object Main extends LazyLogging {
       context => {
         //      TODO: Add shuffle while picking up agents - Jayanta / Philip
         //      TODO: Update vaccination strategy - Jayanta / Philip
-        val populationIterable: Iterator[GraphNode] = context.graphProvider.fetchNodes("Person")
-        var vaccinesAdministeredThisTick = 0
+        val populationIterator: Iterator[GraphNode] = context.graphProvider.fetchNodes("Person")
         val numberOfVaccinesPerTick = Disease.vaccinationRate * ingestedPopulation * Disease.dt
 
-        populationIterable.foreach(node => {
-          val person = node.as[Person]
-
-          if (person.shouldGetVaccine()) {
-
-            if (vaccinesAdministeredThisTick < numberOfVaccinesPerTick) {
-              person.updateParam("vaccinationStatus", true)
-              person.updateParam("betaMultiplier", person.betaMultiplier * Disease.vaccinatedBetaMultiplier)
-              person.updateParam("gamma", person.gamma * (1 + Disease.vaccinatedGammaFractionalIncrease))
-              vaccinesAdministered = vaccinesAdministered + 1
-              vaccinesAdministeredThisTick = vaccinesAdministeredThisTick + 1
-            }
-          }
-        })
+        StreamUtil
+          .create(populationIterator, parallel = true)
+          .filter((node) => node.as[Person].shouldGetVaccine())
+          .limit(numberOfVaccinesPerTick.toLong)
+          .forEach(node => {
+            val person = node.as[Person]
+            person.updateParam("vaccinationStatus", true)
+            person.updateParam("betaMultiplier", person.betaMultiplier * Disease.vaccinatedBetaMultiplier)
+            person.updateParam("gamma", person.gamma * (1 + Disease.vaccinatedGammaFractionalIncrease))
+            vaccinesAdministered.getAndIncrement()
+          })
       }
     )
 
