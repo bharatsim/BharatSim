@@ -201,7 +201,7 @@ trait GraphProvider extends LazyLogging {
     * @param params is data parameter of node to find
     * @return all the matching nodes
     */
-  def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode]
+  def fetchNodes(label: String, params: Map[String, Any]): Iterator[GraphNode]
 
   /**
     * Fetch all the nodes with matching label and parameters
@@ -210,7 +210,7 @@ trait GraphProvider extends LazyLogging {
     * @param params is data parameter of node to find
     * @return all the matching nodes
     */
-  def fetchNodes(label: String, params: (String, Any)*): Iterable[GraphNode] = fetchNodes(label, params.toMap)
+  def fetchNodes(label: String, params: (String, Any)*): Iterator[GraphNode] = fetchNodes(label, params.toMap)
 
   /**
     * Gets all the nodes that matches the criteria
@@ -218,7 +218,7 @@ trait GraphProvider extends LazyLogging {
     * @param matchPattern is matching criteria for node
     * @return all the matching nodes
     */
-  def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode]
+  def fetchNodes(label: String, matchPattern: MatchPattern): Iterator[GraphNode]
 
   /**
     * Gets count of all the nodes that matches the criteria
@@ -235,7 +235,7 @@ trait GraphProvider extends LazyLogging {
     * @param labels additional label to find
     * @return all the connected node with matching labels.
     */
-  def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode]
+  def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterator[GraphNode]
 
   /**
     *  Gets the count connected node of specified nodeId

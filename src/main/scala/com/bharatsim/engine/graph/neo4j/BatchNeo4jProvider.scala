@@ -14,7 +14,7 @@ import com.bharatsim.engine.graph.patternMatcher.MatchPattern
 import com.typesafe.scalalogging.LazyLogging
 import org.neo4j.driver.SessionConfig.builder
 import org.neo4j.driver.Values.parameters
-import org.neo4j.driver.{Bookmark, Record, Session, Transaction}
+import org.neo4j.driver.{AccessMode, Bookmark, Record, Session, Transaction}
 
 import scala.annotation.tailrec
 import scala.concurrent.duration.Duration.Inf
@@ -33,8 +33,8 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
     readOperations.setBookMarks(this.bookmarks)
   }
 
-  override def createSession: Session = {
-    neo4jConnection.session(builder().withBookmarks(bookmarks.asJava).build())
+  override def createSession(accessMode: AccessMode): Session = {
+    neo4jConnection.session(builder().withDefaultAccessMode(accessMode).withBookmarks(bookmarks.asJava).build())
   }
 
   private val queryQueue = new ConcurrentLinkedDeque[QueryWithPromise]();
@@ -89,7 +89,7 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
                    |optional match (p)-[:FSM_STATE]->(q) with p, q
                    |return {props: properties(p), labels: labels(p), id: id(p)} as node,  {props: properties(q), labels: labels(q), id: id(q)} as state""".stripMargin
 
-    val session = createSession
+    val session = createSession(AccessMode.READ)
 
     val nodes = session.readTransaction((tx: Transaction) => {
 
@@ -117,7 +117,7 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
 
   }
 
-  override def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode] = {
+  override def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterator[GraphNode] = {
     val allLabels = label :: labels.toList
     val labelAOrLabelB = allLabels.mkString(" | ")
 
@@ -141,6 +141,7 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
       .asScala
       .filter(v => Option(v.asInstanceOf[util.Map[String, Object]].get("id")).isDefined)
       .map(v => extractGraphNode(v.asInstanceOf[util.Map[String, Object]]))
+      .iterator
 
   }
 
@@ -302,7 +303,7 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
   }
 
   private def deleteAllImmediate(deleteQuery: String): Unit = {
-    val deleteCount: Int = createSession.writeTransaction(tx => {
+    val deleteCount: Int = createSession(AccessMode.WRITE).writeTransaction(tx => {
       val result = tx.run(deleteQuery)
       result.single().get("deletedCount").asInt()
     })

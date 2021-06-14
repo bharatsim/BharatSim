@@ -28,7 +28,7 @@ class DefaultExecutorTest
   val context = Context(mockGraphProvider, mockConfig)
   val simulationSteps = 2
   override def beforeEach(): Unit = {
-    when(mockGraphProvider.fetchNodes("Student")).thenReturn(List(graphNodeStudent))
+    when(mockGraphProvider.fetchNodes("Student")).thenAnswer(List(graphNodeStudent).iterator)
     when(mockConfig.simulationSteps).thenReturn(simulationSteps)
 
   }

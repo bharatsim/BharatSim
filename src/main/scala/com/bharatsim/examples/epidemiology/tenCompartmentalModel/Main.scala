@@ -134,7 +134,7 @@ object Main extends LazyLogging {
       context => {
         //      TODO: Add shuffle while picking up agents - Jayanta / Philip
         //      TODO: Update vaccination strategy - Jayanta / Philip
-        val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person")
+        val populationIterable: Iterator[GraphNode] = context.graphProvider.fetchNodes("Person")
         var vaccinesAdministeredThisTick = 0
         val numberOfVaccinesPerTick = Disease.vaccinationRate * ingestedPopulation * Disease.dt
 

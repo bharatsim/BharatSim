@@ -131,14 +131,14 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
       createPerson()
       val result1 = graphProvider.fetchNodes(label, Map(("name", "Suresh")));
       val result2 = graphProvider.fetchNodes(label, ("name", "Suresh"));
-      result1.map(_.getParams("name")) should contain theSameElementsAs List("Suresh")
-      result2.map(_.getParams("name")) should contain theSameElementsAs List("Suresh")
+      result1.map(_.getParams("name")).toList should contain theSameElementsAs List("Suresh")
+      result2.map(_.getParams("name")).toList should contain theSameElementsAs List("Suresh")
     }
 
     "fetch all nodes when parameter is empty" in {
       createPerson()
       val result = graphProvider.fetchNodes(label, Map.empty[String, Any]);
-      result.map(_.getParams("name")) should contain theSameElementsAs List("Ramesh", "Suresh")
+      result.map(_.getParams("name")).toList should contain theSameElementsAs List("Ramesh", "Suresh")
     }
     "should return empty when no records matches to params" in {
       createPerson()
@@ -149,12 +149,12 @@ class BatchNeo4jProviderTest extends AnyWordSpec with BeforeAndAfterEach with Ma
     "fetch multiple node with pattern match" in {
       createPerson()
       val result = graphProvider.fetchNodes(label, "name" equ "Suresh");
-      result.map(_.getParams("name")) should contain theSameElementsAs List("Suresh")
+      result.map(_.getParams("name")).toList should contain theSameElementsAs List("Suresh")
     }
     "fetch all nodes when empty pattern" in {
       createPerson()
       val result = graphProvider.fetchNodes(label, EmptyPattern());
-      result.map(_.getParams("name")) should contain theSameElementsAs List("Ramesh", "Suresh")
+      result.map(_.getParams("name")).toList should contain theSameElementsAs List("Ramesh", "Suresh")
     }
 
     "should return empty when no records matches to pattern" in {

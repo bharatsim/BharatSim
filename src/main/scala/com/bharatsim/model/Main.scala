@@ -87,7 +87,7 @@ object Main extends LazyLogging {
       12,
       _ => (),
       context => {
-        val populationIterable: Iterable[GraphNode] = context.graphProvider.fetchNodes("Person")
+        val populationIterable: Iterator[GraphNode] = context.graphProvider.fetchNodes("Person")
 
         populationIterable.foreach(node =>
           if (biasedCoinToss(Disease.vaccinationRate)) {

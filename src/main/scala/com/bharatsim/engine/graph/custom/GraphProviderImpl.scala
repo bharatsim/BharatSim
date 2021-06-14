@@ -22,20 +22,20 @@ private[engine] class GraphProviderImpl(graphOperations: GraphOperations) extend
     graphOperations.readOperations.fetchNode(label, params)
   }
 
-  override def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode] = {
-    graphOperations.readOperations.fetchNodes(label, params)
+  override def fetchNodes(label: String, params: Map[String, Any]): Iterator[GraphNode] = {
+    graphOperations.readOperations.fetchNodes(label, params).iterator
   }
 
-  override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
-    graphOperations.readOperations.fetchNodes(label, matchPattern)
+  override def fetchNodes(label: String, matchPattern: MatchPattern): Iterator[GraphNode] = {
+    graphOperations.readOperations.fetchNodes(label, matchPattern).iterator
   }
 
   override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
     graphOperations.readOperations.fetchCount(label, matchPattern)
   }
 
-  override def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterable[GraphNode] = {
-    graphOperations.readOperations.fetchNeighborsOf(nodeId, label :: labels.toList)
+  override def fetchNeighborsOf(nodeId: NodeId, label: String, labels: String*): Iterator[GraphNode] = {
+    graphOperations.readOperations.fetchNeighborsOf(nodeId, label :: labels.toList).iterator
   }
 
   override def neighborCount(nodeId: NodeId, label: String, matchCondition: MatchPattern): Int = {

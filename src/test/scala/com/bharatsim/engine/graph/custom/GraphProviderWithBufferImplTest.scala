@@ -105,7 +105,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
         graphProvider.syncBuffers()
 
-        val nodes = graphProvider.fetchNodes("Person", ("name", "Ramesh"))
+        val nodes = graphProvider.fetchNodes("Person", ("name", "Ramesh")).toList
         nodes.size shouldBe 1
         nodes.head.apply("age").get shouldBe 23
       }
@@ -130,7 +130,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
         graphProvider.syncBuffers()
 
-        val nodes = graphProvider.fetchNodes("Person", "name" equ "Ramesh")
+        val nodes = graphProvider.fetchNodes("Person", "name" equ "Ramesh").toList
         nodes.size shouldBe 1
         nodes.head.apply("age").get shouldBe 23
       }
@@ -354,7 +354,7 @@ class GraphProviderWithBufferImplTest extends AnyWordSpec with Matchers with Moc
 
       graphProvider.syncBuffers()
 
-      val personList = graphProvider.fetchNodes("Person")
+      val personList = graphProvider.fetchNodes("Person").toList
       personList.size shouldBe 1
       personList.head.apply("name").get shouldBe "Girish"
     }

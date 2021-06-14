@@ -93,7 +93,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
 
-        val nodes = graphProvider.fetchNodes("Person", ("name", "Ramesh"))
+        val nodes = graphProvider.fetchNodes("Person", ("name", "Ramesh")).toList
         nodes.size shouldBe 1
         nodes.head.apply("age").get shouldBe 23
       }
@@ -104,7 +104,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
 
-        val nodes = graphProvider.fetchNodes("Person", ("name", "Aadesh"))
+        val nodes = graphProvider.fetchNodes("Person", ("name", "Aadesh")).toList
         nodes.size shouldBe 0
       }
     }
@@ -116,7 +116,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
         graphProvider.createNode("Person", ("name", "Ramesh"), ("age", 23))
         graphProvider.createNode("Person", ("name", "Suresh"), ("age", 36))
 
-        val nodes = graphProvider.fetchNodes("Person", "name" equ "Ramesh")
+        val nodes = graphProvider.fetchNodes("Person", "name" equ "Ramesh").toList
         nodes.size shouldBe 1
         nodes.head.apply("age").get shouldBe 23
       }
@@ -303,7 +303,7 @@ class GraphProviderImplTest extends AnyWordSpec with Matchers with MockitoSugar 
 
       graphProvider.deleteNodes("Person", Map(("age", 24)))
 
-      val personList = graphProvider.fetchNodes("Person")
+      val personList = graphProvider.fetchNodes("Person").toList
       personList.size shouldBe 1
       personList.head.apply("name").get shouldBe "Girish"
     }
