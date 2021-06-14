@@ -65,49 +65,6 @@ private[engine] class BatchNeo4jProvider(config: Neo4jConfig) extends Neo4jProvi
     if (node.isDefined) Some(extractGraphNode(node.get.asInstanceOf[util.Map[String, Object]])) else None
   }
 
-  override def fetchNodes(label: String, params: Map[String, Any]): Iterable[GraphNode] = {
-    val promisedRecord = Promise[Record]()
-    val substitutableQuery =
-      SubstitutableQuery(makeMatchNodeQuery(label, params, None), params.asInstanceOf[Map[String, Object]].asJava)
-    readOperations.enqueue(
-      QueryWithPromise(
-        substitutableQuery,
-        promisedRecord
-      )
-    )
-    val record = Await.result(promisedRecord.future, Inf)
-    record
-      .get("nodes")
-      .asList()
-      .asScala
-      .filter(v => Option(v.asInstanceOf[util.Map[String, Object]].get("id")).isDefined)
-      .map(v => extractGraphNode(v.asInstanceOf[util.Map[String, Object]]))
-  }
-
-  override def fetchNodes(label: String, matchPattern: MatchPattern): Iterable[GraphNode] = {
-    val patternWithParams = PatternMaker.from(matchPattern, "n", Some("props"))
-    val whereClause = if (patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
-    val query = s"""OPTIONAL MATCH (n:$label) $whereClause with n, uuid
-                     | RETURN collect({props: properties(n), id: id(n), labels: labels(n) }) as nodes ,count(n) as nodeCount, uuid """.stripMargin
-    val promisedRecord = Promise[Record]()
-    val substitutableQuery =
-      SubstitutableQuery(query, patternWithParams.params.asInstanceOf[Map[String, Object]].asJava)
-    readOperations.enqueue(
-      QueryWithPromise(
-        substitutableQuery,
-        promisedRecord
-      )
-    )
-    val record = Await.result(promisedRecord.future, Inf)
-    record
-      .get("nodes")
-      .asList()
-      .asScala
-      .filter(v => Option(v.asInstanceOf[util.Map[String, Object]].get("id")).isDefined)
-      .map(v => extractGraphNode(v.asInstanceOf[util.Map[String, Object]]))
-
-  }
-
   override def fetchCount(label: String, matchPattern: MatchPattern): Int = {
     val patternWithParams = PatternMaker.from(matchPattern, "n", Some("props"))
     val whereClause = if (patternWithParams.pattern.nonEmpty) s"""where ${patternWithParams.pattern}""" else ""
