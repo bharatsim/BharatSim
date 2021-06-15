@@ -2,11 +2,10 @@ package com.bharatsim.engine.models
 
 import com.bharatsim.engine.exception.MultipleRelationDefinitionsException
 import com.bharatsim.engine.graph.GraphProvider
-import com.bharatsim.engine.graph.GraphProvider.NodeId
 import org.mockito.MockitoSugar
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers._
-import org.testcontainers.shaded.org.yaml.snakeyaml.nodes.NodeId
+import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 
 class NodeTest extends AnyFunSuite with MockitoSugar {
 
@@ -54,7 +53,7 @@ class NodeTest extends AnyFunSuite with MockitoSugar {
     verify(graphProvider).deleteRelationship(1, "connects", 2)
   }
 
-  test("Should add newer relation"){
+  test("Should add newer relation") {
     val node1 = new Node
     node1.setId(1)
 
@@ -64,7 +63,7 @@ class NodeTest extends AnyFunSuite with MockitoSugar {
     Some("STAYS_AT") should equal(expected)
   }
 
-  test("Should add newer relation using implicit class type"){
+  test("Should add newer relation using implicit class type") {
     val node1 = new Node
     node1.setId(1)
 
@@ -74,12 +73,23 @@ class NodeTest extends AnyFunSuite with MockitoSugar {
     Some("STAYS_AT") should equal(expected)
   }
 
-  test("Should throw an exception for multiple relations"){
+  test("Should throw an exception for multiple relations") {
     val node1 = new Node
     node1.setId(1)
 
     node1.addRelation[Node]("STAYS_AT")
     val exception = the[MultipleRelationDefinitionsException] thrownBy node1.addRelation[Node]("HOSTS")
     exception.getMessage shouldBe "Multiple relations are not permitted between two node instances. Nodes Node and Node have multiple relations defined."
+  }
+
+  test("Should update multiple parameters") {
+    val graphProvider: GraphProvider = mock[GraphProvider]
+
+    val node1 = new Node(graphProvider)
+    val id = 1
+    node1.setId(id)
+
+    node1.updateParams(("name", "ramesh"), ("age", 30))
+    verify(graphProvider).updateNode(id, Map("name" -> "ramesh", "age" -> 30))
   }
 }

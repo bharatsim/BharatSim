@@ -93,9 +93,11 @@ object Main extends LazyLogging {
           if (biasedCoinToss(Disease.vaccinationRate)) {
             val person = node.as[Person]
             if ((person.isSusceptible || person.isExposed) && !person.isVaccinated) {
-              person.updateParam("vaccinationStatus", true)
-              person.updateParam("betaMultiplier", person.betaMultiplier * Disease.betaMultiplier)
-              person.updateParam("gammaMultiplier", Disease.vaccinatedGammaFractionalIncrease)
+              person.updateParams(
+                ("vaccinationStatus", true),
+                ("betaMultiplier", person.betaMultiplier * Disease.betaMultiplier),
+                ("gamma", Disease.vaccinatedGammaFractionalIncrease)
+              )
             }
           }
         )

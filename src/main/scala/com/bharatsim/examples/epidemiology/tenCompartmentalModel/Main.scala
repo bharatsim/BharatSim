@@ -144,9 +144,12 @@ object Main extends LazyLogging {
           .limit(numberOfVaccinesPerTick.toLong)
           .forEach(node => {
             val person = node.as[Person]
-            person.updateParam("vaccinationStatus", true)
-            person.updateParam("betaMultiplier", person.betaMultiplier * Disease.vaccinatedBetaMultiplier)
-            person.updateParam("gamma", person.gamma * (1 + Disease.vaccinatedGammaFractionalIncrease))
+
+            person.updateParams(
+              ("vaccinationStatus", true),
+              ("betaMultiplier", person.betaMultiplier * Disease.vaccinatedBetaMultiplier),
+              ("gamma", person.gamma * (1 + Disease.vaccinatedGammaFractionalIncrease))
+            )
             vaccinesAdministered.getAndIncrement()
           })
       }
