@@ -306,24 +306,18 @@ Source: https://nssac.bii.virginia.edu/~swarup/synthetic_population_tutorial/AAM
 
 ## Visualizing model output
 
-Visualization engine/tool would accept Simulation engine output and would help users to visualize it by means of creating different graphs and charts.
-Visualization engine/tool provides various abilities such as :
+Visualization engine/tool would accept Simulation engine output(csv) and would help users to visualize it by means of creating different charts and graphs. The tool allows user to visualize data using Line chart, bar chart and histogram. Along with these basic charts, the tool supports GIS data in the geoJson format and can plot heat map and choropleth. Further more, user can visualize these heat maps and choropleths across time dimension.
 
-1. Data Import Ex. Simulation Engine output in CSV format
-2. Data file Management  Ex. Add, edit, delete
-3. Plot Widgets Ex. Line, Bar charts, Histogram
-4. Geo map Ex. Heatmap and Choropleth
-5. Project & Dashboard Management
-6. Auto Save for Dashboard
-7. Widget management & Configuration
-8. Export Widget (PNG)
+More details about visualization engine can be found here: https://github.com/debayanLab/BharatSim-Visualisation
 
 ## Examples - User testimonials
 
 ## Help & FAQs
-1. Usage Questions
-2. Conceptual Questions
-3. Common Questions
+1. What is PerTickCache and how to use it?
+    PerTickCache is a Map based temporary data store, which is used as cache. Calls on data store are typically time and resource consuming and within a tick there's a chance that some of the calls would become redundent. For such calls, model developer can store the results in the PerTickCache and access it from there. If the key is not present then call to data store would get through and then result would be stored back in the cache. Model developer needs to make sure the keys are unique to avoid overriding the results. The PerTickCache is auto cleaned at the begining of the tick. Example: In epidemiology, if we are trying to compute who all might get infected based on their area(Home, office, etc.) the total number of infected in the area remains constant for a particular tick and same can be used for all susceptible agents.
+
+2. Can I perform multiple updates on the node's property in a single tick?
+    To create an effect of simultaneous updates and to remove path dependence, the framework uses double buffering in which an update on a Node is reflected at the tick end, and would become accessible on the next tick. Hence, if there are multiple updates happening on a same node property, last update would be synced to data store. Example: In epidemiology, if an agent of type Citizen has a property "infection_status" and within a tick i, if we change it to Exposed and later to Infected, the change would reflect as Infected on next tick which is i+1 and agent would never be in Exposed state.
 
 ## Troubleshooting
 1. Compile time error with `Could not find implicit value for parameter [encoder],[decoder], [serializer], [deserializer]`: Import for default encoders and decoders are missing which needs to be added.
