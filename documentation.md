@@ -2,7 +2,7 @@ Welcome to the BharatSim Documentation!
 
 ## About BharatSim
 
-To analyze and predict behaviour of complex events such as COVID19 pandemic, one needs an ability to create hypothetical scenarios and simulate them iteratively. Agent based modeling is a technique which is used to create such models. As the domain itself is complex, building & implementing these agent based models is even more challenging.
+To analyse and predict behaviour of complex events such as COVID19 pandemic, one needs an ability to create hypothetical scenarios and simulate them iteratively. Agent based modelling is a technique which is used to create such models. As the domain itself is complex, building & implementing these agent based models is even more challenging.
 Good models would help us predict the timing of potential surges in health care requirements, making it easier to allocate resources in a timely manner. They would also enable us to compare the merits of different non-pharmaceutical interventions as the epidemic proceeds, while helping us understand, say, the role of underlying asymptomatic infections in spreading the disease.
 Models developed for other countries will simply not take into account the many complexities such as its unique demographics, the patchy state of health care, stratified social structures and complex ecological gradients of India. The inputs that are required for such modelling must be collated from multiple sources, including imperfect and not easily usable government data, requiring both local knowledge and considerable experience in how to gather and interpret them. Hence the need for an epidemic modelling framework tailored to Indian needs, with potential applications beyond its immediate use for COVID-19 modelling.
 
@@ -22,7 +22,7 @@ BharatSim is network based simulation framework developed with three goals in mi
 Simulations help an intervention by giving it foresight — it allows administrators and policy-makers to test multiple scenarios without risk of consequences. Simulation as a technique has existed for decades. Based on the domain, the simulation model has to account for unique factors, and complex dynamics.<br/>
 While differential equation-based models can accommodate the exponential nature of variables, they cannot explain the underlying dynamics and the impact of strategies. Also it’s difficult to model what-if and if-what scenarios using differential equations. <br/>
 With an agent-based model, however, a policy maker can model a virtual world. A world where agents, representing entities like people, live out daily lives. Also called microsimulations, they allow researchers to specify richer details, thus ensuring extremely useful outcomes.<br/> 
-For example, In an epidemic model, an individual could catch an infection while traveling in a bus, and a policy maker could subsequently propose decongesting public transport. A simulation model ought to capture this fact. But, equation-based models cannot process a diverse demography exhibiting a wide range of behaviors.
+For example, In an epidemic model, an individual could catch an infection while traveling in a bus, and a policy maker could subsequently propose decongesting public transport. A simulation model ought to capture this fact. But, equation-based models cannot process a diverse demography exhibiting a wide range of behaviours.
 
 ## Setup Requirements and Installation
 1. Prerequisites
@@ -85,7 +85,7 @@ EngineMain performs following tasks:
 
 ## Framework Key Concepts
 #### Agent 
-In agent-based modeling (ABM), a system is modeled as a collection of autonomous decision-making entities called **Agents**.
+In agent-based modelling (ABM), a system is modelled as a collection of autonomous decision-making entities called **Agents**.
 
 Agents in BharatSim Framework has two components.
 * Agent **Attributes**:
@@ -307,7 +307,7 @@ Source: https://nssac.bii.virginia.edu/~swarup/synthetic_population_tutorial/AAM
 
 ## Visualizing model output
 
-Visualization engine/tool would accept Simulation engine output(csv) and would help users to visualize it by means of creating different charts and graphs. The tool allows user to visualize data using Line chart, bar chart and histogram. Along with these basic charts, the tool supports GIS data in the geoJson format and can plot heat map and choropleth. Further more, user can visualize these heat maps and choropleths across time dimension.
+Visualization engine/tool would accept Simulation engine output(csv) and would help users to visualize it by means of creating different charts and graphs. The tool allows user to visualize data using Line chart, bar chart and histogram. Along with these basic charts, the tool supports GIS data in the geoJSON format and can plot heat map and choropleth. Furthermore, user can visualize these heat maps and choropleths across time dimension.
 
 More details about visualization engine can be found here: https://github.com/debayanLab/BharatSim-Visualisation
 
@@ -316,7 +316,7 @@ More details about visualization engine can be found here: https://github.com/de
 ## Help & FAQs
 1. What is PerTickCache and how to use it?
     
-    PerTickCache is a Map based temporary data store, which is used as cache. Calls on data store are typically time and resource consuming and within a tick there's a chance that some of the calls would become redundent. For such calls, model developer can store the results in the PerTickCache and access it from there. If the key is not present then call to data store would get through and then result would be stored back in the cache. Model developer needs to make sure the keys are unique to avoid overriding the results. The PerTickCache is auto cleaned at the begining of the tick. Example: In epidemiology, if we are trying to compute who all might get infected based on their area(Home, office, etc.) the total number of infected in the area remains constant for a particular tick and same can be used for all susceptible agents.
+    PerTickCache is a Map based temporary data store, which is used as cache. Calls on data store are typically time and resource consuming and within a tick there's a chance that some of the calls would become redundant. For such calls, model developer can store the results in the PerTickCache and access it from there. If the key is not present then call to data store would get through and then result would be stored back in the cache. Model developer needs to make sure the keys are unique to avoid overriding the results. The PerTickCache is auto cleaned at the beginning of the tick. Example: In epidemiology, if we are trying to compute who all might get infected based on their area(Home, office, etc.) the total number of infected in the area remains constant for a particular tick and same can be used for all susceptible agents.
 
 2. Can I perform multiple updates on the node's property in a single tick?
     
