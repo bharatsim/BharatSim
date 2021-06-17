@@ -314,13 +314,13 @@ More details about visualization engine can be found here: https://github.com/de
 ## Examples - User testimonials
 
 ## Help & FAQs
-1. What is PerTickCache and how to use it?
-    
-    PerTickCache is a Map based temporary data store, which is used as cache. Calls on data store are typically time and resource consuming and within a tick there's a chance that some of the calls would become redundant. For such calls, model developer can store the results in the PerTickCache and access it from there. If the key is not present then call to data store would get through and then result would be stored back in the cache. Model developer needs to make sure the keys are unique to avoid overriding the results. The PerTickCache is auto cleaned at the beginning of the tick. Example: In epidemiology, if we are trying to compute who all might get infected based on their area(Home, office, etc.) the total number of infected in the area remains constant for a particular tick and same can be used for all susceptible agents.
+1. Can I perform multiple updates on the node's property in a single tick?
 
-2. Can I perform multiple updates on the node's property in a single tick?
-    
-    To create an effect of simultaneous updates and to remove path dependence, the framework uses double buffering in which an update on a Node is reflected at the tick end, and would become accessible on the next tick. Hence, if there are multiple updates happening on a same node property, last update would be synced to data store. Example: In epidemiology, if an agent of type Citizen has a property "infection_status" and within a tick i, if we change it to Exposed and later to Infected, the change would reflect as Infected on next tick which is i+1 and agent would never be in Exposed state.
+ To create an effect of simultaneous updates and to remove path dependence, the framework uses double buffering in which an update on a Node is reflected at the tick end, and would become accessible on the next tick. Hence, if there are multiple updates happening on a same node property, last update would be synced to data store. Example: In epidemiology, if an agent of type Citizen has a property "infection_status" and within a `tick i`, if we change it to Exposed and later to Infected, the change would reflect as Infected on next tick which is `i+1` and agent would never be in Exposed state.
+
+2. What is PerTickCache and how to use it?
+
+  PerTickCache is a Map based temporary data store, which is used as cache. Calls on data store are typically time and resource consuming and within a tick there's a chance that some of the calls would become redundant. For such calls, model developer can store the results in the PerTickCache and access it from there. If the key is not present then call to data store would get through and then result would be stored back in the cache. Model developer needs to make sure the keys are unique to avoid overriding the results. The PerTickCache is auto cleaned at the beginning of the tick. Example: In epidemiology, if we are trying to compute who all might get infected based on their area(Home, office, etc.) the total number of infected in the area remains constant for a particular tick and same can be used for all susceptible agents.
 
 ## Troubleshooting
 1. Compile time error with `Could not find implicit value for parameter [encoder],[decoder], [serializer], [deserializer]`: Import for default encoders and decoders are missing which needs to be added.
