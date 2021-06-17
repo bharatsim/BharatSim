@@ -302,6 +302,7 @@ Network has three component Agents, Network And Relation between an Agent and Ne
 Synthetic population represents a set of synthetic agents that share a common geographic, social or biological characteristic. For example, we can have a synthetic population for a district and they would share Census measurements of that district.
 Data and attributes of the synthetic agents are synthesised by integrating a diverse set of data sources(e.g., Census, IHDS, NSS etc.) and using models for interpolation and extrapolation of data.
 These agents are “similar” to real individuals but not identical to any individual in the population. Thus individual attributes are based on real-world collected data. The correlations between the synthetic data sets “agree” with the measured correlations of the real world data.
+    
 Source: https://nssac.bii.virginia.edu/~swarup/synthetic_population_tutorial/AAMAS_2016_generating_synthetic_populations_for_social_modeling_full_tutorial.pdf
 
 ## Visualizing model output
