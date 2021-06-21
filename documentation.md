@@ -294,8 +294,9 @@ Network has three component Agents, Network And Relation between an Agent and Ne
 
 ## Using examples
    Examples are listed in `com.bharatsim.examples` package. Each example can be executed by running `main` method from `Main.scala` class in each of the example. Details about each example are as follows:
-   1.  `com.bharatsim.examples.epidemiology.sir` : Basic compartmental SIR model. It has two types of agents; employees and students. Each of the agent spends 12 hours at home and then 12 hours at school or office based on their type. The population is seeded with 1% infection and simulation continues until infected count becomes 0 or maximum number of steps as defined by application config are reached. The output is written to output file specified while instantiating `CsvOutputGenerator`.  
-    
+   1.  `com.bharatsim.examples.epidemiology.sir` : Basic compartmental SIR model. It has two types of agents; employees and students. Each of the agents spends 12 hours at home and then 12 hours at school or office based on their type. The population is seeded with 1% infection and simulation continues until the infected count becomes 0 or maximum number of steps as defined by application config are reached. The output is written to the output file specified while instantiating `CsvOutputGenerator`.
+
+   2. `com.bharatsim.examples.epidemiology.tenCompartmentalModel` : This example has 10 compartmental Mordecai disease model. The model inherits from more specialized Agents known as `StatefulAgent`, which internally uses Finite State Machine to control complex state transitions. The schedule is elaborate and the entire day is detailed as `24 hours`. The model as well has multiple interventions like `lockdown`, `vaccination`, etc. As the model is more detailed, it uses PerTickCache for avoiding redundant calls to underneath data store and achieving better performance.
 
 ## Synthetic population
 
