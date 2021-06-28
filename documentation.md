@@ -118,7 +118,7 @@ Network has three component Agents, Network And Relation between an Agent and Ne
 - Each intervention needs to have an **activation condition** and a **condition to deactivate**.
 > activation condition and deactivation condition are `boolean` decisions
 - Additionally modeller can define a **activation action** and **per tick action**; both of which are optional.
-> activation action: This action is invoked only once, i.e, at the activation of the intervention.  
+> activation action: This action is invoked only once, i.e. at the activation of the intervention.  
 > per tick action: This action is invoked per tick for which an intervention is active.
     
 #### Input
