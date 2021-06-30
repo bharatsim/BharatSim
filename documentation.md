@@ -78,7 +78,14 @@ EngineMain performs following tasks:
    * bharatsim.engine.db.neo4j.uri="neo4j://<ip_address_of_neo4j>:<port_of_neo4j>
    * bharatsim.engine.db.neo4j.username=<neo4j_username>
    * bharatsim.engine.db.neo4j.password=<neo4j_password>
-
+   
+   following configurations are optional but important for performance
+   * bharatsim.engine.distributed.agent-process-parallelism=<number_of_agents>. The number of agent to be parallel processed by the worker. 
+   
+   * bharatsim.engine.distributed.work-batch-size=<number_of_agents>.
+    This is number of agents assigned to worker for processing. The bigger the number the more memory it needs and if the number is too small it would increase the execution time. For equal work distribution amongst worker this can be calculated as (total number of agents) / (number of worker).
+    ex : Let's assume we have total of 1M agent and 4 workers. then the configuration would be 1M/4 = 250K . In case worker runs out of memory for 250K agents, the number can be further reduced by constant factor like 1M/(4 * 5) = 50K.
+    
    Please take a look at `reference.conf` for additional configurations. These configurations are set as system property. For example,
    `Java -Dbharatsim.engine.execution="distributed" -DROLES.0="EngineMain -DHOSTNAME="localhost" -DPORT="25250" `
     
