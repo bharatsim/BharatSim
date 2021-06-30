@@ -80,7 +80,7 @@ EngineMain performs following tasks:
    * bharatsim.engine.db.neo4j.password=<neo4j_password>
    
    following configurations are optional but important for performance
-   * bharatsim.engine.distributed.agent-process-parallelism=<number_of_agents>. The number of agent to be parallel processed by the worker. 
+   * bharatsim.engine.distributed.agent-process-parallelism=<number_of_agents>. The number of agent to be parallel processed by the worker. In the technical term, it relates to the number of threads that can created on JVM.
    
    * bharatsim.engine.distributed.work-batch-size=<number_of_agents>.
     This is number of agents assigned to worker for processing. The bigger the number the more memory it needs and if the number is too small it would increase the execution time. For equal work distribution amongst worker this can be calculated as (total number of agents) / (number of worker).
