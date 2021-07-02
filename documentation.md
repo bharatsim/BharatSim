@@ -26,6 +26,9 @@ For example, In an epidemic model, an individual could catch an infection while 
 
 ## Setup Requirements and Installation
 1. Prerequisites
+   * JDK version 11
+        * [Oracle Java 11](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)  
+        * [AdoptOpenJDK 11](https://adoptopenjdk.net/)
    * Setup scala and sbt
        https://docs.scala-lang.org/getting-started/index.html#install-scala
    * [Optional] Configure IntelliJ https://docs.scala-lang.org/getting-started/intellij-track/getting-started-with-scala-in-intellij.html#installation  
