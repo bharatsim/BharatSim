@@ -3,3 +3,5 @@ fileignoreconfig:
   checksum: 9730f242b6b3dd29de01926b2faaa55d895a9b0b52f7576709b6d64b1c4d9174
 - filename: documentation.md
   checksum: 00db009b832078364be75b87e0a87455da978ee88f474613015c5501d427ad0d
+- filename: src/test/scala/com/bharatsim/engine/distributions/LogNormalTest.scala
+  checksum: ce5d935d0dd16816edb3562b98e9bb62226b246a575703e8e350fb85ce6a214e

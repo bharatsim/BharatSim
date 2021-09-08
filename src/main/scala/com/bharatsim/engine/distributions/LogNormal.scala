@@ -1,44 +1,34 @@
 package com.bharatsim.engine.distributions
 
-import org.apache.commons.math3.distribution.LogNormalDistribution
+import org.apache.commons.math3.distribution.{AbstractRealDistribution, LogNormalDistribution}
+import org.apache.commons.math3.random.{JDKRandomGenerator, RandomGenerator}
 
 import scala.math.{log, sqrt}
 
 /**
   * Utility to create log-normal distribution
-  * @param mean mean of the normal distribution
-  * @param standardDeviation standard deviation of the normal distribution
-  * @return LogNormal distribution with given normal distributions mean and standard deviation
+  * @param mean mean of the distribution
+  * @param standardDeviation standard deviation of the distribution
+  * @param randomGenerator randomGenerator, default value is JDKRandomGenerator()
+  * @return LogNormal distribution with given distributions mean and standard deviation
   */
-case class LogNormal(mean: Double, standardDeviation: Double) {
+case class LogNormal(
+    mean: Double,
+    standardDeviation: Double,
+    randomGenerator: RandomGenerator = new JDKRandomGenerator()
+) extends AbstractDistribution {
 
-  private val dist: LogNormalDistribution = generateDistributionFrom(mean, standardDeviation)
+  override protected var dist: AbstractRealDistribution =
+    generateDistributionFrom(mean, standardDeviation, randomGenerator)
 
-  private def generateDistributionFrom(mean: Double, standardDeviation: Double): LogNormalDistribution = {
+  private def generateDistributionFrom(
+      mean: Double,
+      standardDeviation: Double,
+      randomGenerator: RandomGenerator
+  ): LogNormalDistribution = {
     val scale: Double = log(mean) - 0.5 * log((standardDeviation * standardDeviation) / (mean * mean) + 1)
     val shape: Double = sqrt(log((standardDeviation * standardDeviation) / (mean * mean) + 1))
 
-    new LogNormalDistribution(scale, shape)
+    new LogNormalDistribution(randomGenerator, scale, shape)
   }
-
-  /**
-    * Draw random sample from the logNormal distribution
-    * @return random sample
-    */
-  def sample(): Double = {
-    dist.sample()
-  }
-
-  /**
-    * Draw random sample from the logNormal distribution
-    * @param size number of random samples to be returned
-    * @return random sample of specific size
-    */
-  def sample(size: Int): Array[Double] = {
-    if (size <= 0) {
-      return Array.empty[Double]
-    }
-    dist.sample(size)
-  }
-
 }
