@@ -25,7 +25,12 @@ class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGener
   }
 
   private def replaceNode(nodeId: NodeId, node: InternalNode): Unit = {
-    buffer.indexedNodes.update(nodeId, node)
+    /* Temporary fix. Update behaviour is intermittent, replacing it with remove and put.
+     Should be reverted when underlying issue is fixed.
+      todo: Fix it.
+     */
+    val removed = buffer.indexedNodes.remove(nodeId)
+    val up = buffer.indexedNodes.put(nodeId, node)
     buffer.nodes(node.label).update(nodeId, node)
   }
 
@@ -82,6 +87,7 @@ class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGener
     buffer.nodes.clear()
     buffer.indexedNodes.clear()
   }
+
   def batchImportNodes(batchOfNodes: IterableOnce[CsvNode], refToIdMapping: RefToIdMapping): Unit = {
     batchOfNodes.iterator
       .foreach(node => {
