@@ -2,14 +2,13 @@ package com.bharatsim.engine.graph.custom
 
 import com.bharatsim.engine.graph.GraphProvider.NodeId
 import com.bharatsim.engine.graph.custom.GraphOperations.IndexedNodesType
-import com.bharatsim.engine.graph.ingestion.{CsvNode, GraphData, RefToIdMapping, Relation}
-import com.github.tototoshi.csv.CSVReader
+import com.bharatsim.engine.graph.ingestion.{CsvNode, RefToIdMapping, Relation}
 import com.typesafe.scalalogging.LazyLogging
 
-import scala.collection.{immutable, mutable}
+import scala.collection.immutable
 
 class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGenerator: IdGenerator) extends LazyLogging {
-  def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = {
+  def createRelationship(node1: NodeId, label: String, node2: NodeId): Unit = synchronized {
     val nodeFrom = buffer.indexedNodes.get(node1)
     val nodeTo = buffer.indexedNodes.get(node2)
 
@@ -24,24 +23,19 @@ class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGener
     }
   }
 
-  private def replaceNode(nodeId: NodeId, node: InternalNode): Unit = {
-    /* Temporary fix. Update behaviour is intermittent, replacing it with remove and put.
-     Should be reverted when underlying issue is fixed.
-      todo: Fix it.
-     */
-    val removed = buffer.indexedNodes.remove(nodeId)
-    val up = buffer.indexedNodes.put(nodeId, node)
+  private def replaceNode(nodeId: NodeId, node: InternalNode): Unit = synchronized {
+    buffer.indexedNodes.update(nodeId, node)
     buffer.nodes(node.label).update(nodeId, node)
   }
 
-  def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = {
+  def updateNode(nodeId: NodeId, props: Map[String, Any]): Unit = synchronized {
     if (buffer.indexedNodes.contains(nodeId)) {
       val node = buffer.indexedNodes(nodeId)
       replaceNode(nodeId, node.updateProps(props))
     }
   }
 
-  def deleteNode(nodeId: NodeId): Unit = {
+  def deleteNode(nodeId: NodeId): Unit = synchronized {
 
     if (buffer.indexedNodes.contains(nodeId)) {
       val node = buffer.indexedNodes(nodeId)
@@ -64,13 +58,13 @@ class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGener
     }
   }
 
-  def deleteNodes(label: String, props: Map[String, Any]): Unit = {
+  def deleteNodes(label: String, props: Map[String, Any]): Unit = synchronized {
     val matchingNodes = filterNodesByMatchingParams(label, props)
 
     matchingNodes.foreach(node => deleteNode(node.id))
   }
 
-  def deleteRelationship(from: NodeId, label: String, to: NodeId): Unit = {
+  def deleteRelationship(from: NodeId, label: String, to: NodeId): Unit = synchronized {
     val nodeFrom = buffer.indexedNodes.get(from)
     val nodeTo = buffer.indexedNodes.get(to)
 
@@ -109,7 +103,7 @@ class WriteOperations(buffer: Buffer, emptyNode: () => IndexedNodesType, idGener
       })
   }
 
-  def createNode(label: String, props: Map[String, Any]): NodeId = {
+  def createNode(label: String, props: Map[String, Any]): NodeId = synchronized {
     val id = idGenerator.generateId
     val hm = immutable.HashMap.empty[String, Any].concat(props)
     val node = InternalNode(label, id, hm)
