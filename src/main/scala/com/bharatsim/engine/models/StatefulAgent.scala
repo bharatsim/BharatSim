@@ -5,7 +5,6 @@ import com.bharatsim.engine.basicConversions.encoders.BasicMapEncoder
 import com.bharatsim.engine.fsm.State
 import com.bharatsim.engine.graph.{GraphNode, NodeWithSerializer}
 import com.bharatsim.engine.models.StatefulAgent.STATE_RELATIONSHIP
-import com.bharatsim.engine.utils.Utils
 
 import scala.reflect.ClassTag
 
@@ -45,8 +44,6 @@ trait StatefulAgent extends Agent {
   def setInitialState[T <: State: ClassTag](
       s: T
   )(implicit serializer: BasicMapEncoder[T], deserializer: BasicMapDecoder[T]): Unit = {
-    val className = Utils.fetchClassName[T]
-    State.saveSerde(className)
 
     maybeInitialState = Some(NodeWithSerializer(s, serializer))
   }
