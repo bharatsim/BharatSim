@@ -39,3 +39,16 @@ assemblyMergeStrategy in assembly := {
   case "reference.conf"              => MergeStrategy.concat
   case x                             => MergeStrategy.first
 }
+
+def neo4jFilter(name: String): Boolean = name contains "neo4j"
+def unitFilter(name: String): Boolean = !neo4jFilter(name)
+
+lazy val UnitTest = config("Test") extend(Test)
+
+lazy val root = (project in file("."))
+  .configs(UnitTest)
+  .settings(inConfig(UnitTest)(Defaults.testSettings),
+    UnitTest / testOptions :=  Seq(Tests.Filter(unitFilter))
+  )
+
+test in assembly := (test in UnitTest).value
