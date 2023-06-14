@@ -15,21 +15,17 @@ import com.bharatsim.engine.listeners.{CsvOutputGenerator, SimulationListenerReg
 import com.bharatsim.engine.models.Agent
 import com.bharatsim.engine.utils.Probability.biasedCoinToss
 import com.bharatsim.examples.epidemiology.sir.InfectionStatus._
-import com.bharatsim.model.Disease
+import com.bharatsim.examples.epidemiology.sir.Parameters._
 import com.typesafe.scalalogging.LazyLogging
 
 object Main extends LazyLogging {
-  private val initialInfectedFraction = 0.01
-
-  private val myTick: ScheduleUnit = new ScheduleUnit(1)
-  private val myDay: ScheduleUnit = new ScheduleUnit(myTick * 2)
 
   def main(args: Array[String]): Unit = {
     var beforeCount = 0
     val simulation = Simulation()
 
     simulation.ingestData(implicit context => {
-      ingestCSVData("citizen10k.csv", csvDataExtractor)
+      ingestCSVData("src/main/resources/citizen.csv", csvDataExtractor)
       logger.debug("Ingestion done")
     })
 
@@ -50,7 +46,7 @@ object Main extends LazyLogging {
       val currentTime = new Date().getTime
 
       SimulationListenerRegistry.register(
-        new CsvOutputGenerator("src/main/resources/output_" + currentTime + ".csv", new SEIROutputSpec(context))
+        new CsvOutputGenerator("src/main/resources/output_" + currentTime + ".csv", new SIROutputSpec(context))
       )
     })
 
@@ -74,13 +70,13 @@ object Main extends LazyLogging {
       .add[House](0, 0)
       .add[School](1, 1)
 
-    val quarantinedSchedule = (Day, Hour)
+    val quarantinedSchedule = (myDay, myTick)
       .add[House](0, 1)
 
     registerSchedules(
       (quarantinedSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].isInfected, 1),
-      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 25, 2),
-      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 25, 3)
+      (employeeSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age >= 18, 2),
+      (studentSchedule, (agent: Agent, _: Context) => agent.asInstanceOf[Person].age < 18, 3)
     )
   }
 
@@ -95,10 +91,10 @@ object Main extends LazyLogging {
     val officeId = map("WorkPlaceID").toLong
 
     val citizen: Person = Person(
-      citizenId,
-      age,
-      InfectionStatus.withName(initialInfectionState),
-      0
+      id = citizenId,
+      age = age,
+      infectionState = InfectionStatus.withName(initialInfectionState),
+      daysInfected = 0
     )
 
     val home = House(homeId)
@@ -110,7 +106,7 @@ object Main extends LazyLogging {
     graphData.addNode(homeId, home)
     graphData.addRelations(staysAt, memberOf)
 
-    if (age >= 25) {
+    if (age >= 18) {
       val office = Office(officeId)
       val worksAt = Relation[Person, Office](citizenId, "WORKS_AT", officeId)
       val employerOf = Relation[Office, Person](officeId, "EMPLOYER_OF", citizenId)

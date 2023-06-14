@@ -5,7 +5,7 @@ import com.bharatsim.engine.graph.patternMatcher.MatchCondition._
 import com.bharatsim.engine.listeners.CSVSpecs
 import com.bharatsim.examples.epidemiology.sir.InfectionStatus.{Susceptible, Infected, Removed}
 
-class SEIROutputSpec(context: Context) extends CSVSpecs {
+class SIROutputSpec(context: Context) extends CSVSpecs {
   override def getHeaders: List[String] =
     List(
       "Step",

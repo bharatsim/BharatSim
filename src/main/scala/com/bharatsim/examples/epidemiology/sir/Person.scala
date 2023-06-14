@@ -6,18 +6,19 @@ import com.bharatsim.engine.basicConversions.encoders.DefaultEncoders._
 import com.bharatsim.engine.graph.GraphNode
 import com.bharatsim.engine.models.{Agent, Node}
 import com.bharatsim.engine.utils.Probability.toss
+import com.bharatsim.examples.epidemiology.sir.Parameters._
 import com.bharatsim.examples.epidemiology.sir.InfectionStatus._
 
-case class Person(id: Long, age: Int, infectionState: InfectionStatus, infectionDay: Int) extends Agent {
-  final val numberOfTicksInADay: Int = 2
-  private val incrementInfectionDay: Context => Unit = (context: Context) => {
+case class Person(id: Long, age: Int, infectionState: InfectionStatus, daysInfected: Int) extends Agent {
+
+  private val incrementInfectedDuration: Context => Unit = (context: Context) => {
     if (isInfected && context.getCurrentStep % numberOfTicksInADay == 0) {
-      updateParam("infectionDay", infectionDay + 1)
+      updateParam("daysInfected", daysInfected + 1)
     }
   }
   private val checkForInfection: Context => Unit = (context: Context) => {
     if (isSusceptible) {
-      val infectionRate = Disease.beta
+      val infectionRate = beta*dt
 
       val schedule = context.fetchScheduleFor(this).get
 
@@ -33,9 +34,9 @@ case class Person(id: Long, age: Int, infectionState: InfectionStatus, infection
           .getConnections(decodedPlace.getRelation[Person]().get)
           .count(x => x.as[Person].isInfected)
 
-        val shouldInfect = toss(infectionRate, infectedNeighbourCount)
+        val toBeInfected = toss(infectionRate, infectedNeighbourCount)
 
-        if (shouldInfect) {
+        if (toBeInfected) {
           updateParam("infectionState", Infected)
         }
       }
@@ -43,8 +44,7 @@ case class Person(id: Long, age: Int, infectionState: InfectionStatus, infection
   }
 
   private val checkForRecovery: Context => Unit = (context: Context) => {
-    if (isInfected && infectionDay == Disease.lastDay
-    )
+    if (isInfected && toss(gamma*dt,1))
       updateParam("infectionState", Removed)
   }
 
@@ -63,7 +63,7 @@ case class Person(id: Long, age: Int, infectionState: InfectionStatus, infection
     }
   }
 
-  addBehaviour(incrementInfectionDay)
+  addBehaviour(incrementInfectedDuration)
   addBehaviour(checkForInfection)
   addBehaviour(checkForRecovery)
 
