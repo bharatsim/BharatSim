@@ -8,9 +8,9 @@ BharatSim can be used to explore the potential impact of a range of different in
 
 BharatSim was initially developed through a collaboration between [Ashoka University](https://www.ashoka.edu.in) and [Thoughtworks](https://www.thoughtworks.com/), funded by the [Bill & Melinda Gates Foundation](https://www.gatesfoundation.org/). The ongoing development of BharatSim at Ashoka University is funded by the [Mphasis F1 Foundation](https://www.mphasis.com/).
 
-The original paper describing BharatSim is available [here](.). The citation is:
+The original paper describing BharatSim is available [here](https://doi.org/10.1101/2023.06.15.23291292). The citation is:
 
-> **BharatSim: An agent-based modelling framework for India**. Cherian, P., Kshirsagar, J.,Neekhra, B., Deshkar, G., Hayatnagarkar, H., Kapoor, K., Kaski, C., Kathar, G., Khandekar, S., Mookherjee, S., Ninawe, P., Noronha, R. F., Ranka, P., Sinha, V., Vinod, T., Yadav, C., Gupta, D., Menon, G. I. (2023). (Manuscript in preparation.)
+> Cherian, P., Kshirsagar, J., Neekhra, B., Deshkar, G., Hayatnagarkar, H., Kapoor, K., Kaski, C., Kathar, G., Khandekar, S., Mookherje, S., Ninawe, P., Noronha, R. F., Ranka, P., Sinha, V., Vinod, T., Yadav, C., Gupta, D., & Menon, G. I. (2023). **BharatSim: An agent-based modelling framework for India**. MedRxiv. https://doi.org/10.1101/2023.06.15.23291292.
 
 If you are using BharatSim in your research, consider starring this repository. This gives us an accurate lower bound of the number of people this project has helped.
 
